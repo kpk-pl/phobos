@@ -19,31 +19,21 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Phobos")
         self.setMinimumSize(480, 360)
-        self.resize(self.minimumSize())
+        self.resize(1024, 768)
 
         self._firstLoadDialog = True
+        self._loadedImages = []
 
     def loadPhotos(self):
-        dialog = QFileDialog(self, "Load photos")
+        dialog = self._createLoadImagesDialog()
+        if not dialog.exec():
+            return
 
-        if self._firstLoadDialog:
-            self._firstLoadDialog = False
-            locations = QStandardPaths.standardLocations(QStandardPaths.PicturesLocation)
-            dialog.setDirectory(locations[-1] if locations else QDir.currentPath())
-
-        supportedTypes = []
-        for mtype in QImageReader.supportedMimeTypes():
-            supportedTypes.append(str(mtype))
-        supportedTypes.sort()
-        dialog.setMimeTypeFilters(supportedTypes)
-        dialog.selectMimeTypeFilter("image/jpeg")
-
-        dialog.setFileMode(QFileDialog.ExistingFiles)
-
-        if dialog.exec():
-            selectedFiles = dialog.selectedFiles()
-            if selectedFiles:
-                self.workArea.addPhotos(selectedFiles)
+        selectedFiles = [x for x in dialog.selectedFiles() if x not in self._loadedImages]
+        # TODO: create list of rejected files and display it in dialog
+        if selectedFiles:
+            self._loadedImages += selectedFiles
+            self.workArea.addPhotos(selectedFiles)
 
     def _createActions(self):
         self._loadPhotosAction = QAction("&Load photos", self, shortcut="Ctrl+L",
@@ -60,6 +50,25 @@ class MainWindow(QMainWindow):
 
     def _setUpCentralWidget(self):
         self.workArea = WorkArea()
+
         layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.workArea)
         self.centralWidget().setLayout(layout)
+
+    def _createLoadImagesDialog(self):
+        dialog = QFileDialog(self, "Load photos")
+
+        if self._firstLoadDialog:
+            self._firstLoadDialog = False
+            locations = QStandardPaths.standardLocations(QStandardPaths.PicturesLocation)
+            dialog.setDirectory(locations[-1] if locations else QDir.currentPath())
+
+        supportedTypes = []
+        for mtype in QImageReader.supportedMimeTypes():
+            supportedTypes.append(str(mtype))
+        supportedTypes.sort()
+        dialog.setMimeTypeFilters(supportedTypes)
+
+        dialog.setFileMode(QFileDialog.ExistingFiles)
+        return dialog

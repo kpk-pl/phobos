@@ -3,7 +3,8 @@
 from PyQt5.QtCore import Qt
 import PyQt5.QtGui as QtGui
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout)
-from ImageWidget import ImageWidget
+from PhotoItem import PhotoItem
+from Exceptions import CannotReadImageException
 
 
 class WorkArea(QWidget):
@@ -15,16 +16,8 @@ class WorkArea(QWidget):
 
     def addPhotos(self, photos):
         for fileName in photos:
-            photo = WorkArea._readPhotoFromFile(fileName)
-            if not photo:
-                continue  # TODO display warning!
-
-            widget = ImageWidget(photo)
-            self.layout().addWidget(widget)
-
-    def _readPhotoFromFile(fileName):
-        reader = QtGui.QImageReader(fileName)
-        reader.setAutoTransform(True)
-        reader.setAutoDetectImageFormat(True)
-
-        return reader.read()
+            try:
+                widget = PhotoItem(fileName)
+                self.layout().addWidget(widget)
+            except CannotReadImageException as e:
+                pass  # display warning with str(e)
