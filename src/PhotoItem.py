@@ -22,6 +22,8 @@ class PhotoItem(ImageWidget):
 
         self._connectSignals()
 
+        self.setStyleSheet("border:1px solid red")
+
     @pyqtSlot()
     def select(self):
         self._selected = True
@@ -52,7 +54,7 @@ class PhotoItem(ImageWidget):
     def _renderedPixmap(self):
         size = self.size()
         availableSize = QSize(size.width() - 2*self._borderWidth, size.height() - 2*self._borderWidth)
-        scaledImage = self.imagePixmap.scaled(availableSize, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        scaledImage = self.scaledPixmap(availableSize)
 
         pixmapSize = QSize(scaledImage.size().width() + 2*self._borderWidth,
                            scaledImage.size().height() + 2*self._borderWidth)

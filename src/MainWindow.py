@@ -1,17 +1,14 @@
 #!/usr/bin/python3
 
-from PyQt5.QtCore import (Qt, QStandardPaths, QDir)
-from PyQt5.QtGui import (QKeySequence, QImageReader)
-from PyQt5.QtWidgets import (QAction, QMainWindow, QWidget, QFileDialog, QVBoxLayout)
+from PyQt5.QtCore import Qt, QStandardPaths, QDir
+from PyQt5.QtGui import QImageReader
+from PyQt5.QtWidgets import QAction, QMainWindow, QWidget, QFileDialog, QVBoxLayout, QScrollArea, QFrame
 from WorkArea import WorkArea
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-
-        widget = QWidget()
-        self.setCentralWidget(widget)
 
         self._createActions()
         self._createMenus()
@@ -51,10 +48,19 @@ class MainWindow(QMainWindow):
     def _setUpCentralWidget(self):
         self.workArea = WorkArea()
 
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.workArea)
-        self.centralWidget().setLayout(layout)
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(self.workArea)
+        vlayout.addStretch()
+
+        scrollObject = QWidget()
+        scrollObject.setLayout(vlayout)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidget(scrollObject)
+
+        self.setCentralWidget(scroll)
 
     def _createLoadImagesDialog(self):
         dialog = QFileDialog(self, "Load photos")
