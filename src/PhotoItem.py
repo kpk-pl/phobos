@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSlot
+from PyQt5.QtCore import Qt, QSize, QPoint, QUuid, pyqtSlot, pyqtSignal
 import PyQt5.QtGui as QtGui
 from PyQt5.QtWidgets import QMenu
 from ImageWidget import ImageWidget
@@ -10,17 +10,20 @@ class PhotoItem(ImageWidget):
     BORDER_COLOR_UNKNOWN = QtGui.QColor(Qt.darkGray)
     BORDER_COLOR_SELECTED = QtGui.QColor(Qt.green)
     BORDER_COLOR_DISCARDED = QtGui.QColor(Qt.red)
+    BORDER_WIDTH = 2
 
-    def __init__(self, fileName, parent=None):
+    openInSeries = pyqtSignal(QUuid)
+
+    def __init__(self, fileName, seriesUuid, parent=None):
         super(PhotoItem, self).__init__(fileName, parent)
 
-        self._borderWidth = 2
+        self.seriesUuid = seriesUuid
+
+        self._borderWidth = PhotoItem.BORDER_WIDTH
         self._borderColor = PhotoItem.BORDER_COLOR_UNKNOWN
         self._selected = None
 
         self._connectSignals()
-
-        self.setStyleSheet("border:1px solid red")
 
     @pyqtSlot()
     def select(self):
@@ -45,8 +48,15 @@ class PhotoItem(ImageWidget):
 
     def contextMenuEvent(self, event):
         menu = QMenu()
-        self.action = menu.addAction("Discard") if self.isSelected() else menu.addAction("Select")
-        self.action.triggered.connect(self.toggleSelection)
+
+        toggleAction = menu.addAction("Discard") if self.isSelected() else menu.addAction("Select")
+        toggleAction.triggered.connect(self.toggleSelection)
+
+        menu.addSeparator()
+
+        viewSeries = menu.addAction("View series")
+        viewSeries.triggered.connect(lambda: self.openInSeries.emit(self.seriesUuid))
+
         menu.exec_(self.mapToGlobal(QPoint(event.x(), event.y())))
 
     def _renderedPixmap(self):

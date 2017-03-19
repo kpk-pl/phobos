@@ -26,7 +26,7 @@ def scaleImage(image, size):
 
 
 class ImageWidget(ClickableLabel):
-    MINI_PIXMAP_SIZE = QSize(160, 120)
+    MINI_PIXMAP_SIZE = QSize(320, 240)
     MEDIUM_PIXMAP_SIZE = QSize(640, 480)
 
     def __init__(self, fileName, parent=None):
