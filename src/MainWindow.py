@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt, QStandardPaths, QDir
 from PyQt5.QtGui import QImageReader
 from PyQt5.QtWidgets import QAction, QMainWindow, QWidget, QFileDialog, QVBoxLayout, QScrollArea, QFrame
 from WorkArea import WorkArea
+from NavigationBar import NavigationBar
 
 
 class MainWindow(QMainWindow):
@@ -47,8 +48,10 @@ class MainWindow(QMainWindow):
 
     def _setUpCentralWidget(self):
         self.workArea = WorkArea()
+        self.navigation = NavigationBar()
 
         vlayout = QVBoxLayout()
+        vlayout.addWidget(self.navigation)
         vlayout.addWidget(self.workArea)
         vlayout.addStretch()
 

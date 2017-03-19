@@ -19,6 +19,10 @@ class WorkArea(QWidget):
         layout.setSpacing(self.SPACING_BETWEEN_SERIES)
         self.setLayout(layout)
 
+    # TODO: addPhotos is blocking, so all photos are drawn at once
+    #       Fit this so that each photo or each series is painted separately
+    #       And updates the screen
+    #       Or create a dialog window to show loading process in percent
     def addPhotos(self, photos):
         count = 0
         series = PhotoSeries()

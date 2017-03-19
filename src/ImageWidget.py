@@ -44,6 +44,9 @@ class ImageWidget(ClickableLabel):
         if not sizeFits(size, self._imagePixmap.size()):  # requested size if bigger than current pixmap
             fullPixmap = QtGui.QPixmap.fromImage(self._readImageFromFile(self.fileName))
 
+            # TODO: load new pixmapx in separate thread
+            # now resizing window which causes pixmap recalculation is blocking
+            # small pixmap should be returned but bigger calculated and then widget should be updated
             if sizeFits(size, self.MEDIUM_PIXMAP_SIZE):
                 self._imagePixmap = scaleImage(fullPixmap, self.MEDIUM_PIXMAP_SIZE)
             else:
