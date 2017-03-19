@@ -3,6 +3,7 @@
 from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSignal
 import PyQt5.QtGui as QtGui
 from PyQt5.QtWidgets import QLabel
+from Exceptions import CannotReadImageException
 
 
 class ClickableLabel(QLabel):
@@ -28,27 +29,26 @@ class ImageWidget(ClickableLabel):
     MINI_PIXMAP_SIZE = QSize(160, 120)
     MEDIUM_PIXMAP_SIZE = QSize(640, 480)
 
-    def __init__(self, img, parent=None):
+    def __init__(self, fileName, parent=None):
         super(ImageWidget, self).__init__(parent)
 
-        self._imagePixmap = QtGui.QPixmap.fromImage(img)
+        self.fileName = fileName
 
-        self._mediumPixmap = None
-        if not sizeFits(self._imagePixmap, self.MEDIUM_PIXMAP_SIZE):
-            self._mediumPixmap = scaleImage(self._imagePixmap, self.MEDIUM_PIXMAP_SIZE)
-
-        self._miniPixmap = None
-        if not sizeFits(self._imagePixmap, self.MINI_PIXMAP_SIZE):
-            self._miniPixmap = scaleImage(self._imagePixmap, self.MINI_PIXMAP_SIZE)
+        fullPixmap = QtGui.QPixmap.fromImage(self._readImageFromFile(self.fileName))
+        self._imagePixmap = scaleImage(fullPixmap, self.MINI_PIXMAP_SIZE)
 
     def getPixmap(self):
         return self._imagePixmap
 
     def scaledPixmap(self, size):
-        if self._miniPixmap is not None and sizeFits(size, self.MINI_PIXMAP_SIZE):
-            return scaleImage(self._miniPixmap, size)
-        if self._mediumPixmap is not None and sizeFits(size, self.MEDIUM_PIXMAP_SIZE):
-            return scaleImage(self._mediumPixmap, size)
+        if not sizeFits(size, self._imagePixmap.size()):  # requested size if bigger than current pixmap
+            fullPixmap = QtGui.QPixmap.fromImage(self._readImageFromFile(self.fileName))
+
+            if sizeFits(size, self.MEDIUM_PIXMAP_SIZE):
+                self._imagePixmap = scaleImage(fullPixmap, self.MEDIUM_PIXMAP_SIZE)
+            else:
+                self._imagePixmap = fullPixmap
+
         return scaleImage(self._imagePixmap, size)
 
     def paintEvent(self, event):
@@ -62,10 +62,10 @@ class ImageWidget(ClickableLabel):
         QtGui.QPainter(self).drawPixmap(point, scaledPix)
 
     def heightForWidth(self, width):
-        return self._imagePixmap.height()*width/self._imagePixmap.width()
+        return self._imagePixmap.height() * width / self._imagePixmap.width() if self._imagePixmap.width() else 0
 
     def hasHeightForWidth(self):
-        return True
+        return self._imagePixmap is not None
 
     def sizeHint(self):
         return self._imagePixmap.size()
@@ -73,3 +73,14 @@ class ImageWidget(ClickableLabel):
     def _renderedPixmap(self):
         return self.scaledPixmap(self.size())
 
+    @staticmethod
+    def _readImageFromFile(fileName):
+        reader = QtGui.QImageReader(fileName)
+        reader.setAutoTransform(True)
+        reader.setAutoDetectImageFormat(True)
+
+        image = reader.read()
+        if not image:
+            raise CannotReadImageException()
+
+        return image

@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSlot
 import PyQt5.QtGui as QtGui
 from PyQt5.QtWidgets import QMenu
 from ImageWidget import ImageWidget
-from Exceptions import CannotReadImageException
 
 
 class PhotoItem(ImageWidget):
@@ -13,9 +12,8 @@ class PhotoItem(ImageWidget):
     BORDER_COLOR_DISCARDED = QtGui.QColor(Qt.red)
 
     def __init__(self, fileName, parent=None):
-        super(PhotoItem, self).__init__(PhotoItem._readImageFromFile(fileName), parent)
+        super(PhotoItem, self).__init__(fileName, parent)
 
-        self.fileName = fileName
         self._borderWidth = 2
         self._borderColor = PhotoItem.BORDER_COLOR_UNKNOWN
         self._selected = None
@@ -72,14 +70,4 @@ class PhotoItem(ImageWidget):
     def _connectSignals(self):
         self.clicked.connect(self.toggleSelection)
 
-    @staticmethod
-    def _readImageFromFile(fileName):
-        reader = QtGui.QImageReader(fileName)
-        reader.setAutoTransform(True)
-        reader.setAutoDetectImageFormat(True)
 
-        image = reader.read()
-        if not image:
-            raise CannotReadImageException()
-
-        return image
