@@ -3,7 +3,7 @@
 from PyQt5.QtCore import Qt, QStandardPaths, QDir
 from PyQt5.QtGui import QImageReader
 from PyQt5.QtWidgets import QAction, QMainWindow, QWidget, QFileDialog, QVBoxLayout, QScrollArea, QFrame
-from WorkArea import WorkArea
+from AllSeriesView import AllSeriesView
 from NavigationBar import NavigationBar
 
 
@@ -47,7 +47,7 @@ class MainWindow(QMainWindow):
         self._fileMenu.addAction(self._exitAction)
 
     def _setUpCentralWidget(self):
-        self.workArea = WorkArea()
+        self.workArea = AllSeriesView()
         self.navigation = NavigationBar()
 
         vlayout = QVBoxLayout()

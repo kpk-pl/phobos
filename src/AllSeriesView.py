@@ -7,12 +7,12 @@ from Exceptions import CannotReadImageException
 from PhotoContainers import PhotoSeries, PhotoSeriesSet
 
 
-class WorkArea(QWidget):
+class AllSeriesView(QWidget):
     SPACING_BETWEEN_SERIES = 15
     SPACING_BETWEEN_PHOTOS = 3
 
     def __init__(self):
-        super(WorkArea, self).__init__()
+        super(AllSeriesView, self).__init__()
 
         layout = QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
