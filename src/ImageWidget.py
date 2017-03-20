@@ -27,31 +27,26 @@ def scaleImage(image, size):
 
 class ImageWidget(ClickableLabel):
     MINI_PIXMAP_SIZE = QSize(320, 240)
-    MEDIUM_PIXMAP_SIZE = QSize(640, 480)
 
-    def __init__(self, fileName, parent=None):
+    def __init__(self, fileName, maxSize=None, parent=None):
         super(ImageWidget, self).__init__(parent)
 
         self.fileName = fileName
+        self.maxSize = maxSize if maxSize is not None else self.MINI_PIXMAP_SIZE
 
         fullPixmap = QtGui.QPixmap.fromImage(self._readImageFromFile(self.fileName))
-        self._imagePixmap = scaleImage(fullPixmap, self.MINI_PIXMAP_SIZE)
+        self._imagePixmap = scaleImage(fullPixmap, self.maxSize)
+
+        self.setScaledContents(False)
+
+#    def setPixmap(self, pixmap):
+#        self._imagePixmap = pixmap
+#        super(ImageWidget, self).setPixmap(self._renderedPixmap())
 
     def getPixmap(self):
         return self._imagePixmap
 
     def scaledPixmap(self, size):
-        if not sizeFits(size, self._imagePixmap.size()):  # requested size if bigger than current pixmap
-            fullPixmap = QtGui.QPixmap.fromImage(self._readImageFromFile(self.fileName))
-
-            # TODO: load new pixmapx in separate thread
-            # now resizing window which causes pixmap recalculation is blocking
-            # small pixmap should be returned but bigger calculated and then widget should be updated
-            if sizeFits(size, self.MEDIUM_PIXMAP_SIZE):
-                self._imagePixmap = scaleImage(fullPixmap, self.MEDIUM_PIXMAP_SIZE)
-            else:
-                self._imagePixmap = fullPixmap
-
         return scaleImage(self._imagePixmap, size)
 
     def paintEvent(self, event):

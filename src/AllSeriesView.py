@@ -2,7 +2,7 @@
 
 from PyQt5.QtCore import Qt, QUuid, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QGridLayout
-from PhotoItem import PhotoItem
+from PhotoItemWidget import PhotoItemWidget
 from Exceptions import CannotReadImageException
 from PhotoContainers import PhotoSeries, PhotoSeriesSet
 
@@ -49,7 +49,7 @@ class AllSeriesView(QWidget):
 
         for fileName in photos:
             try:
-                phitem = PhotoItem(fileName, currentSeries.uuid)
+                phitem = PhotoItemWidget(fileName, currentSeries.uuid)
             except CannotReadImageException as e:
                 print("TODO: display warning with str(e) " + str(e))
             else:

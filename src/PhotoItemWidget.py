@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QMenu
 from ImageWidget import ImageWidget
 
 
-class PhotoItem(ImageWidget):
+class PhotoItemWidget(ImageWidget):
     BORDER_COLOR_UNKNOWN = QtGui.QColor(Qt.darkGray)
     BORDER_COLOR_SELECTED = QtGui.QColor(Qt.green)
     BORDER_COLOR_DISCARDED = QtGui.QColor(Qt.red)
@@ -15,12 +15,12 @@ class PhotoItem(ImageWidget):
     openInSeries = pyqtSignal(QUuid)
 
     def __init__(self, fileName, seriesUuid, parent=None):
-        super(PhotoItem, self).__init__(fileName, parent)
+        super(PhotoItemWidget, self).__init__(fileName, parent)
 
         self.seriesUuid = seriesUuid
 
-        self._borderWidth = PhotoItem.BORDER_WIDTH
-        self._borderColor = PhotoItem.BORDER_COLOR_UNKNOWN
+        self._borderWidth = self.BORDER_WIDTH
+        self._borderColor = self.BORDER_COLOR_UNKNOWN
         self._selected = None
 
         self._connectSignals()
