@@ -66,7 +66,7 @@ class ImageWidget(ClickableLabel):
         return self._imagePixmap is not None
 
     def sizeHint(self):
-        return self._imagePixmap.size()
+        return QSize(self.width(), self.heightForWidth(self.width()))
 
     def _renderedPixmap(self):
         return self.scaledPixmap(self.size())
