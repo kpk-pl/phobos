@@ -1,0 +1,49 @@
+from PyQt5.QtCore import QUuid, pyqtSlot
+from PyQt5.QtWidgets import QStackedWidget
+from AllSeriesView import AllSeriesView
+from PhotoItem import PhotoItem
+from PhotoContainers import PhotoSeries, PhotoSeriesSet
+
+
+class ViewStack(QStackedWidget):
+    def __init__(self, parent=None):
+        super(ViewStack, self).__init__(parent)
+
+        self.series = PhotoSeriesSet()
+
+        self.allSeriesView = AllSeriesView()
+        self.addWidget(self.allSeriesView)
+
+        self._connectSignals()
+
+    def addPhotos(self, photos):
+        series = self._createSeries(photos)
+        for s in series:
+            self.series.addSeries(s)
+
+        self.allSeriesView.addPhotoSeries(series)
+
+    @pyqtSlot(QUuid)
+    def openInSeries(self, seriesUuid):
+        phSeries = self.series.findSeries(seriesUuid)
+        assert phSeries is not None
+        print("Showing series")
+
+    def _createSeries(self, photos):
+        series = []
+        currentSeries = PhotoSeries()
+
+        for fileName in photos:
+            phitem = PhotoItem(fileName, currentSeries.uuid)
+            currentSeries.addPhotoItem(phitem)
+            if len(currentSeries) == 7:
+                series.append(currentSeries)
+                currentSeries = PhotoSeries()
+
+        if len(currentSeries):
+            series.append(currentSeries)
+
+        return series
+
+    def _connectSignals(self):
+        self.allSeriesView.openInSeries.connect(self.openInSeries)

@@ -2,9 +2,8 @@
 
 from PyQt5.QtCore import Qt, QStandardPaths, QDir
 from PyQt5.QtGui import QImageReader
-from PyQt5.QtWidgets import QAction, QMainWindow, QWidget, QFileDialog, QVBoxLayout, QScrollArea, QFrame
-from AllSeriesView import AllSeriesView
-from NavigationBar import NavigationBar
+from PyQt5.QtWidgets import QAction, QMainWindow, QFileDialog
+from ViewStack import ViewStack
 
 
 class MainWindow(QMainWindow):
@@ -47,23 +46,8 @@ class MainWindow(QMainWindow):
         self._fileMenu.addAction(self._exitAction)
 
     def _setUpCentralWidget(self):
-        self.workArea = AllSeriesView()
-        self.navigation = NavigationBar()
-
-        vlayout = QVBoxLayout()
-        vlayout.addWidget(self.navigation)
-        vlayout.addWidget(self.workArea)
-        vlayout.addStretch()
-
-        scrollObject = QWidget()
-        scrollObject.setLayout(vlayout)
-
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.NoFrame)
-        scroll.setWidget(scrollObject)
-
-        self.setCentralWidget(scroll)
+        self.workArea = ViewStack()
+        self.setCentralWidget(self.workArea)
 
     def _createLoadImagesDialog(self):
         dialog = QFileDialog(self, "Load photos")
