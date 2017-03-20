@@ -8,13 +8,13 @@ class PhotoSeries(object):
         super(PhotoSeries, self).__init__()
 
         self.uuid = QUuid.createUuid()
-        self.photos = []
+        self.photoItems = []
 
-    def addPhoto(self, photo):
-        self.photos.append(photo)
+    def addPhotoItem(self, photoItem):
+        self.photoItems.append(photoItem)
 
     def __len__(self):
-        return len(self.photos)
+        return len(self.photoItems)
 
 
 class PhotoSeriesSet(object):

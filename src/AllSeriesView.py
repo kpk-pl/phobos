@@ -3,6 +3,7 @@
 from PyQt5.QtCore import Qt, QUuid, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QGridLayout
 from PhotoItemWidget import PhotoItemWidget
+from PhotoItem import PhotoItem
 from Exceptions import CannotReadImageException
 from PhotoContainers import PhotoSeries, PhotoSeriesSet
 
@@ -33,8 +34,14 @@ class AllSeriesView(QWidget):
             self.series.addSeries(s)
 
             row = self.layout().rowCount()
-            for col in range(len(s.photos)):
-                self.layout().addWidget(s.photos[col], row, col)
+            for col in range(len(s.photoItems)):
+                try:
+                    photoItemWidget = PhotoItemWidget(s.photoItems[col])
+                except CannotReadImageException as e:
+                    print("TODO: cannot load image exception " + str(e))
+                else:
+                    photoItemWidget.openInSeries.connect(self.openInSeries)
+                    self.layout().addWidget(photoItemWidget, row, col)
 
     @pyqtSlot(QUuid)
     def openInSeries(self, seriesUuid):
@@ -48,16 +55,11 @@ class AllSeriesView(QWidget):
         currentSeries = PhotoSeries()
 
         for fileName in photos:
-            try:
-                phitem = PhotoItemWidget(fileName, currentSeries.uuid)
-            except CannotReadImageException as e:
-                print("TODO: display warning with str(e) " + str(e))
-            else:
-                phitem.openInSeries.connect(self.openInSeries)
-                currentSeries.addPhoto(phitem)
-                if len(currentSeries) == 7:
-                    series.append(currentSeries)
-                    currentSeries = PhotoSeries()
+            phitem = PhotoItem(fileName, currentSeries.uuid)
+            currentSeries.addPhotoItem(phitem)
+            if len(currentSeries) == 7:
+                series.append(currentSeries)
+                currentSeries = PhotoSeries()
 
         if len(currentSeries):
             series.append(currentSeries)

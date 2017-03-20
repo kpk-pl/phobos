@@ -14,48 +14,30 @@ class PhotoItemWidget(ImageWidget):
 
     openInSeries = pyqtSignal(QUuid)
 
-    def __init__(self, fileName, seriesUuid, parent=None):
-        super(PhotoItemWidget, self).__init__(fileName, parent)
+    def __init__(self, photoItem, parent=None):
+        super(PhotoItemWidget, self).__init__(photoItem.fileName, parent)
 
-        self.seriesUuid = seriesUuid
-
+        self.photoItem = photoItem
         self._borderWidth = self.BORDER_WIDTH
         self._borderColor = self.BORDER_COLOR_UNKNOWN
-        self._selected = None
 
         self._connectSignals()
 
-    @pyqtSlot()
-    def select(self):
-        self._selected = True
-        self._borderColor = self.BORDER_COLOR_SELECTED
+    @pyqtSlot(bool)
+    def photoItemSelectionChanged(self, selected):
+        self._borderColor = self.BORDER_COLOR_SELECTED if selected else self.BORDER_COLOR_DISCARDED
         self.repaint()
-
-    @pyqtSlot()
-    def discard(self):
-        self._selected = False
-        self._borderColor = self.BORDER_COLOR_DISCARDED
-        self.repaint()
-
-    @pyqtSlot()
-    def toggleSelection(self):
-        self.discard() if self.isSelected() else self.select()
-
-    def isSelected(self):
-        if self._selected:
-            return True
-        return False
 
     def contextMenuEvent(self, event):
         menu = QMenu()
 
-        toggleAction = menu.addAction("Discard") if self.isSelected() else menu.addAction("Select")
-        toggleAction.triggered.connect(self.toggleSelection)
+        toggleAction = menu.addAction("Discard") if self.photoItem.isSelected() else menu.addAction("Select")
+        toggleAction.triggered.connect(self.photoItem.toggleSelection)
 
         menu.addSeparator()
 
         viewSeries = menu.addAction("View series")
-        viewSeries.triggered.connect(lambda: self.openInSeries.emit(self.seriesUuid))
+        viewSeries.triggered.connect(lambda: self.openInSeries.emit(self.photoItem.seriesUuid))
 
         menu.exec_(self.mapToGlobal(QPoint(event.x(), event.y())))
 
@@ -78,6 +60,6 @@ class PhotoItemWidget(ImageWidget):
         return pixmap
 
     def _connectSignals(self):
-        self.clicked.connect(self.toggleSelection)
-
+        self.clicked.connect(self.photoItem.toggleSelection)
+        self.photoItem.selectionChanged.connect(self.photoItemSelectionChanged)
 
