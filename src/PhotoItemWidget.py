@@ -26,7 +26,7 @@ class PhotoItemWidget(ImageWidget):
     @pyqtSlot(bool)
     def photoItemSelectionChanged(self, selected):
         self._borderColor = self.BORDER_COLOR_SELECTED if selected else self.BORDER_COLOR_DISCARDED
-        self.repaint()
+        self.update()
 
     def contextMenuEvent(self, event):
         menu = QMenu()
