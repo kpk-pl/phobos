@@ -2,7 +2,7 @@
 
 from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSignal
 import PyQt5.QtGui as QtGui
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel, QSizePolicy
 from Exceptions import CannotReadImageException
 
 
@@ -35,9 +35,13 @@ class ImageWidget(ClickableLabel):
         self.maxSize = maxSize if maxSize is not None else self.MINI_PIXMAP_SIZE
 
         fullPixmap = QtGui.QPixmap.fromImage(self._readImageFromFile(self.fileName))
+        self._fullPixmapSize = fullPixmap.size()
+        self.setGeometry(0, 0, self._fullPixmapSize.width(), self._fullPixmapSize.height())
         self._imagePixmap = scaleImage(fullPixmap, self.maxSize)
 
         self.setScaledContents(False)
+        self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        self.setStyleSheet("border:1px solid red;")
 
 #    def setPixmap(self, pixmap):
 #        self._imagePixmap = pixmap
@@ -62,11 +66,14 @@ class ImageWidget(ClickableLabel):
     def heightForWidth(self, width):
         return self._imagePixmap.height() * width / self._imagePixmap.width() if self._imagePixmap.width() else 0
 
+    def widthForHeight(self, height):
+        return self._imagePixmap.width() * height / self._imagePixmap.height() if self._imagePixmap.height() else 0
+
     def hasHeightForWidth(self):
         return self._imagePixmap is not None
 
     def sizeHint(self):
-        return QSize(self.width(), self.heightForWidth(self.width()))
+        return self._fullPixmapSize
 
     def _renderedPixmap(self):
         return self.scaledPixmap(self.size())

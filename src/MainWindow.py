@@ -26,7 +26,10 @@ class MainWindow(QMainWindow):
         if not dialog.exec():
             return
 
-        selectedFiles = [x for x in dialog.selectedFiles() if x not in self._loadedImages]
+        self.processNewPhotos(dialog.selectedFiles())
+
+    def processNewPhotos(self, photos):
+        selectedFiles = [x for x in photos if x not in self._loadedImages]
         # TODO: create list of rejected files and display it in dialog
         if selectedFiles:
             self._loadedImages += selectedFiles

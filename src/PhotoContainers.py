@@ -23,6 +23,9 @@ class PhotoSeriesSet(object):
 
         self.series = []
 
+    def __getitem__(self, key):
+        return self.series[key]
+
     def addSeries(self, series):
         self.series.append(series)
 
