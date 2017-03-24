@@ -3,7 +3,7 @@
 from PyQt5.QtCore import QUuid, pyqtSignal
 from PyQt5.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QScrollArea, QFrame
 from PhotoItemWidget import PhotoItemWidget
-from NavigationBar import NavigationBar
+from NavigationBar import NavigationBar, NavigationCapability
 from Exceptions import CannotReadImageException
 
 
@@ -16,7 +16,7 @@ class AllSeriesView(QWidget):
     def __init__(self):
         super(AllSeriesView, self).__init__()
 
-        self.navigationBar = NavigationBar()
+        self.navigationBar = NavigationBar(NavigationCapability.NONE)
 
         self._grid = QGridLayout()
         self._grid.setContentsMargins(0, 0, 0, 0)

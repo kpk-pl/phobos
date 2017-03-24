@@ -3,13 +3,13 @@
 from PyQt5.QtCore import Qt, QSize, pyqtSignal, pyqtSlot, QEvent
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QScrollArea, QFrame, QSizePolicy
 from PhotoItemWidget import PhotoItemWidget
-from NavigationBar import NavigationBar
+from NavigationBar import NavigationBar, NavigationCapability
 from Exceptions import CannotReadImageException
 
 
 def _clearLayout(layout):
     while True:
-        item = layout.itemAt(0)
+        item = layout.takeAt(0)
         if item is None:
             break
 
@@ -65,10 +65,12 @@ class HorizontalImageScrollArea(QScrollArea):
 
 
 class SeriesRowView(QWidget):
+    returnFromView = pyqtSignal()
+
     def __init__(self, parent=None):
         super(SeriesRowView, self).__init__(parent)
 
-        self.navigationBar = NavigationBar()
+        self.navigationBar = NavigationBar(NavigationCapability.BACK_TO_SERIES)
 
         self.scroll = HorizontalImageScrollArea()
         self.scroll.layout.setContentsMargins(0, 0, 0, 0)
@@ -78,6 +80,8 @@ class SeriesRowView(QWidget):
         layout.addWidget(self.scroll)
 
         self.setLayout(layout)
+
+        self._connectSignals()
 
     def showSeries(self, series):
         self.clear()
@@ -93,3 +97,11 @@ class SeriesRowView(QWidget):
 
     def clear(self):
         _clearLayout(self.scroll.layout)
+
+    @pyqtSlot()
+    def backToSeries(self):
+        self.clear()
+        self.returnFromView.emit()
+
+    def _connectSignals(self):
+        self.navigationBar.backToSeries.clicked.connect(self.backToSeries)

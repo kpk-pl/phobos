@@ -52,3 +52,4 @@ class ViewStack(QStackedWidget):
 
     def _connectSignals(self):
         self.allSeriesView.openInSeries.connect(self.openInSeries)
+        self.seriesRowView.returnFromView.connect(lambda: self.setCurrentWidget(self.allSeriesView))
