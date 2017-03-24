@@ -41,11 +41,6 @@ class ImageWidget(ClickableLabel):
 
         self.setScaledContents(False)
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-        self.setStyleSheet("border:1px solid red;")
-
-#    def setPixmap(self, pixmap):
-#        self._imagePixmap = pixmap
-#        super(ImageWidget, self).setPixmap(self._renderedPixmap())
 
     def getPixmap(self):
         return self._imagePixmap

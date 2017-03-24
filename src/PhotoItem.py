@@ -1,32 +1,37 @@
 #!/usr/bin/python3
 
+from enum import Enum
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 
 
+class PhotoItemState(Enum):
+    UNKNOWN = 0
+    SELECTED = 1
+    DISCARDED = 2
+
+
 class PhotoItem(QObject):
-    selectionChanged = pyqtSignal(bool)
+    selectionChanged = pyqtSignal(PhotoItemState)
 
     def __init__(self, fileName, seriesUuid, parent=None):
         super(PhotoItem, self).__init__(parent)
 
         self.fileName = fileName
         self.seriesUuid = seriesUuid
-        self.selected = None
+        self.state = PhotoItemState.UNKNOWN
 
     def isSelected(self):
-        if self.selected:
-            return True
-        return False
+        return self.state == PhotoItemState.SELECTED
 
     @pyqtSlot()
     def select(self):
-        self.selected = True
-        self.selectionChanged.emit(True)
+        self.state = PhotoItemState.SELECTED
+        self.selectionChanged.emit(self.state)
 
     @pyqtSlot()
     def discard(self):
-        self.selected = False
-        self.selectionChanged.emit(False)
+        self.state = PhotoItemState.DISCARDED
+        self.selectionChanged.emit(self.state)
 
     @pyqtSlot()
     def toggleSelection(self):

@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt, QSize, QPoint, QUuid, pyqtSlot, pyqtSignal
 import PyQt5.QtGui as QtGui
 from PyQt5.QtWidgets import QMenu
 from ImageWidget import ImageWidget
+from PhotoItem import PhotoItemState
 
 
 class PhotoItemWidget(ImageWidget):
@@ -19,13 +20,13 @@ class PhotoItemWidget(ImageWidget):
 
         self.photoItem = photoItem
         self._borderWidth = self.BORDER_WIDTH
-        self._borderColor = self.BORDER_COLOR_UNKNOWN
+        self._updateBorder(self.photoItem.state)
 
         self._connectSignals()
 
-    @pyqtSlot(bool)
-    def photoItemSelectionChanged(self, selected):
-        self._borderColor = self.BORDER_COLOR_SELECTED if selected else self.BORDER_COLOR_DISCARDED
+    @pyqtSlot(PhotoItemState)
+    def photoItemSelectionChanged(self, state):
+        self._updateBorder(state)
         self.update()
 
     def contextMenuEvent(self, event):
@@ -40,6 +41,14 @@ class PhotoItemWidget(ImageWidget):
         viewSeries.triggered.connect(lambda: self.openInSeries.emit(self.photoItem.seriesUuid))
 
         menu.exec_(self.mapToGlobal(QPoint(event.x(), event.y())))
+
+    def _updateBorder(self, state):
+        if state == PhotoItemState.SELECTED:
+            self._borderColor = self.BORDER_COLOR_SELECTED
+        elif state == PhotoItemState.DISCARDED:
+            self._borderColor = self.BORDER_COLOR_DISCARDED
+        else:
+            self._borderColor = self.BORDER_COLOR_UNKNOWN
 
     def _renderedPixmap(self):
         size = self.size()
@@ -62,4 +71,3 @@ class PhotoItemWidget(ImageWidget):
     def _connectSignals(self):
         self.clicked.connect(self.photoItem.toggleSelection)
         self.photoItem.selectionChanged.connect(self.photoItemSelectionChanged)
-
