@@ -89,12 +89,16 @@ class SeriesRowView(QWidget):
 
         self._connectSignals()
 
-    def showSeries(self, series):
+    def showSeries(self, series, pixmaps=[]):
         self.clear()
-        preload = _buildPreloadPixmap()
+
+        if len(pixmaps) < len(series):
+            preload = _buildPreloadPixmap()
+            pixmaps.extend([preload for _ in range(len(series)-len(pixmaps))])
+
         maxSize = QSize(1920, 1080)
 
-        for photoItem in series.photoItems:
+        for photoItem, preload in zip(series, pixmaps):
             try:
                 widget = PhotoItemWidget(photoItem, maxSize=maxSize, preloadPixmap=preload)
             except CannotReadImageException as e:

@@ -16,6 +16,12 @@ class PhotoSeries(object):
     def __len__(self):
         return len(self.photoItems)
 
+    def __getitem__(self, key):
+        return self.photoItems[key]
+
+    def __iter__(self):
+        return iter(self.photoItems)
+
 
 class PhotoSeriesSet(object):
     def __init__(self):

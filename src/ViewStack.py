@@ -31,7 +31,9 @@ class ViewStack(QStackedWidget):
     def openInSeries(self, seriesUuid):
         phSeries = self.series.findSeries(seriesUuid)
         assert phSeries is not None
-        self.seriesRowView.showSeries(phSeries)
+
+        photoPixmaps = self.allSeriesView.getPixmapsForSeries(seriesUuid)
+        self.seriesRowView.showSeries(phSeries, photoPixmaps)
         self.setCurrentWidget(self.seriesRowView)
 
     def _createSeries(self, photos):

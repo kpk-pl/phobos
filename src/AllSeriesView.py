@@ -24,6 +24,42 @@ class AllSeriesView(QWidget):
     def __init__(self):
         super(AllSeriesView, self).__init__()
 
+        self._setupUi()
+        self.seriesUuidToRow = {}
+
+    def getPixmapsForSeries(self, seriesUuid):
+        if seriesUuid not in self.seriesUuidToRow:
+            return []
+
+        result = []
+        row = self.seriesUuidToRow[seriesUuid]
+        for col in range(self._grid.columnCount()):
+            wgt = self._grid.itemAtPosition(row, col)
+            if wgt is None:
+                break
+
+            result.append(wgt.widget().getPixmap())
+
+        return result
+
+    def addPhotoSeries(self, series):
+        preload = _buildPreloadPixmap()
+        for s in series:
+            row = self._grid.rowCount()
+            self.seriesUuidToRow[s.uuid] = row
+
+            for col in range(len(s.photoItems)):
+                try:
+                    photoItemWidget = PhotoItemWidget(s.photoItems[col],
+                                                      maxSize=self.PHOTOITEM_PIXMAP_SIZE,
+                                                      preloadPixmap=preload)
+                except CannotReadImageException as e:
+                    print("TODO: cannot load image exception " + str(e))
+                else:
+                    photoItemWidget.openInSeries.connect(self.openInSeries)
+                    self._grid.addWidget(photoItemWidget, row, col)
+
+    def _setupUi(self):
         self.navigationBar = NavigationBar(NavigationCapability.NONE)
 
         self._grid = QGridLayout()
@@ -49,19 +85,3 @@ class AllSeriesView(QWidget):
         hlayout.addWidget(scroll)
 
         self.setLayout(hlayout)
-
-    def addPhotoSeries(self, series):
-        preload = _buildPreloadPixmap()
-        for s in series:
-            row = self._grid.rowCount()
-            for col in range(len(s.photoItems)):
-                try:
-                    photoItemWidget = PhotoItemWidget(s.photoItems[col],
-                                                      maxSize=self.PHOTOITEM_PIXMAP_SIZE,
-                                                      preloadPixmap=preload)
-                except CannotReadImageException as e:
-                    print("TODO: cannot load image exception " + str(e))
-                else:
-                    photoItemWidget.openInSeries.connect(self.openInSeries)
-                    self._grid.addWidget(photoItemWidget, row, col)
-
