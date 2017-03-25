@@ -3,7 +3,7 @@
 from enum import IntFlag
 from PyQt5.QtCore import Qt, QSize
 import PyQt5.QtGui as QtGui
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton, QSlider, QSizePolicy
 
 
 class IconButton(QPushButton):
@@ -29,6 +29,7 @@ class IconButton(QPushButton):
 class NavigationCapability(IntFlag):
     NONE = 0
     BACK_TO_SERIES = 1
+    SLIDER = 2
 
 
 class NavigationBar(QWidget):
@@ -41,14 +42,20 @@ class NavigationBar(QWidget):
         #self.prev = IconButton(QtGui.QIcon("../icon/prev.png"))
         #self.toggle = IconButton(QtGui.QIcon("../icon/check.png"))
         self.backToSeries = IconButton(QtGui.QIcon("../icon/series.png")) if (capabilities & NavigationCapability.BACK_TO_SERIES) else None
+        self.slider = QSlider(Qt.Horizontal) if (capabilities & NavigationCapability.SLIDER) else None
 
+        if self.slider:
+            self.slider.setMaximum(100)
+            self.slider.setValue(100)
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(self.SPACING_BETWEEN_BUTTONS)
 
         layout.addWidget(self.backToSeries)
-        layout.addStretch()
+        layout.addWidget(self.slider)
+        if not self.slider:
+            layout.addStretch()
         #layout.addWidget(self.prev)
         #layout.addWidget(self.toggle)
         #layout.addWidget(self.next)

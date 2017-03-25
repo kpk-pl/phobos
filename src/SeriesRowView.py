@@ -25,10 +25,11 @@ def _clearLayout(layout):
         del item
 
 
-def _buildPreloadPixmap():
-    imagePixmap = QtGui.QPixmap(QSize(320, 240))
+def _buildPreloadPixmap(size):
+    imagePixmap = QtGui.QPixmap(size)
     imagePixmap.fill(QtGui.QColor(Qt.lightGray))
     return imagePixmap
+
 
 class HorizontalImageScrollArea(QScrollArea):
     def __init__(self, parent=None):
@@ -76,14 +77,15 @@ class SeriesRowView(QWidget):
     def __init__(self, parent=None):
         super(SeriesRowView, self).__init__(parent)
 
-        self.navigationBar = NavigationBar(NavigationCapability.BACK_TO_SERIES)
+        self.navigationBar = NavigationBar(NavigationCapability.BACK_TO_SERIES | NavigationCapability.SLIDER)
 
         self.scroll = HorizontalImageScrollArea()
         self.scroll.layout.setContentsMargins(0, 0, 0, 0)
 
         layout = QVBoxLayout()
         layout.addWidget(self.navigationBar)
-        layout.addWidget(self.scroll)
+        layout.addWidget(self.scroll, 100)
+        layout.addStretch(0)
 
         self.setLayout(layout)
 
@@ -91,12 +93,11 @@ class SeriesRowView(QWidget):
 
     def showSeries(self, series, pixmaps=[]):
         self.clear()
+        maxSize = QSize(1920, 1080)
 
         if len(pixmaps) < len(series):
-            preload = _buildPreloadPixmap()
+            preload = _buildPreloadPixmap(maxSize)
             pixmaps.extend([preload for _ in range(len(series)-len(pixmaps))])
-
-        maxSize = QSize(1920, 1080)
 
         for photoItem, preload in zip(series, pixmaps):
             try:
@@ -114,5 +115,11 @@ class SeriesRowView(QWidget):
         self.clear()
         self.returnFromView.emit()
 
+    @pyqtSlot(int)
+    def _resizeImages(self, percent):
+        self.layout().setStretch(1, percent)
+        self.layout().setStretch(2, 100-percent)
+
     def _connectSignals(self):
         self.navigationBar.backToSeries.clicked.connect(self.backToSeries)
+        self.navigationBar.slider.valueChanged.connect(self._resizeImages)
