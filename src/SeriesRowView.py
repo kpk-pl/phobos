@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
 from PyQt5.QtCore import Qt, QSize, pyqtSignal, pyqtSlot, QEvent
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QScrollArea, QFrame, QSizePolicy
+import PyQt5.QtGui as QtGui
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QScrollArea, QFrame
 from PhotoItemWidget import PhotoItemWidget
 from NavigationBar import NavigationBar, NavigationCapability
 from Exceptions import CannotReadImageException
@@ -23,6 +24,11 @@ def _clearLayout(layout):
 
         del item
 
+
+def _buildPreloadPixmap():
+    imagePixmap = QtGui.QPixmap(QSize(320, 240))
+    imagePixmap.fill(QtGui.QColor(Qt.lightGray))
+    return imagePixmap
 
 class HorizontalImageScrollArea(QScrollArea):
     def __init__(self, parent=None):
@@ -85,11 +91,12 @@ class SeriesRowView(QWidget):
 
     def showSeries(self, series):
         self.clear()
-        size = QSize(1920, 1080)
+        preload = _buildPreloadPixmap()
+        maxSize = QSize(1920, 1080)
 
         for photoItem in series.photoItems:
             try:
-                widget = PhotoItemWidget(photoItem, size)
+                widget = PhotoItemWidget(photoItem, maxSize=maxSize, preloadPixmap=preload)
             except CannotReadImageException as e:
                 print("TODO: cannot load image exception " + str(e))
             else:

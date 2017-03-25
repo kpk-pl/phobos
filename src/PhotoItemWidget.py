@@ -15,8 +15,8 @@ class PhotoItemWidget(ImageWidget):
 
     openInSeries = pyqtSignal(QUuid)
 
-    def __init__(self, photoItem, parent=None):
-        super(PhotoItemWidget, self).__init__(photoItem.fileName, parent)
+    def __init__(self, photoItem, maxSize=None, preloadPixmap=None, parent=None):
+        super(PhotoItemWidget, self).__init__(photoItem.fileName, maxSize=maxSize, preloadPixmap=preloadPixmap, parent=parent)
 
         self.photoItem = photoItem
         self._borderWidth = self.BORDER_WIDTH

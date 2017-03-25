@@ -1,15 +1,23 @@
 #!/usr/bin/python3
 
-from PyQt5.QtCore import QUuid, pyqtSignal
+from PyQt5.QtCore import Qt, QUuid, QSize, pyqtSignal
+import PyQt5.QtGui as QtGui
 from PyQt5.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QScrollArea, QFrame
 from PhotoItemWidget import PhotoItemWidget
 from NavigationBar import NavigationBar, NavigationCapability
 from Exceptions import CannotReadImageException
 
 
+def _buildPreloadPixmap():
+    imagePixmap = QtGui.QPixmap(QSize(320, 240))
+    imagePixmap.fill(QtGui.QColor(Qt.lightGray))
+    return imagePixmap
+
+
 class AllSeriesView(QWidget):
     SPACING_BETWEEN_SERIES = 15
     SPACING_BETWEEN_PHOTOS = 3
+    PHOTOITEM_PIXMAP_SIZE = QSize(320, 240)
 
     openInSeries = pyqtSignal(QUuid)
 
@@ -42,16 +50,15 @@ class AllSeriesView(QWidget):
 
         self.setLayout(hlayout)
 
-    # TODO: addPhotoSeries is blocking, so all photos are drawn at once
-    #       Fit this so that each photo or each series is painted separately
-    #       And updates the screen
-    #       Or create a dialog window to show loading process in percent
     def addPhotoSeries(self, series):
+        preload = _buildPreloadPixmap()
         for s in series:
             row = self._grid.rowCount()
             for col in range(len(s.photoItems)):
                 try:
-                    photoItemWidget = PhotoItemWidget(s.photoItems[col])
+                    photoItemWidget = PhotoItemWidget(s.photoItems[col],
+                                                      maxSize=self.PHOTOITEM_PIXMAP_SIZE,
+                                                      preloadPixmap=preload)
                 except CannotReadImageException as e:
                     print("TODO: cannot load image exception " + str(e))
                 else:

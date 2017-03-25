@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 
-from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSignal
+from PyQt5.QtCore import Qt, QPoint, QThreadPool, pyqtSignal, pyqtSlot
 import PyQt5.QtGui as QtGui
-from PyQt5.QtWidgets import QLabel, QSizePolicy
-from Exceptions import CannotReadImageException
+from PyQt5.QtWidgets import QLabel
+import ImageOperations
+from ImageLoaderThread import ImageLoaderThread
 
 
 class ClickableLabel(QLabel):
@@ -17,36 +18,38 @@ class ClickableLabel(QLabel):
             self.clicked.emit()
 
 
-def sizeFits(small, big):
-    return small.width() <= big.width() and small.height() <= big.height()
-
-
-def scaleImage(image, size):
-    return image.scaled(size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-
-
 class ImageWidget(ClickableLabel):
-    MINI_PIXMAP_SIZE = QSize(320, 240)
-
-    def __init__(self, fileName, maxSize=None, parent=None):
+    def __init__(self, fileName, maxSize=None, preloadPixmap=None, parent=None):
         super(ImageWidget, self).__init__(parent)
 
         self.fileName = fileName
-        self.maxSize = maxSize if maxSize is not None else self.MINI_PIXMAP_SIZE
-
-        fullPixmap = QtGui.QPixmap.fromImage(self._readImageFromFile(self.fileName))
-        self._fullPixmapSize = fullPixmap.size()
-        self.setGeometry(0, 0, self._fullPixmapSize.width(), self._fullPixmapSize.height())
-        self._imagePixmap = scaleImage(fullPixmap, self.maxSize)
+        self.maxSize = maxSize
 
         self.setScaledContents(False)
-        self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+
+        if preloadPixmap:
+            self._setPixmap(preloadPixmap)
+            loaderTask = ImageLoaderThread(self.fileName)
+            loaderTask.signals.pixmapReady.connect(self._setPixmap, Qt.QueuedConnection)
+            QThreadPool.globalInstance().start(loaderTask)
+        else:
+            fullPixmap = ImageOperations.readImageFromFile(self.fileName)
+            self._setPixmap(fullPixmap)
+
+    @pyqtSlot(QtGui.QPixmap)
+    def _setPixmap(self, pixmap):
+        self.setDisabled(True)
+        self._fullPixmapSize = pixmap.size()
+        self._imagePixmap = ImageOperations.scaleImage(pixmap, self.sizeHint())
+        #self.setGeometry(0, 0, self._imagePixmap.width(), self._imagePixmap.height())
+        self.updateGeometry()
+        self.setDisabled(False)
 
     def getPixmap(self):
         return self._imagePixmap
 
     def scaledPixmap(self, size):
-        return scaleImage(self._imagePixmap, size)
+        return ImageOperations.scaleImage(self._imagePixmap, size)
 
     def paintEvent(self, event):
         size = self.size()
@@ -68,19 +71,7 @@ class ImageWidget(ClickableLabel):
         return self._imagePixmap is not None
 
     def sizeHint(self):
-        return self._fullPixmapSize
+        return self.maxSize if self.maxSize is not None else self._fullPixmapSize
 
     def _renderedPixmap(self):
         return self.scaledPixmap(self.size())
-
-    @staticmethod
-    def _readImageFromFile(fileName):
-        reader = QtGui.QImageReader(fileName)
-        reader.setAutoTransform(True)
-        reader.setAutoDetectImageFormat(True)
-
-        image = reader.read()
-        if not image:
-            raise CannotReadImageException()
-
-        return image
