@@ -11,6 +11,7 @@ class ViewStack(QStackedWidget):
         super(ViewStack, self).__init__(parent)
 
         self.series = PhotoSeriesSet()
+        self.currentSeriesInView = None
 
         self.allSeriesView = AllSeriesView()
         self.seriesRowView = SeriesRowView()
@@ -28,13 +29,27 @@ class ViewStack(QStackedWidget):
         self.allSeriesView.addPhotoSeries(series)
 
     @pyqtSlot(QUuid)
-    def openInSeries(self, seriesUuid):
-        phSeries = self.series.findSeries(seriesUuid)
+    def openInSeries(self, seriesUuid, offset=0):
+        phSeries = self.series.findSeries(seriesUuid, offset)
         assert phSeries is not None
 
-        photoPixmaps = self.allSeriesView.getPixmapsForSeries(seriesUuid)
+        self.currentSeriesInView = phSeries.uuid
+        photoPixmaps = self.allSeriesView.getPixmapsForSeries(self.currentSeriesInView)
         self.seriesRowView.showSeries(phSeries, photoPixmaps)
         self.setCurrentWidget(self.seriesRowView)
+
+    @pyqtSlot()
+    def returnFromView(self):
+        self.currentSeriesInView = None
+        self.setCurrentWidget(self.allSeriesView)
+
+    @pyqtSlot()
+    def openNextSeries(self):
+        self.openInSeries(self.currentSeriesInView, 1)
+
+    @pyqtSlot()
+    def openPrevSeries(self):
+        self.openInSeries(self.currentSeriesInView, -1)
 
     def _createSeries(self, photos):
         series = []
@@ -54,4 +69,6 @@ class ViewStack(QStackedWidget):
 
     def _connectSignals(self):
         self.allSeriesView.openInSeries.connect(self.openInSeries)
-        self.seriesRowView.returnFromView.connect(lambda: self.setCurrentWidget(self.allSeriesView))
+        self.seriesRowView.returnFromView.connect(self.returnFromView)
+        self.seriesRowView.nextSeries.connect(self.openNextSeries)
+        self.seriesRowView.prevSeries.connect(self.openPrevSeries)

@@ -73,11 +73,13 @@ class HorizontalImageScrollArea(QScrollArea):
 
 class SeriesRowView(QWidget):
     returnFromView = pyqtSignal()
+    nextSeries = pyqtSignal()
+    prevSeries = pyqtSignal()
 
     def __init__(self, parent=None):
         super(SeriesRowView, self).__init__(parent)
-
-        self.navigationBar = NavigationBar(NavigationCapability.BACK_TO_SERIES | NavigationCapability.SLIDER)
+        self.navigationBar = NavigationBar(NavigationCapability.BACK_TO_SERIES | NavigationCapability.SLIDER |
+                                           NavigationCapability.PREV | NavigationCapability.NEXT)
 
         self.scroll = HorizontalImageScrollArea()
         self.scroll.layout.setContentsMargins(0, 0, 0, 0)
@@ -123,3 +125,5 @@ class SeriesRowView(QWidget):
     def _connectSignals(self):
         self.navigationBar.backToSeries.clicked.connect(self.backToSeries)
         self.navigationBar.slider.valueChanged.connect(self._resizeImages)
+        self.navigationBar.prev.clicked.connect(self.prevSeries)
+        self.navigationBar.next.clicked.connect(self.nextSeries)

@@ -35,8 +35,8 @@ class PhotoSeriesSet(object):
     def addSeries(self, series):
         self.series.append(series)
 
-    def findSeries(self, seriesUuid):
-        for s in self.series:
-            if s.uuid == seriesUuid:
-                return s
+    def findSeries(self, seriesUuid, offset=0):
+        for idx in range(len(self.series)):
+            if self.series[idx].uuid == seriesUuid:
+                return self.series[(idx+offset) % len(self.series)]
         return None
