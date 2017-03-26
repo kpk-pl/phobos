@@ -67,17 +67,19 @@ class PhotoItemWidget(ImageWidget):
 
     def focusInEvent(self, event):
         self.update()
-        print("FOCUS IN:  " + str(self.photoItem.fileName))
 
     def focusOutEvent(self, event):
         self.update()
-        print("FOCUS OUT: " + str(self.photoItem.fileName))
 
     def eventFilter(self, obj, event):
         if obj == self and event.type() == QEvent.FocusIn:
             if event.reason() == Qt.PopupFocusReason or event.reason() == Qt.ActiveWindowFocusReason:
                 return True
         return False
+
+    def keyPressEvent(self, event):
+        if event.key() in [Qt.Key_Return, Qt.Key_Enter]:
+            self.photoItem.toggleSelection()
 
     def _updateBorder(self, state):
         if state == PhotoItemState.SELECTED:
