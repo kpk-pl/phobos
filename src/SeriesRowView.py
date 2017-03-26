@@ -16,13 +16,11 @@ def _clearLayout(layout):
 
         wgt = item.widget()
         if wgt:
-            del wgt
+            wgt.setParent(None)
 
         lt = item.layout()
         if lt:
             _clearLayout(lt)
-
-        del item
 
 
 def _buildPreloadPixmap(size):
@@ -113,6 +111,7 @@ class SeriesRowView(QWidget):
 
     def clear(self):
         _clearLayout(self.scroll.layout)
+        self.update()
         self.scroll.horizontalScrollBar().setValue(0)
 
     @pyqtSlot()
