@@ -1,17 +1,26 @@
 #!/usr/bin/python3
 
 from PyQt5.QtCore import QUuid
+from PhotoItem import PhotoItem
 
 
 class PhotoSeries(object):
-    def __init__(self):
+    def __init__(self, args):
         super(PhotoSeries, self).__init__()
 
         self.uuid = QUuid.createUuid()
         self.photoItems = []
+        self.addPhotoItems(args)
 
     def addPhotoItem(self, photoItem):
-        self.photoItems.append(photoItem)
+        if isinstance(photoItem, str):
+            self.photoItems.append(PhotoItem(photoItem, self.uuid))
+        elif isinstance(photoItem, PhotoItem):
+            self.photoItems.append(photoItem)
+
+    def addPhotoItems(self, items):
+        for it in items:
+            self.addPhotoItem(it)
 
     def __len__(self):
         return len(self.photoItems)

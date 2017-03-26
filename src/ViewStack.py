@@ -7,6 +7,44 @@ from PhotoItemWidget import PhotoItemWidget
 from PhotoContainers import PhotoSeries, PhotoSeriesSet
 
 
+def _creation_date(path):
+    import platform, os
+    # http://stackoverflow.com/questions/237079/how-to-get-file-creation-modification-date-times-in-python
+    if platform.system() == 'Windows':
+        return os.path.getctime(path)
+    else:
+        stat = os.stat(path)
+        try:
+            return stat.st_birthtime
+        except AttributeError:
+            # We're probably on Linux. No easy way to get creation dates here,
+            # so we'll settle for when its content was last modified.
+            return stat.st_mtime
+
+
+def _divideIntoSeries(photos, cdate_thresh):
+    attrs = [(file, _creation_date(file)) for file in photos]
+    attrs = sorted(attrs, key=lambda x: x[1])  # sort on creation data
+
+    result = []
+
+    curr_list = []
+    for item in attrs:
+        if len(curr_list) == 0:
+            curr_list.append(item)
+        else:
+            if item[1]-curr_list[-1][1] > cdate_thresh:
+                result.append([i[0] for i in curr_list])
+                curr_list = []
+
+            curr_list.append(item)
+
+    if len(curr_list) > 0:
+        result.append([i[0] for i in curr_list])
+
+    return result
+
+
 class ViewStack(QStackedWidget):
     def __init__(self, parent=None):
         super(ViewStack, self).__init__(parent)
@@ -70,20 +108,14 @@ class ViewStack(QStackedWidget):
                 self.allSeriesView.focusSeries()
 
     def _createSeries(self, photos):
-        series = []
-        currentSeries = PhotoSeries()
+        photosInSeries = _divideIntoSeries(photos, 2)
 
-        for fileName in photos:
-            phitem = PhotoItem(fileName, currentSeries.uuid)
-            currentSeries.addPhotoItem(phitem)
-            if len(currentSeries) == 7:
-                series.append(currentSeries)
-                currentSeries = PhotoSeries()
+        result = []
+        for s in photosInSeries:
+            series = PhotoSeries(s)
+            result.append(series)
 
-        if len(currentSeries):
-            series.append(currentSeries)
-
-        return series
+        return result
 
     @staticmethod
     def _focusedPhotoItem():
