@@ -38,12 +38,11 @@ class ImageWidget(ClickableLabel):
 
     @pyqtSlot(QtGui.QPixmap)
     def _setPixmap(self, pixmap):
-        self.setDisabled(True)
         self._fullPixmapSize = pixmap.size()
         self._imagePixmap = ImageOperations.scaleImage(pixmap, self.sizeHint())
         #self.setGeometry(0, 0, self._imagePixmap.width(), self._imagePixmap.height())
-        self.updateGeometry()
-        self.setDisabled(False)
+        #self.updateGeometry()
+        self.update()
 
     def getPixmap(self):
         return self._imagePixmap

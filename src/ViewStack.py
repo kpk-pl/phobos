@@ -19,6 +19,8 @@ class ViewStack(QStackedWidget):
         self.addWidget(self.allSeriesView)
         self.addWidget(self.seriesRowView)
 
+        #self.allSeriesView.setFocus()
+
         self._connectSignals()
 
     def addPhotos(self, photos):

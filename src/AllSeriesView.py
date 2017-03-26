@@ -42,10 +42,14 @@ class AllSeriesView(QWidget):
 
         return result
 
+    def numberOfSeries(self):
+        return len(self.seriesUuidToRow)
+
     def addPhotoSeries(self, series):
         preload = _buildPreloadPixmap()
+
         for s in series:
-            row = self._grid.rowCount()
+            row = self.numberOfSeries()
             self.seriesUuidToRow[s.uuid] = row
 
             for col in range(len(s.photoItems)):

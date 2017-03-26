@@ -109,8 +109,11 @@ class SeriesRowView(QWidget):
             else:
                 self.scroll.layout.addWidget(widget)
 
+        self.scroll.layout.itemAt(0).widget().setFocus()
+
     def clear(self):
         _clearLayout(self.scroll.layout)
+        self.scroll.horizontalScrollBar().setValue(0)
 
     @pyqtSlot()
     def backToSeries(self):
