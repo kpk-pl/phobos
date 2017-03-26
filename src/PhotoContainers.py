@@ -32,6 +32,9 @@ class PhotoSeriesSet(object):
     def __getitem__(self, key):
         return self.series[key]
 
+    def __len__(self):
+        return len(self.series)
+
     def addSeries(self, series):
         self.series.append(series)
 

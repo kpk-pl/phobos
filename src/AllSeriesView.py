@@ -45,6 +45,13 @@ class AllSeriesView(QWidget):
     def numberOfSeries(self):
         return len(self.seriesUuidToRow)
 
+    def focusSeries(self, seriesUuid=None):
+        if seriesUuid is None or seriesUuid not in self.seriesUuidToRow:
+            if self.numberOfSeries() > 0:
+                self._grid.itemAtPosition(0, 0).widget().setFocus()
+        else:
+            self._grid.itemAtPosition(self.seriesUuidToRow[seriesUuid], 0).widget().setFocus()
+
     def addPhotoSeries(self, series):
         preload = _buildPreloadPixmap()
 

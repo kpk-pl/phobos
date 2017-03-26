@@ -79,6 +79,7 @@ class PhotoItemWidget(ImageWidget):
 
     def keyPressEvent(self, event):
         if event.key() in [Qt.Key_Return, Qt.Key_Enter]:
+            event.accept()
             self.photoItem.toggleSelection()
 
     def _updateBorder(self, state):

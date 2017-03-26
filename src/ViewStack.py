@@ -1,8 +1,9 @@
 from PyQt5.QtCore import QUuid, pyqtSlot
-from PyQt5.QtWidgets import QStackedWidget
+from PyQt5.QtWidgets import QStackedWidget, QApplication
 from AllSeriesView import AllSeriesView
 from SeriesRowView import SeriesRowView
 from PhotoItem import PhotoItem
+from PhotoItemWidget import PhotoItemWidget
 from PhotoContainers import PhotoSeries, PhotoSeriesSet
 
 
@@ -13,14 +14,7 @@ class ViewStack(QStackedWidget):
         self.series = PhotoSeriesSet()
         self.currentSeriesInView = None
 
-        self.allSeriesView = AllSeriesView()
-        self.seriesRowView = SeriesRowView()
-
-        self.addWidget(self.allSeriesView)
-        self.addWidget(self.seriesRowView)
-
-        #self.allSeriesView.setFocus()
-
+        self._setupUi()
         self._connectSignals()
 
     def addPhotos(self, photos):
@@ -41,17 +35,39 @@ class ViewStack(QStackedWidget):
         self.setCurrentWidget(self.seriesRowView)
 
     @pyqtSlot()
-    def returnFromView(self):
+    def showAllSeries(self):
         self.currentSeriesInView = None
         self.setCurrentWidget(self.allSeriesView)
 
     @pyqtSlot()
-    def openNextSeries(self):
-        self.openInSeries(self.currentSeriesInView, 1)
+    def showOneSeries(self):
+        if self.currentSeriesInView is not None:
+            return
+
+        focusWidget = self._focusedPhotoItem()
+        if focusWidget is not None:
+            self.openInSeries(focusWidget.photoItem.seriesUuid)
+        elif len(self.series) > 0:
+            self.openInSeries(self.series[0].uuid)
 
     @pyqtSlot()
-    def openPrevSeries(self):
-        self.openInSeries(self.currentSeriesInView, -1)
+    def showNextSeries(self):
+        self._showOffsetSeries(1)
+
+    @pyqtSlot()
+    def showPrevSeries(self):
+        self._showOffsetSeries(-1)
+
+    def _showOffsetSeries(self, offset):
+        if self.currentSeriesInView is not None:
+            self.openInSeries(self.currentSeriesInView, offset)
+        else:
+            focusWidget = self._focusedPhotoItem()
+            if focusWidget is not None:
+                nextSeries = self.series.findSeries(focusWidget.photoItem.seriesUuid, offset)
+                self.allSeriesView.focusSeries(nextSeries.uuid)
+            else:
+                self.allSeriesView.focusSeries()
 
     def _createSeries(self, photos):
         series = []
@@ -69,8 +85,22 @@ class ViewStack(QStackedWidget):
 
         return series
 
+    @staticmethod
+    def _focusedPhotoItem():
+        focusWidget = QApplication.focusWidget()
+        if focusWidget is not None and isinstance(focusWidget, PhotoItemWidget):
+            return focusWidget
+        return None
+
+    def _setupUi(self):
+        self.allSeriesView = AllSeriesView()
+        self.seriesRowView = SeriesRowView()
+
+        self.addWidget(self.allSeriesView)
+        self.addWidget(self.seriesRowView)
+
     def _connectSignals(self):
         self.allSeriesView.openInSeries.connect(self.openInSeries)
-        self.seriesRowView.returnFromView.connect(self.returnFromView)
-        self.seriesRowView.nextSeries.connect(self.openNextSeries)
-        self.seriesRowView.prevSeries.connect(self.openPrevSeries)
+        self.seriesRowView.returnFromView.connect(self.showAllSeries)
+        self.seriesRowView.nextSeries.connect(self.showNextSeries)
+        self.seriesRowView.prevSeries.connect(self.showPrevSeries)

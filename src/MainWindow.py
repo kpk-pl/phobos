@@ -10,9 +10,9 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
+        self._setUpCentralWidget()
         self._createActions()
         self._createMenus()
-        self._setUpCentralWidget()
 
         self.setWindowTitle("Phobos")
         self.setMinimumSize(480, 360)
@@ -42,11 +42,34 @@ class MainWindow(QMainWindow):
         self._exitAction = QAction("&Exit", self, shortcut="Ctrl+Q",
                                    statusTip="Exit the application", triggered=self.close)
 
+        self._showAllSeriesView = QAction("&All series", self, shortcut="Ctrl+A",
+                                          statusTip="Show all series in one view",
+                                          triggered=self.workArea.showAllSeries)
+
+        self._showOneSeriesView = QAction("&One series", self, shortcut="Ctrl+O",
+                                          statusTip="Show one series on a single page",
+                                          triggered=self.workArea.showOneSeries)
+
+        self._showNextSeriesInView = QAction("&Next series", self, shortcut="Ctrl+N",
+                                             statusTip="Jump to next series",
+                                             triggered=self.workArea.showNextSeries)
+
+        self._showPrevSeriesInView = QAction("&Prev series", self, shortcut="Ctrl+P",
+                                             statusTip="Jump to previous series",
+                                             triggered=self.workArea.showPrevSeries)
+
     def _createMenus(self):
         self._fileMenu = self.menuBar().addMenu("&File")
         self._fileMenu.addAction(self._loadPhotosAction)
         self._fileMenu.addSeparator()
         self._fileMenu.addAction(self._exitAction)
+
+        self._viewMenu = self.menuBar().addMenu("&View")
+        self._viewMenu.addAction(self._showAllSeriesView)
+        self._viewMenu.addAction(self._showOneSeriesView)
+        self._viewMenu.addSeparator()
+        self._viewMenu.addAction(self._showNextSeriesInView)
+        self._viewMenu.addAction(self._showPrevSeriesInView)
 
     def _setUpCentralWidget(self):
         self.workArea = ViewStack()
