@@ -33,7 +33,7 @@ class ImageWidget(ClickableLabel):
             loaderTask.signals.pixmapReady.connect(self._setPixmap, Qt.QueuedConnection)
             QThreadPool.globalInstance().start(loaderTask)
         else:
-            fullPixmap = ImageOperations.readImageFromFile(self.fileName)
+            fullPixmap = ImageOperations.readPixmapFromFile(self.fileName)
             self._setPixmap(fullPixmap)
 
     @pyqtSlot(QtGui.QPixmap)
