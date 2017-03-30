@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from PyQt5.QtCore import QUuid
+from PyQt5.QtCore import QUuid, QObject, pyqtSignal
 from PhotoItem import PhotoItem
 
 
@@ -32,10 +32,61 @@ class PhotoSeries(object):
         return iter(self.photoItems)
 
 
-class PhotoSeriesSet(object):
+def _creation_date(path):
+    import platform
+    import os
+    # http://stackoverflow.com/questions/237079/how-to-get-file-creation-modification-date-times-in-python
+    if platform.system() == 'Windows':
+        return os.path.getctime(path)
+    else:
+        stat = os.stat(path)
+        try:
+            return stat.st_birthtime
+        except AttributeError:
+            # We're probably on Linux. No easy way to get creation dates here,
+            # so we'll settle for when its content was last modified.
+            return stat.st_mtime
+
+
+def _divideIntoSeries(photos, cdate_thresh):
+    attrs = [(file, _creation_date(file)) for file in photos]
+    attrs = sorted(attrs, key=lambda x: x[1])  # sort on creation data
+
+    result = []
+
+    curr_list = []
+    for item in attrs:
+        if len(curr_list) == 0:
+            curr_list.append(item)
+        else:
+            if item[1] - curr_list[-1][1] > cdate_thresh:
+                result.append([i[0] for i in curr_list])
+                curr_list = []
+
+            curr_list.append(item)
+
+    if len(curr_list) > 0:
+        result.append([i[0] for i in curr_list])
+
+    return result
+
+
+def _createSeries(photos):
+    photosInSeries = _divideIntoSeries(photos, 2)
+
+    result = []
+    for s in photosInSeries:
+        series = PhotoSeries(s)
+        result.append(series)
+
+    return result
+
+
+class PhotoSeriesSet(QObject):
+    newSeries = pyqtSignal(PhotoSeries)
+
     def __init__(self):
         super(PhotoSeriesSet, self).__init__()
-
         self.series = []
 
     def __getitem__(self, key):
@@ -44,8 +95,11 @@ class PhotoSeriesSet(object):
     def __len__(self):
         return len(self.series)
 
-    def addSeries(self, series):
-        self.series.append(series)
+    def addPhotos(self, photos):
+        series = _createSeries(photos)
+        for s in series:
+            self.series.append(s)
+            self.newSeries.emit(s)
 
     def findSeries(self, seriesUuid, offset=0):
         for idx in range(len(self.series)):

@@ -2,47 +2,8 @@ from PyQt5.QtCore import QUuid, pyqtSlot
 from PyQt5.QtWidgets import QStackedWidget, QApplication
 from AllSeriesView import AllSeriesView
 from SeriesRowView import SeriesRowView
-from PhotoItem import PhotoItem
 from PhotoItemWidget import PhotoItemWidget
-from PhotoContainers import PhotoSeries, PhotoSeriesSet
-
-
-def _creation_date(path):
-    import platform, os
-    # http://stackoverflow.com/questions/237079/how-to-get-file-creation-modification-date-times-in-python
-    if platform.system() == 'Windows':
-        return os.path.getctime(path)
-    else:
-        stat = os.stat(path)
-        try:
-            return stat.st_birthtime
-        except AttributeError:
-            # We're probably on Linux. No easy way to get creation dates here,
-            # so we'll settle for when its content was last modified.
-            return stat.st_mtime
-
-
-def _divideIntoSeries(photos, cdate_thresh):
-    attrs = [(file, _creation_date(file)) for file in photos]
-    attrs = sorted(attrs, key=lambda x: x[1])  # sort on creation data
-
-    result = []
-
-    curr_list = []
-    for item in attrs:
-        if len(curr_list) == 0:
-            curr_list.append(item)
-        else:
-            if item[1]-curr_list[-1][1] > cdate_thresh:
-                result.append([i[0] for i in curr_list])
-                curr_list = []
-
-            curr_list.append(item)
-
-    if len(curr_list) > 0:
-        result.append([i[0] for i in curr_list])
-
-    return result
+from PhotoContainers import PhotoSeriesSet
 
 
 class ViewStack(QStackedWidget):
@@ -56,11 +17,7 @@ class ViewStack(QStackedWidget):
         self._connectSignals()
 
     def addPhotos(self, photos):
-        series = self._createSeries(photos)
-        for s in series:
-            self.series.addSeries(s)
-
-        self.allSeriesView.addPhotoSeries(series)
+        self.series.addPhotos(photos)
 
     @pyqtSlot(QUuid)
     def openInSeries(self, seriesUuid, offset=0):
@@ -107,16 +64,6 @@ class ViewStack(QStackedWidget):
             else:
                 self.allSeriesView.focusSeries()
 
-    def _createSeries(self, photos):
-        photosInSeries = _divideIntoSeries(photos, 2)
-
-        result = []
-        for s in photosInSeries:
-            series = PhotoSeries(s)
-            result.append(series)
-
-        return result
-
     @staticmethod
     def _focusedPhotoItem():
         focusWidget = QApplication.focusWidget()
@@ -133,6 +80,8 @@ class ViewStack(QStackedWidget):
 
     def _connectSignals(self):
         self.allSeriesView.openInSeries.connect(self.openInSeries)
+        self.series.newSeries.connect(self.allSeriesView.addPhotoSeries)
+
         self.seriesRowView.returnFromView.connect(self.showAllSeries)
         self.seriesRowView.nextSeries.connect(self.showNextSeries)
         self.seriesRowView.prevSeries.connect(self.showPrevSeries)

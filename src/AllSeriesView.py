@@ -1,11 +1,12 @@
 #!/usr/bin/python3
 
-from PyQt5.QtCore import Qt, QUuid, QSize, pyqtSignal
+from PyQt5.QtCore import Qt, QUuid, QSize, pyqtSignal, pyqtSlot
 import PyQt5.QtGui as QtGui
 from PyQt5.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QScrollArea, QFrame
 from PhotoItemWidget import PhotoItemWidget
 from NavigationBar import NavigationBar, NavigationCapability
 from Exceptions import CannotReadImageException
+from PhotoContainers import PhotoSeries
 
 
 def _buildPreloadPixmap():
@@ -52,23 +53,23 @@ class AllSeriesView(QWidget):
         else:
             self._grid.itemAtPosition(self.seriesUuidToRow[seriesUuid], 0).widget().setFocus()
 
+    @pyqtSlot(PhotoSeries)
     def addPhotoSeries(self, series):
         preload = _buildPreloadPixmap()
 
-        for s in series:
-            row = self.numberOfSeries()
-            self.seriesUuidToRow[s.uuid] = row
+        row = self.numberOfSeries()
+        self.seriesUuidToRow[series.uuid] = row
 
-            for col in range(len(s.photoItems)):
-                try:
-                    photoItemWidget = PhotoItemWidget(s.photoItems[col],
-                                                      maxSize=self.PHOTOITEM_PIXMAP_SIZE,
-                                                      preloadPixmap=preload)
-                except CannotReadImageException as e:
-                    print("TODO: cannot load image exception " + str(e))
-                else:
-                    photoItemWidget.openInSeries.connect(self.openInSeries)
-                    self._grid.addWidget(photoItemWidget, row, col)
+        for col in range(len(series.photoItems)):
+            try:
+                photoItemWidget = PhotoItemWidget(series[col],
+                                                  maxSize=self.PHOTOITEM_PIXMAP_SIZE,
+                                                  preloadPixmap=preload)
+            except CannotReadImageException as e:
+                print("TODO: cannot load image exception " + str(e))
+            else:
+                photoItemWidget.openInSeries.connect(self.openInSeries)
+                self._grid.addWidget(photoItemWidget, row, col)
 
     def _setupUi(self):
         self.navigationBar = NavigationBar(NavigationCapability.NONE)
