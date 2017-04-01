@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt, QObject, QThreadPool, QSize, pyqtSlot, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from ImageLoaderThread import ImageLoaderThread
 import ImageOperations
+import Config
 
 
 class PhotoItemState(Enum):
@@ -18,7 +19,7 @@ def _sizeFits(smaller, bigger):
 
 
 class PhotoItem(QObject):
-    PHOTOITEM_PIXMAP_SIZE = QSize(320, 240)
+    PHOTOITEM_PIXMAP_SIZE = Config.asQSize('photoItem', 'pixmapSize')
     selectionChanged = pyqtSignal(PhotoItemState)
 
     def __init__(self, fileName, seriesUuid, parent=None):

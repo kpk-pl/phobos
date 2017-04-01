@@ -1,0 +1,34 @@
+[mainWindow]
+title = "Phobos"
+minimumSize = { width = 480, height = 360 }
+defaultSize = { width = 1024, height = 768 }
+
+[photoItem]
+pixmapSize = { width = 320, height = 240 }
+
+[photoItemWidget.focusIcon]
+padding = 7
+opacity = 0.5
+color = "orange"
+sizePercent = 0.15
+path = "../icon/focus.png"
+
+[photoItemWidget.border]
+width = 2
+colorUnknown = "darkGray"
+colorSelected = "green"
+colorDiscarded = "red"
+
+[allSeriesView]
+seriesSpacing = 15
+photosSpacing = 3
+pixmapSize = { width = 320, height = 240 } # should be the same as photoItem.pixmapSize
+
+[seriesRowView]
+maxPixmapSize = { width = 1920, height = 1080 }
+
+[navigationBar]
+nextIcon = "../icon/next.png"
+prevIcon = "../icon/prev.png"
+backToSeriesIcon = "../icon/series.png"
+spacing = 2

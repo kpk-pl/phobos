@@ -5,6 +5,7 @@ from PyQt5.QtGui import QPixmap
 import ImageOperations
 import cv2
 
+
 class LoaderSignals(QObject):
     pixmapReady = pyqtSignal(QPixmap)
 

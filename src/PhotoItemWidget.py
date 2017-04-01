@@ -5,6 +5,7 @@ import PyQt5.QtGui as QtGui
 from PyQt5.QtWidgets import QMenu
 from ImageWidget import ImageWidget
 from PhotoItem import PhotoItemState
+import Config
 
 
 def _getColorIcon(icon, size, color, opacity=1.0):
@@ -24,14 +25,15 @@ def _getColorIcon(icon, size, color, opacity=1.0):
 
 
 class PhotoItemWidget(ImageWidget):
-    BORDER_COLOR_UNKNOWN = QtGui.QColor(Qt.darkGray)
-    BORDER_COLOR_SELECTED = QtGui.QColor(Qt.green)
-    BORDER_COLOR_DISCARDED = QtGui.QColor(Qt.red)
-    BORDER_WIDTH = 2
-    FOCUS_ICON_PADDING = 7
-    FOCUS_ICON_OPACITY = 0.5
-    FOCUS_ICON_COLOR = QtGui.QColor("orange")
-    FOCUS_ICON_SIZE_PERCENT = 0.15
+    BORDER_WIDTH = Config.get("photoItemWidget.border", "width")
+    BORDER_COLOR_UNKNOWN = Config.asQColor("photoItemWidget.border", "colorUnknown")
+    BORDER_COLOR_SELECTED = Config.asQColor("photoItemWidget.border", "colorSelected")
+    BORDER_COLOR_DISCARDED = Config.asQColor("photoItemWidget.border", "colorDiscarded")
+
+    FOCUS_ICON_PADDING = Config.get("photoItemWidget.focusIcon", "padding")
+    FOCUS_ICON_OPACITY = Config.get("photoItemWidget.focusIcon", "opacity")
+    FOCUS_ICON_COLOR = Config.asQColor("photoItemWidget.focusIcon", "color")
+    FOCUS_ICON_SIZE_PERCENT = Config.get("photoItemWidget.focusIcon", "sizePercent")
 
     openInSeries = pyqtSignal(QUuid)
 
@@ -106,7 +108,7 @@ class PhotoItemWidget(ImageWidget):
                            scaledImage)
 
         if self.hasFocus():
-            focusIcon = QtGui.QIcon("../icon/focus.png")
+            focusIcon = QtGui.QIcon(Config.get("photoItemWidget.focusIcon", "path"))
             iconSize = QSize(availableSize.width()*self.FOCUS_ICON_SIZE_PERCENT,
                              availableSize.height()*self.FOCUS_ICON_SIZE_PERCENT)
             focusPixmap = _getColorIcon(focusIcon, iconSize, self.FOCUS_ICON_COLOR, self.FOCUS_ICON_OPACITY)

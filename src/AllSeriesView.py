@@ -1,20 +1,17 @@
 #!/usr/bin/python3
 
-from PyQt5.QtCore import Qt, QUuid, QSize, pyqtSignal, pyqtSlot
-import PyQt5.QtGui as QtGui
+from PyQt5.QtCore import QUuid, QSize, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QScrollArea, QFrame
 from PhotoItemWidget import PhotoItemWidget
 from NavigationBar import NavigationBar, NavigationCapability
 from Exceptions import CannotReadImageException
 from PhotoContainers import PhotoSeries
 import ImageOperations
+import Config
 
 
 class AllSeriesView(QWidget):
-    SPACING_BETWEEN_SERIES = 15
-    SPACING_BETWEEN_PHOTOS = 3
-    PHOTOITEM_SIZE = QSize(320, 240) # Should be equal to PhotoItem.PHOTOITEM_PIXMAP_SIZE to save RAM
-
+    PHOTOITEM_SIZE = Config.asQSize("allSeriesView", "pixmapSize")
     openInSeries = pyqtSignal(QUuid)
 
     def __init__(self):
@@ -57,8 +54,8 @@ class AllSeriesView(QWidget):
 
         self._grid = QGridLayout()
         self._grid.setContentsMargins(0, 0, 0, 0)
-        self._grid.setHorizontalSpacing(self.SPACING_BETWEEN_PHOTOS)
-        self._grid.setVerticalSpacing(self.SPACING_BETWEEN_SERIES)
+        self._grid.setHorizontalSpacing(Config.get("allSeriesView", "photosSpacing"))
+        self._grid.setVerticalSpacing(Config.get("allSeriesView", "seriesSpacing"))
 
         scrollLayout = QVBoxLayout()
         scrollLayout.setContentsMargins(0, 0, 0, 0)

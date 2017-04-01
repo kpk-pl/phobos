@@ -6,6 +6,7 @@ from PhotoItemWidget import PhotoItemWidget
 from NavigationBar import NavigationBar, NavigationCapability
 from Exceptions import CannotReadImageException
 import ImageOperations
+import Config
 
 
 def _clearLayout(layout):
@@ -64,7 +65,8 @@ class HorizontalImageScrollArea(QScrollArea):
 
 
 class SeriesRowView(QWidget):
-    MAX_IMAGE_SIZE = QSize(1920, 1080)
+    MAX_IMAGE_SIZE = Config.asQSize('seriesRowView', 'maxPixmapSize')
+
     returnFromView = pyqtSignal()
     nextSeries = pyqtSignal()
     prevSeries = pyqtSignal()
