@@ -23,10 +23,10 @@ class ViewStack(QStackedWidget):
     def openInSeries(self, seriesUuid, offset=0):
         phSeries = self.series.findSeries(seriesUuid, offset)
         assert phSeries is not None
+        assert phSeries.uuid == seriesUuid
 
         self.currentSeriesInView = phSeries.uuid
-        photoPixmaps = self.allSeriesView.getPixmapsForSeries(self.currentSeriesInView)
-        self.seriesRowView.showSeries(phSeries, photoPixmaps)
+        self.seriesRowView.showSeries(phSeries)
         self.setCurrentWidget(self.seriesRowView)
 
     @pyqtSlot()

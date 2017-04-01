@@ -64,6 +64,7 @@ class HorizontalImageScrollArea(QScrollArea):
 
 
 class SeriesRowView(QWidget):
+    MAX_IMAGE_SIZE = QSize(1920, 1080)
     returnFromView = pyqtSignal()
     nextSeries = pyqtSignal()
     prevSeries = pyqtSignal()
@@ -82,25 +83,27 @@ class SeriesRowView(QWidget):
         layout.addStretch(0)
 
         self.setLayout(layout)
-
         self._connectSignals()
 
-    def showSeries(self, series, pixmaps=[]):
+        self._preloadPixmap = None
+
+    def _getPreloadPixmap(self):
+        if self._preloadPixmap is None:
+            self._preloadPixmap = ImageOperations.buildPreloadPixmap(self.MAX_IMAGE_SIZE)
+        return self._preloadPixmap
+
+    def showSeries(self, series):
         self.clear()
-        maxSize = QSize(1920, 1080)
 
-        if len(pixmaps) < len(series):
-            preload = ImageOperations.buildPreloadPixmap(maxSize)
-            pixmaps.extend([preload for _ in range(len(series)-len(pixmaps))])
-
-        for photoItem, preload in zip(series, pixmaps):
+        for photoItem in series:
             try:
+                preload = photoItem.pixmap if photoItem.pixmap is not None else self._getPreloadPixmap()
                 widget = PhotoItemWidget(photoItem, preloadPixmap=preload)
             except CannotReadImageException as e:
                 print("TODO: cannot load image exception " + str(e))
             else:
                 self.scroll.layout.addWidget(widget)
-                photoItem.loadPhoto(maxSize, widget.setImagePixmap)
+                photoItem.loadPhoto(self.MAX_IMAGE_SIZE, widget.setImagePixmap)
 
         self.scroll.layout.itemAt(0).widget().setFocus()
 

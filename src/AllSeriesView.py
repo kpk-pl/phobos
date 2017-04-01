@@ -24,21 +24,6 @@ class AllSeriesView(QWidget):
         self.seriesUuidToRow = {}
         self._preloadPixmap = None
 
-    def getPixmapsForSeries(self, seriesUuid):
-        if seriesUuid not in self.seriesUuidToRow:
-            return []
-
-        result = []
-        row = self.seriesUuidToRow[seriesUuid]
-        for col in range(self._grid.columnCount()):
-            wgt = self._grid.itemAtPosition(row, col)
-            if wgt is None:
-                break
-
-            result.append(wgt.widget().getPixmap())
-
-        return result
-
     def numberOfSeries(self):
         return len(self.seriesUuidToRow)
 
