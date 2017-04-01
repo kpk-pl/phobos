@@ -48,7 +48,7 @@ def convImageToCv(qImage):
     return np.array(bits).reshape(swapped.height(), swapped.width(), 3)
 
 
-# Returns 0-1 float. The bigger the more blurry the image is
+# Returns smaller values for blurry images
 # depth of cv2.CV_32F allocates a lot of memory
 def blurrinessSobel(cvImage, depth=-1):
     sobelNormX = cv2.norm(cv2.Sobel(cvImage, depth, 1, 0))
@@ -58,7 +58,8 @@ def blurrinessSobel(cvImage, depth=-1):
     area = height * width
 
     sumSq = sobelNormX * sobelNormX + sobelNormY * sobelNormY
-    return 1.0/(sumSq / area + 1e-6)
+    return sumSq / area
+    #return 1.0/(sumSq / area + 1e-6)
 
 
 # Returns smaller values for blurry images

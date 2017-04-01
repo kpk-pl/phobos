@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 
-from PyQt5.QtCore import QUuid, QObject, pyqtSignal
+from PyQt5.QtCore import QUuid, QObject, pyqtSignal, pyqtSlot
 from PhotoItem import PhotoItem
 
 
-class PhotoSeries(object):
+class PhotoSeries(QObject):
     def __init__(self, args):
         super(PhotoSeries, self).__init__()
 
@@ -14,9 +14,11 @@ class PhotoSeries(object):
 
     def addPhotoItem(self, photoItem):
         if isinstance(photoItem, str):
-            self.photoItems.append(PhotoItem(photoItem, self.uuid))
-        elif isinstance(photoItem, PhotoItem):
-            self.photoItems.append(photoItem)
+            photoItem = PhotoItem(photoItem, self.uuid)
+
+        assert(photoItem.seriesUuid == self.uuid)
+        photoItem.metricsChanged.connect(self._metricCalculated)
+        self.photoItems.append(photoItem)
 
     def addPhotoItems(self, items):
         for it in items:
@@ -30,6 +32,19 @@ class PhotoSeries(object):
 
     def __iter__(self):
         return iter(self.photoItems)
+
+    @pyqtSlot()
+    def _metricCalculated(self):
+        if not self._allMetricsAvailable():
+            return
+
+        # Todo find the best and calculate overall relative metric
+
+    def _allMetricsAvailable(self):
+        for item in self.photoItems:
+            if item.metrics is None:
+                return False
+        return True
 
 
 def _creation_date(path):
