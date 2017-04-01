@@ -23,7 +23,6 @@ class ViewStack(QStackedWidget):
     def openInSeries(self, seriesUuid, offset=0):
         phSeries = self.series.findSeries(seriesUuid, offset)
         assert phSeries is not None
-        assert phSeries.uuid == seriesUuid
 
         self.currentSeriesInView = phSeries.uuid
         self.seriesRowView.showSeries(phSeries)
