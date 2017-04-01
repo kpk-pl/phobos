@@ -7,18 +7,13 @@ from PhotoItemWidget import PhotoItemWidget
 from NavigationBar import NavigationBar, NavigationCapability
 from Exceptions import CannotReadImageException
 from PhotoContainers import PhotoSeries
-
-
-def _buildPreloadPixmap():
-    imagePixmap = QtGui.QPixmap(QSize(320, 240))
-    imagePixmap.fill(QtGui.QColor(Qt.lightGray))
-    return imagePixmap
+import ImageOperations
 
 
 class AllSeriesView(QWidget):
     SPACING_BETWEEN_SERIES = 15
     SPACING_BETWEEN_PHOTOS = 3
-    PHOTOITEM_PIXMAP_SIZE = QSize(320, 240)
+    PHOTOITEM_SIZE = QSize(320, 240) # Should be equal to PhotoItem.PHOTOITEM_PIXMAP_SIZE to save RAM
 
     openInSeries = pyqtSignal(QUuid)
 
@@ -27,6 +22,7 @@ class AllSeriesView(QWidget):
 
         self._setupUi()
         self.seriesUuidToRow = {}
+        self._preloadPixmap = None
 
     def getPixmapsForSeries(self, seriesUuid):
         if seriesUuid not in self.seriesUuidToRow:
@@ -55,21 +51,21 @@ class AllSeriesView(QWidget):
 
     @pyqtSlot(PhotoSeries)
     def addPhotoSeries(self, series):
-        preload = _buildPreloadPixmap()
+        if self._preloadPixmap is None:
+            self._preloadPixmap = ImageOperations.buildPreloadPixmap(QSize(320, 240))
 
         row = self.numberOfSeries()
         self.seriesUuidToRow[series.uuid] = row
 
         for col in range(len(series.photoItems)):
             try:
-                photoItemWidget = PhotoItemWidget(series[col],
-                                                  maxSize=self.PHOTOITEM_PIXMAP_SIZE,
-                                                  preloadPixmap=preload)
+                photoItemWidget = PhotoItemWidget(series[col], preloadPixmap=self._preloadPixmap)
             except CannotReadImageException as e:
                 print("TODO: cannot load image exception " + str(e))
             else:
                 photoItemWidget.openInSeries.connect(self.openInSeries)
                 self._grid.addWidget(photoItemWidget, row, col)
+                series[col].loadPhoto(self.PHOTOITEM_SIZE, photoItemWidget.setImagePixmap)
 
     def _setupUi(self):
         self.navigationBar = NavigationBar(NavigationCapability.NONE)

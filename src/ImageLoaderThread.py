@@ -20,28 +20,42 @@ def _getImageForProcessing(cvImage):
     return result
 
 
-def _calcMetrics(filename, cvImage):
+def _calcMetrics(cvImage):
     cvProcess = _getImageForProcessing(cvImage)
     blurSobel = ImageOperations.blurrinessSobel(cvProcess)
     blurLapl = ImageOperations.blurrinessLaplace(cvProcess)
     blurLaplMod = ImageOperations.blurinessLaplaceMod(cvProcess)
-    print(filename + " blurSobel=" + str(blurSobel) + " blurLapl=" + str(blurLapl) + " blurMod=" + str(blurLaplMod))
-
-
-def _loadWithOpenCVToQT(filename):
-    cvImage = cv2.imread(filename)
-    _calcMetrics(filename, cvImage)
-
-    return QPixmap.fromImage(ImageOperations.convCvToImage(cvImage))
 
 
 class ImageLoaderThread(QRunnable):
-    def __init__(self, fileName):
+    def __init__(self, fileName, requestedPixmapSizes):
         super(ImageLoaderThread, self).__init__()
         self.signals = LoaderSignals()
         self.fileToLoad = fileName
+        self.requestedPixmapSizes = requestedPixmapSizes
 
     def run(self):
-        pixmap = _loadWithOpenCVToQT(self.fileToLoad)
+        cvImage = cv2.imread(self.fileToLoad)
+        self._emitLoadedSignal(cvImage)
+        _calcMetrics(cvImage)
+
+    def _emitLoadedSignal(self, cvImage):
+        pixmap = QPixmap.fromImage(ImageOperations.convCvToImage(cvImage))
+        pixmap = ImageOperations.scaleImage(pixmap, self._biggestClosestSize(pixmap.size()))
         self.signals.pixmapReady.emit(pixmap)
 
+    def _biggestClosestSize(self, pixmapSize):
+        scaledSizes = []
+        pixels = []
+
+        for size in self.requestedPixmapSizes:
+            width = min(size.width(), pixmapSize.width())
+            height = pixmapSize.height() * width / pixmapSize.width()
+            if height > size.height():
+                height = size.height()
+                width = pixmapSize.width() * height / pixmapSize.height()
+
+            scaledSizes.append(QSize(width, height))
+            pixels.append(width*height)
+
+        return scaledSizes[pixels.index(max(pixels))]

@@ -1,10 +1,9 @@
 #!/usr/bin/python3
 
-from PyQt5.QtCore import Qt, QPoint, QThreadPool, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import Qt, QPoint, pyqtSignal, pyqtSlot
 import PyQt5.QtGui as QtGui
 from PyQt5.QtWidgets import QLabel
 import ImageOperations
-from ImageLoaderThread import ImageLoaderThread
 
 
 class ClickableLabel(QLabel):
@@ -19,27 +18,16 @@ class ClickableLabel(QLabel):
 
 
 class ImageWidget(ClickableLabel):
-    def __init__(self, fileName, maxSize=None, preloadPixmap=None, parent=None):
+    def __init__(self, pixmap, parent=None):
         super(ImageWidget, self).__init__(parent)
 
-        self.fileName = fileName
-        self.maxSize = maxSize
-
         self.setScaledContents(False)
-
-        if preloadPixmap:
-            self._setPixmap(preloadPixmap)
-            loaderTask = ImageLoaderThread(self.fileName)
-            loaderTask.signals.pixmapReady.connect(self._setPixmap, Qt.QueuedConnection)
-            QThreadPool.globalInstance().start(loaderTask)
-        else:
-            fullPixmap = ImageOperations.readPixmapFromFile(self.fileName)
-            self._setPixmap(fullPixmap)
+        self._imagePixmap = pixmap
+        self.setImagePixmap(pixmap)
 
     @pyqtSlot(QtGui.QPixmap)
-    def _setPixmap(self, pixmap):
-        self._fullPixmapSize = pixmap.size()
-        self._imagePixmap = ImageOperations.scaleImage(pixmap, self.sizeHint())
+    def setImagePixmap(self, pixmap):
+        self._imagePixmap = pixmap
         #self.setGeometry(0, 0, self._imagePixmap.width(), self._imagePixmap.height())
         #self.updateGeometry()
         self.update()
@@ -70,7 +58,7 @@ class ImageWidget(ClickableLabel):
         return self._imagePixmap is not None
 
     def sizeHint(self):
-        return self.maxSize if self.maxSize is not None else self._fullPixmapSize
+        return self._imagePixmap.size()
 
     def _renderedPixmap(self):
         return self.scaledPixmap(self.size())

@@ -35,8 +35,8 @@ class PhotoItemWidget(ImageWidget):
 
     openInSeries = pyqtSignal(QUuid)
 
-    def __init__(self, photoItem, maxSize=None, preloadPixmap=None, parent=None):
-        super(PhotoItemWidget, self).__init__(photoItem.fileName, maxSize=maxSize, preloadPixmap=preloadPixmap, parent=parent)
+    def __init__(self, photoItem, preloadPixmap=None, parent=None):
+        super(PhotoItemWidget, self).__init__(preloadPixmap, parent=parent)
 
         self.setFocusPolicy(Qt.StrongFocus)
         self.installEventFilter(self)

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QImage, QImageReader, QPixmap
+from PyQt5.QtGui import QImage, QImageReader, QPixmap, QColor
 from Exceptions import CannotReadImageException
 import numpy as np
 import cv2
@@ -24,6 +24,12 @@ def readPixmapFromFile(fileName):
 
 def scaleImage(image, size):
     return image.scaled(size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+
+def buildPreloadPixmap(size):
+    imagePixmap = QPixmap(size)
+    imagePixmap.fill(QColor(Qt.lightGray))
+    return imagePixmap
 
 
 def convCvToImage(cvImage):
