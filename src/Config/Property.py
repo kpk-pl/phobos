@@ -8,8 +8,14 @@ class Property:
         self.tableName = tableName
         self.key = key
 
+    def hasValue(self):
+        rawDict = self._getTable()
+        return rawDict is not None and self.key in rawDict
+
     def get(self):
         rawDict = self._getTable()
+        if rawDict is None:
+            raise AttributeError()
 
         if self.key not in rawDict:
             raise AttributeError()
@@ -17,6 +23,8 @@ class Property:
 
     def get_or(self, defaultValue):
         rawDict = self._getTable()
+        if rawDict is None:
+            return defaultValue
 
         if self.key not in rawDict:
             return defaultValue

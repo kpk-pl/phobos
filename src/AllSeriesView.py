@@ -11,7 +11,6 @@ import Config
 
 
 class AllSeriesView(QWidget):
-    PHOTOITEM_SIZE = Config.asQSize("allSeriesView", "pixmapSize")
     openInSeries = pyqtSignal(QUuid)
 
     def __init__(self):
@@ -34,7 +33,8 @@ class AllSeriesView(QWidget):
     @pyqtSlot(PhotoSeries)
     def addPhotoSeries(self, series):
         if self._preloadPixmap is None:
-            self._preloadPixmap = ImageOperations.buildPreloadPixmap(QSize(320, 240))
+            self._preloadPixmap = ImageOperations.buildPreloadPixmap(
+                Config.asQSize("allSeriesView", "pixmapSize", QSize(320, 240)))
 
         row = self.numberOfSeries()
         self.seriesUuidToRow[series.uuid] = row
@@ -47,15 +47,17 @@ class AllSeriesView(QWidget):
             else:
                 photoItemWidget.openInSeries.connect(self.openInSeries)
                 self._grid.addWidget(photoItemWidget, row, col)
-                series[col].loadPhoto(self.PHOTOITEM_SIZE, photoItemWidget.setImagePixmap)
+
+                series[col].loadPhoto(Config.asQSize("allSeriesView", "pixmapSize", QSize(320, 240)),
+                                      photoItemWidget.setImagePixmap)
 
     def _setupUi(self):
         self.navigationBar = NavigationBar(NavigationCapability.NONE)
 
         self._grid = QGridLayout()
         self._grid.setContentsMargins(0, 0, 0, 0)
-        self._grid.setHorizontalSpacing(Config.get("allSeriesView", "photosSpacing"))
-        self._grid.setVerticalSpacing(Config.get("allSeriesView", "seriesSpacing"))
+        self._grid.setHorizontalSpacing(Config.get_or("allSeriesView", "photosSpacing", 3))
+        self._grid.setVerticalSpacing(Config.get_or("allSeriesView", "seriesSpacing", 15))
 
         scrollLayout = QVBoxLayout()
         scrollLayout.setContentsMargins(0, 0, 0, 0)

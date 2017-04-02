@@ -59,11 +59,11 @@ class ImageLoaderThread(QRunnable):
 
     @staticmethod
     def _prepareImageForMetrics(cvImage):
-        if Config.get("imageLoaderThread", "processInGrayscale"):
+        if Config.get_or("imageLoaderThread", "processInGrayscale", True):
             cvImage = cv2.cvtColor(cvImage, cv2.COLOR_BGR2GRAY)
 
         height, width = cvImage.shape[:2]
-        maxSize = Config.asQSize("imageLoaderThread", "processingSize")
+        maxSize = Config.asQSize("imageLoaderThread", "processingSize", QSize(1920, 1080))
         scale = 1.0 / max(width / maxSize.width(), height / maxSize.height())
         cvImage = cv2.resize(cvImage, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
 

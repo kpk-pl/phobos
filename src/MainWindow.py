@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from PyQt5.QtCore import QStandardPaths, QDir
+from PyQt5.QtCore import QStandardPaths, QDir, QSize
 from PyQt5.QtGui import QImageReader
 from PyQt5.QtWidgets import QAction, QMainWindow, QFileDialog
 from ViewStack import ViewStack
@@ -15,9 +15,11 @@ class MainWindow(QMainWindow):
         self._createActions()
         self._createMenus()
 
-        self.setWindowTitle(Config.get_or("mainWindow", "title", "Phobos"))
-        self.setMinimumSize(Config.asQSize("mainWindow", "minimumSize"))
-        self.resize(Config.asQSize("mainWindow", "defaultSize"))
+        configTable = Config.Table("mainWindow")
+
+        self.setWindowTitle(configTable.get_or("title", "Phobos"))
+        self.setMinimumSize(Config.asQSize("mainWindow", "minimumSize", QSize(480, 360)))
+        self.resize(Config.asQSize("mainWindow", "defaultSize", QSize(1024, 768)))
 
         self._firstLoadDialog = True
         self._loadedImages = []

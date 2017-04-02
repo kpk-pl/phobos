@@ -20,16 +20,31 @@ def get_or(tableName, key, defaultValue):
     return Property(tableName, key).get_or(defaultValue)
 
 
-def asQSize(tableName, key):
+def asQSize(tableName, key, defaultValue=None):
     from Config.Types import asQSize
-    return asQSize(Property(tableName, key))
+    prop = Property(tableName, key)
+    if prop.hasValue():
+        return asQSize(prop)
+    elif defaultValue is None:
+        raise AttributeError()
+    return defaultValue
 
 
-def asQColor(tableName, key):
+def asQColor(tableName, key, defaultValue=None):
     from Config.Types import asQColor
-    return asQColor(Property(tableName, key))
+    prop = Property(tableName, key)
+    if prop.hasValue():
+        return asQColor(prop)
+    elif defaultValue is None:
+        raise AttributeError()
+    return defaultValue
 
 
-def asQFont(tableName, key):
+def asQFont(tableName, key, defaultValue=None):
     from Config.Types import asQFont
-    return asQFont(Property(tableName, key))
+    prop = Property(tableName, key)
+    if prop.hasValue():
+        return asQFont(prop)
+    elif defaultValue is None:
+        raise AttributeError()
+    return defaultValue

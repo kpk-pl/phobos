@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from enum import Enum
-from PyQt5.QtCore import Qt, QObject, QThreadPool, pyqtSlot, pyqtSignal
+from PyQt5.QtCore import Qt, QObject, QSize, QThreadPool, pyqtSlot, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from ImageLoaderThread import ImageLoaderThread
 import ImageOperations
@@ -20,7 +20,7 @@ def _sizeFits(smaller, bigger):
 
 
 class PhotoItem(QObject):
-    PHOTOITEM_PIXMAP_SIZE = Config.asQSize('photoItem', 'pixmapSize')
+    PHOTOITEM_PIXMAP_SIZE = Config.asQSize('photoItem', 'pixmapSize', QSize(320, 240))
     stateChanged = pyqtSignal()
     metricsCalculated = pyqtSignal()
 

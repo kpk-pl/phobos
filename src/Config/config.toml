@@ -50,3 +50,5 @@ nextIcon = "../icon/next.png"
 prevIcon = "../icon/prev.png"
 backToSeriesIcon = "../icon/series.png"
 spacing = 2
+buttonSize = [40, 40]
+buttonMargin = 5

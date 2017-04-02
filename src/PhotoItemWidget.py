@@ -27,13 +27,28 @@ def _getColorIcon(filePath, size, color, opacity):
     return pixmap
 
 
-class PhotoItemWidget(ImageWidget):
-    BORDER_WIDTH = Config.get("photoItemWidget.border", "width")
-    BORDER_COLORS_IN_STATES = {PhotoItemState.UNKNOWN: Config.asQColor("photoItemWidget.border", "colorUnknown"),
-                               PhotoItemState.SELECTED: Config.asQColor("photoItemWidget.border", "colorSelected"),
-                               PhotoItemState.DISCARDED: Config.asQColor("photoItemWidget.border", "colorDiscarded")}
+def _getIconToPaint(configTable, availableSize):
+    prcSize = configTable.get_or("sizePercent", 0.2)
+    iconSize = QSize(availableSize.width() * prcSize, availableSize.height() * prcSize)
+    color = QtGui.QColor(configTable.get_or("color", "black"))
+    if not color.isValid():
+        color = Qt.black
+    opacity = configTable.get_or("opacity", 0.5)
 
-    QUALITY_TEXT_FORMATSTR = "%." + str(Config.get("photoItemWidget.qualityText", "decimalPlaces")) + "f%%"
+    pixmap = _getColorIcon(configTable.get("path"), iconSize, color, opacity)
+    return pixmap
+
+
+class PhotoItemWidget(ImageWidget):
+    BORDER_WIDTH = Config.get_or("photoItemWidget.border", "width", 2)
+    BORDER_COLORS_IN_STATES = {PhotoItemState.UNKNOWN:
+                                   Config.asQColor("photoItemWidget.border", "colorUnknown", Qt.lightGray),
+                               PhotoItemState.SELECTED:
+                                   Config.asQColor("photoItemWidget.border", "colorSelected", Qt.green),
+                               PhotoItemState.DISCARDED:
+                                   Config.asQColor("photoItemWidget.border", "colorDiscarded", Qt.red)}
+
+    QUALITY_TEXT_FORMATSTR = "%." + str(Config.get_or("photoItemWidget.qualityText", "decimalPlaces", 0)) + "f%%"
 
     openInSeries = pyqtSignal(QUuid)
 
@@ -108,11 +123,15 @@ class PhotoItemWidget(ImageWidget):
     def _paintQualityText(self, painter, pixmapSize, quality):
         painter.save()
 
-        painter.setOpacity(Config.get("photoItemWidget.qualityText", "opacity"))
-        painter.setPen(Config.asQColor("photoItemWidget.qualityText", "color"))
-        painter.setFont(Config.asQFont("photoItemWidget.qualityText", "font"))
+        painter.setOpacity(Config.get_or("photoItemWidget.qualityText", "opacity", 1))
+        painter.setPen(Config.asQColor("photoItemWidget.qualityText", "color", Qt.black))
 
-        padding = Config.get("photoItemWidget.qualityText", "padding")
+        try:
+            painter.setFont(Config.asQFont("photoItemWidget.qualityText", "font"))
+        except AttributeError:
+            pass
+
+        padding = Config.get_or("photoItemWidget.qualityText", "padding", 7)
         textRect = QRectF(self.BORDER_WIDTH + padding,
                           pixmapSize.height() - self.BORDER_WIDTH - padding - painter.font().pointSize(),
                           1, 1)
@@ -123,30 +142,18 @@ class PhotoItemWidget(ImageWidget):
         painter.restore()
 
     def _paintFocusMark(self, painter, availableSize, pixmapSize):
-        prcSize = Config.get("photoItemWidget.focusIcon", "sizePercent")
-        iconSize = QSize(availableSize.width() * prcSize, availableSize.height() * prcSize)
-        padding = Config.get("photoItemWidget.focusIcon", "padding")
-
-        focusPixmap = _getColorIcon(Config.get("photoItemWidget.focusIcon", "path"),
-                                    iconSize,
-                                    Config.asQColor("photoItemWidget.focusIcon", "color"),
-                                    Config.get("photoItemWidget.focusIcon", "opacity"))
+        configTable = Config.Table("photoItemWidget.focusIcon")
+        padding = configTable.get_or("padding", 7)
+        focusPixmap = _getIconToPaint(configTable, availableSize)
 
         painter.drawPixmap(pixmapSize.width() - self.BORDER_WIDTH - padding - focusPixmap.width(),
                            self.BORDER_WIDTH + padding,
                            focusPixmap)
 
     def _paintBestMark(self, painter, availableSize):
-        prcSize = Config.get("photoItemWidget.bestMarkIcon", "sizePercent")
-        padding = Config.get("photoItemWidget.bestMarkIcon", "padding")
-        iconSize = QSize(availableSize.width() * prcSize,
-                         availableSize.height() * prcSize)
-
-        bestMarkPixmap = _getColorIcon(Config.get("photoItemWidget.bestMarkIcon", "path"),
-                                       iconSize,
-                                       Config.asQColor("photoItemWidget.bestMarkIcon", "color"),
-                                       Config.get("photoItemWidget.bestMarkIcon", "opacity"))
-
+        configTable = Config.Table("photoItemWidget.bestMarkIcon")
+        padding = configTable.get_or("padding", 7)
+        bestMarkPixmap = _getIconToPaint(configTable, availableSize)
         painter.drawPixmap(self.BORDER_WIDTH + padding, self.BORDER_WIDTH + padding, bestMarkPixmap)
 
     def _getPhotoItemQuality(self):

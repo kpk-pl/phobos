@@ -8,8 +8,8 @@ import Config
 
 
 class IconButton(QPushButton):
-    BUTTON_ICON_SIZE = QSize(40, 40)
-    CONTENT_MARGIN = 5
+    BUTTON_ICON_SIZE = Config.asQSize("navigationBar", "buttonSize", QSize(40, 40))
+    CONTENT_MARGIN = Config.get_or("navigationBar", "buttonMargin", 5)
 
     def __init__(self, icon, parent=None):
         super(IconButton, self).__init__(icon, "", parent)
@@ -39,33 +39,27 @@ class NavigationBar(QWidget):
     def __init__(self, capabilities, parent=None):
         super(NavigationBar, self).__init__(parent)
 
-        self.next = IconButton(QtGui.QIcon(Config.get("navigationBar", "nextIcon"))) \
-            if (capabilities & NavigationCapability.NEXT) else None
-
-        self.prev = IconButton(QtGui.QIcon(Config.get("navigationBar", "prevIcon"))) \
-            if (capabilities & NavigationCapability.PREV) else None
-
-        #self.toggle = IconButton(QtGui.QIcon("../icon/check.png"))
-        self.backToSeries = IconButton(QtGui.QIcon(Config.get("navigationBar", "backToSeriesIcon"))) \
-            if (capabilities & NavigationCapability.BACK_TO_SERIES) else None
-
-        self.slider = QSlider(Qt.Horizontal) if (capabilities & NavigationCapability.SLIDER) else None
-
-        if self.slider:
-            self.slider.setMaximum(100)
-            self.slider.setValue(100)
+        self.backToSeries = None
+        self.slider = None
+        self.prev = None
+        self.next = None
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(Config.get("navigationBar", "spacing"))
+        layout.setSpacing(Config.get_or("navigationBar", "spacing", 2))
 
-        layout.addWidget(self.backToSeries)
+        if capabilities & NavigationCapability.BACK_TO_SERIES:
+            self.backToSeries = IconButton(QtGui.QIcon(Config.get("navigationBar", "backToSeriesIcon")))
+            layout.addWidget(self.backToSeries)
 
-        if self.slider:
+        if capabilities & NavigationCapability.SLIDER:
+            self.slider = QSlider(Qt.Horizontal)
+            self.slider.setMaximum(100)
+            self.slider.setValue(100)
+
             spacingLeft = QWidget()
             spacingLeft.setMinimumWidth(15)
             layout.addWidget(spacingLeft)
-
             layout.addWidget(self.slider)
 
             spacingRight = QWidget()
@@ -74,8 +68,12 @@ class NavigationBar(QWidget):
         else:
             layout.addStretch()
 
-        layout.addWidget(self.prev)
-        #layout.addWidget(self.toggle)
-        layout.addWidget(self.next)
+        if capabilities & NavigationCapability.PREV:
+            self.prev = IconButton(QtGui.QIcon(Config.get("navigationBar", "prevIcon")))
+            layout.addWidget(self.prev)
+
+        if capabilities & NavigationCapability.NEXT:
+            self.next = IconButton(QtGui.QIcon(Config.get("navigationBar", "nextIcon")))
+            layout.addWidget(self.next)
 
         self.setLayout(layout)
