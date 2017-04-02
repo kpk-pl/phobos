@@ -37,25 +37,17 @@ class PhotoSeries(QObject):
         if not self._allMetricsAvailable():
             return
 
-        maxBlur = self._getMaxMetrics()
-        for item in self.photoItems:
-            item.metrics.fillAggregates(maxBlur)
-
-        bestItem = max(self.photoItems, key=lambda i: i.metrics.seriesAggregated.quality())
-        bestItem.metrics.seriesAggregated.bestQuality = True
+        seriesMetrics = ImageProcessing.generateAggregateMetrics([item.metrics for item in self.photoItems])
+        for i in range(len(self.photoItems)):
+            metricCopy = self.photoItems[i].metrics.clone()
+            metricCopy.seriesAggregated = seriesMetrics[i]
+            self.photoItems[i].setMetrics(metricCopy)
 
     def _allMetricsAvailable(self):
         for item in self.photoItems:
             if item.metrics is None:
                 return False
         return True
-
-    def _getMaxMetrics(self):
-        maxBlur = ImageProcessing.Metrics()
-        maxBlur.blurSobel = max([item.metrics.blurSobel for item in self.photoItems])
-        maxBlur.blurLaplace = max([item.metrics.blurLaplace for item in self.photoItems])
-        maxBlur.blurLaplaceMod = max([item.metrics.blurLaplaceMod for item in self.photoItems])
-        return maxBlur
 
 
 def _creation_date(path):

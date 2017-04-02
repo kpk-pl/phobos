@@ -24,3 +24,8 @@ def asQSize(tableName, key):
 def asQColor(tableName, key):
     from Config.Types import asQColor
     return asQColor(Property(tableName, key))
+
+
+def asQFont(tableName, key):
+    from Config.Types import asQFont
+    return asQFont(Property(tableName, key))

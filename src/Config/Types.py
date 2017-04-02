@@ -27,3 +27,21 @@ def asQColor(attribute):
         return QColor(value)
     else:
         raise AttributeError()
+
+
+def asQFont(attribute):
+    from PyQt5.QtGui import QFont
+
+    value = attribute.get()
+
+    if isinstance(value, dict):
+        if "family" not in value:
+            raise AttributeError()
+        font = QFont(value["family"])
+        if "pointSize" in value:
+            font.setPointSize(value['pointSize'])
+        if 'weight' in value:
+            font.setWeight(value['weight'])
+        return font
+    else:
+        raise AttributeError()

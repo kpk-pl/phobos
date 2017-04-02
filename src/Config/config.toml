@@ -17,6 +17,20 @@ color = "orange"
 sizePercent = 0.15
 path = "../icon/focus.png"
 
+[photoItemWidget.qualityText]
+padding = 7
+opacity = 1.0
+decimalPlaces = 0
+color = "red"
+font = { family = "Courier", pointSize = 10, weight = 2 }
+
+[photoItemWidget.bestMarkIcon]
+path = "../icon/star.png"
+opacity = 0.5
+color = "yellow"
+sizePercent = 0.2
+padding = 7
+
 [photoItemWidget.border]
 width = 2
 colorUnknown = "darkGray"

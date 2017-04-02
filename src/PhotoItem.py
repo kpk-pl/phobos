@@ -21,7 +21,7 @@ def _sizeFits(smaller, bigger):
 
 class PhotoItem(QObject):
     PHOTOITEM_PIXMAP_SIZE = Config.asQSize('photoItem', 'pixmapSize')
-    selectionChanged = pyqtSignal(PhotoItemState)
+    stateChanged = pyqtSignal()
     metricsCalculated = pyqtSignal()
 
     def __init__(self, fileName, seriesUuid, parent=None):
@@ -58,16 +58,20 @@ class PhotoItem(QObject):
     @pyqtSlot()
     def select(self):
         self.state = PhotoItemState.SELECTED
-        self.selectionChanged.emit(self.state)
+        self.stateChanged.emit()
 
     @pyqtSlot()
     def discard(self):
         self.state = PhotoItemState.DISCARDED
-        self.selectionChanged.emit(self.state)
+        self.stateChanged.emit()
 
     @pyqtSlot()
     def toggleSelection(self):
         self.discard() if self.isSelected() else self.select()
+
+    def setMetrics(self, metrics):
+        self.metrics = metrics
+        self.stateChanged.emit()
 
     @pyqtSlot(QPixmap)
     def _loadedPhoto(self, pixmap):
