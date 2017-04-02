@@ -6,10 +6,13 @@ from PyQt5.QtWidgets import QMenu
 from ImageWidget import ImageWidget
 from PhotoItem import PhotoItemState
 import Config
+import Exceptions
 
 
-def _getColorIcon(icon, size, color, opacity=1.0):
-    pixmap = icon.pixmap(size)
+def _getColorIcon(filePath, size, color, opacity):
+    pixmap = QtGui.QIcon(filePath).pixmap(size)
+    if pixmap.isNull():
+        raise Exceptions.CannotLoadMediaException(filePath)
 
     painter = QtGui.QPainter(pixmap)
     painter.setOpacity(opacity)
@@ -29,11 +32,6 @@ class PhotoItemWidget(ImageWidget):
     BORDER_COLORS_IN_STATES = {PhotoItemState.UNKNOWN: Config.asQColor("photoItemWidget.border", "colorUnknown"),
                                PhotoItemState.SELECTED: Config.asQColor("photoItemWidget.border", "colorSelected"),
                                PhotoItemState.DISCARDED: Config.asQColor("photoItemWidget.border", "colorDiscarded")}
-
-    FOCUS_ICON_PADDING = Config.get("photoItemWidget.focusIcon", "padding")
-    FOCUS_ICON_OPACITY = Config.get("photoItemWidget.focusIcon", "opacity")
-    FOCUS_ICON_COLOR = Config.asQColor("photoItemWidget.focusIcon", "color")
-    FOCUS_ICON_SIZE_PERCENT = Config.get("photoItemWidget.focusIcon", "sizePercent")
 
     QUALITY_TEXT_FORMATSTR = "%." + str(Config.get("photoItemWidget.qualityText", "decimalPlaces")) + "f%%"
 
@@ -125,22 +123,27 @@ class PhotoItemWidget(ImageWidget):
         painter.restore()
 
     def _paintFocusMark(self, painter, availableSize, pixmapSize):
-        focusIcon = QtGui.QIcon(Config.get("photoItemWidget.focusIcon", "path"))
-        iconSize = QSize(availableSize.width() * self.FOCUS_ICON_SIZE_PERCENT,
-                         availableSize.height() * self.FOCUS_ICON_SIZE_PERCENT)
-        focusPixmap = _getColorIcon(focusIcon, iconSize, self.FOCUS_ICON_COLOR, self.FOCUS_ICON_OPACITY)
+        prcSize = Config.get("photoItemWidget.focusIcon", "sizePercent")
+        iconSize = QSize(availableSize.width() * prcSize, availableSize.height() * prcSize)
+        padding = Config.get("photoItemWidget.focusIcon", "padding")
 
-        painter.drawPixmap(pixmapSize.width() - self.BORDER_WIDTH - self.FOCUS_ICON_PADDING - focusPixmap.width(),
-                           self.BORDER_WIDTH + self.FOCUS_ICON_PADDING,
+        focusPixmap = _getColorIcon(Config.get("photoItemWidget.focusIcon", "path"),
+                                    iconSize,
+                                    Config.asQColor("photoItemWidget.focusIcon", "color"),
+                                    Config.get("photoItemWidget.focusIcon", "opacity"))
+
+        painter.drawPixmap(pixmapSize.width() - self.BORDER_WIDTH - padding - focusPixmap.width(),
+                           self.BORDER_WIDTH + padding,
                            focusPixmap)
 
     def _paintBestMark(self, painter, availableSize):
-        icon = QtGui.QIcon(Config.get("photoItemWidget.bestMarkIcon", "path"))
         prcSize = Config.get("photoItemWidget.bestMarkIcon", "sizePercent")
         padding = Config.get("photoItemWidget.bestMarkIcon", "padding")
         iconSize = QSize(availableSize.width() * prcSize,
                          availableSize.height() * prcSize)
-        bestMarkPixmap = _getColorIcon(icon, iconSize,
+
+        bestMarkPixmap = _getColorIcon(Config.get("photoItemWidget.bestMarkIcon", "path"),
+                                       iconSize,
                                        Config.asQColor("photoItemWidget.bestMarkIcon", "color"),
                                        Config.get("photoItemWidget.bestMarkIcon", "opacity"))
 
