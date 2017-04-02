@@ -22,7 +22,7 @@ def _sizeFits(smaller, bigger):
 class PhotoItem(QObject):
     PHOTOITEM_PIXMAP_SIZE = Config.asQSize('photoItem', 'pixmapSize')
     selectionChanged = pyqtSignal(PhotoItemState)
-    metricsChanged = pyqtSignal()
+    metricsCalculated = pyqtSignal()
 
     def __init__(self, fileName, seriesUuid, parent=None):
         super(PhotoItem, self).__init__(parent)
@@ -79,4 +79,5 @@ class PhotoItem(QObject):
     @pyqtSlot(ImageProcessing.Metrics)
     def _calculatedMetrics(self, metrics):
         self.metrics = metrics
-        self.metricsChanged.emit()
+        self.metricsCalculated.emit()
+

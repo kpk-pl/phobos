@@ -2,6 +2,7 @@
 
 from PyQt5.QtCore import QUuid, QObject, pyqtSignal, pyqtSlot
 from PhotoItem import PhotoItem
+import ImageProcessing
 
 
 class PhotoSeries(QObject):
@@ -13,11 +14,9 @@ class PhotoSeries(QObject):
         self.addPhotoItems(args)
 
     def addPhotoItem(self, photoItem):
-        if isinstance(photoItem, str):
-            photoItem = PhotoItem(photoItem, self.uuid)
-
-        assert(photoItem.seriesUuid == self.uuid)
-        photoItem.metricsChanged.connect(self._metricCalculated)
+        assert(isinstance(photoItem, str))
+        photoItem = PhotoItem(photoItem, self.uuid)
+        photoItem.metricsCalculated.connect(self._metricCalculated)
         self.photoItems.append(photoItem)
 
     def addPhotoItems(self, items):
@@ -38,13 +37,25 @@ class PhotoSeries(QObject):
         if not self._allMetricsAvailable():
             return
 
-        # Todo find the best and calculate overall relative metric
+        maxBlur = self._getMaxMetrics()
+        for item in self.photoItems:
+            item.metrics.fillAggregates(maxBlur)
+
+        bestItem = max(self.photoItems, key=lambda i: i.metrics.seriesAggregated.quality())
+        bestItem.metrics.seriesAggregated.bestQuality = True
 
     def _allMetricsAvailable(self):
         for item in self.photoItems:
             if item.metrics is None:
                 return False
         return True
+
+    def _getMaxMetrics(self):
+        maxBlur = ImageProcessing.Metrics()
+        maxBlur.blurSobel = max([item.metrics.blurSobel for item in self.photoItems])
+        maxBlur.blurLaplace = max([item.metrics.blurLaplace for item in self.photoItems])
+        maxBlur.blurLaplaceMod = max([item.metrics.blurLaplaceMod for item in self.photoItems])
+        return maxBlur
 
 
 def _creation_date(path):
