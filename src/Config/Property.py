@@ -9,14 +9,26 @@ class Property:
         self.key = key
 
     def get(self):
+        rawDict = self._getTable()
+
+        if self.key not in rawDict:
+            raise AttributeError()
+        return rawDict[self.key]
+
+    def get_or(self, defaultValue):
+        rawDict = self._getTable()
+
+        if self.key not in rawDict:
+            return defaultValue
+        return rawDict[self.key]
+
+    def _getTable(self):
         tables = self.tableName.split('.')
         rawDict = _rawToml
 
         for table in tables:
             if table not in rawDict:
-                raise AttributeError()
+                return None
             rawDict = rawDict[table]
 
-        if self.key not in rawDict:
-            raise AttributeError()
-        return rawDict[self.key]
+        return rawDict

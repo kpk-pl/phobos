@@ -16,6 +16,10 @@ def get(tableName, key):
     return Property(tableName, key).get()
 
 
+def get_or(tableName, key, defaultValue):
+    return Property(tableName, key).get_or(defaultValue)
+
+
 def asQSize(tableName, key):
     from Config.Types import asQSize
     return asQSize(Property(tableName, key))

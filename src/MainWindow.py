@@ -15,7 +15,7 @@ class MainWindow(QMainWindow):
         self._createActions()
         self._createMenus()
 
-        self.setWindowTitle(Config.get("mainWindow", "title"))
+        self.setWindowTitle(Config.get_or("mainWindow", "title", "Phobos"))
         self.setMinimumSize(Config.asQSize("mainWindow", "minimumSize"))
         self.resize(Config.asQSize("mainWindow", "defaultSize"))
 
