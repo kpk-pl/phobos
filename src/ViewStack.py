@@ -1,10 +1,12 @@
+#!/usr/bin/python3
+
 from PyQt5.QtCore import QUuid, pyqtSlot
-from PyQt5.QtWidgets import QStackedWidget, QApplication
+from PyQt5.QtWidgets import QStackedWidget
 from AllSeriesView import AllSeriesView
 from SeriesRowView import SeriesRowView
 from SeriesNumView import SeriesNumView
-from PhotoItemWidget import PhotoItemWidget
 from PhotoContainers import PhotoSeriesSet
+import Utils
 
 
 class ViewStack(QStackedWidget):
@@ -57,19 +59,12 @@ class ViewStack(QStackedWidget):
         if self.currentSeriesInView is not None:
             self.openInSeries(self.currentSeriesInView, offset)
         else:
-            focusWidget = self._focusedPhotoItem()
+            focusWidget = Utils.focusedPhotoItem()
             if focusWidget is not None:
                 nextSeries = self.series.findSeries(focusWidget.photoItem.seriesUuid, offset)
                 self.allSeriesView.focusSeries(nextSeries.uuid)
             else:
                 self.allSeriesView.focusSeries()
-
-    @staticmethod
-    def _focusedPhotoItem():
-        focusWidget = QApplication.focusWidget()
-        if focusWidget is not None and isinstance(focusWidget, PhotoItemWidget):
-            return focusWidget
-        return None
 
     def _activeSeriesView(self):
         return self.seriesNumView
