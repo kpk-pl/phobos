@@ -29,7 +29,7 @@ class ImageWidget(ClickableLabel):
     def setImagePixmap(self, pixmap):
         self._imagePixmap = pixmap
         #self.setGeometry(0, 0, self._imagePixmap.width(), self._imagePixmap.height())
-        #self.updateGeometry()
+        self.updateGeometry()
         self.update()
 
     def getPixmap(self):
