@@ -1,12 +1,9 @@
 #!/usr/bin/python3
 
-from PyQt5.QtCore import Qt, QSize, pyqtSignal, pyqtSlot, QEvent
+from PyQt5.QtCore import Qt, QSize, pyqtSlot, QEvent
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QScrollArea, QFrame
-from PhotoItemWidget import PhotoItemWidget
 from NavigationBar import NavigationBar, NavigationCapability
-from Exceptions import CannotReadImageException
-import ImageOperations
-import Config
+from SeriesViewBase import SeriesViewBase
 
 
 def _clearLayout(layout):
@@ -64,11 +61,7 @@ class HorizontalImageScrollArea(QScrollArea):
         return width
 
 
-class SeriesRowView(QWidget):
-    returnFromView = pyqtSignal()
-    nextSeries = pyqtSignal()
-    prevSeries = pyqtSignal()
-
+class SeriesRowView(SeriesViewBase):
     def __init__(self, parent=None):
         super(SeriesRowView, self).__init__(parent)
         self.navigationBar = NavigationBar(NavigationCapability.BACK_TO_SERIES | NavigationCapability.SLIDER |
@@ -85,28 +78,8 @@ class SeriesRowView(QWidget):
         self.setLayout(layout)
         self._connectSignals()
 
-        self._preloadPixmap = None
-
-    def _getPreloadPixmap(self):
-        if self._preloadPixmap is None:
-            self._preloadPixmap = ImageOperations.buildPreloadPixmap(
-                Config.asQSize('seriesRowView', 'maxPixmapSize', QSize(1920, 1080)))
-        return self._preloadPixmap
-
     def showSeries(self, series):
-        self.clear()
-
-        for photoItem in series:
-            try:
-                preload = photoItem.pixmap if photoItem.pixmap is not None else self._getPreloadPixmap()
-                widget = PhotoItemWidget(photoItem, preloadPixmap=preload)
-            except CannotReadImageException as e:
-                print("TODO: cannot load image exception " + str(e))
-            else:
-                self.scroll.layout.addWidget(widget)
-                photoItem.loadPhoto(Config.asQSize('seriesRowView', 'maxPixmapSize', QSize(1920, 1080)),
-                                    widget.setImagePixmap)
-
+        super(SeriesRowView, self).showSeries(series)
         self.scroll.layout.itemAt(0).widget().setFocus()
 
     def clear(self):
@@ -114,10 +87,8 @@ class SeriesRowView(QWidget):
         self.update()
         self.scroll.horizontalScrollBar().setValue(0)
 
-    @pyqtSlot()
-    def backToSeries(self):
-        self.clear()
-        self.returnFromView.emit()
+    def _addPhotoItemToLayout(self, photoItem):
+        self.scroll.layout.addWidget(photoItem)
 
     @pyqtSlot(int)
     def _resizeImages(self, percent):

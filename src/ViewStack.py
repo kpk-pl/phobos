@@ -2,6 +2,7 @@ from PyQt5.QtCore import QUuid, pyqtSlot
 from PyQt5.QtWidgets import QStackedWidget, QApplication
 from AllSeriesView import AllSeriesView
 from SeriesRowView import SeriesRowView
+from SeriesNumView import SeriesNumView
 from PhotoItemWidget import PhotoItemWidget
 from PhotoContainers import PhotoSeriesSet
 
@@ -25,8 +26,8 @@ class ViewStack(QStackedWidget):
         assert phSeries is not None
 
         self.currentSeriesInView = phSeries.uuid
-        self.seriesRowView.showSeries(phSeries)
-        self.setCurrentWidget(self.seriesRowView)
+        self._activeSeriesView().showSeries(phSeries)
+        self.setCurrentWidget(self._activeSeriesView())
 
     @pyqtSlot()
     def showAllSeries(self):
@@ -70,12 +71,17 @@ class ViewStack(QStackedWidget):
             return focusWidget
         return None
 
+    def _activeSeriesView(self):
+        return self.seriesNumView
+
     def _setupUi(self):
         self.allSeriesView = AllSeriesView()
         self.seriesRowView = SeriesRowView()
+        self.seriesNumView = SeriesNumView()
 
         self.addWidget(self.allSeriesView)
         self.addWidget(self.seriesRowView)
+        self.addWidget(self.seriesNumView)
 
     def _connectSignals(self):
         self.allSeriesView.openInSeries.connect(self.openInSeries)
@@ -84,3 +90,7 @@ class ViewStack(QStackedWidget):
         self.seriesRowView.returnFromView.connect(self.showAllSeries)
         self.seriesRowView.nextSeries.connect(self.showNextSeries)
         self.seriesRowView.prevSeries.connect(self.showPrevSeries)
+
+        self.seriesNumView.returnFromView.connect(self.showAllSeries)
+        self.seriesNumView.nextSeries.connect(self.showNextSeries)
+        self.seriesNumView.prevSeries.connect(self.showPrevSeries)
