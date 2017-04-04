@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from enum import IntFlag
+from enum import IntEnum
 from PyQt5.QtCore import Qt, QSize
 import PyQt5.QtGui as QtGui
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton, QSlider
@@ -27,7 +27,7 @@ class IconButton(QPushButton):
         return QSize(iconSize.width() + 2*self.CONTENT_MARGIN, iconSize.height() + 2*self.CONTENT_MARGIN)
 
 
-class NavigationCapability(IntFlag):
+class NavigationCapability(IntEnum):
     NONE = 0
     BACK_TO_SERIES = 1
     PREV = 2

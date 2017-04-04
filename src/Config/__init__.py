@@ -3,7 +3,7 @@
 import pytoml as toml
 
 
-with open('Config/config.toml', 'rb') as f:
+with open('./Config/config.toml', 'rb') as f:
     _rawToml = toml.load(f)
 
 
