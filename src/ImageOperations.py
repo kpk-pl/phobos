@@ -96,4 +96,4 @@ def normalizedHistogramAndContrast(cvImage):
 def noiseMeasure(cvImage, medianSize=5):
     result = cv2.medianBlur(cvImage, medianSize)
     result = cvImage - result
-    return np.average(result)
+    return np.average(result)/255

@@ -151,7 +151,7 @@ class PhotoItemWidget(ImageWidget):
             self._paintFocusMark(painter, availableSize, pixmap.size())
 
         quality, best = self._getPhotoItemQuality()
-        if "quality" in self.enabledAddons and quality is not None:
+        if "score" in self.enabledAddons and quality is not None:
             self._paintQualityText(painter, pixmap.size(), quality)
 
         if "best" in self.enabledAddons and best:
@@ -207,7 +207,7 @@ class PhotoItemWidget(ImageWidget):
         metrics = self.photoItem.metrics
         if metrics is None or metrics.seriesAggregated is None:
             return None, False
-        return metrics.seriesAggregated.quality(), metrics.seriesAggregated.bestQuality
+        return metrics.quality(), metrics.bestQuality
 
     def _connectSignals(self):
         self.clicked.connect(self.photoItem.toggleSelection)

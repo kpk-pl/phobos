@@ -39,9 +39,7 @@ class PhotoSeries(QObject):
 
         seriesMetrics = ImageProcessing.generateAggregateMetrics([item.metrics for item in self.photoItems])
         for i in range(len(self.photoItems)):
-            metricCopy = self.photoItems[i].metrics.clone()
-            metricCopy.seriesAggregated = seriesMetrics[i]
-            self.photoItems[i].setMetrics(metricCopy)
+            self.photoItems[i].setMetrics(seriesMetrics[i])
 
     def _allMetricsAvailable(self):
         for item in self.photoItems:

@@ -5,23 +5,37 @@ class SeriesMetrics:
     blurSobelPrc = None
     blurLaplacePrc = None
     blurLaplaceModPrc = None
-
-    bestQuality = False
+    noisePrc = None
+    contrastPrc = None
 
     def blur(self):
-        if self.blurSobelPrc is None or self.blurLaplacePrc is None or self.blurLaplaceModPrc is None:
-            return None
-        return self.blurSobelPrc * self.blurLaplacePrc * self.blurLaplaceModPrc
+        result = 1.0
+        if self.blurSobelPrc is not None:
+            result *= self.blurSobelPrc
+        if self.blurLaplacePrc is not None:
+            result *= self.blurLaplacePrc
+        if self.blurLaplaceModPrc is not None:
+            result *= self.blurLaplaceModPrc
+        return result
 
     def quality(self):
-        return self.blur()
+        blur = self.blur()
+        result = 1.0
+        if blur is not None:
+            result *= blur
+        if self.noisePrc is not None:
+            result *= self.noisePrc
+        if self.contrastPrc is not None:
+            result *= self.contrastPrc
+        return result
 
     def clone(self):
         result = SeriesMetrics()
         result.blurSobelPrc = self.blurSobelPrc
         result.blurLaplacePrc = self.blurLaplacePrc
         result.blurLaplaceModPrc = self.blurLaplaceModPrc
-        result.bestQuality = self.bestQuality
+        result.noisePrc = self.noisePrc
+        result.contrastPrc = self.contrastPrc
         return result
 
 
@@ -34,6 +48,11 @@ class Metrics:
     noise = None
 
     seriesAggregated = None
+    bestQuality = False
+
+    def quality(self):
+        result = self.seriesAggregated.quality() if self.seriesAggregated is not None else 1.0
+        return result
 
     def clone(self):
         result = Metrics()
@@ -44,27 +63,33 @@ class Metrics:
         result.noise = self.noise
         result.hist = self.hist
         result.seriesAggregated = self.seriesAggregated.clone() if self.seriesAggregated else None
+        result.bestQuality = self.bestQuality
         return result
 
 
 def _calcMaxMetric(metrics):
-    maxBlur = Metrics()
-    maxBlur.blurSobel = max([item.blurSobel for item in metrics])
-    maxBlur.blurLaplace = max([item.blurLaplace for item in metrics])
-    maxBlur.blurLaplaceMod = max([item.blurLaplaceMod for item in metrics])
-    return maxBlur
+    maxMet = Metrics()
+    maxMet.blurSobel = max([item.blurSobel for item in metrics])
+    maxMet.blurLaplace = max([item.blurLaplace for item in metrics])
+    maxMet.blurLaplaceMod = max([item.blurLaplaceMod for item in metrics])
+    maxMet.noise = max([item.noise for item in metrics])
+    maxMet.contrast = max([item.contrast for item in metrics])
+    return maxMet
 
 
 def generateAggregateMetrics(metrics):
-    blurMax = _calcMaxMetric(metrics)
+    maxMet = _calcMaxMetric(metrics)
     result = []
 
     for item in metrics:
-        aggreg = SeriesMetrics()
-        aggreg.blurSobelPrc = item.blurSobel / blurMax.blurSobel
-        aggreg.blurLaplacePrc = item.blurLaplace / blurMax.blurLaplace
-        aggreg.blurLaplaceModPrc = item.blurLaplaceMod / blurMax.blurLaplaceMod
-        result.append(aggreg)
+        newItem = item.clone()
+        newItem.seriesAggregated = SeriesMetrics()
+        newItem.seriesAggregated.blurSobelPrc = item.blurSobel / maxMet.blurSobel
+        newItem.seriesAggregated.blurLaplacePrc = item.blurLaplace / maxMet.blurLaplace
+        newItem.seriesAggregated.blurLaplaceModPrc = item.blurLaplaceMod / maxMet.blurLaplaceMod
+        newItem.seriesAggregated.noisePrc = item.noise / maxMet.noise
+        newItem.seriesAggregated.contrastPrc = item.contrast / maxMet.contrast
+        result.append(newItem)
 
     bestItem = max(result, key=lambda i: i.quality())
     bestItem.bestQuality = True
