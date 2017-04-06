@@ -68,7 +68,8 @@ class AllSeriesView(QWidget):
 
         for col in range(len(series.photoItems)):
             try:
-                photoItemWidget = PhotoItemWidget(series[col], preloadPixmap=self._preloadPixmap)
+                photoItemWidget = PhotoItemWidget(series[col], preloadPixmap=self._preloadPixmap,
+                                                  addons=Config.get_or("allSeriesView", "enabledAddons", []))
             except CannotReadImageException as e:
                 print("TODO: cannot load image exception " + str(e))
             else:

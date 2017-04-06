@@ -33,11 +33,13 @@ def buildPreloadPixmap(size):
 
 
 def convCvToImage(cvImage):
-    height, width, byteValue = cvImage.shape
-    bytesPerLine = byteValue * width
-
-    cvImage = cv2.cvtColor(cvImage, cv2.COLOR_BGR2RGB)
-    return QImage(cvImage, width, height, bytesPerLine, QImage.Format_RGB888)
+    height, width = cvImage.shape[:2]
+    if len(cvImage.shape) == 2:
+        return QImage(cvImage, width, height, width, QImage.Format_Grayscale8)
+    else:
+        bytesPerLine = cvImage.shape[2] * width
+        cvImage = cv2.cvtColor(cvImage, cv2.COLOR_BGR2RGB)
+        return QImage(cvImage, width, height, bytesPerLine, QImage.Format_RGB888)
 
 
 def convImageToCv(qImage):
@@ -78,3 +80,20 @@ def blurinessLaplaceMod(cvImage, depth=-1):
     lyAbsMean = cv2.mean(np.abs(cv2.sepFilter2D(cvImage, depth, kernelY, kernelX)))[0]
 
     return lxAbsMean + lyAbsMean
+
+
+def normalizedHistogramAndContrast(cvImage):
+    hist = cv2.calcHist([cvImage], [0], None, [256], [0, 256])
+    stddev = np.std(hist)
+    m = max(hist)[0]
+    hist = [x[0]/m for x in hist]
+
+    return hist, stddev
+
+
+# Substracts median-blurred image from itself and calculates average pixel value
+# The ideal result is close to 0
+def noiseMeasure(cvImage, medianSize=5):
+    result = cv2.medianBlur(cvImage, medianSize)
+    result = cvImage - result
+    return np.average(result)

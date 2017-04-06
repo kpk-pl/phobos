@@ -39,7 +39,8 @@ class SeriesViewBase(QWidget):
         for photoItem in series:
             try:
                 preload = photoItem.pixmap if photoItem.pixmap is not None else self._getPreloadPixmap()
-                widget = PhotoItemWidget(photoItem, preloadPixmap=preload)
+                widget = PhotoItemWidget(photoItem, preloadPixmap=preload,
+                                         addons=Config.get_or("seriesView", "enabledAddons", []))
             except CannotReadImageException as e:
                 print("TODO: cannot load image exception " + str(e))
             else:

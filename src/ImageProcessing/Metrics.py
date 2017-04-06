@@ -26,9 +26,12 @@ class SeriesMetrics:
 
 
 class Metrics:
-    blurSobel = 0
-    blurLaplace = 0
-    blurLaplaceMod = 0
+    blurSobel = None
+    blurLaplace = None
+    blurLaplaceMod = None
+    hist = None
+    contrast = None
+    noise = None
 
     seriesAggregated = None
 
@@ -37,6 +40,9 @@ class Metrics:
         result.blurSobel = self.blurSobel
         result.blurLaplace = self.blurLaplace
         result.blurLaplaceMod = self.blurLaplaceMod
+        result.contrast = self.contrast
+        result.noise = self.noise
+        result.hist = self.hist
         result.seriesAggregated = self.seriesAggregated.clone() if self.seriesAggregated else None
         return result
 

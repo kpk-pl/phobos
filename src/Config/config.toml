@@ -5,7 +5,7 @@ defaultSize = { width = 1024, height = 768 }
 
 [imageLoaderThread]
 processingSize = [1920, 1080]
-processInGrayscale = true
+noiseMedianSize = 3
 
 [photoItem]
 pixmapSize = { width = 320, height = 240 }
@@ -37,13 +37,22 @@ colorUnknown = "darkGray"
 colorSelected = "green"
 colorDiscarded = "red"
 
+[photoItemWidget.histogram]
+width = 128
+height = 64
+opacity = 0.6
+color = "red"
+fillColor = "transparent"
+
 [allSeriesView]
 seriesSpacing = 15
 photosSpacing = 3
 pixmapSize = { width = 320, height = 240 } # should be the same as photoItem.pixmapSize
+enabledAddons = ["focus", "best", "score"]
 
 [seriesView]
 maxPixmapSize = { width = 1920, height = 1080 }
+enabledAddons = ["focus", "best", "score", "histogram"]
 
 [seriesView.num]
 visibleItems = 2

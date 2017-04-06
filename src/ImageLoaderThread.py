@@ -20,20 +20,36 @@ class ImageLoaderThread(QRunnable):
         self.fileToLoad = fileName
         self.requestedPixmapSizes = requestedPixmapSizes
         self.calculateMetrics = calculateMetrics
+        self.cvImage = None
 
     def run(self):
-        cvImage = cv2.imread(self.fileToLoad)
-        self._emitLoadedSignal(cvImage)
+        self.cvImage = cv2.imread(self.fileToLoad)
+        self._emitLoadedSignal(self.cvImage)
 
         if self.calculateMetrics:
-            cvImage = self._prepareImageForMetrics(cvImage)  # done here to definitely lose old cvImage (RAM usage)
-            self._runMetrics(cvImage)
+            self._runMetrics()
 
-    def _runMetrics(self, cvImage):
+    def _runMetrics(self):
+        height, width = self.cvImage.shape[:2]
+        maxSize = Config.asQSize("imageLoaderThread", "processingSize", QSize(1920, 1080))
+        scale = 1.0 / max(width / maxSize.width(), height / maxSize.height())
+        self.cvImage = cv2.resize(self.cvImage, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+
         metrics = ImageProcessing.Metrics()
-        metrics.blurSobel = ImageOperations.blurrinessSobel(cvImage)
-        metrics.blurLaplace = ImageOperations.blurrinessLaplace(cvImage)
-        metrics.blurLaplaceMod = ImageOperations.blurinessLaplaceMod(cvImage)
+
+        #self.cvImage = cv2.cvtColor(self.cvImage, cv2.COLOR_BGR2HSV)
+        #metrics.hist = ImageOperations.normalizedHistogram(self.cvImage[:, :, 2])
+
+        self.cvImage = cv2.cvtColor(self.cvImage, cv2.COLOR_BGR2GRAY)
+
+        metrics.hist, metrics.contrast = ImageOperations.normalizedHistogramAndContrast(self.cvImage)
+        metrics.noise = ImageOperations.noiseMeasure(self.cvImage, Config.get_or("imageLoaderThread", "noiseMedianSize", 3))
+
+        metrics.blurSobel = ImageOperations.blurrinessSobel(self.cvImage)
+        metrics.blurLaplace = ImageOperations.blurrinessLaplace(self.cvImage)
+        metrics.blurLaplaceMod = ImageOperations.blurinessLaplaceMod(self.cvImage)
+
+        self.cvImage = None
         self.signals.metricsReady.emit(metrics)
 
     def _emitLoadedSignal(self, cvImage):
@@ -56,15 +72,3 @@ class ImageLoaderThread(QRunnable):
             pixels.append(width*height)
 
         return scaledSizes[pixels.index(max(pixels))]
-
-    @staticmethod
-    def _prepareImageForMetrics(cvImage):
-        if Config.get_or("imageLoaderThread", "processInGrayscale", True):
-            cvImage = cv2.cvtColor(cvImage, cv2.COLOR_BGR2GRAY)
-
-        height, width = cvImage.shape[:2]
-        maxSize = Config.asQSize("imageLoaderThread", "processingSize", QSize(1920, 1080))
-        scale = 1.0 / max(width / maxSize.width(), height / maxSize.height())
-        cvImage = cv2.resize(cvImage, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
-
-        return cvImage
