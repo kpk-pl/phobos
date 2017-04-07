@@ -30,9 +30,12 @@ def asQSize(tableName, key, defaultValue=None):
     return defaultValue
 
 
-def asQColor(tableName, key, defaultValue=None):
+def asQColor(table, key, defaultValue=None):
     from Config.Types import asQColor
-    prop = Property(tableName, key)
+    if isinstance(table, str):
+        prop = Property(table, key)
+    else:  # Table
+        prop = table[key]
     if prop.hasValue():
         return asQColor(prop)
     elif defaultValue is None:

@@ -7,6 +7,7 @@ from SeriesRowView import SeriesRowView
 from SeriesNumView import SeriesNumView
 from PhotoContainers import PhotoSeriesSet
 import Utils
+import Config
 
 
 class ViewStack(QStackedWidget):
@@ -19,6 +20,11 @@ class ViewStack(QStackedWidget):
         self._setupUi()
         self._connectSignals()
 
+        if Config.get_or("seriesView.num", "default", False):
+            self._currentSeriesWidget = self.seriesNumView
+        else:
+            self._currentSeriesWidget = self.seriesRowView
+
     def addPhotos(self, photos):
         self.series.addPhotos(photos)
 
@@ -28,13 +34,30 @@ class ViewStack(QStackedWidget):
         assert phSeries is not None
 
         self.currentSeriesInView = phSeries.uuid
-        self._activeSeriesView().showSeries(phSeries)
-        self.setCurrentWidget(self._activeSeriesView())
+        self._currentSeriesWidget.showSeries(phSeries)
+        self.setCurrentWidget(self._currentSeriesWidget)
 
     @pyqtSlot()
     def showAllSeries(self):
         self.currentSeriesInView = None
         self.setCurrentWidget(self.allSeriesView)
+
+    @pyqtSlot(str)
+    def switchView(self, specificator):
+        if specificator == "showAllSeries":
+            self.showAllSeries()
+        elif specificator == "showNumSeries":
+            self._currentSeriesWidget = self.seriesNumView
+            if self.currentSeriesInView is None:
+                self.showOneSeries()
+            else:
+                self.openInSeries(self.currentSeriesInView)
+        elif specificator == "showOneSeries":
+            self._currentSeriesWidget = self.seriesRowView
+            if self.currentSeriesInView is None:
+                self.showOneSeries()
+            else:
+                self.openInSeries(self.currentSeriesInView)
 
     @pyqtSlot()
     def showOneSeries(self):
@@ -66,9 +89,6 @@ class ViewStack(QStackedWidget):
             else:
                 self.allSeriesView.focusSeries()
 
-    def _activeSeriesView(self):
-        return self.seriesNumView
-
     def _setupUi(self):
         self.allSeriesView = AllSeriesView()
         self.seriesRowView = SeriesRowView()
@@ -82,10 +102,10 @@ class ViewStack(QStackedWidget):
         self.allSeriesView.openInSeries.connect(self.openInSeries)
         self.series.newSeries.connect(self.allSeriesView.addPhotoSeries)
 
-        self.seriesRowView.returnFromView.connect(self.showAllSeries)
+        self.seriesRowView.switchView.connect(self.switchView)
         self.seriesRowView.nextSeries.connect(self.showNextSeries)
         self.seriesRowView.prevSeries.connect(self.showPrevSeries)
 
-        self.seriesNumView.returnFromView.connect(self.showAllSeries)
+        self.seriesNumView.switchView.connect(self.switchView)
         self.seriesNumView.nextSeries.connect(self.showNextSeries)
         self.seriesNumView.prevSeries.connect(self.showPrevSeries)

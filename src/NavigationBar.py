@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt, QSize
 import PyQt5.QtGui as QtGui
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton, QSlider
 import Config
+import ImageProcessing
 
 
 class IconButton(QPushButton):
@@ -30,27 +31,44 @@ class IconButton(QPushButton):
 class NavigationCapability(IntEnum):
     NONE = 0
     BACK_TO_SERIES = 1
-    PREV = 2
-    NEXT = 4
-    SLIDER = 8
+    NUM_SERIES = 2
+    ONE_SERIES = 4
+    PREV = 8
+    NEXT = 16
+    SLIDER = 32
 
 
 class NavigationBar(QWidget):
     def __init__(self, capabilities, parent=None):
         super(NavigationBar, self).__init__(parent)
 
-        self.backToSeries = None
+        self.showAllSeries = None
+        self.showOneSeries = None
+        self.showNumSeries = None
         self.slider = None
         self.prev = None
         self.next = None
 
+        self._configTable = Config.Table("navigationBar")
+
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(Config.get_or("navigationBar", "spacing", 2))
+        layout.setSpacing(self._configTable.get_or("spacing", 2))
 
         if capabilities & NavigationCapability.BACK_TO_SERIES:
-            self.backToSeries = IconButton(QtGui.QIcon(Config.get("navigationBar", "backToSeriesIcon")))
-            layout.addWidget(self.backToSeries)
+            iconPixmap = ImageProcessing.coloredPixmap(self._configTable.get("allSeriesIcon"), QSize(64, 64), color=Config.asQColor(self._configTable, "iconColor", Qt.black))
+            self.showAllSeries = IconButton(QtGui.QIcon(iconPixmap))
+            layout.addWidget(self.showAllSeries)
+
+        if capabilities & NavigationCapability.NUM_SERIES:
+            iconPixmap = ImageProcessing.coloredPixmap(self._configTable.get("numSeriesIcon"), QSize(64, 64), color=Config.asQColor(self._configTable, "iconColor", Qt.black))
+            self.showNumSeries = IconButton(QtGui.QIcon(iconPixmap))
+            layout.addWidget(self.showNumSeries)
+
+        if capabilities & NavigationCapability.ONE_SERIES:
+            iconPixmap = ImageProcessing.coloredPixmap(self._configTable.get("oneSeriesIcon"), QSize(64, 64), color=Config.asQColor(self._configTable, "iconColor", Qt.black))
+            self.showOneSeries = IconButton(QtGui.QIcon(iconPixmap))
+            layout.addWidget(self.showOneSeries)
 
         if capabilities & NavigationCapability.SLIDER:
             self.slider = QSlider(Qt.Horizontal)

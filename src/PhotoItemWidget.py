@@ -1,30 +1,12 @@
 #!/usr/bin/python3
 
-from PyQt5.QtCore import Qt, QSize, QPoint, QUuid, QEvent, QRectF, pyqtSlot, pyqtSignal
+from PyQt5.QtCore import Qt, QSize, QPoint, QUuid, QEvent, QRectF, pyqtSignal
 import PyQt5.QtGui as QtGui
 from PyQt5.QtWidgets import QMenu
 from ImageWidget import ImageWidget
 from PhotoItem import PhotoItemState
 import Config
-import Exceptions
-
-
-def _getColorIcon(filePath, size, color, opacity):
-    pixmap = QtGui.QIcon(filePath).pixmap(size)
-    if pixmap.isNull():
-        raise Exceptions.CannotLoadMediaException(filePath)
-
-    painter = QtGui.QPainter(pixmap)
-    painter.setOpacity(opacity)
-    painter.setRenderHint(QtGui.QPainter.Antialiasing)
-    painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceIn)
-    painter.setBrush(color)
-    painter.setPen(color)
-
-    painter.drawRect(pixmap.rect())
-    painter.end()
-
-    return pixmap
+import ImageProcessing
 
 
 def _getIconToPaint(configTable, availableSize):
@@ -35,7 +17,7 @@ def _getIconToPaint(configTable, availableSize):
         color = Qt.black
     opacity = configTable.get_or("opacity", 0.5)
 
-    pixmap = _getColorIcon(configTable.get("path"), iconSize, color, opacity)
+    pixmap = ImageProcessing.coloredPixmap(configTable.get("path"), iconSize, color, opacity)
     return pixmap
 
 

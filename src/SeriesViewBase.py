@@ -25,7 +25,7 @@ def _clearLayout(layout):
 
 
 class SeriesViewBase(QWidget):
-    returnFromView = pyqtSignal()
+    switchView = pyqtSignal(str)
     nextSeries = pyqtSignal()
     prevSeries = pyqtSignal()
 

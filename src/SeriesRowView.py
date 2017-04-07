@@ -65,6 +65,7 @@ class SeriesRowView(SeriesViewBase):
     def __init__(self, parent=None):
         super(SeriesRowView, self).__init__(parent)
         self.navigationBar = NavigationBar(NavigationCapability.BACK_TO_SERIES | NavigationCapability.SLIDER |
+                                           NavigationCapability.NUM_SERIES |
                                            NavigationCapability.PREV | NavigationCapability.NEXT)
 
         self.scroll = HorizontalImageScrollArea()
@@ -96,7 +97,8 @@ class SeriesRowView(SeriesViewBase):
         self.layout().setStretch(2, 100-percent)
 
     def _connectSignals(self):
-        self.navigationBar.backToSeries.clicked.connect(self.backToSeries)
+        self.navigationBar.showAllSeries.clicked.connect(lambda: self.switchView.emit("showAllSeries"))
+        self.navigationBar.showNumSeries.clicked.connect(lambda: self.switchView.emit("showNumSeries"))
         self.navigationBar.slider.valueChanged.connect(self._resizeImages)
         self.navigationBar.prev.clicked.connect(self.prevSeries)
         self.navigationBar.next.clicked.connect(self.nextSeries)

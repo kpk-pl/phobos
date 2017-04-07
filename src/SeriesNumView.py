@@ -25,7 +25,7 @@ def _clearLayout(layout):
 class SeriesNumView(SeriesViewBase):
     def __init__(self, parent=None):
         super(SeriesNumView, self).__init__(parent)
-        self.navigationBar = NavigationBar(NavigationCapability.BACK_TO_SERIES |
+        self.navigationBar = NavigationBar(NavigationCapability.BACK_TO_SERIES | NavigationCapability.ONE_SERIES |
                                            NavigationCapability.PREV | NavigationCapability.NEXT)
         self.visibleItems = Config.get_or("seriesView.num", "visibleItems", 2)
         self.photoItems = []
@@ -87,6 +87,7 @@ class SeriesNumView(SeriesViewBase):
             self.layout.addWidget(photoItem)
 
     def _connectSignals(self):
-        self.navigationBar.backToSeries.clicked.connect(self.backToSeries)
+        self.navigationBar.showAllSeries.clicked.connect(lambda: self.switchView.emit("showAllSeries"))
+        self.navigationBar.showOneSeries.clicked.connect(lambda: self.switchView.emit("showOneSeries"))
         self.navigationBar.prev.clicked.connect(self.prevSeries)
         self.navigationBar.next.clicked.connect(self.nextSeries)

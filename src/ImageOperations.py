@@ -6,6 +6,7 @@ from Exceptions import CannotReadImageException
 import numpy as np
 import cv2
 
+
 def readImageFromFile(fileName):
     reader = QImageReader(fileName)
     reader.setAutoTransform(True)
