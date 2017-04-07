@@ -28,47 +28,57 @@ class ViewStack(QStackedWidget):
     def addPhotos(self, photos):
         self.series.addPhotos(photos)
 
+    def _updateView(self):
+        if self.currentSeriesInView is None:
+            self.setCurrentWidget(self.allSeriesView)
+        else:
+            self.setCurrentWidget(self._currentSeriesWidget)
+
     @pyqtSlot(QUuid)
-    def openInSeries(self, seriesUuid, offset=0):
+    def switchSeries(self, seriesUuid, offset=0): # openInSeries
         phSeries = self.series.findSeries(seriesUuid, offset)
         assert phSeries is not None
 
         self.currentSeriesInView = phSeries.uuid
         self._currentSeriesWidget.showSeries(phSeries)
-        self.setCurrentWidget(self._currentSeriesWidget)
+        self._updateView()
 
-    @pyqtSlot()
-    def showAllSeries(self):
-        self.currentSeriesInView = None
-        self.setCurrentWidget(self.allSeriesView)
+    def _findSeriesToSwitch(self):
+        if self.currentSeriesInView is None:
+            focusWidget = Utils.focusedPhotoItem()
+            if focusWidget is not None:
+                return focusWidget.photoItem.seriesUuid
+            elif len(self.series) > 0:
+                return self.series[0].uuid
+            else:
+                return None
+        else:
+            return self.currentSeriesInView
 
     @pyqtSlot(str)
     def switchView(self, specificator):
         if specificator == "showAllSeries":
-            self.showAllSeries()
-        elif specificator == "showNumSeries":
-            self._currentSeriesWidget = self.seriesNumView
-            if self.currentSeriesInView is None:
-                self.showOneSeries()
-            else:
-                self.openInSeries(self.currentSeriesInView)
-        elif specificator == "showOneSeries":
-            self._currentSeriesWidget = self.seriesRowView
-            if self.currentSeriesInView is None:
-                self.showOneSeries()
-            else:
-                self.openInSeries(self.currentSeriesInView)
+            self.currentSeriesInView = None
+            self._updateView()
+        elif specificator in ["showNumSeries", "showOneSeries"]:
+            toSwitch = self._findSeriesToSwitch()
+            if toSwitch is None:
+                return
 
-    @pyqtSlot()
-    def showOneSeries(self):
-        if self.currentSeriesInView is not None:
-            return
+            if specificator == "showNumSeries":
+                if self._currentSeriesWidget == self.seriesNumView and toSwitch == self.currentSeriesInView:
+                    return
+                if self._currentSeriesWidget != self.seriesNumView:
+                    # move elements to another View
+                    self._currentSeriesWidget = self.seriesNumView
+            else:
+                if self._currentSeriesWidget == self.seriesRowView and toSwitch == self.currentSeriesInView:
+                    return
+                if self._currentSeriesWidget != self.seriesRowView:
+                    # move elements to another View
+                    self._currentSeriesWidget = self.seriesRowView
 
-        focusWidget = self._focusedPhotoItem()
-        if focusWidget is not None:
-            self.openInSeries(focusWidget.photoItem.seriesUuid)
-        elif len(self.series) > 0:
-            self.openInSeries(self.series[0].uuid)
+            self.switchSeries(toSwitch)
 
     @pyqtSlot()
     def showNextSeries(self):
@@ -80,7 +90,7 @@ class ViewStack(QStackedWidget):
 
     def _showOffsetSeries(self, offset):
         if self.currentSeriesInView is not None:
-            self.openInSeries(self.currentSeriesInView, offset)
+            self.switchSeries(self.currentSeriesInView, offset)
         else:
             focusWidget = Utils.focusedPhotoItem()
             if focusWidget is not None:
@@ -99,7 +109,7 @@ class ViewStack(QStackedWidget):
         self.addWidget(self.seriesNumView)
 
     def _connectSignals(self):
-        self.allSeriesView.openInSeries.connect(self.openInSeries)
+        self.allSeriesView.openInSeries.connect(self.switchSeries)
         self.series.newSeries.connect(self.allSeriesView.addPhotoSeries)
 
         self.seriesRowView.switchView.connect(self.switchView)

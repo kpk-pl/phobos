@@ -47,11 +47,15 @@ class MainWindow(QMainWindow):
 
         self._showAllSeriesView = QAction("&All series", self, shortcut="Ctrl+A",
                                           statusTip="Show all series in one view",
-                                          triggered=self.workArea.showAllSeries)
+                                          triggered=lambda: self.workArea.switchView("showAllSeries"))
 
         self._showOneSeriesView = QAction("&One series", self, shortcut="Ctrl+O",
                                           statusTip="Show one series on a single page",
-                                          triggered=self.workArea.showOneSeries)
+                                          triggered=lambda: self.workArea.switchView("showOneSeries"))
+
+        self._showNumSeriesView = QAction("&Separate photos", self, shortcut="Ctrl+H",
+                                          statusTip="Show separate photos from one series on a single page",
+                                          triggered=lambda: self.workArea.switchView("showNumSeries"))
 
         self._showNextSeriesInView = QAction("&Next series", self, shortcut="Ctrl+N",
                                              statusTip="Jump to next series",
@@ -70,6 +74,7 @@ class MainWindow(QMainWindow):
         self._viewMenu = self.menuBar().addMenu("&View")
         self._viewMenu.addAction(self._showAllSeriesView)
         self._viewMenu.addAction(self._showOneSeriesView)
+        self._viewMenu.addAction(self._showNumSeriesView)
         self._viewMenu.addSeparator()
         self._viewMenu.addAction(self._showNextSeriesInView)
         self._viewMenu.addAction(self._showPrevSeriesInView)
