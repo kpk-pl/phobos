@@ -43,10 +43,6 @@ class AllSeriesView(QWidget):
         else:
             self._grid.itemAtPosition(self.seriesUuidToRow[seriesUuid], 0).widget().setFocus()
 
-    def eventFilter(self, obj, event):
-        print(event.type())
-        return False
-
     def keyPressEvent(self, event):
         if event.type() == QEvent.KeyPress and event.key() in [Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down]:
             focusCoord = self._getFocusGridCoordinates()
