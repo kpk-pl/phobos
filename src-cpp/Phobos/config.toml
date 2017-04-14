@@ -1,0 +1,73 @@
+[mainWindow]
+title = "Phobos"
+minimumSize = { width = 480, height = 360 }
+defaultSize = { width = 1024, height = 768 }
+
+[photoSet]
+seriesTimeThreshold = 2
+
+[imageLoaderThread]
+processingSize = [1920, 1080]
+noiseMedianSize = 3
+
+[photoItem]
+pixmapSize = { width = 320, height = 240 }
+
+[photoItemWidget.focusIcon]
+padding = 7
+opacity = 0.5
+color = "orange"
+sizePercent = 0.15
+path = "icon/focus.png"
+
+[photoItemWidget.qualityText]
+padding = 7
+opacity = 1.0
+decimalPlaces = 0
+color = "red"
+font = { family = "Courier", pointSize = 10, weight = 2 }
+
+[photoItemWidget.bestMarkIcon]
+path = "icon/star.png"
+opacity = 0.5
+color = "yellow"
+sizePercent = 0.2
+padding = 7
+
+[photoItemWidget.border]
+width = 2
+colorUnknown = "darkGray"
+colorSelected = "green"
+colorDiscarded = "red"
+
+[photoItemWidget.histogram]
+width = 128
+height = 64
+opacity = 0.6
+color = "red"
+fillColor = "transparent"
+
+[allSeriesView]
+seriesSpacing = 15
+photosSpacing = 3
+pixmapSize = { width = 320, height = 240 } # should be the same as photoItem.pixmapSize
+enabledAddons = ["focus", "best", "score"]
+
+[seriesView]
+maxPixmapSize = { width = 1920, height = 1080 }
+enabledAddons = ["focus", "best", "score", "histogram"]
+
+[seriesView.num]
+visibleItems = 2
+default = true
+
+[navigationBar]
+nextIcon = "icon/next.png"
+prevIcon = "icon/prev.png"
+allSeriesIcon = "icon/all_grid.png"
+numSeriesIcon = "icon/num_grid.png"
+oneSeriesIcon = "icon/scroll_grid.png"
+iconColor = "blue"
+spacing = 2
+buttonSize = [40, 40]
+buttonMargin = 4
