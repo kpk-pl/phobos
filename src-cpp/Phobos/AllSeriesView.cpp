@@ -109,7 +109,7 @@ namespace {
     }
 } // unnamed namespace
 
-void AllSeriesView::addNewSeries(pcontainer::SeriesPtr const& series)
+void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
 {
     std::size_t const row = numberOfSeries();
     seriesUuidToRow.emplace(series->uuid(), row);

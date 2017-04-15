@@ -7,6 +7,7 @@
 #include <QPixmap>
 #include <QPainter>
 #include <QFont>
+#include <sstream>
 #include "PhotoItemWidget.h"
 #include "Config.h"
 #include "ConfigExtension.h"
@@ -56,15 +57,9 @@ public:
     }
     static std::string percentString(double const val, unsigned const decimalPlaces)
     {
-        unsigned whole = std::floor(val);
-        std::string text = std::to_string(whole);
-        if (decimalPlaces > 0)
-        {
-            text += ".";
-            text += std::to_string(std::floor((val - whole) * std::pow(10, decimalPlaces)));
-        }
-        text += "%";
-        return text;
+        std::ostringstream oss;
+        oss << std::setprecision(decimalPlaces) << std::fixed << (val*100) << "%";
+        return oss.str();
     }
 
     PixmapRenderer(PhotoItemWidget const& widget) :

@@ -41,6 +41,20 @@ namespace {
         return filetimeToUnix(creation);
     }
 } // unnamed namespace
+#elif __linux__
+#include <sys/stat.h>
+#include <sys/types.h>
+namespace {
+    unsigned detailModTime(std::string const& fileName)
+    {
+        struct stat attrib;
+        if (-1 == stat(fileName.c_str(), &attrib))
+            return 0;
+        return attrib.st_mtime;
+    }
+} // unnamed namespace
+#else
+#error "OS not supported"
 #endif
 
 namespace phobos { namespace pcontainer {

@@ -23,7 +23,7 @@ public:
     void addPhotos(QStringList const& photos);
 
 public slots:
-    void handleSwitchView(ViewDescriptionPtr const& viewDesc);
+    void handleSwitchView(ViewDescriptionPtr viewDesc);
 
 private:
     pcontainer::SeriesPtr const& findRequestedSeries(ViewDescriptionPtr const& viewDesc) const;

@@ -113,7 +113,7 @@ void NumSeriesView::setCurrentView()
     utils::clearLayout(layoutForItems, false);
 
     int startShow = std::max(int(currentItem) - int((visibleItems-1)/2), 0);
-    int endShow = std::min(startShow + visibleItems, photoItems.size());
+    int endShow = std::min(startShow + int(visibleItems), int(photoItems.size()));
     if (endShow - startShow < int(visibleItems))
         startShow = std::max(endShow - int(visibleItems), 0);
 

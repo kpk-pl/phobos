@@ -27,7 +27,7 @@ public:
 private slots:
     void newMetricCalculated();
 
-private:   
+private:
     ItemPtrVec photoItems;
     QUuid const _uuid;
 };

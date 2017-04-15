@@ -43,7 +43,7 @@ void Item::loadPhoto(QSize const& size, QObject const* onLoadReceiver,
 
         if (doMetrics)
             QObject::connect(&loaderTask->readySignals, &LoaderThreadSignals::metricsReady,
-                             this, &Item::metricsReady, Qt::QueuedConnection);
+                             this, &Item::metricsReadyFromThread, Qt::QueuedConnection);
 
         QObject::connect(&loaderTask->readySignals, &LoaderThreadSignals::pixmapReady,
                          onLoadReceiver, onLoadCallback, Qt::QueuedConnection);
@@ -56,13 +56,25 @@ void Item::loadPhoto(QSize const& size, QObject const* onLoadReceiver,
     }
 }
 
-void Item::loadedPhotoFromThread(std::shared_ptr<QPixmap> const& pixmap)
+void Item::loadedPhotoFromThread(std::shared_ptr<QPixmap> pixmap)
 {
     QSize const expectedSize = getPixmapSizeFromConfig();
     if (!sizeFits(pixmap->size(), expectedSize))
         _pixmap = std::make_shared<QPixmap>(iprocess::scalePixmap(*pixmap, expectedSize));
     else
         _pixmap = pixmap;
+}
+
+void Item::metricsReadyFromThread(iprocess::MetricPtr metric)
+{
+    _metric = metric;
+    emit metricsReady();
+}
+
+void Item::setScoredMetric(iprocess::ScoredMetricPtr const& scoredMetric)
+{
+    _scoredMetric = scoredMetric;
+    emit stateChanged();
 }
 
 bool Item::isSelected() const

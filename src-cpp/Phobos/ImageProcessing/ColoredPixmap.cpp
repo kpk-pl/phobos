@@ -1,6 +1,5 @@
-#include "ImageProcessing/ColoredPixmap.h"
-
 #include <QPainter>
+#include "ImageProcessing/ColoredPixmap.h"
 
 namespace phobos { namespace iprocess {
 

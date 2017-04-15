@@ -2,14 +2,14 @@
 
 namespace phobos { namespace iprocess {
 
-double SeriesMetric::score() const
+double ScoredMetric::score() const
 {
     double result = 1.0;
-    if (blur.sobel) result *= *blur.sobel;
-    if (blur.laplace) result *= *blur.laplace;
-    if (blur.laplaceMod) result *= *blur.laplaceMod;
-    if (noise) result *= *noise;
-    if (contrast) result *= *contrast;
+    result *= seriesMetric.blur.sobel.value_or(1);
+    result *= seriesMetric.blur.laplace.value_or(1);
+    result *= seriesMetric.blur.laplaceMod.value_or(1);
+    result *= seriesMetric.noise.value_or(1);
+    result *= seriesMetric.contrast.value_or(1);
     return result;
 }
 

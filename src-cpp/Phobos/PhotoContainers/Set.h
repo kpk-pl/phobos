@@ -23,7 +23,7 @@ public:
     SeriesPtr const& front() const;
 
 signals:
-    void newSeries(SeriesPtr const&);
+    void newSeries(SeriesPtr);
 
 private:
     SeriesPtrVec photoSeries;

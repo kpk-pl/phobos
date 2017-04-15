@@ -17,24 +17,24 @@ SOURCES += Phobos.cpp\
     ImageProcessing/Metrics.cpp \
     ImageProcessing/LoaderThread.cpp \
     ImageProcessing/FormatConversion.cpp \
+    ImageProcessing/Bluriness.cpp \
+    ImageProcessing/Noisiness.C \
+    ImageProcessing/Histogram.cpp \
+    ImageProcessing/MetricsAggregate.cpp \
+    ImageProcessing/ColoredPixmap.cpp \
+    ImageProcessing/ScalePixmap.cpp \
     PhotoContainers/Item.cpp \
     PhotoContainers/Series.cpp \
     PhotoContainers/Set.cpp \
-    ImageProcessing/ScalePixmap.cpp \
     ConfigExtension.cpp \
     PhotoItemWidget.cpp \
     PhotoItemWidgetAddon.cpp \
     SeriesViewBase.cpp \
     NumSeriesView.cpp \
     Utils/LayoutClear.cpp \
-    ImageProcessing/ColoredPixmap.cpp \
     NavigationBar.cpp \
     RowSeriesView.cpp \
-    HorizontalScrollArea.cpp \
-    ImageProcessing/Bluriness.cpp \
-    ImageProcessing/Noisiness.C \
-    ImageProcessing/Histogram.cpp \
-    ImageProcessing/MetricsAggregate.cpp
+    HorizontalScrollArea.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -46,6 +46,11 @@ HEADERS  += MainWindow.h \
     ImageProcessing/LoaderThread.h \
     ImageProcessing/ScalePixmap.h \
     ImageProcessing/FormatConversion.h \
+    ImageProcessing/Bluriness.h \
+    ImageProcessing/Noisiness.h \
+    ImageProcessing/Histogram.h \
+    ImageProcessing/MetricsAggregate.h \
+    ImageProcessing/ColoredPixmap.h \
     PhotoContainers/Series.h \
     PhotoContainers/Set.h \
     PhotoContainers/Item.h \
@@ -54,26 +59,25 @@ HEADERS  += MainWindow.h \
     SeriesViewBase.h \
     NumSeriesView.h \
     Utils/LayoutClear.h \
-    ImageProcessing/ColoredPixmap.h \
     Utils/Algorithm.h \
     Utils/Focused.h \
     NavigationBar.h \
     RowSeriesView.h \
     HorizontalScrollArea.h \
     HeightResizeableInterface.h \
-    ViewDescription.h \
-    ImageProcessing/Bluriness.h \
-    ImageProcessing/Noisiness.h \
-    ImageProcessing/Histogram.h \
-    ImageProcessing/MetricsAggregate.h
+    ViewDescription.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost
 INCLUDEPATH += opencv/include
 
+_WIN32 {
 LIBS += $$PWD/opencv/bin/libopencv_core320.dll
 LIBS += $$PWD/opencv/bin/libopencv_imgcodecs320.dll
 LIBS += $$PWD/opencv/bin/libopencv_imgproc320.dll
+} else {
+LIBS += `pkg-config opencv --libs`
+}
 
 CONFIG(release, debug|release): DESTDIR = $$OUT_PWD/release
 CONFIG(debug, debug|release): DESTDIR = $$OUT_PWD/debug

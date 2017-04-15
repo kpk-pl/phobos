@@ -56,7 +56,7 @@ void ViewStack::updateCurrentWidget(ViewDescriptionPtr const& viewDesc)
     }
 }
 
-void ViewStack::handleSwitchView(ViewDescriptionPtr const& viewDesc)
+void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
 {
     if (seriesSet.empty())
         return; // NO-OP

@@ -1,7 +1,7 @@
 [mainWindow]
 title = "Phobos"
 minimumSize = { width = 480, height = 360 }
-defaultSize = { width = 1024, height = 768 }
+defaultSize = { width = 1024, height = 600 }
 
 [photoSet]
 seriesTimeThreshold = 2
@@ -23,9 +23,9 @@ path = "icon/focus.png"
 [photoItemWidget.qualityText]
 padding = 7
 opacity = 1.0
-decimalPlaces = 0
+decimalPlaces = 2
 color = "red"
-font = { family = "Courier", pointSize = 10, weight = 2 }
+font = { family = "Courier", pointSize = 16, weight = 2 }
 
 [photoItemWidget.bestMarkIcon]
 path = "icon/star.png"
@@ -71,3 +71,4 @@ iconColor = "blue"
 spacing = 2
 buttonSize = [40, 40]
 buttonMargin = 4
+

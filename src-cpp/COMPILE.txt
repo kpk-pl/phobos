@@ -1,0 +1,2 @@
+For Linux specific compilation instructions, linking errors etc, see:
+https://code.google.com/archive/p/qt-opencv-multithreaded/wikis/Documentation.wiki

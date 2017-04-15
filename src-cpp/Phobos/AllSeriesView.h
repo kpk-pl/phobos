@@ -26,10 +26,10 @@ public:
     void focusSeries(QUuid const& seriesUuid);
 
 signals:
-    void switchView(ViewDescriptionPtr const& viewDesc);
+    void switchView(ViewDescriptionPtr viewDesc);
 
 public slots:
-    void addNewSeries(pcontainer::SeriesPtr const& series);
+    void addNewSeries(pcontainer::SeriesPtr series);
 
 private:
     struct Coords;

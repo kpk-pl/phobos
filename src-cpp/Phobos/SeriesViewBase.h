@@ -24,7 +24,7 @@ public:
     void exchangeItemsFrom(SeriesViewBase *source);
 
 signals:
-    void switchView(ViewDescriptionPtr const& viewDesc);
+    void switchView(ViewDescriptionPtr viewDesc);
 
 protected:
     virtual void addToLayout(PhotoItemWidget* itemWidget) = 0;

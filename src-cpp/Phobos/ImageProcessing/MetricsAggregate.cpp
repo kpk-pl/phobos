@@ -3,15 +3,29 @@
 namespace phobos { namespace iprocess {
 
 namespace {
-    Metric calcMaxMetric(MetricPtrVec const& metrics)
+    template <typename Func>
+    auto maxMetric(MetricPtrVec const& metrics, Func const& func)
+        -> decltype(std::declval<Func>()(*metrics.front()))
     {
-        Metric result;
-       /* maxMet.blurSobel = max([item.blurSobel for item in metrics])
-        maxMet.blurLaplace = max([item.blurLaplace for item in metrics])
-        maxMet.blurLaplaceMod = max([item.blurLaplaceMod for item in metrics])
-        maxMet.noise = max([item.noise for item in metrics])
-        maxMet.contrast = max([item.contrast for item in metrics]) */
-        return result;
+        auto maxIt = std::max_element(metrics.begin(), metrics.end(),
+            [&func](MetricPtr const& m1, MetricPtr const& m2){ return func(*m1) < func(*m2); });
+        return func(**maxIt);
+    };
+
+    template<typename Func>
+    void aggregateMetric(MetricPtrVec const& metrics, ScoredMetricPtrVec &scored,
+                         Func const& getter)
+    {
+        auto const maxM = maxMetric(metrics, getter);
+        if (maxM == boost::none)
+            return;
+
+        assert(metrics.size() == scored.size());
+        for (std::size_t i = 0; i < metrics.size(); ++i)
+        {
+            if (getter(*metrics[i]) != boost::none)
+                getter(scored[i]->seriesMetric) = *getter(*metrics[i]) / *maxM;
+        }
     }
 } // unnamed namespace
 
@@ -19,26 +33,21 @@ ScoredMetricPtrVec aggregateMetrics(MetricPtrVec const& metrics)
 {
     ScoredMetricPtrVec result;
     result.reserve(metrics.size());
+    if (metrics.empty())
+        return result;
 
-    Metric const maxMetric = calcMaxMetric(metrics);
+    for (std::size_t i = 0; i < metrics.size(); ++i)
+        result.emplace_back(std::make_shared<ScoredMetric>());
 
-    for (auto const& metric : metrics)
-    {
-        ScoredMetricPtr scored = std::make_shared<ScoredMetric>();
-        /*
-        newItem.seriesAggregated = SeriesMetrics()
-        newItem.seriesAggregated.blurSobelPrc = item.blurSobel / maxMet.blurSobel
-        newItem.seriesAggregated.blurLaplacePrc = item.blurLaplace / maxMet.blurLaplace
-        newItem.seriesAggregated.blurLaplaceModPrc = item.blurLaplaceMod / maxMet.blurLaplaceMod
-        newItem.seriesAggregated.noisePrc = item.noise / maxMet.noise
-        newItem.seriesAggregated.contrastPrc = item.contrast / maxMet.contrast */
+    aggregateMetric(metrics, result, [](auto& m)->auto&{ return m.blur.sobel; });
+    aggregateMetric(metrics, result, [](auto& m)->auto&{ return m.blur.laplace; });
+    aggregateMetric(metrics, result, [](auto& m)->auto&{ return m.blur.laplaceMod; });
+    aggregateMetric(metrics, result, [](auto& m)->auto&{ return m.noise; });
+    aggregateMetric(metrics, result, [](auto& m)->auto&{ return m.contrast; });
 
-        result.push_back(scored);
-    }
-
-    /*
-     *     bestItem = max(result, key=lambda i: i.quality())
-    bestItem.bestQuality = True */
+    auto const& bestEl = *std::max_element(result.begin(), result.end(),
+            [](ScoredMetricPtr const& l, ScoredMetricPtr const& r){ return l->score() < r->score(); });
+    bestEl->bestQuality = true;
 
     return result;
 }

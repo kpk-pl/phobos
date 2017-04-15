@@ -11,6 +11,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cstring>
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <map>
@@ -2341,6 +2342,35 @@ class parser
         }
     }
 
+    double strToDouble(const std::string& str)
+    {
+        long double result = 0;
+        unsigned decimalPos = 0;
+        for (std::size_t i = 0; i < str.size(); ++i)
+        {
+            if (str[i] == '.')
+            {
+                if (decimalPos)
+                    throw std::invalid_argument("Multiple comma separators not allowed in double");
+                decimalPos = 1;
+            }
+            else
+            {
+                if (str[i] < '0' || str[i] > '9')
+                    throw std::invalid_argument("Not a digit or comma character in double");
+                const unsigned num = str[i]-'0';
+                if (decimalPos)
+                {
+                    result += static_cast<long double>(num)*std::pow(10.0, -double(decimalPos));
+                    decimalPos += 1;
+                }
+                else
+                    result = result*10 + num;
+            }
+        }
+        return result;
+    }
+
     std::shared_ptr<value<double>> parse_float(std::string::iterator& it,
                                                const std::string::iterator& end)
     {
@@ -2349,7 +2379,7 @@ class parser
         it = end;
         try
         {
-            return make_value<double>(std::stod(v));
+            return make_value<double>(strToDouble(v));
         }
         catch (const std::invalid_argument& ex)
         {

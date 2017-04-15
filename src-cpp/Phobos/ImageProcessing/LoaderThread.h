@@ -9,7 +9,6 @@
 #include <QObject>
 #include <QSize>
 #include <QPixmap>
-
 #include "ImageProcessing/Metrics.h"
 
 namespace phobos { namespace iprocess {
@@ -18,8 +17,8 @@ class LoaderThreadSignals : public QObject
 {
     Q_OBJECT
 signals:
-    void pixmapReady(std::shared_ptr<QPixmap> const&) const;
-    void metricsReady(MetricPtr const&) const;
+    void pixmapReady(std::shared_ptr<QPixmap>) const;
+    void metricsReady(phobos::iprocess::MetricPtr) const;
 };
 
 class LoaderThread : public QRunnable

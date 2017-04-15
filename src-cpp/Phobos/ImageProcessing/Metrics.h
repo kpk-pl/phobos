@@ -12,33 +12,25 @@ struct Blur {
     boost::optional<double> laplaceMod;
 };
 
-struct SeriesMetric
-{
-    Blur blur;
-    boost::optional<double> noise;
-    boost::optional<double> contrast;
-    double score() const;
-};
-
 struct Metric
 {
     Blur blur;
-    boost::optional<std::vector<float>> histogram;
-    boost::optional<double> contrast;
     boost::optional<double> noise;
+    boost::optional<double> contrast;
+    boost::optional<std::vector<float>> histogram;
 };
 
 struct ScoredMetric
 {
-    SeriesMetric seriesMetric;
+    Metric seriesMetric;
     bool bestQuality = false;
-    inline double score() const { return seriesMetric.score(); }
+    double score() const;
 };
 
-using MetricPtr = std::shared_ptr<Metric>;
-using MetricPtrVec = std::vector<MetricPtr>;
-using ScoredMetricPtr = std::shared_ptr<ScoredMetric>;
-using ScoredMetricPtrVec = std::vector<ScoredMetricPtr>;
+typedef std::shared_ptr<Metric> MetricPtr ;
+typedef std::vector<MetricPtr> MetricPtrVec;
+typedef std::shared_ptr<ScoredMetric> ScoredMetricPtr;
+typedef std::vector<ScoredMetricPtr> ScoredMetricPtrVec;
 
 }} // namespace phobos::iprocess
 

@@ -39,7 +39,7 @@ public:
     iprocess::MetricPtr metric() const { return _metric; }
     iprocess::ScoredMetricPtr scoredMetric() const { return _scoredMetric; }
 
-    void setScoredMetric(iprocess::ScoredMetricPtr const& scoredMetric) { _scoredMetric = scoredMetric; }
+    void setScoredMetric(iprocess::ScoredMetricPtr const& scoredMetric);
 
     bool hasPixmap() const { return _pixmap && !_pixmap->isNull(); }
     std::shared_ptr<QPixmap> const& pixmap() const { return _pixmap; }
@@ -51,10 +51,11 @@ public slots:
 
 signals:
     void stateChanged();
-    void metricsReady(iprocess::MetricPtr const&);
+    void metricsReady();
 
 private slots:
-    void loadedPhotoFromThread(std::shared_ptr<QPixmap> const& pixmap);
+    void loadedPhotoFromThread(std::shared_ptr<QPixmap> pixmap);
+    void metricsReadyFromThread(iprocess::MetricPtr metric);
 
 private:
     std::string const _fileName;
