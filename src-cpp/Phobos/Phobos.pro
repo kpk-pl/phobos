@@ -7,6 +7,13 @@ TEMPLATE = app
 CONFIG += c++14
 
 DEFINES += QT_DEPRECATED_WARNINGS
+DEFINES += ELPP_THREAD_SAFE
+DEFINES += ELPP_FEATURE_CRASH_LOG
+DEFINES += ELPP_STL_LOGGING
+DEFINES += ELPP_QT_LOGGING
+DEFINES += ELPP_FEATURE_PERFORMANCE_TRACKING
+
+QMAKE_CXXFLAGS += -Wno-unused-variable
 
 SOURCES += Phobos.cpp\
     MainWindow.cpp \
@@ -15,10 +22,11 @@ SOURCES += Phobos.cpp\
     AllSeriesView.cpp \
     ImageWidget.cpp \
     ImageProcessing/Metrics.cpp \
+    ImageProcessing/MetricsIO.cpp \
     ImageProcessing/LoaderThread.cpp \
     ImageProcessing/FormatConversion.cpp \
     ImageProcessing/Bluriness.cpp \
-    ImageProcessing/Noisiness.C \
+    ImageProcessing/Noisiness.cpp \
     ImageProcessing/Histogram.cpp \
     ImageProcessing/MetricsAggregate.cpp \
     ImageProcessing/ColoredPixmap.cpp \
@@ -26,12 +34,13 @@ SOURCES += Phobos.cpp\
     PhotoContainers/Item.cpp \
     PhotoContainers/Series.cpp \
     PhotoContainers/Set.cpp \
+    Utils/LayoutClear.cpp \
+    easyloggingpp/src/easylogging++.cc \
     ConfigExtension.cpp \
     PhotoItemWidget.cpp \
     PhotoItemWidgetAddon.cpp \
     SeriesViewBase.cpp \
     NumSeriesView.cpp \
-    Utils/LayoutClear.cpp \
     NavigationBar.cpp \
     RowSeriesView.cpp \
     HorizontalScrollArea.cpp
@@ -43,6 +52,7 @@ HEADERS  += MainWindow.h \
     ConfigExtension.h \
     ImageWidget.h \
     ImageProcessing/Metrics.h \
+    ImageProcessing/MetricsIO.h \
     ImageProcessing/LoaderThread.h \
     ImageProcessing/ScalePixmap.h \
     ImageProcessing/FormatConversion.h \
@@ -54,13 +64,14 @@ HEADERS  += MainWindow.h \
     PhotoContainers/Series.h \
     PhotoContainers/Set.h \
     PhotoContainers/Item.h \
+    Utils/LayoutClear.h \
+    Utils/Algorithm.h \
+    Utils/Focused.h \
+    easyloggingpp/src/easylogging++.h \
     PhotoItemWidget.h \
     PhotoItemWidgetAddon.h \
     SeriesViewBase.h \
     NumSeriesView.h \
-    Utils/LayoutClear.h \
-    Utils/Algorithm.h \
-    Utils/Focused.h \
     NavigationBar.h \
     RowSeriesView.h \
     HorizontalScrollArea.h \
@@ -70,6 +81,7 @@ HEADERS  += MainWindow.h \
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost
 INCLUDEPATH += opencv/include
+INCLUDEPATH += easyloggingpp/src
 
 _WIN32 {
 LIBS += $$PWD/opencv/bin/libopencv_core320.dll
@@ -84,8 +96,10 @@ CONFIG(debug, debug|release): DESTDIR = $$OUT_PWD/debug
 
 copydata_config.commands = $(COPY_FILE) \"$$shell_path($$PWD\\config.toml)\" \"$$shell_path($$DESTDIR)\"
 copydata_icons.commands = $(COPY_DIR) \"$$shell_path($$PWD\\icon)\" \"$$shell_path($$DESTDIR\\icon)\"
-first.depends = $(first) copydata_config copydata_icons
+copydata_logconfig.commands = $(COPY_FILE) \"$$shell_path($$PWD\\logging.conf)\" \"$$shell_path($$DESTDIR)\"
+first.depends = $(first) copydata_config copydata_icons copydata_logconfig
 export(first.depends)
 export(copydata_config.commands)
 export(copydata_icons.commands)
-QMAKE_EXTRA_TARGETS += first copydata_config copydata_icons
+export(copydata_logconfig.commands)
+QMAKE_EXTRA_TARGETS += first copydata_config copydata_icons copydata_logconfig

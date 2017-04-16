@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
+#include <easylogging++.h>
 #include "ImageProcessing/FormatConversion.h"
 #include "ImageProcessing/ScalePixmap.h"
 #include "ImageProcessing/LoaderThread.h"
@@ -23,6 +24,7 @@ LoaderThread::LoaderThread(std::string const& fileName,
 namespace {
 cv::Mat prepareForProcessing(cv::Mat cvImage)
 {
+    TIMED_FUNC(timedf);
     cv::cvtColor(cvImage, cvImage, cv::COLOR_BGR2GRAY);
 
     QSize const maxSize = config::qSize("imageLoaderThread.processingSize", QSize(1920, 1080));
@@ -37,29 +39,54 @@ cv::Mat prepareForProcessing(cv::Mat cvImage)
 
 void LoaderThread::run()
 {
+    TIMED_FUNC(timedf);
+
     // TODO: if not calculate metrics then use plain QT to read image
-    cv::Mat cvImage = cv::imread(fileToLoad);
+    cv::Mat cvImage;
+    {
+        TIMED_SCOPE(scopef, "imread " + fileToLoad);
+        cvImage = cv::imread(fileToLoad);
+    }
     emitLoadedSignal(cvImage);
+
     if (calculateMetrics)
         runMetrics(prepareForProcessing(std::move(cvImage)));
 }
 
 void LoaderThread::runMetrics(cv::Mat cvImage) const
 {
+    TIMED_FUNC(timedf);
+
     MetricPtr metrics = std::make_shared<Metric>();
 
-    metrics->contrast = 0;
-    metrics->histogram = normalizedHistogram(cvImage, *metrics->contrast);
-    metrics->noise = noiseMeasure(cvImage, config::qualified("imageLoaderThread.noiseMedianSize", 3));
-    metrics->blur.sobel = blur::sobel(cvImage);
-    metrics->blur.laplace = blur::laplace(cvImage);
-    metrics->blur.laplaceMod = blur::laplaceMod(cvImage);
+    {
+        TIMED_SCOPE(scopef, "runMetrics: histogram");
+        metrics->contrast = 0;
+        metrics->histogram = normalizedHistogram(cvImage, *metrics->contrast);
+    }
+    {
+        TIMED_SCOPE(scopef, "runMetrics: noise");
+        metrics->noise = noiseMeasure(cvImage, config::qualified("imageLoaderThread.noiseMedianSize", 3));
+    }
+    {
+        TIMED_SCOPE(scopef, "runMetrics: sobel");
+        metrics->blur.sobel = blur::sobel(cvImage);
+    }
+    {
+        TIMED_SCOPE(scopef, "runMetrics: laplace");
+        metrics->blur.laplace = blur::laplace(cvImage);
+    }
+    {
+        TIMED_SCOPE(scopef, "runMetrics: laplaceMod");
+        metrics->blur.laplaceMod = blur::laplaceMod(cvImage);
+    }
 
     emit readySignals.metricsReady(metrics);
 }
 
 void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage) const
 {
+    TIMED_FUNC(timedf);
     // TODO: maybe scale in opencv and then convert to image -> CPU save?
     QPixmap pixmap = QPixmap::fromImage(iprocess::convCvToImage(cvImage));
     pixmap = iprocess::scalePixmap(pixmap, biggestClosestSize(pixmap.size()));

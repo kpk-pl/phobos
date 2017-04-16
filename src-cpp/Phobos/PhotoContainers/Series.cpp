@@ -1,6 +1,8 @@
 #include <algorithm>
+#include <easylogging++.h>
 #include "PhotoContainers/Series.h"
 #include "ImageProcessing/MetricsAggregate.h"
+#include "ImageProcessing/MetricsIO.h"
 
 namespace phobos { namespace pcontainer {
 
@@ -39,7 +41,14 @@ void Series::newMetricCalculated()
 
     ScoredMetricPtrVec scoredMetrics = aggregateMetrics(allMetrics);
     for (std::size_t i = 0; i < photoItems.size(); ++i)
-        photoItems[i]->setScoredMetric(scoredMetrics[i]);
+    {
+        Item& item = *photoItems[i];
+        item.setScoredMetric(scoredMetrics[i]);
+        LOG(DEBUG) << "Calculated series metrics" << std::endl
+                   << "photoItem: " << item.fileName() << std::endl
+                   << "metric: " << item.metric() << std::endl
+                   << "scoredMetric: " << item.scoredMetric();
+    }
 }
 
 }} // namespace phobos::pcontainer

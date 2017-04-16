@@ -1,3 +1,6 @@
+[global]
+loggingConfig = "logging.conf"
+
 [mainWindow]
 title = "Phobos"
 minimumSize = { width = 480, height = 360 }

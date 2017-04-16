@@ -3,6 +3,7 @@
 #include "NumSeriesView.h"
 #include "RowSeriesView.h"
 #include "Utils/Focused.h"
+#include "ConfigExtension.h"
 
 namespace phobos {
 
@@ -12,8 +13,12 @@ ViewStack::ViewStack() :
     setupUI();
     connectSignals();
 
-    // TODO: use config default
-    currentSeriesWidget = rowSeriesView;
+    if (config::qualified("seriesView.num.default", false))
+        currentSeriesWidget = numSeriesView;
+    else if (config::qualified("seriesView.row.default", false))
+        currentSeriesWidget = rowSeriesView;
+    else
+        currentSeriesWidget = numSeriesView;
 }
 
 void ViewStack::addPhotos(QStringList const& photos)

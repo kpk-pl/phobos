@@ -38,6 +38,7 @@ public:
     ItemState state() const { return _state; }
     iprocess::MetricPtr metric() const { return _metric; }
     iprocess::ScoredMetricPtr scoredMetric() const { return _scoredMetric; }
+    std::string const& fileName() const { return _fileName; }
 
     void setScoredMetric(iprocess::ScoredMetricPtr const& scoredMetric);
 
