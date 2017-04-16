@@ -58,4 +58,27 @@ QColor qColor(std::string const& qualifiedPath, QColor const& def)
     return qColor(qualifiedPath).value_or(def);
 }
 
+QFont qFont(std::string const& qualifiedPath)
+{
+    QFont result;
+
+    auto const table = get()->get_table_qualified(qualifiedPath);
+    if (!table)
+        return result;
+
+    auto const family = table->get_as<std::string>("family");
+    if (family)
+        result.setFamily(family->c_str());
+
+    auto const pointSize = table->get_as<unsigned>("pointSize");
+    if (pointSize)
+        result.setPointSize(*pointSize);
+
+    auto const weight = table->get_as<unsigned>("weight");
+    if (weight)
+        result.setWeight(*weight);
+
+    return result;
+}
+
 }} // namespace phobos::config

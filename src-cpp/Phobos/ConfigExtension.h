@@ -4,6 +4,7 @@
 #include <string>
 #include <QSize>
 #include <QColor>
+#include <QFont>
 #include <cpptoml/cpptoml.h>
 #include "Config.h"
 
@@ -20,6 +21,8 @@ QSize qSize(std::string const& qualifiedPath, QSize const& def);
 
 cpptoml::option<QColor> qColor(std::string const& qualifiedPath);
 QColor qColor(std::string const& qualifiedPath, QColor const& def);
+
+QFont qFont(std::string const& qualifiedPath);
 
 }} // namespace phobos::config
 

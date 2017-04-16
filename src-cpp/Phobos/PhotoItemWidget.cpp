@@ -6,12 +6,12 @@
 #include <QKeyEvent>
 #include <QPixmap>
 #include <QPainter>
-#include <QFont>
 #include <sstream>
 #include "PhotoItemWidget.h"
 #include "Config.h"
 #include "ConfigExtension.h"
 #include "ImageProcessing/ColoredPixmap.h"
+#include "Utils/Algorithm.h"
 
 namespace phobos {
 
@@ -61,6 +61,36 @@ public:
         oss << std::setprecision(decimalPlaces) << std::fixed << (val*100) << "%";
         return oss.str();
     }
+    static QSize histogramSize(std::vector<float> const& data)
+    {
+        static std::initializer_list<unsigned> const POW2 = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
+        assert(utils::valueIn(data.size(), POW2));
+
+        unsigned width = config::qualified("photoItemWidget.histogram.width", 32);
+        unsigned height = config::qualified("photoItemWidget.histogram.height", 32);
+        if (!utils::valueIn(width, POW2)) width = 32;
+        if (width > data.size()) width = data.size();
+        if (!utils::valueIn(height, POW2) || height > data.size()) height = width;
+
+        return QSize(width, height);
+    }
+    static std::vector<float> scaleHistogram(std::vector<float> const& data, std::size_t const width)
+    {
+        if (data.empty()) return data;
+
+        unsigned const mult = data.size()/width;
+        std::vector<float> accumulated;
+        accumulated.reserve(width);
+
+        for (std::size_t i = 0; i < width; ++i)
+            accumulated.push_back(std::accumulate(data.begin()+i*mult, data.begin()+(i+1)*mult, 0.0));
+
+        double const maxBin = *std::max_element(accumulated.begin(), accumulated.end());
+        std::transform(accumulated.begin(), accumulated.end(), accumulated.begin(),
+                [maxBin](double const v){ return v/maxBin; });
+
+        return accumulated;
+    }
 
     PixmapRenderer(PhotoItemWidget const& widget) :
         borderWidth(config::qualified("photoItemWidget.border.width", 2u)),
@@ -77,11 +107,12 @@ public:
 
     void focusMark()
     {
-        unsigned const padding = config::qualified("photoItemWidget.focusIcon.padding", 7u);
-        QPixmap const focusPixmap = coloredIcon("photoItemWidget.focusIcon");
-        painter.drawPixmap(targetPixmap->width() - borderWidth - padding - focusPixmap.width(),
-                           borderWidth + padding,
-                           focusPixmap);
+        alignedIcon("photoItemWidget.focusIcon", Qt::AlignRight | Qt::AlignTop);
+    }
+
+    void bestMark()
+    {
+        alignedIcon("photoItemWidget.bestMarkIcon", Qt::AlignTop | Qt::AlignLeft);
     }
 
     void scoreNum(double const scorePercent)
@@ -89,17 +120,32 @@ public:
         painter.save();
         painter.setOpacity(config::qualified("photoItemWidget.qualityText.opacity", 1u));
         painter.setPen(config::qColor("photoItemWidget.qualityText.color", Qt::black));
-        std::string const fontName = config::qualified("photoItemWidget.qualityText.font", std::string("Courier New"));
-        painter.setFont(QFont(fontName.c_str()));
-
-        unsigned const padding = config::qualified("photoItemWidget.qualityText.padding", 7u);
-        QRectF const textRect(borderWidth + padding,
-                              targetPixmap->height() - borderWidth - padding - painter.font().pointSize(),
-                              1, 1);
+        painter.setFont(config::qFont("photoItemWidget.qualityText.font"));
 
         unsigned decimalPlaces = config::qualified("photoItemWidget.qualityText.decimalPlaces", 0u);
         std::string const text = percentString(scorePercent, decimalPlaces);
-        painter.drawText(textRect, Qt::AlignLeft | Qt::TextSingleLine | Qt::TextDontClip, text.c_str());
+
+        unsigned const padding = config::qualified("photoItemWidget.qualityText.padding", 7u);
+        painter.drawText(drawStartPoint(Qt::AlignLeft | Qt::AlignBottom, padding), text.c_str());
+
+        painter.restore();
+    }
+
+    void histogram(std::vector<float> const& data)
+    {
+        QSize const histSize = histogramSize(data);
+        auto const scaledHist = scaleHistogram(data, histSize.width());
+        unsigned const padding = config::qualified("photoItemWidget.histogram.padding", 7u);
+
+        painter.save();
+        painter.setPen(config::qColor("photoItemWidget.histogram.color", Qt::black));
+        painter.setOpacity(config::qualified("photoItemWidget.histogram.opacity", 1.0));
+
+        double const H = histSize.height();
+        QPoint const origin = drawStartPoint(Qt::AlignRight | Qt::AlignBottom, padding, histSize);
+        for (std::size_t i = 0; i < scaledHist.size(); ++i)
+            painter.drawLine(origin.x() + i, origin.y() + H,
+                             origin.x() + i, origin.y() + (1.0-scaledHist[i])*H);
 
         painter.restore();
     }
@@ -111,6 +157,30 @@ public:
     }
 
 private:
+    QPoint drawStartPoint(int const alignment, unsigned const padding, QSize const& pixmapSize = QSize()) const
+    {
+        QPoint result;
+
+        if (alignment & Qt::AlignLeft)
+            result.setX(borderWidth + padding);
+        else
+            result.setX(targetPixmap->width() - borderWidth - padding - pixmapSize.width());
+
+        if (alignment & Qt::AlignTop)
+            result.setY(borderWidth + padding);
+        else
+            result.setY(targetPixmap->height() - borderWidth - padding - pixmapSize.height());
+
+        return result;
+    }
+
+    void alignedIcon(std::string const& configTable, int const alignment)
+    {
+        unsigned const padding = config::qualified(configTable+".padding", 7u);
+        QPixmap const pixmap = coloredIcon(configTable);
+        painter.drawPixmap(drawStartPoint(alignment, padding, pixmap.size()), pixmap);
+    }
+
     QPixmap coloredIcon(std::string const& configTable)
     {
         double const sizePercent = config::qualified(configTable+".sizePercent", 0.2);
@@ -138,9 +208,16 @@ std::shared_ptr<QPixmap> PhotoItemWidget::renderedPixmap() const
     if (addons.has(PhotoItemWidgetAddonType::FOCUS_IND) && hasFocus())
         renderer.focusMark();
 
-    auto const metric = _photoItem->scoredMetric();
-    if (addons.has(PhotoItemWidgetAddonType::SCORE_NUM) && metric)
-        renderer.scoreNum(metric->score());
+    auto const seriesMetric = _photoItem->scoredMetric();
+    if (addons.has(PhotoItemWidgetAddonType::SCORE_NUM) && seriesMetric)
+        renderer.scoreNum(seriesMetric->score());
+
+    if (addons.has(PhotoItemWidgetAddonType::BEST_IND) && seriesMetric && seriesMetric->bestQuality)
+        renderer.bestMark();
+
+    auto const metric = _photoItem->metric();
+    if (addons.has(PhotoItemWidgetAddonType::HISTOGRAM) && metric && metric->histogram)
+        renderer.histogram(*metric->histogram);
 
     return renderer.finish();
 }
