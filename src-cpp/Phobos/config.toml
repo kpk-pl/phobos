@@ -28,7 +28,7 @@ padding = 7
 opacity = 1.0
 decimalPlaces = 2
 color = "red"
-font = { family = "Courier", pointSize = 16, weight = 2 }
+font = { family = "Courier", pointSize = 10, weight = 2 }
 
 [photoItemWidget.bestMarkIcon]
 path = "icon/star.png"

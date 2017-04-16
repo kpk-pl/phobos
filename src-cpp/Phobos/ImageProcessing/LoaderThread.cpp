@@ -2,6 +2,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
 #include <easylogging++.h>
+#include <QImage>
+#include <QImageReader>
 #include "ImageProcessing/FormatConversion.h"
 #include "ImageProcessing/ScalePixmap.h"
 #include "ImageProcessing/LoaderThread.h"
@@ -21,77 +23,80 @@ LoaderThread::LoaderThread(std::string const& fileName,
 {
 }
 
-namespace {
-cv::Mat prepareForProcessing(cv::Mat cvImage)
-{
-    TIMED_FUNC(timedf);
-    cv::cvtColor(cvImage, cvImage, cv::COLOR_BGR2GRAY);
-
-    QSize const maxSize = config::qSize("imageLoaderThread.processingSize", QSize(1920, 1080));
-    double const scale = 1.0/std::max(cvImage.cols/maxSize.width(), cvImage.rows/maxSize.height());
-    cv::Mat resized;
-    // TODO: test INTER_AREA
-    // TODO: figure out dsize, do not pass scale
-    cv::resize(cvImage, resized, cv::Size(), scale, scale, cv::INTER_CUBIC);
-    return resized;
-}
-} // unnamed namespace
-
 void LoaderThread::run()
 {
-    TIMED_FUNC(timedf);
-
-    // TODO: if not calculate metrics then use plain QT to read image
-    cv::Mat cvImage;
-    {
-        TIMED_SCOPE(scopef, "imread " + fileToLoad);
-        cvImage = cv::imread(fileToLoad);
-    }
-    emitLoadedSignal(cvImage);
-
+    TIMED_FUNC(scopefunc);
     if (calculateMetrics)
-        runMetrics(prepareForProcessing(std::move(cvImage)));
+    {
+        cv::Mat cvImage;
+        {
+            TIMED_SCOPE(scopeWithMetric, "LoaderThread::loadInOpenCV");
+            cvImage = cv::imread(fileToLoad);
+            emitLoadedSignal(QPixmap::fromImage(iprocess::convCvToImage(cvImage)));
+        }
+
+        runMetrics(std::move(cvImage));
+    }
+    else
+    {
+        TIMED_SCOPE(scopeNoMetric, "LoaderThread::loadInQt");
+        QImageReader reader(fileToLoad.c_str());
+        reader.setAutoTransform(true);
+        reader.setAutoDetectImageFormat(true);
+        emitLoadedSignal(QPixmap::fromImageReader(&reader));
+    }
+}
+
+void LoaderThread::emitLoadedSignal(QPixmap pixmap)
+{
+    // TODO: maybe scale in opencv and then convert to image -> CPU save?
+    QSize const pixmapSize = biggestClosestSize(pixmap.size());
+    LOG(DEBUG) << "Scaling pixmap from " << pixmap.width() << "x" << pixmap.height()
+               << " to " << pixmapSize.width() << "x" << pixmapSize.height();
+    pixmap = iprocess::scalePixmap(pixmap, pixmapSize);
+    emit readySignals.pixmapReady(std::make_shared<QPixmap>(std::move(pixmap)));
 }
 
 void LoaderThread::runMetrics(cv::Mat cvImage) const
 {
-    TIMED_FUNC(timedf);
+    TIMED_FUNC(scopefunc);
+    cv::cvtColor(cvImage, cvImage, cv::COLOR_BGR2GRAY);
+
+    QSize const maxSize = config::qSize("imageLoaderThread.processingSize", QSize(1920, 1080));
+    QSize const scaledSize = QSize(cvImage.cols, cvImage.rows).scaled(maxSize, Qt::KeepAspectRatio);
+    LOG(DEBUG) << "Scaling image from " << cvImage.cols << "x" << cvImage.rows
+               << " to " << scaledSize.width() << "x" << scaledSize.height();
+
+    cv::Mat resized;
+    // TODO: test INTER_AREA
+    cv::resize(cvImage, resized, cv::Size(scaledSize.width(), scaledSize.height()), 0, 0, cv::INTER_CUBIC);
+    cvImage.release();
 
     MetricPtr metrics = std::make_shared<Metric>();
 
     {
         TIMED_SCOPE(scopef, "runMetrics: histogram");
         metrics->contrast = 0;
-        metrics->histogram = normalizedHistogram(cvImage, *metrics->contrast);
+        metrics->histogram = normalizedHistogram(resized, *metrics->contrast);
     }
     {
         TIMED_SCOPE(scopef, "runMetrics: noise");
-        metrics->noise = noiseMeasure(cvImage, config::qualified("imageLoaderThread.noiseMedianSize", 3));
+        metrics->noise = noiseMeasure(resized, config::qualified("imageLoaderThread.noiseMedianSize", 3));
     }
     {
         TIMED_SCOPE(scopef, "runMetrics: sobel");
-        metrics->blur.sobel = blur::sobel(cvImage);
+        metrics->blur.sobel = blur::sobel(resized);
     }
     {
         TIMED_SCOPE(scopef, "runMetrics: laplace");
-        metrics->blur.laplace = blur::laplace(cvImage);
+        metrics->blur.laplace = blur::laplace(resized);
     }
     {
         TIMED_SCOPE(scopef, "runMetrics: laplaceMod");
-        metrics->blur.laplaceMod = blur::laplaceMod(cvImage);
+        metrics->blur.laplaceMod = blur::laplaceMod(resized);
     }
 
     emit readySignals.metricsReady(metrics);
-}
-
-void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage) const
-{
-    TIMED_FUNC(timedf);
-    // TODO: maybe scale in opencv and then convert to image -> CPU save?
-    QPixmap pixmap = QPixmap::fromImage(iprocess::convCvToImage(cvImage));
-    pixmap = iprocess::scalePixmap(pixmap, biggestClosestSize(pixmap.size()));
-    auto pixmapPtr = std::make_shared<QPixmap>(std::move(pixmap));
-    emit readySignals.pixmapReady(pixmapPtr);
 }
 
 QSize LoaderThread::biggestClosestSize(QSize const& pixmapSize) const
@@ -104,16 +109,9 @@ QSize LoaderThread::biggestClosestSize(QSize const& pixmapSize) const
 
     for (auto const& size : requestedSizes)
     {
-        int width = std::min(size.width(), pixmapSize.width());
-        int height = pixmapSize.height() * width / pixmapSize.width();
-        if (height > size.height())
-        {
-            height = size.height();
-            width = pixmapSize.width() * height / pixmapSize.height();
-        }
-
-        scaledSizes.emplace_back(width, height);
-        pixels.push_back(width*height);
+        QSize const scaled = pixmapSize.scaled(size, Qt::KeepAspectRatio);
+        scaledSizes.push_back(scaled);
+        pixels.push_back(scaled.width() * scaled.height());
     }
 
     auto const bestPixels = std::max_element(pixels.begin(), pixels.end());
