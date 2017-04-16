@@ -31,8 +31,6 @@ namespace phobos {
 // TODO: another addon: show file name
 //
 // TODO: show "Quality" text in quality label
-//
-// TODO: photo number in left upper corner, drawn on square background with opacity
 
 PhotoItemWidget::PhotoItemWidget(pcontainer::ItemPtr const& photoItem,
                                  std::shared_ptr<QPixmap> const& preload,
@@ -120,6 +118,7 @@ public:
         targetPixmap(filledPixmap(availableSizeWithBorders, colorForState(widget.photoItem().state()))),
         painter(targetPixmap.get())
     {
+        painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing, true);
         painter.drawPixmap((targetPixmap->width() - scaledImagePixmap->width()) / 2,
                            (targetPixmap->height() - scaledImagePixmap->height()) / 2,
                            *scaledImagePixmap);
@@ -148,6 +147,35 @@ public:
 
         unsigned const padding = config::qualified("photoItemWidget.qualityText.padding", 7u);
         painter.drawText(drawStartPoint(Qt::AlignLeft | Qt::AlignBottom, padding), text.c_str());
+
+        painter.restore();
+    }
+
+    void ordNum(unsigned const ordNumber)
+    {
+        unsigned const width = config::qualified("photoItemWidget.ordNum.size", 20);
+        QSize const size(width, width);
+        QPoint const startPoint = drawStartPoint(Qt::AlignLeft | Qt::AlignTop, 0, size);
+        QColor const backgroundColor = config::qColor("photoItemWidget.ordNum.background.color", Qt::transparent);
+
+        if (backgroundColor != Qt::transparent)
+        {
+            painter.save();
+            painter.setPen(backgroundColor);
+            painter.setBrush(backgroundColor);
+            painter.setOpacity(config::qualified("photoItemWidget.ordNum.background.opacity", 1.0));
+            if (config::qualified("photoItemWidget.ordNum.background.type", std::string("")) == "circle")
+                painter.drawEllipse(startPoint.x(), startPoint.y(), width, width);
+            else
+                painter.drawRect(startPoint.x(), startPoint.y(), width, width);
+            painter.restore();
+        }
+
+        painter.save();
+        painter.setFont(config::qFont("photoItemWidget.ordNum.font"));
+        painter.setOpacity(config::qualified("photoItemWidget.ordNum.font.opacity", 1.0));
+        painter.setPen(config::qColor("photoItemWidget.ordNum.font.color", Qt::black));
+        painter.drawText(QRect(startPoint, size), Qt::AlignCenter, QString::number(ordNumber));
 
         painter.restore();
     }
@@ -240,6 +268,9 @@ std::shared_ptr<QPixmap> PhotoItemWidget::renderedPixmap() const
     auto const metric = _photoItem->metric();
     if (addons.has(PhotoItemWidgetAddonType::HISTOGRAM) && metric && metric->histogram)
         renderer.histogram(*metric->histogram);
+
+    if (addons.has(PhotoItemWidgetAddonType::ORD_NUM))
+        renderer.ordNum(_photoItem->ord());
 
     return renderer.finish();
 }

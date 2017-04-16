@@ -24,7 +24,7 @@ class Item : public QObject
     Q_OBJECT
 
 public:
-    explicit Item(std::string const& fileName, QUuid const seriesId);
+    explicit Item(std::string const& fileName, QUuid const seriesId, unsigned const ordinal);
 
     /*
      * Loads new pixmap in separate thread.
@@ -39,6 +39,7 @@ public:
     iprocess::MetricPtr metric() const { return _metric; }
     iprocess::ScoredMetricPtr scoredMetric() const { return _scoredMetric; }
     std::string const& fileName() const { return _fileName; }
+    unsigned ord() const { return _ordinal; }
 
     void setScoredMetric(iprocess::ScoredMetricPtr const& scoredMetric);
 
@@ -61,6 +62,7 @@ private slots:
 private:
     std::string const _fileName;
     QUuid const _seriesId;
+    unsigned const _ordinal;
     ItemState _state;
     std::shared_ptr<QPixmap> _pixmap;
     iprocess::MetricPtr _metric;

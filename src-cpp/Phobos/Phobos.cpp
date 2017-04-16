@@ -9,6 +9,7 @@
 
 INITIALIZE_EASYLOGGINGPP
 
+// TODO QPixmap uses implicit data sharing -> it is OK to pass it by value
 Q_DECLARE_METATYPE(std::shared_ptr<QPixmap>)
 Q_DECLARE_METATYPE(phobos::ViewDescriptionPtr)
 Q_DECLARE_METATYPE(phobos::iprocess::MetricPtr)

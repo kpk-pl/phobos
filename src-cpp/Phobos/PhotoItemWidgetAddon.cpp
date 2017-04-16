@@ -15,6 +15,8 @@ PhotoItemWidgetAddons::PhotoItemWidgetAddons(std::vector<std::string> const& spe
             addons.push_back(PhotoItemWidgetAddonType::SCORE_NUM);
         else if (str == "histogram")
             addons.push_back(PhotoItemWidgetAddonType::HISTOGRAM);
+        else if (str == "ord")
+            addons.push_back(PhotoItemWidgetAddonType::ORD_NUM);
     }
     std::sort(addons.begin(), addons.end());
     addons.erase(std::unique(addons.begin(), addons.end()), addons.end());

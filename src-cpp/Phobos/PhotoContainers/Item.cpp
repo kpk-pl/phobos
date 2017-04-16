@@ -8,10 +8,9 @@
 
 namespace phobos { namespace pcontainer {
 
-Item::Item(std::string const& fileName, QUuid const seriesId) :
-    _fileName(fileName), _seriesId(seriesId), _state(ItemState::UNKNOWN)
+Item::Item(std::string const& fileName, QUuid const seriesId, unsigned const ordinal) :
+    _fileName(fileName), _seriesId(seriesId), _ordinal(ordinal), _state(ItemState::UNKNOWN)
 {
-
 }
 
 namespace {

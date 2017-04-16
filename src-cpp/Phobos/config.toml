@@ -28,7 +28,7 @@ padding = 7
 opacity = 1.0
 decimalPlaces = 2
 color = "red"
-font = { family = "Courier", pointSize = 10, weight = 2 }
+font = { family = "Courier", pointSize = 10, weight = 75 }
 
 [photoItemWidget.bestMarkIcon]
 path = "icon/star.png"
@@ -36,6 +36,11 @@ opacity = 0.5
 color = "yellow"
 sizePercent = 0.2
 padding = 7
+
+[photoItemWidget.ordNum]
+size = 20
+font = { family = "Courier", pointSize = 12, weight = 75, color = "black", opacity = 1.0 }
+background = { type = "square", color = "red", opacity = 0.5 } # type circle is possible
 
 [photoItemWidget.border]
 width = 2
@@ -54,11 +59,11 @@ fillColor = "transparent"
 seriesSpacing = 15
 photosSpacing = 3
 pixmapSize = { width = 320, height = 240 } # should be the same as photoItem.pixmapSize
-enabledAddons = ["focus", "best", "score"]
+enabledAddons = ["focus", "best", "score", "ord"]
 
 [seriesView]
 maxPixmapSize = { width = 1920, height = 1080 }
-enabledAddons = ["focus", "best", "score", "histogram"]
+enabledAddons = ["focus", "best", "score", "histogram", "ord"]
 
 [seriesView.num]
 visibleItems = 2

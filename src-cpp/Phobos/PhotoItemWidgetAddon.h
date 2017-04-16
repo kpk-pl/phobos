@@ -11,6 +11,7 @@ enum class PhotoItemWidgetAddonType
     FOCUS_IND,
     BEST_IND,
     SCORE_NUM,
+    ORD_NUM,
     HISTOGRAM
 };
 

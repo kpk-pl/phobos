@@ -21,7 +21,7 @@ void Series::addPhotoItems(std::vector<std::string> const& fileNames)
 
 void Series::addPhotoItem(std::string const& fileName)
 {
-    auto newItem = std::make_shared<Item>(fileName, _uuid);
+    auto newItem = std::make_shared<Item>(fileName, _uuid, photoItems.size());
     QObject::connect(newItem.get(), &Item::metricsReady, this, &Series::newMetricCalculated);
     photoItems.emplace_back(std::move(newItem));
 }
