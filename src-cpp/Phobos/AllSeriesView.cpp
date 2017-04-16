@@ -16,6 +16,13 @@
 
 namespace phobos {
 
+// TODO: Rightclick menu option to remove series entirely
+// think how this can be done, maybe removing objects from grid is enough to leave empty row ?
+// But this will mess up with numbering
+//
+// TODO: Add series numbering
+// left to each photo should be a number, colorcode series that have at least one photo chosen
+
 namespace {
 class ArrowFilter : public QObject
 {

@@ -47,6 +47,16 @@ void LoaderThread::run()
     }
 }
 
+// TODO: create managed threadpool
+// 1. Enable removing unneeded jobs from queue when opening another series view
+// 2. Higher priority for loading series views than for loading all-series views
+// 3. Metric calculation is pretty slow -> lowest priority on one separate thread in background
+// Maybe divide threadpool into dedicated threads: 1 for metrics, 1 for all-view, 2 for seriesview
+// Promote threads to other run-queues when they are empty
+// AKA scheduler
+//
+// TODO: configurable options for metric calculations, weights, disable some portions of calculations
+
 void LoaderThread::emitLoadedSignal(QPixmap pixmap)
 {
     // TODO: maybe scale in opencv and then convert to image -> CPU save?

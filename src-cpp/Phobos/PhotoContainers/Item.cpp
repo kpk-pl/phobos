@@ -96,10 +96,19 @@ void Item::discard()
 
 void Item::toggleSelection()
 {
-    if (isSelected())
-        discard();
-    else
-        select();
+    switch(_state)
+    {
+    case ItemState::UNKNOWN:
+        _state = ItemState::SELECTED;
+        break;
+    case ItemState::SELECTED:
+        _state = ItemState::DISCARDED;
+        break;
+    case ItemState::DISCARDED:
+        _state = ItemState::UNKNOWN;
+        break;
+    }
+    emit stateChanged();
 }
 
 }} // namespace phobos::pcontainer

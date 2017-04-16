@@ -15,6 +15,25 @@
 
 namespace phobos {
 
+// TODO: bestmark, focus pixmaps -> CACHE IT by size!!! Those are calculated hundreds of times and the result is always the same!
+// Time it before to make sure it has some impact
+//
+// TODO: histogram -> maybe assume it will never change
+// maybe assume histogram size will never change
+// then cache histograms scaled to buckets inside photoitemwidget
+// but first TIME how long does it take to calculate new buckets
+// and to draw them
+// because pixmaps could be cached as well
+// just using differend qpainter, save rendered pixmaps in photoitemwidget for later use
+//
+// TODO: from config, enable setBackground(color) for text, enable opacity
+//
+// TODO: another addon: show file name
+//
+// TODO: show "Quality" text in quality label
+//
+// TODO: photo number in left upper corner, drawn on square background with opacity
+
 PhotoItemWidget::PhotoItemWidget(pcontainer::ItemPtr const& photoItem,
                                  std::shared_ptr<QPixmap> const& preload,
                                  PhotoItemWidgetAddons const& addons) :
@@ -61,6 +80,7 @@ public:
         oss << std::setprecision(decimalPlaces) << std::fixed << (val*100) << "%";
         return oss.str();
     }
+
     static QSize histogramSize(std::vector<float> const& data)
     {
         static std::initializer_list<unsigned> const POW2 = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
@@ -117,6 +137,7 @@ public:
 
     void scoreNum(double const scorePercent)
     {
+        // TODO: font weight does not seem to work!
         painter.save();
         painter.setOpacity(config::qualified("photoItemWidget.qualityText.opacity", 1u));
         painter.setPen(config::qColor("photoItemWidget.qualityText.color", Qt::black));
@@ -180,7 +201,8 @@ private:
         QPixmap const pixmap = coloredIcon(configTable);
         painter.drawPixmap(drawStartPoint(alignment, padding, pixmap.size()), pixmap);
     }
-
+// TODO: specify min and max sizes for icons, if possible keep min->percent->max size, if size exceeds
+// pixmap, scale down
     QPixmap coloredIcon(std::string const& configTable)
     {
         double const sizePercent = config::qualified(configTable+".sizePercent", 0.2);
@@ -225,6 +247,10 @@ std::shared_ptr<QPixmap> PhotoItemWidget::renderedPixmap() const
 void PhotoItemWidget::contextMenuEvent(QContextMenuEvent* event)
 {
     QMenu menu;
+
+    // TODO: fix toggleSelection
+    // use select(), discard(), unselect() actions
+    // toggle is not enough
 
     QAction* const toggleAction = menu.addAction(_photoItem->isSelected() ? "Discard" : "Select");
     QObject::connect(toggleAction, &QAction::triggered, _photoItem.get(), &pcontainer::Item::toggleSelection);

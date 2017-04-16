@@ -9,6 +9,8 @@
 
 namespace phobos {
 
+// TODO: Runtime configurable selection of items visible
+
 NumSeriesView::NumSeriesView() :
     visibleItems(config::get()->get_qualified_as<unsigned>("seriesView.num.visibleItems").value_or(2)),
     currentItem(0)
