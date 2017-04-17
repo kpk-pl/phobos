@@ -30,8 +30,6 @@ public slots:
 private:
     pcontainer::SeriesPtr const& findRequestedSeries(ViewDescriptionPtr const& viewDesc) const;
     void updateCurrentWidget(ViewDescriptionPtr const& viewDesc);
-    void selectBestPhotos();
-    void invertSelections();
 
     void setupUI();
     void connectSignals();

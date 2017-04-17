@@ -93,6 +93,12 @@ void Item::discard()
     emit stateChanged();
 }
 
+void Item::deselect()
+{
+    _state = ItemState::UNKNOWN;
+    emit stateChanged();
+}
+
 void Item::invert()
 {
     switch(_state)
@@ -113,16 +119,15 @@ void Item::toggleSelection()
     switch(_state)
     {
     case ItemState::UNKNOWN:
-        _state = ItemState::SELECTED;
+        select();
         break;
     case ItemState::SELECTED:
-        _state = ItemState::DISCARDED;
+        discard();
         break;
     case ItemState::DISCARDED:
-        _state = ItemState::UNKNOWN;
+        deselect();
         break;
     }
-    emit stateChanged();
 }
 
 }} // namespace phobos::pcontainer

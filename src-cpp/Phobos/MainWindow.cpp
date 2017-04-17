@@ -75,11 +75,16 @@ void MainWindow::createMenus()
     actionMenu->addAction(tr("&Select best"), this,
             [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_BEST); }
             )->setStatusTip(tr("Select best photos in each series"));
+    actionMenu->addAction(tr("&Select unchecked"), this,
+            [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_UNCHECKED); }
+            )->setStatusTip(tr("Select all unchecked photos"));
     actionMenu->addAction(tr("&Invert selection"), this,
             [this](){ viewStack->bulkSelect(PhotoBulkAction::INVERT); }
             )->setStatusTip(tr("Invert selection"));
+    actionMenu->addAction(tr("&Clear selection"), this,
+            [this](){ viewStack->bulkSelect(PhotoBulkAction::CLEAR); }
+            )->setStatusTip(tr("Clear selection"));
     // TODO: Action: Report -> show dialog with number of series / num selected photos, num unchecked series etc
-    // TODO: Action: Select unchecked (grey ones)
     // TODO: Action: Remove selected
     // TODO: Action: Move selected
     // TODO: Action: Copy selected

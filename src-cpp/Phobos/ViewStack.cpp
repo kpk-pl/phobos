@@ -96,34 +96,56 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
     setCurrentWidget(currentSeriesWidget);
 }
 
+namespace {
+    void selectBestPhotos(pcontainer::Set const& seriesSet)
+    {
+        for (auto const& series : seriesSet)
+        {
+            pcontainer::ItemPtr bestItem = series->best();
+            if (bestItem)
+               bestItem->select();
+        }
+    }
+    void selectUncheckedPhotos(pcontainer::Set const& seriesSet)
+    {
+        for (auto const& series : seriesSet)
+        {
+            for (auto const& item : *series)
+                if (item->state() == pcontainer::ItemState::UNKNOWN)
+                    item->select();
+        }
+    }
+    void invertSelections(pcontainer::Set const& seriesSet)
+    {
+        for (auto const& series : seriesSet)
+            for (auto const& item : *series)
+                item->invert();
+    }
+    void clearSelections(pcontainer::Set const& seriesSet)
+    {
+        for (auto const& series : seriesSet)
+            for (auto const& item : *series)
+                item->deselect();
+    }
+} // unnamed namespace
+
 void ViewStack::bulkSelect(PhotoBulkAction const action)
 {
     switch(action)
     {
     case PhotoBulkAction::SELECT_BEST:
-        selectBestPhotos();
+        selectBestPhotos(seriesSet);
+        break;
+    case PhotoBulkAction::SELECT_UNCHECKED:
+        selectUncheckedPhotos(seriesSet);
         break;
     case PhotoBulkAction::INVERT:
-        invertSelections();
+        invertSelections(seriesSet);
+        break;
+    case PhotoBulkAction::CLEAR:
+        clearSelections(seriesSet);
         break;
     }
-}
-
-void ViewStack::selectBestPhotos()
-{
-    for (auto const& series : seriesSet)
-    {
-        pcontainer::ItemPtr bestItem = series->best();
-        if (bestItem)
-           bestItem->select();
-    }
-}
-
-void ViewStack::invertSelections()
-{
-    for (auto const& series : seriesSet)
-        for (auto const& item : *series)
-            item->invert();
 }
 
 void ViewStack::setupUI()
