@@ -24,6 +24,10 @@ LoaderThread::LoaderThread(std::string const& fileName,
 }
 
 // TODO: optimize with-metrics flow
+//
+// TODO macro to enable timing of functions
+// each call in its own timer
+// TIME_OP(x) { timer; x; }
 
 void LoaderThread::run()
 {
