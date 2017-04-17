@@ -23,6 +23,8 @@ LoaderThread::LoaderThread(std::string const& fileName,
 {
 }
 
+// TODO: optimize with-metrics flow
+
 void LoaderThread::run()
 {
     TIMED_FUNC(scopefunc);
@@ -32,17 +34,13 @@ void LoaderThread::run()
         {
             TIMED_SCOPE(scopeWithMetric, "LoaderThread::loadInOpenCV");
             cvImage = cv::imread(fileToLoad);
+            emitLoadedSignal(cvImage);
         }
-        emitLoadedSignal(cvImage);
         runMetrics(std::move(cvImage));
     }
     else
     {
-        TIMED_SCOPE(scopeNoMetric, "LoaderThread::loadInQt");
-        QImageReader reader(fileToLoad.c_str());
-        reader.setAutoTransform(true);
-        reader.setAutoDetectImageFormat(true);
-        emitLoadedSignal(QPixmap::fromImageReader(&reader));
+        runWithoutMetrics();
     }
 }
 
@@ -56,11 +54,20 @@ void LoaderThread::run()
 //
 // TODO: configurable options for metric calculations, weights, disable some portions of calculations
 
-void LoaderThread::emitLoadedSignal(QPixmap pixmap)
+void LoaderThread::runWithoutMetrics() const
 {
+    TIMED_FUNC(id);
+
+    QImageReader reader(fileToLoad.c_str());
+    reader.setAutoTransform(true);
+    reader.setAutoDetectImageFormat(true);
+
+    QPixmap const pixmap = QPixmap::fromImageReader(&reader);
+
     QSize const pixmapSize = biggestClosestSize(pixmap.size());
     LOG(DEBUG) << "Scaling image from " << pixmap.width() << "x" << pixmap.height()
                << " to " << pixmapSize.width() << "x" << pixmapSize.height();
+
     emit readySignals.pixmapReady(std::make_shared<QPixmap>(iprocess::scalePixmap(pixmap, pixmapSize)));
 }
 
@@ -80,6 +87,7 @@ void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
     emit readySignals.pixmapReady(std::move(pixmap));
 }
 
+// TODO optimize double scaling when calculating metrics
 void LoaderThread::runMetrics(cv::Mat cvImage) const
 {
     TIMED_FUNC(scopefunc);
@@ -91,7 +99,6 @@ void LoaderThread::runMetrics(cv::Mat cvImage) const
                << " to " << scaledSize.width() << "x" << scaledSize.height();
 
     cv::Mat resized;
-    // TODO: test INTER_AREA
     cv::resize(cvImage, resized, cv::Size(scaledSize.width(), scaledSize.height()), 0, 0, cv::INTER_CUBIC);
     cvImage.release();
 

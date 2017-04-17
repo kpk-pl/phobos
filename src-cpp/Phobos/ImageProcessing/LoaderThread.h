@@ -33,7 +33,7 @@ public:
     LoaderThreadSignals readySignals;
 
 private:
-    void emitLoadedSignal(QPixmap pixmap);
+    void runWithoutMetrics() const;
     void emitLoadedSignal(cv::Mat const& cvImage);
     void runMetrics(cv::Mat cvImage) const;
     QSize biggestClosestSize(QSize const& pixmapSize) const;
