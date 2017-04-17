@@ -32,9 +32,8 @@ void LoaderThread::run()
         {
             TIMED_SCOPE(scopeWithMetric, "LoaderThread::loadInOpenCV");
             cvImage = cv::imread(fileToLoad);
-            emitLoadedSignal(QPixmap::fromImage(iprocess::convCvToImage(cvImage)));
         }
-
+        emitLoadedSignal(cvImage);
         runMetrics(std::move(cvImage));
     }
     else
@@ -59,12 +58,26 @@ void LoaderThread::run()
 
 void LoaderThread::emitLoadedSignal(QPixmap pixmap)
 {
-    // TODO: maybe scale in opencv and then convert to image -> CPU save?
     QSize const pixmapSize = biggestClosestSize(pixmap.size());
-    LOG(DEBUG) << "Scaling pixmap from " << pixmap.width() << "x" << pixmap.height()
+    LOG(DEBUG) << "Scaling image from " << pixmap.width() << "x" << pixmap.height()
                << " to " << pixmapSize.width() << "x" << pixmapSize.height();
-    pixmap = iprocess::scalePixmap(pixmap, pixmapSize);
-    emit readySignals.pixmapReady(std::make_shared<QPixmap>(std::move(pixmap)));
+    emit readySignals.pixmapReady(std::make_shared<QPixmap>(iprocess::scalePixmap(pixmap, pixmapSize)));
+}
+
+void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
+{
+    std::shared_ptr<QPixmap> pixmap;
+    {
+        TIMED_SCOPE(id, "convertCVImageToPixmap");
+        QSize const cvSize(cvImage.cols, cvImage.rows);
+        QSize const pixmapSize = biggestClosestSize(cvSize);
+        LOG(DEBUG) << "Scaling image from " << cvImage.cols << "x" << cvImage.rows
+                   << " to " << pixmapSize.width() << "x" << pixmapSize.height();
+        cv::Mat resized;
+        cv::resize(cvImage, resized, cv::Size(pixmapSize.width(), pixmapSize.height()), 0, 0, cv::INTER_CUBIC);
+        pixmap = std::make_shared<QPixmap>(QPixmap::fromImage(iprocess::convCvToImage(resized)));
+    }
+    emit readySignals.pixmapReady(std::move(pixmap));
 }
 
 void LoaderThread::runMetrics(cv::Mat cvImage) const
@@ -74,7 +87,7 @@ void LoaderThread::runMetrics(cv::Mat cvImage) const
 
     QSize const maxSize = config::qSize("imageLoaderThread.processingSize", QSize(1920, 1080));
     QSize const scaledSize = QSize(cvImage.cols, cvImage.rows).scaled(maxSize, Qt::KeepAspectRatio);
-    LOG(DEBUG) << "Scaling image from " << cvImage.cols << "x" << cvImage.rows
+    LOG(DEBUG) << "Scaling image for metrics from " << cvImage.cols << "x" << cvImage.rows
                << " to " << scaledSize.width() << "x" << scaledSize.height();
 
     cv::Mat resized;

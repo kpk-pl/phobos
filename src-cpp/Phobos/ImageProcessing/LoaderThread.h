@@ -34,6 +34,7 @@ public:
 
 private:
     void emitLoadedSignal(QPixmap pixmap);
+    void emitLoadedSignal(cv::Mat const& cvImage);
     void runMetrics(cv::Mat cvImage) const;
     QSize biggestClosestSize(QSize const& pixmapSize) const;
 

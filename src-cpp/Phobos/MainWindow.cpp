@@ -88,6 +88,8 @@ void MainWindow::createMenus()
     // TODO: Action: Remove selected
     // TODO: Action: Move selected
     // TODO: Action: Copy selected
+    //
+    // TODO: to viewMenubar add selectable options to enable/disable addons on photoitemwidgets
 
     QMenu* viewMenu = menuBar()->addMenu(tr("&View"));
     viewMenu->addAction(tr("&All series"), this,
