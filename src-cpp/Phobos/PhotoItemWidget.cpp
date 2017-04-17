@@ -279,12 +279,21 @@ void PhotoItemWidget::contextMenuEvent(QContextMenuEvent* event)
 {
     QMenu menu;
 
-    // TODO: fix toggleSelection
-    // use select(), discard(), unselect() actions
-    // toggle is not enough
-
-    QAction* const toggleAction = menu.addAction(_photoItem->isSelected() ? "Discard" : "Select");
-    QObject::connect(toggleAction, &QAction::triggered, _photoItem.get(), &pcontainer::Item::toggleSelection);
+    if (_photoItem->state() == pcontainer::ItemState::UNKNOWN)
+    {
+        QObject::connect(menu.addAction("Select"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::select);
+        QObject::connect(menu.addAction("Discard"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::discard);
+    }
+    else if (_photoItem->state() == pcontainer::ItemState::SELECTED)
+    {
+        QObject::connect(menu.addAction("Discard"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::discard);
+        QObject::connect(menu.addAction("Deselect"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::deselect);
+    }
+    else if (_photoItem->state() == pcontainer::ItemState::DISCARDED)
+    {
+        QObject::connect(menu.addAction("Select"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::select);
+        QObject::connect(menu.addAction("Deselect"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::deselect);
+    }
 
     menu.addSeparator();
 
