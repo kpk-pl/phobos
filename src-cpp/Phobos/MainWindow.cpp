@@ -9,6 +9,7 @@
 #include "Config.h"
 #include "ConfigExtension.h"
 #include "ViewDescription.h"
+#include "PhotoBulkAction.h"
 
 namespace phobos {
 
@@ -71,7 +72,9 @@ void MainWindow::createMenus()
     fileMenu->addAction(tr("&Exit"), this, &MainWindow::close, QKeySequence("Ctrl+Q"))->setStatusTip(tr("Exit the application"));
 
     QMenu* actionMenu = menuBar()->addMenu(tr("&Action"));
-    // TODO: Action: select best photos
+    actionMenu->addAction(tr("&Select best"), this,
+            [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_BEST); }
+            )->setStatusTip(tr("Select best photos in each series"));
     // TODO: Action: Report -> show dialog with number of series / num selected photos, num unchecked series etc
     // TODO: Action: Invert selection
     // TODO: Action: Select unchecked (grey ones)

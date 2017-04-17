@@ -96,6 +96,26 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
     setCurrentWidget(currentSeriesWidget);
 }
 
+void ViewStack::bulkSelect(PhotoBulkAction const action)
+{
+    switch(action)
+    {
+    case PhotoBulkAction::SELECT_BEST:
+        selectBestPhotos();
+        break;
+    }
+}
+
+void ViewStack::selectBestPhotos()
+{
+    for (auto const& series : seriesSet)
+    {
+        pcontainer::ItemPtr bestItem = series->best();
+        if (bestItem)
+           bestItem->select();
+    }
+}
+
 void ViewStack::setupUI()
 {
     allSeriesView = new AllSeriesView();

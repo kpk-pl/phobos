@@ -26,6 +26,15 @@ void Series::addPhotoItem(std::string const& fileName)
     photoItems.emplace_back(std::move(newItem));
 }
 
+ItemPtr Series::best() const
+{
+    for (auto const& item : photoItems)
+        if (item->scoredMetric() && item->scoredMetric()->bestQuality)
+            return item;
+
+    return nullptr;
+}
+
 void Series::newMetricCalculated()
 {
     using namespace iprocess;

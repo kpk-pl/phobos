@@ -27,7 +27,7 @@ void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
     clear();
 
     currentSeriesUuid = series->uuid();
-    for (pcontainer::ItemPtr const& item : series->items())
+    for (pcontainer::ItemPtr const& item : *series)
     {
         auto const& preload = (item->hasPixmap() ? item->pixmap() : getPreloadPixmap());
         PhotoItemWidget* widget = new PhotoItemWidget(item, preload,

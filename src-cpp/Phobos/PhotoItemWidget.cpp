@@ -74,6 +74,7 @@ public:
     }
     static std::string percentString(double const val, unsigned const decimalPlaces)
     {
+        // TODO: use sprintf from QString
         std::ostringstream oss;
         oss << std::setprecision(decimalPlaces) << std::fixed << (val*100) << "%";
         return oss.str();
@@ -136,7 +137,6 @@ public:
 
     void scoreNum(double const scorePercent)
     {
-        // TODO: font weight does not seem to work!
         painter.save();
         painter.setOpacity(config::qualified("photoItemWidget.qualityText.opacity", 1u));
         painter.setPen(config::qColor("photoItemWidget.qualityText.color", Qt::black));

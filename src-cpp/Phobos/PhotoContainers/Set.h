@@ -22,6 +22,9 @@ public:
     bool empty() const { return photoSeries.empty(); }
     SeriesPtr const& front() const;
 
+    SeriesPtrVec::const_iterator begin() const { return photoSeries.begin(); }
+    SeriesPtrVec::const_iterator end() const { return photoSeries.end(); }
+
 signals:
     void newSeries(SeriesPtr);
 

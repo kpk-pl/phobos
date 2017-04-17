@@ -18,11 +18,15 @@ public:
     void addPhotoItems(std::vector<std::string> const& fileNames);
     void addPhotoItem(std::string const& fileName);
 
+    ItemPtr best() const;
+
     std::size_t size() const { return photoItems.size(); }
     QUuid const& uuid() const { return _uuid; }
 
-    ItemPtr const& item(std::size_t const& n) const { return photoItems[n]; }
-    ItemPtrVec const& items() const { return photoItems; }
+    ItemPtrVec::const_reference operator[](std::size_t i) const { return photoItems[i]; }
+    ItemPtrVec::const_reference item(std::size_t i) const { return (*this)[i]; }
+    ItemPtrVec::const_iterator begin() const { return photoItems.begin(); }
+    ItemPtrVec::const_iterator end() const { return photoItems.end(); }
 
 private slots:
     void newMetricCalculated();

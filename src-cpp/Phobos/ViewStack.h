@@ -6,6 +6,7 @@
 #include <QUuid>
 #include "PhotoContainers/Set.h"
 #include "ViewDescription.h"
+#include "PhotoBulkAction.h"
 
 namespace phobos {
 
@@ -24,10 +25,12 @@ public:
 
 public slots:
     void handleSwitchView(ViewDescriptionPtr viewDesc);
+    void bulkSelect(PhotoBulkAction const action);
 
 private:
     pcontainer::SeriesPtr const& findRequestedSeries(ViewDescriptionPtr const& viewDesc) const;
     void updateCurrentWidget(ViewDescriptionPtr const& viewDesc);
+    void selectBestPhotos();
 
     void setupUI();
     void connectSignals();
