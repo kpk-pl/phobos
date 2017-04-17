@@ -49,6 +49,7 @@ public:
 public slots:
     void select();
     void discard();
+    void invert();
     void toggleSelection();
 
 signals:

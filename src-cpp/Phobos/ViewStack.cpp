@@ -103,6 +103,9 @@ void ViewStack::bulkSelect(PhotoBulkAction const action)
     case PhotoBulkAction::SELECT_BEST:
         selectBestPhotos();
         break;
+    case PhotoBulkAction::INVERT:
+        invertSelections();
+        break;
     }
 }
 
@@ -114,6 +117,13 @@ void ViewStack::selectBestPhotos()
         if (bestItem)
            bestItem->select();
     }
+}
+
+void ViewStack::invertSelections()
+{
+    for (auto const& series : seriesSet)
+        for (auto const& item : *series)
+            item->invert();
 }
 
 void ViewStack::setupUI()

@@ -93,6 +93,21 @@ void Item::discard()
     emit stateChanged();
 }
 
+void Item::invert()
+{
+    switch(_state)
+    {
+    case ItemState::SELECTED:
+        discard();
+        break;
+    case ItemState::DISCARDED:
+        select();
+        break;
+    default:
+        break;
+    }
+}
+
 void Item::toggleSelection()
 {
     switch(_state)
