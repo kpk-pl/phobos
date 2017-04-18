@@ -2,7 +2,6 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
 #include <easylogging++.h>
-#include <QImage>
 #include <QImageReader>
 #include "ImageProcessing/FormatConversion.h"
 #include "ImageProcessing/ScalePixmap.h"
@@ -65,30 +64,27 @@ void LoaderThread::runWithoutMetrics() const
     QImageReader reader(fileToLoad.c_str());
     reader.setAutoTransform(true);
     reader.setAutoDetectImageFormat(true);
+    reader.setScaledSize(biggestClosestSize(reader.size()));
 
-    QPixmap const pixmap = QPixmap::fromImageReader(&reader);
+    QImage image = reader.read();
 
-    QSize const pixmapSize = biggestClosestSize(pixmap.size());
-    LOG(DEBUG) << "Scaling image from " << pixmap.width() << "x" << pixmap.height()
-               << " to " << pixmapSize.width() << "x" << pixmapSize.height();
-
-    emit readySignals.pixmapReady(std::make_shared<QPixmap>(iprocess::scalePixmap(pixmap, pixmapSize)));
+    emit readySignals.imageReady(image);
 }
 
 void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
 {
-    std::shared_ptr<QPixmap> pixmap;
+    QImage image;
     {
-        TIMED_SCOPE(id, "convertCVImageToPixmap");
+        TIMED_SCOPE(id, "convertCVImageToQImage");
         QSize const cvSize(cvImage.cols, cvImage.rows);
         QSize const pixmapSize = biggestClosestSize(cvSize);
         LOG(DEBUG) << "Scaling image from " << cvImage.cols << "x" << cvImage.rows
                    << " to " << pixmapSize.width() << "x" << pixmapSize.height();
         cv::Mat resized;
         cv::resize(cvImage, resized, cv::Size(pixmapSize.width(), pixmapSize.height()), 0, 0, cv::INTER_CUBIC);
-        pixmap = std::make_shared<QPixmap>(QPixmap::fromImage(iprocess::convCvToImage(resized)));
+        image = iprocess::convCvToImage(resized);
     }
-    emit readySignals.pixmapReady(std::move(pixmap));
+    emit readySignals.imageReady(image);
 }
 
 // TODO optimize double scaling when calculating metrics

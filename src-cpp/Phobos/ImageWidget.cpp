@@ -7,22 +7,17 @@
 
 namespace phobos {
 
-ImageWidget::ImageWidget(std::shared_ptr<QPixmap> const& pixmap)
+ImageWidget::ImageWidget(QImage const& image)
 {
     setScaledContents(false);
-    setImagePixmap(pixmap);
+    setImage(image);
 }
 
-void ImageWidget::setImagePixmap(std::shared_ptr<QPixmap> const& pixmap)
+void ImageWidget::setImage(QImage image)
 {
-    _pixmap = pixmap;
+    _image = image;
     updateGeometry();
     update();
-}
-
-std::shared_ptr<QPixmap> const& ImageWidget::pixmap() const
-{
-    return _pixmap;
 }
 
 void ImageWidget::mousePressEvent(QMouseEvent* event)
@@ -30,48 +25,39 @@ void ImageWidget::mousePressEvent(QMouseEvent* event)
     if (event->button() == Qt::LeftButton)
         emit clicked();
 }
+
 void ImageWidget::paintEvent(QPaintEvent*)
 {
     QPoint point;
-    auto const& scaledPixmap = renderedPixmap();
+    QImage const scaledImage = _image.scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
-    point.setX((width() - scaledPixmap->width()) / 2);
-    point.setY((height() - scaledPixmap->height()) / 2);
-    QPainter(this).drawPixmap(point, *scaledPixmap);
-}
-
-std::shared_ptr<QPixmap> ImageWidget::scaledPixmap(QSize const& size) const
-{
-    return std::make_shared<QPixmap>(iprocess::scalePixmap(*_pixmap, size));
-}
-
-std::shared_ptr<QPixmap> ImageWidget::renderedPixmap() const
-{
-    return scaledPixmap(size());
+    point.setX((width() - scaledImage.width()) / 2);
+    point.setY((height() - scaledImage.height()) / 2);
+    QPainter(this).drawImage(point, scaledImage);
 }
 
 int ImageWidget::heightForWidth(const int width) const
 {
-    if (!_pixmap || !_pixmap->width())
+    if (_image.isNull() && !_image.width())
         return 0;
-    return _pixmap->height() * width / _pixmap->width();
+    return _image.height() * width / _image.width();
 }
 
 int ImageWidget::widthForHeight(const int height) const
 {
-    if (!_pixmap || !_pixmap->height())
+    if (_image.isNull() || !_image.height())
         return 0;
-    return _pixmap->width() * height / _pixmap->height();
+    return _image.width() * height / _image.height();
 }
 
 bool ImageWidget::hasHeightForWidth() const
 {
-    return static_cast<bool>(_pixmap);
+    return !_image.isNull();
 }
 
 bool ImageWidget::hasWidthForHeight() const
 {
-    return static_cast<bool>(_pixmap);
+    return !_image.isNull();
 }
 
 } // namespace phobos

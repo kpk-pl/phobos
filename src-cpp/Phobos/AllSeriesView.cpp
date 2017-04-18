@@ -107,12 +107,18 @@ namespace {
         return config::qSize("allSeriesView.pixmapSize").value_or(QSize(320, 240));
     }
 
-    std::shared_ptr<QPixmap> const& getPreloadPixmap()
+    QImage buildPreloadImage()
+    {
+        QPixmap pixmap(preferredSize());
+        pixmap.fill(Qt::lightGray);
+        return pixmap.toImage();
+    }
+
+    QImage getPreloadImage()
     {
         // TODO: handle when size changes
-        static auto result = std::make_shared<QPixmap>(preferredSize());
-        result->fill(Qt::lightGray);
-        return result;
+        static QImage const image = buildPreloadImage();
+        return image;
     }
 } // unnamed namespace
 
@@ -123,7 +129,7 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
 
     for (std::size_t col = 0; col < series->size(); ++col)
     {
-        PhotoItemWidget* item = new PhotoItemWidget(series->item(col), getPreloadPixmap(),
+        PhotoItemWidget* item = new PhotoItemWidget(series->item(col), getPreloadImage(),
             PhotoItemWidgetAddons(config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({})));
 
         QObject::connect(item, &PhotoItemWidget::openInSeries, this,
@@ -133,7 +139,7 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
         );
 
         grid->addWidget(item, row, col);
-        series->item(col)->loadPhoto(preferredSize(), item, std::bind(&PhotoItemWidget::setImagePixmap, item, std::placeholders::_1));
+        series->item(col)->loadPhoto(preferredSize(), item, std::bind(&PhotoItemWidget::setImage, item, std::placeholders::_1));
     }
 }
 

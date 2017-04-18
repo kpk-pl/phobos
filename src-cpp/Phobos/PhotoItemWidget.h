@@ -14,7 +14,7 @@ class PhotoItemWidget : public ImageWidget
     Q_OBJECT
 public:
     explicit PhotoItemWidget(pcontainer::ItemPtr const& photoItem,
-                             std::shared_ptr<QPixmap> const& preload,
+                             QImage const& preload,
                              PhotoItemWidgetAddons const& addons);
 
     pcontainer::Item const& photoItem() const { return *_photoItem; }
@@ -24,12 +24,10 @@ public:
     void focusOutEvent(QFocusEvent*) override;
     bool eventFilter(QObject* object, QEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
+    void paintEvent(QPaintEvent*) override;
 
 signals:
     void openInSeries(QUuid const& seriesUuid);
-
-protected:
-    std::shared_ptr<QPixmap> renderedPixmap() const override;
 
 private:
     class PixmapRenderer;

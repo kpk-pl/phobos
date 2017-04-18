@@ -6,7 +6,7 @@
 #include <vector>
 #include <QObject>
 #include <QUuid>
-#include <QPixmap>
+#include <QImage>
 #include <QMetaObject>
 #include "ImageProcessing/Metrics.h"
 
@@ -31,7 +31,7 @@ public:
      * Receiver is notified with a signal.
      */
     void loadPhoto(QSize const& size, QObject const* onLoadReceiver,
-                   std::function<void(std::shared_ptr<QPixmap> const&)> onLoadCallback);
+                   std::function<void(QImage)> onLoadCallback);
 
     bool isSelected() const;
     QUuid const& seriesUuid() const { return _seriesId; }
@@ -43,8 +43,8 @@ public:
 
     void setScoredMetric(iprocess::ScoredMetricPtr const& scoredMetric);
 
-    bool hasPixmap() const { return _pixmap && !_pixmap->isNull(); }
-    std::shared_ptr<QPixmap> const& pixmap() const { return _pixmap; }
+    bool hasImage() const { return !_image.isNull(); }
+    QImage const& image() const { return _image; }
 
 public slots:
     void select();
@@ -58,7 +58,7 @@ signals:
     void metricsReady();
 
 private slots:
-    void loadedPhotoFromThread(std::shared_ptr<QPixmap> pixmap);
+    void loadedPhotoFromThread(QImage image);
     void metricsReadyFromThread(iprocess::MetricPtr metric);
 
 private:
@@ -66,7 +66,7 @@ private:
     QUuid const _seriesId;
     unsigned const _ordinal;
     ItemState _state;
-    std::shared_ptr<QPixmap> _pixmap;
+    QImage _image;
     iprocess::MetricPtr _metric;
     iprocess::ScoredMetricPtr _scoredMetric;
 };

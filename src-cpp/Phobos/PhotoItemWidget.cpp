@@ -6,6 +6,7 @@
 #include <QKeyEvent>
 #include <QPixmap>
 #include <QPainter>
+#include <QTransform>
 #include <sstream>
 #include "PhotoItemWidget.h"
 #include "Config.h"
@@ -33,7 +34,7 @@ namespace phobos {
 // TODO: show "Quality" text in quality label
 
 PhotoItemWidget::PhotoItemWidget(pcontainer::ItemPtr const& photoItem,
-                                 std::shared_ptr<QPixmap> const& preload,
+                                 QImage const& preload,
                                  PhotoItemWidgetAddons const& addons) :
     ImageWidget(preload), _photoItem(photoItem), addons(addons)
 {
@@ -66,12 +67,6 @@ namespace {
 class PhotoItemWidget::PixmapRenderer
 {
 public:
-    static std::shared_ptr<QPixmap> filledPixmap(QSize const& size, QColor const& color)
-    {
-        auto pixmap = std::make_shared<QPixmap>(size);
-        pixmap->fill(color);
-        return pixmap;
-    }
     static std::string percentString(double const val, unsigned const decimalPlaces)
     {
         // TODO: use sprintf from QString
@@ -111,18 +106,20 @@ public:
         return accumulated;
     }
 
-    PixmapRenderer(PhotoItemWidget const& widget) :
+    PixmapRenderer(PhotoItemWidget &widget) :
         borderWidth(config::qualified("photoItemWidget.border.width", 2u)),
-        availableSizeWithoutBorders(widget.width() - 2*borderWidth, widget.height() - 2*borderWidth),
-        scaledImagePixmap(widget.scaledPixmap(availableSizeWithoutBorders)),
-        availableSizeWithBorders(scaledImagePixmap->width() + 2*borderWidth, scaledImagePixmap->height() + 2*borderWidth),
-        targetPixmap(filledPixmap(availableSizeWithBorders, colorForState(widget.photoItem().state()))),
-        painter(targetPixmap.get())
+        painter(&widget)
     {
+        QSize const imageSize(widget.width() - 2*borderWidth, widget.height() - 2*borderWidth);
+        QImage const scaledImage = widget.image().scaled(imageSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        withBorderSize = QSize(scaledImage.width() + 2*borderWidth, scaledImage.height() + 2*borderWidth);
+
         painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing, true);
-        painter.drawPixmap((targetPixmap->width() - scaledImagePixmap->width()) / 2,
-                           (targetPixmap->height() - scaledImagePixmap->height()) / 2,
-                           *scaledImagePixmap);
+        painter.setWorldTransform(QTransform().translate((widget.width() - withBorderSize.width()) / 2,
+                                                         (widget.height() - withBorderSize.height()) / 2));
+
+        painter.fillRect(QRect(QPoint(), withBorderSize), colorForState(widget.photoItem().state()));
+        painter.drawImage(borderWidth, borderWidth, scaledImage);
     }
 
     void focusMark()
@@ -199,12 +196,6 @@ public:
         painter.restore();
     }
 
-    std::shared_ptr<QPixmap> const& finish()
-    {
-        painter.end();
-        return targetPixmap;
-    }
-
 private:
     QPoint drawStartPoint(int const alignment, unsigned const padding, QSize const& pixmapSize = QSize()) const
     {
@@ -213,12 +204,12 @@ private:
         if (alignment & Qt::AlignLeft)
             result.setX(borderWidth + padding);
         else
-            result.setX(targetPixmap->width() - borderWidth - padding - pixmapSize.width());
+            result.setX(withBorderSize.width() - borderWidth - padding - pixmapSize.width());
 
         if (alignment & Qt::AlignTop)
             result.setY(borderWidth + padding);
         else
-            result.setY(targetPixmap->height() - borderWidth - padding - pixmapSize.height());
+            result.setY(withBorderSize.height() - borderWidth - padding - pixmapSize.height());
 
         return result;
     }
@@ -234,8 +225,8 @@ private:
     QPixmap coloredIcon(std::string const& configTable)
     {
         double const sizePercent = config::qualified(configTable+".sizePercent", 0.2);
-        QSize const iconSize(availableSizeWithoutBorders.width() * sizePercent,
-                             availableSizeWithoutBorders.height() * sizePercent);
+        QSize const iconSize(withBorderSize.width() * sizePercent,
+                             withBorderSize.height() * sizePercent);
         QColor const color = config::qColor(configTable+".color", Qt::black);
         double const opacity = config::qualified(configTable+".opacity", 0.5);
         std::string const path = config::qualified(configTable+".path", std::string{});
@@ -244,14 +235,11 @@ private:
     }
 
     std::size_t const borderWidth;
-    QSize const availableSizeWithoutBorders;
-    std::shared_ptr<QPixmap> const scaledImagePixmap;
-    QSize const availableSizeWithBorders;
-    std::shared_ptr<QPixmap> targetPixmap;
+    QSize withBorderSize;
     QPainter painter;
 };
 
-std::shared_ptr<QPixmap> PhotoItemWidget::renderedPixmap() const
+void PhotoItemWidget::paintEvent(QPaintEvent*)
 {
     PixmapRenderer renderer(*this);
 
@@ -271,8 +259,6 @@ std::shared_ptr<QPixmap> PhotoItemWidget::renderedPixmap() const
 
     if (addons.has(PhotoItemWidgetAddonType::ORD_NUM))
         renderer.ordNum(_photoItem->ord());
-
-    return renderer.finish();
 }
 
 void PhotoItemWidget::contextMenuEvent(QContextMenuEvent* event)

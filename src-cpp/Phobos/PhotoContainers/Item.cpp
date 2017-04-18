@@ -26,13 +26,13 @@ namespace {
 } // unnamed namespace
 
 void Item::loadPhoto(QSize const& size, QObject const* onLoadReceiver,
-                     std::function<void(std::shared_ptr<QPixmap> const&)> onLoadCallback)
+                     std::function<void(QImage)> onLoadCallback)
 {
     using namespace iprocess;
     std::shared_ptr<QMetaObject::Connection> result;
 
-    if (hasPixmap() && sizeFits(size, _pixmap->size()))
-        onLoadCallback(_pixmap);
+    if (hasImage() && sizeFits(size, _image.size()))
+        onLoadCallback(_image);
     else
     {
         bool doMetrics = !_metric;
@@ -44,24 +44,24 @@ void Item::loadPhoto(QSize const& size, QObject const* onLoadReceiver,
             QObject::connect(&loaderTask->readySignals, &LoaderThreadSignals::metricsReady,
                              this, &Item::metricsReadyFromThread, Qt::QueuedConnection);
 
-        QObject::connect(&loaderTask->readySignals, &LoaderThreadSignals::pixmapReady,
+        QObject::connect(&loaderTask->readySignals, &LoaderThreadSignals::imageReady,
                          onLoadReceiver, onLoadCallback, Qt::QueuedConnection);
 
-        if (!_pixmap)
-            QObject::connect(&loaderTask->readySignals, &LoaderThreadSignals::pixmapReady,
+        if (!hasImage())
+            QObject::connect(&loaderTask->readySignals, &LoaderThreadSignals::imageReady,
                              this, &Item::loadedPhotoFromThread, Qt::QueuedConnection);
 
         QThreadPool::globalInstance()->start(loaderTask);
     }
 }
 
-void Item::loadedPhotoFromThread(std::shared_ptr<QPixmap> pixmap)
+void Item::loadedPhotoFromThread(QImage image)
 {
     QSize const expectedSize = getPixmapSizeFromConfig();
-    if (!sizeFits(pixmap->size(), expectedSize))
-        _pixmap = std::make_shared<QPixmap>(iprocess::scalePixmap(*pixmap, expectedSize));
+    if (!sizeFits(image.size(), expectedSize))
+        _image = image.scaled(expectedSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     else
-        _pixmap = pixmap;
+        _image = image;
 }
 
 void Item::metricsReadyFromThread(iprocess::MetricPtr metric)

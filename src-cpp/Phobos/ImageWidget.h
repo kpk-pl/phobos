@@ -2,7 +2,7 @@
 #define IMAGEWIDGET_H
 
 #include <memory>
-#include <QPixmap>
+#include <QImage>
 #include <QLabel>
 #include <QSize>
 #include "HeightResizeableInterface.h"
@@ -14,10 +14,9 @@ class ImageWidget : public QLabel, public HeightResizeableInterface
     Q_OBJECT
 
 public:
-    explicit ImageWidget(std::shared_ptr<QPixmap> const& pixmap);
+    explicit ImageWidget(QImage const& image);
 
-    std::shared_ptr<QPixmap> const& pixmap() const;
-    std::shared_ptr<QPixmap> scaledPixmap(QSize const& size) const;
+    QImage image() const { return _image; }
 
     int heightForWidth(const int width) const override;
     int widthForHeight(const int height) const override;
@@ -29,16 +28,13 @@ public:
     void paintEvent(QPaintEvent* event) override;
 
 public slots:
-    void setImagePixmap(std::shared_ptr<QPixmap> const& pixmap);
+    void setImage(QImage image);
 
 signals:
     void clicked();
 
-protected:
-    virtual std::shared_ptr<QPixmap> renderedPixmap() const;
-
 private:
-    std::shared_ptr<QPixmap> _pixmap;
+    QImage _image;
 };
 
 } // namespace phobos
