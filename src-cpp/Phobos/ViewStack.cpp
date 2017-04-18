@@ -42,32 +42,12 @@ pcontainer::SeriesPtr const& ViewStack::findRequestedSeries(ViewDescriptionPtr c
     return seriesSet.findSeries(*viewDesc->seriesUuid, viewDesc->seriesOffset.value_or(0));
 }
 
-void ViewStack::updateCurrentWidget(ViewDescriptionPtr const& viewDesc)
-{
-    switch(viewDesc->type)
-    {
-    case ViewType::ROW_SINGLE_SERIES:
-        currentSeriesWidget = rowSeriesView;
-        break;
-    case ViewType::NUM_SINGLE_SERIES:
-        currentSeriesWidget = numSeriesView;
-        break;
-    case ViewType::ANY_SINGLE_SERIES:
-    case ViewType::ALL_SERIES:
-    case ViewType::CURRENT:
-        break; // no action needed
-    default:
-        assert(false);
-    }
-}
-
 void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
 {
     if (seriesSet.empty())
         return; // NO-OP
 
     pcontainer::SeriesPtr const& targetSeries = findRequestedSeries(viewDesc);
-    updateCurrentWidget(viewDesc);
 
     if ((viewDesc->type == ViewType::ALL_SERIES) ||
         ((viewDesc->type == ViewType::CURRENT) && currentWidget() == allSeriesView))
@@ -79,16 +59,23 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
 
     if (currentSeriesInView == targetSeries->uuid())
     {
-        if (viewDesc->type == ViewType::NUM_SINGLE_SERIES && currentWidget() == rowSeriesView)
+        if (viewDesc->type == ViewType::NUM_SINGLE_SERIES && currentSeriesWidget == rowSeriesView)
         {
             numSeriesView->exchangeItemsFrom(rowSeriesView);
+            currentSeriesWidget = numSeriesView;
         }
-        else if (viewDesc->type == ViewType::ROW_SINGLE_SERIES && currentWidget() == numSeriesView)
+        else if (viewDesc->type == ViewType::ROW_SINGLE_SERIES && currentSeriesWidget == numSeriesView)
         {
             rowSeriesView->exchangeItemsFrom(numSeriesView);
+            currentSeriesWidget = rowSeriesView;
         }
     }
     else {
+        if (viewDesc->type == ViewType::ROW_SINGLE_SERIES)
+            currentSeriesWidget = rowSeriesView;
+        else if (viewDesc->type == ViewType::NUM_SINGLE_SERIES)
+            currentSeriesWidget = numSeriesView;
+
         currentSeriesInView = targetSeries->uuid();
         currentSeriesWidget->showSeries(targetSeries);
     }

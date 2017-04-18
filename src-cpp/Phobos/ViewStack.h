@@ -29,7 +29,6 @@ public slots:
 
 private:
     pcontainer::SeriesPtr const& findRequestedSeries(ViewDescriptionPtr const& viewDesc) const;
-    void updateCurrentWidget(ViewDescriptionPtr const& viewDesc);
 
     void setupUI();
     void connectSignals();
