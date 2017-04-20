@@ -25,8 +25,6 @@ public:
     bool hasHeightForWidth() const override;
     bool hasWidthForHeight() const override;
 
-    QSize sizeHint() const override;
-
     void mousePressEvent(QMouseEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 

@@ -74,11 +74,4 @@ bool ImageWidget::hasWidthForHeight() const
     return static_cast<bool>(_pixmap);
 }
 
-QSize ImageWidget::sizeHint() const
-{
-    if (_pixmap)
-        return QSize();
-    return _pixmap->size();
-}
-
 } // namespace phobos
