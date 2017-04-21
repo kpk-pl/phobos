@@ -11,6 +11,14 @@
 #include "ImageProcessing/Histogram.h"
 #include "ConfigExtension.h"
 
+//#define PHOBOS_TIME_IMAGE_OPS
+
+#ifdef PHOBOS_TIME_IMAGE_OPS
+#define TIMED(x, op) do { TIMED_SCOPE(timed_scope, x); op; } while(0)
+#else
+#define TIMED(x, op) do { op; } while(0)
+#endif
+
 namespace phobos { namespace iprocess {
 
 LoaderThread::LoaderThread(std::string const& fileName,
@@ -23,10 +31,6 @@ LoaderThread::LoaderThread(std::string const& fileName,
 }
 
 // TODO: optimize with-metrics flow
-//
-// TODO macro to enable timing of functions
-// each call in its own timer
-// TIME_OP(x) { timer; x; }
 
 void LoaderThread::run()
 {
@@ -35,8 +39,7 @@ void LoaderThread::run()
     {
         cv::Mat cvImage;
         {
-            TIMED_SCOPE(scopeWithMetric, "LoaderThread::loadInOpenCV");
-            cvImage = cv::imread(fileToLoad);
+            TIMED("load:imread", cvImage = cv::imread(fileToLoad));
             emitLoadedSignal(cvImage);
         }
         runMetrics(std::move(cvImage));
@@ -66,24 +69,25 @@ void LoaderThread::runWithoutMetrics() const
     reader.setAutoDetectImageFormat(true);
     reader.setScaledSize(biggestClosestSize(reader.size()));
 
-    QImage image = reader.read();
+    QImage image;
+    TIMED("QImageReade:read", image = reader.read());
 
     emit readySignals.imageReady(image);
 }
 
 void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
 {
+    QSize const cvSize(cvImage.cols, cvImage.rows);
+    QSize const pixmapSize = biggestClosestSize(cvSize);
+    LOG(DEBUG) << "Scaling image from " << cvImage.cols << "x" << cvImage.rows
+               << " to " << pixmapSize.width() << "x" << pixmapSize.height();
+
+    cv::Mat resized;
+    TIMED("cv:resize", cv::resize(cvImage, resized, cv::Size(pixmapSize.width(), pixmapSize.height()), 0, 0, cv::INTER_CUBIC));
+
     QImage image;
-    {
-        TIMED_SCOPE(id, "convertCVImageToQImage");
-        QSize const cvSize(cvImage.cols, cvImage.rows);
-        QSize const pixmapSize = biggestClosestSize(cvSize);
-        LOG(DEBUG) << "Scaling image from " << cvImage.cols << "x" << cvImage.rows
-                   << " to " << pixmapSize.width() << "x" << pixmapSize.height();
-        cv::Mat resized;
-        cv::resize(cvImage, resized, cv::Size(pixmapSize.width(), pixmapSize.height()), 0, 0, cv::INTER_CUBIC);
-        image = iprocess::convCvToImage(resized);
-    }
+    TIMED("cv:convQt", image = iprocess::convCvToImage(resized));
+
     emit readySignals.imageReady(image);
 }
 
@@ -104,27 +108,12 @@ void LoaderThread::runMetrics(cv::Mat cvImage) const
 
     MetricPtr metrics = std::make_shared<Metric>();
 
-    {
-        TIMED_SCOPE(scopef, "runMetrics: histogram");
-        metrics->contrast = 0;
-        metrics->histogram = normalizedHistogram(resized, *metrics->contrast);
-    }
-    {
-        TIMED_SCOPE(scopef, "runMetrics: noise");
-        metrics->noise = noiseMeasure(resized, config::qualified("imageLoaderThread.noiseMedianSize", 3));
-    }
-    {
-        TIMED_SCOPE(scopef, "runMetrics: sobel");
-        metrics->blur.sobel = blur::sobel(resized);
-    }
-    {
-        TIMED_SCOPE(scopef, "runMetrics: laplace");
-        metrics->blur.laplace = blur::laplace(resized);
-    }
-    {
-        TIMED_SCOPE(scopef, "runMetrics: laplaceMod");
-        metrics->blur.laplaceMod = blur::laplaceMod(resized);
-    }
+    metrics->contrast = 0;
+    TIMED("runMetrics: contrast", metrics->histogram = normalizedHistogram(resized, *metrics->contrast));
+    TIMED("runMetrics: noise", metrics->noise = noiseMeasure(resized, config::qualified("imageLoaderThread.noiseMedianSize", 3)));
+    TIMED("runMetrics: sobel", metrics->blur.sobel = blur::sobel(resized));
+    TIMED("runMetrics: laplace", metrics->blur.laplace = blur::laplace(resized));
+    TIMED("runMetrics: laplaceMod", metrics->blur.laplaceMod = blur::laplaceMod(resized));
 
     emit readySignals.metricsReady(metrics);
 }
