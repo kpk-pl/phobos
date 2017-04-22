@@ -76,9 +76,9 @@ bool DivisionMethodPage::validatePage()
 void DivisionMethodPage::importMoreFiles()
 {
     QStringList const newFiles = selectImagesInDialog(this);
-    // TODO: deduplicate
     _selectedFiles.append(newFiles);
     std::sort(_selectedFiles.begin(), _selectedFiles.end());
+    _selectedFiles.erase(std::unique(_selectedFiles.begin(), _selectedFiles.end()), _selectedFiles.end());
 
     numImportedLabel->setText(tr("Selected %1 photos").arg(_selectedFiles.size()));
     update();
