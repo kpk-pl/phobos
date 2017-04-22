@@ -1,8 +1,27 @@
+#include <easylogging++.h>
 #include "ImportWizard/DivisionOps.h"
 #include "Utils/FileAttributes.h"
 #include "ConfigExtension.h"
 
 namespace phobos { namespace importwiz {
+
+std::vector<PhotoSeries> divideToSeriesWithEqualSize(QStringList const& photos, std::size_t const photosInSeries)
+{
+    assert(photosInSeries > 0);
+
+    std::vector<PhotoSeries> result;
+    for (int n = 0; n < photos.size(); ++n)
+    {
+        if (n % photosInSeries == 0)
+        {
+            result.push_back(PhotoSeries());
+            result.back().reserve(photosInSeries);
+        }
+        result.back().push_back(Photo{photos[n].toStdString(), boost::none});
+    }
+
+    return result;
+}
 
 std::vector<PhotoSeries> divideToSeriesOnMetadata(QStringList const& photos)
 {

@@ -62,7 +62,7 @@ fillColor = "transparent"
 seriesSpacing = 15
 photosSpacing = 3
 pixmapSize = { width = 320, height = 240 } # should be the same as photoItem.pixmapSize
-enabledAddons = ["focus", "best", "score", "ord"]
+enabledAddons = ["focus", "best", "score"]
 
 [seriesView]
 maxPixmapSize = { width = 1920, height = 1080 }
