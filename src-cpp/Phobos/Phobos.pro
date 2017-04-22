@@ -44,7 +44,9 @@ SOURCES += Phobos.cpp\
     NavigationBar.cpp \
     RowSeriesView.cpp \
     HorizontalScrollArea.cpp \
-    ImageOpenDialog.cpp
+    ImportWizard/ImageOpenDialog.cpp \
+    ImportWizard/ImportWizard.cpp \
+    ImportWizard/DivisionMethodPage.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -78,7 +80,10 @@ HEADERS  += MainWindow.h \
     HorizontalScrollArea.h \
     HeightResizeableInterface.h \
     ViewDescription.h \
-    ImageOpenDialog.h
+    PhotoBulkAction.h \
+    ImportWizard/ImageOpenDialog.h \
+    ImportWizard/ImportWizard.h \
+    ImportWizard/DivisionMethodPage.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

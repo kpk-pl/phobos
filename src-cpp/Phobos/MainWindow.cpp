@@ -6,7 +6,7 @@
 #include "ConfigExtension.h"
 #include "ViewDescription.h"
 #include "PhotoBulkAction.h"
-#include "ImageOpenDialog.h"
+#include "ImportWizard/ImportWizard.h"
 
 namespace phobos {
 
@@ -24,9 +24,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::loadPhotos()
 {
-    QStringList const selectedFiles = selectImagesInDialog(this);
-    if (!selectedFiles.empty())
-        viewStack->addPhotos(selectedFiles);
+    importwiz::ImportWizard importWizard(this);
+    importWizard.exec();
+
+    if (!importWizard.selectedFiles().empty())
+        viewStack->addPhotos(importWizard.selectedFiles());
 }
 
 void MainWindow::createMenus()

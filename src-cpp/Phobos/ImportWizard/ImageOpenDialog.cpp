@@ -6,7 +6,7 @@
 #include <memory>
 #include "ImageOpenDialog.h"
 
-namespace phobos {
+namespace phobos { namespace importwiz {
 
 namespace {
 std::unique_ptr<QFileDialog> createLoadDialog(QWidget *parent)
@@ -45,4 +45,4 @@ QStringList selectImagesInDialog(QWidget *parent)
     return QStringList();
 }
 
-} // namespace phobos
+}} // namespace phobos::importwiz
