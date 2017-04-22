@@ -3,6 +3,7 @@
 #include "PhotoContainers/Series.h"
 #include "ImageProcessing/MetricsAggregate.h"
 #include "ImageProcessing/MetricsIO.h"
+#include "ConfigExtension.h"
 
 namespace phobos { namespace pcontainer {
 
@@ -59,10 +60,12 @@ void Series::newMetricCalculated()
     {
         Item& item = *photoItems[i];
         item.setScoredMetric(scoredMetrics[i]);
-        LOG(DEBUG) << "Calculated series metrics" << std::endl
-                   << "photoItem: " << item.fileName() << std::endl
-                   << "metric: " << item.metric() << std::endl
-                   << "scoredMetric: " << item.scoredMetric();
+
+        LOG_IF(config::qualified("logging.metrics", false), DEBUG)
+           << "Calculated series metrics" << std::endl
+           << "photoItem: " << item.fileName() << std::endl
+           << "metric: " << item.metric() << std::endl
+           << "scoredMetric: " << item.scoredMetric();
     }
 }
 
