@@ -6,6 +6,7 @@
 #include <QObject>
 #include "PhotoContainers/Item.h"
 #include "ImageProcessing/Metrics.h"
+#include "ImportWizard/Types.h"
 
 namespace phobos { namespace pcontainer {
 
@@ -14,6 +15,7 @@ class Series : public QObject
     Q_OBJECT
 public:
     explicit Series();
+    explicit Series(importwiz::PhotoSeries const& series);
 
     void addPhotoItems(std::vector<std::string> const& fileNames);
     void addPhotoItem(std::string const& fileName);

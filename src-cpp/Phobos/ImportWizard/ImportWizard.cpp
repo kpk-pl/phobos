@@ -7,29 +7,23 @@ namespace phobos { namespace importwiz {
 ImportWizard::ImportWizard(QWidget *parent) :
     QWizard(parent)
 {
-    addPage(new DivisionMethodPage(this));
+    divisionPage = new DivisionMethodPage(this);
+    addPage(divisionPage);
     setWindowTitle(tr("Import wizard"));
 
     setWindowFlags(windowFlags() | Qt::CustomizeWindowHint);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
-int ImportWizard::exec()
-{
-    loadMoreFiles();
-    return QWizard::exec();
-}
-
 void ImportWizard::accept()
 {
+    // TODO:
     QDialog::accept();
 }
 
-void ImportWizard::loadMoreFiles()
+std::vector<PhotoSeries> const& ImportWizard::loadedSeries() const
 {
-    QStringList const newFiles = selectImagesInDialog(this);
-    _selectedFiles.append(newFiles);
-    // TODO: remove duplicates
+    return divisionPage->series();
 }
 
 }} // namespace phobos::importwiz

@@ -2,6 +2,8 @@
 #define IMPORTWIZARD_DIVISIONMETHODPAGE_H
 
 #include <QWizardPage>
+#include <QStringList>
+#include "ImportWizard/Types.h"
 
 class QLabel;
 class QPushButton;
@@ -9,17 +11,20 @@ class QSpinBox;
 class QRadioButton;
 
 namespace phobos { namespace importwiz {
-class ImportWizard;
 
 class DivisionMethodPage : public QWizardPage
 {
     Q_OBJECT
 
 public:
-    DivisionMethodPage(ImportWizard *parent);
+    DivisionMethodPage(QWidget *parent);
+
+    std::vector<PhotoSeries> const& series() const { return _dividedSeries; }
 
 protected:
+    bool validatePage() override;
     void initializePage() override;
+    void cleanupPage() override;
 
 private:
     enum class Selection {
@@ -28,7 +33,6 @@ private:
     };
 
     void importMoreFiles();
-    void updateLabelText();
     void updateSelection(Selection selection);
 
     QLabel *numImportedLabel;
@@ -40,7 +44,8 @@ private:
     QRadioButton *metadataAutoChoice;
 
     Selection currentSelection;
-    ImportWizard *parentWizard;
+    QStringList _selectedFiles;
+    std::vector<PhotoSeries> _dividedSeries;
 };
 
 }} // namespace phobos::importwiz

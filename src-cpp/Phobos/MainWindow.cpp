@@ -25,10 +25,8 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::loadPhotos()
 {
     importwiz::ImportWizard importWizard(this);
-    importWizard.exec();
-
-    if (!importWizard.selectedFiles().empty())
-        viewStack->addPhotos(importWizard.selectedFiles());
+    if (importWizard.exec())
+        viewStack->addPhotos(importWizard.loadedSeries());
 }
 
 void MainWindow::createMenus()

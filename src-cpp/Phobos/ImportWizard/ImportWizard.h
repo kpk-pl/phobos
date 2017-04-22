@@ -2,8 +2,10 @@
 #define IMPORTWIZARD_IMPORTWIZARD_H
 
 #include <QWizard>
+#include "ImportWizard/Types.h"
 
 namespace phobos { namespace importwiz {
+class DivisionMethodPage;
 
 class ImportWizard : public QWizard
 {
@@ -11,14 +13,11 @@ class ImportWizard : public QWizard
 public:
     ImportWizard(QWidget *parent = nullptr);
 
-    QStringList const& selectedFiles() const { return _selectedFiles; }
-    void loadMoreFiles();
-
-    int exec() override;
+    std::vector<PhotoSeries> const& loadedSeries() const;
     void accept() override;
 
 private:
-    QStringList _selectedFiles;
+    DivisionMethodPage *divisionPage;
 };
 
 }} // namespace phobos::importwiz

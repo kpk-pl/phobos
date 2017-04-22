@@ -9,7 +9,13 @@ namespace phobos { namespace pcontainer {
 Series::Series() :
     _uuid(QUuid::createUuid())
 {
+}
 
+Series::Series(importwiz::PhotoSeries const& series) :
+    Series()
+{
+    for (auto const& item : series)
+        addPhotoItem(item.fileName);
 }
 
 void Series::addPhotoItems(std::vector<std::string> const& fileNames)

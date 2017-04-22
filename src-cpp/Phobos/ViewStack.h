@@ -7,6 +7,7 @@
 #include "PhotoContainers/Set.h"
 #include "ViewDescription.h"
 #include "PhotoBulkAction.h"
+#include "ImportWizard/Types.h"
 
 namespace phobos {
 
@@ -21,7 +22,7 @@ class ViewStack : public QStackedWidget
 
 public:
     explicit ViewStack();
-    void addPhotos(QStringList const& photos);
+    void addPhotos(std::vector<importwiz::PhotoSeries> const& photoSeries);
 
 public slots:
     void handleSwitchView(ViewDescriptionPtr viewDesc);

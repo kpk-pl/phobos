@@ -4,13 +4,14 @@
 #include <QFrame>
 #include <QSpinBox>
 #include <QRadioButton>
-#include "ImportWizard/ImportWizard.h"
 #include "ImportWizard/DivisionMethodPage.h"
+#include "ImportWizard/ImageOpenDialog.h"
+#include "ImportWizard/DivisionOps.h"
 
 namespace phobos { namespace importwiz {
 
-DivisionMethodPage::DivisionMethodPage(ImportWizard *parent) :
-    QWizardPage(parent), currentSelection(Selection::FixedNum), parentWizard(parent)
+DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
+    QWizardPage(parent), currentSelection(Selection::FixedNum)
 {
     setTitle(tr("Division method"));
 
@@ -45,13 +46,29 @@ DivisionMethodPage::DivisionMethodPage(ImportWizard *parent) :
 
 void DivisionMethodPage::initializePage()
 {
-    updateLabelText();
+    if (_selectedFiles.empty())
+        importMoreFiles();
+}
+
+void DivisionMethodPage::cleanupPage()
+{
+    _dividedSeries.clear();
+}
+
+bool DivisionMethodPage::validatePage()
+{
+    // TODO: progres bar
+    _dividedSeries = divideToSeriesOnMetadata(_selectedFiles);
+    return true;
 }
 
 void DivisionMethodPage::importMoreFiles()
 {
-    parentWizard->loadMoreFiles();
-    updateLabelText();
+    QStringList const newFiles = selectImagesInDialog(this);
+    // TODO: deduplicate
+    _selectedFiles.append(newFiles);
+
+    numImportedLabel->setText(tr("Selected %1 photos").arg(_selectedFiles.size()));
     update();
 }
 
@@ -68,11 +85,6 @@ void DivisionMethodPage::updateSelection(Selection selection)
         fixedNumParam->setDisabled(true);
         break;
     }
-}
-
-void DivisionMethodPage::updateLabelText()
-{
-    numImportedLabel->setText(tr("Selected %1 photos").arg(parentWizard->selectedFiles().size()));
 }
 
 }} // namespace phobos::importwiz
