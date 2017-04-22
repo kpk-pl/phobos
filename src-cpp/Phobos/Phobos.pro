@@ -83,7 +83,7 @@ INCLUDEPATH += boost
 INCLUDEPATH += opencv/include
 INCLUDEPATH += easyloggingpp/src
 
-_WIN32 {
+win32 {
 LIBS += $$PWD/opencv/bin/libopencv_core320.dll
 LIBS += $$PWD/opencv/bin/libopencv_imgcodecs320.dll
 LIBS += $$PWD/opencv/bin/libopencv_imgproc320.dll
