@@ -1,23 +1,18 @@
 #include <QMenuBar>
 #include <QAction>
 #include <QKeySequence>
-#include <QStandardPaths>
-#include <QDir>
-#include <QImageReader>
-#include <QFileDialog>
 #include "MainWindow.h"
 #include "Config.h"
 #include "ConfigExtension.h"
 #include "ViewDescription.h"
 #include "PhotoBulkAction.h"
+#include "ImageOpenDialog.h"
 
 namespace phobos {
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    viewStack(new ViewStack()),
-    firstLoadDialog(true)
-
+    viewStack(new ViewStack())
 {
     setCentralWidget(viewStack);
     createMenus();
@@ -29,37 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::loadPhotos()
 {
-    // TODO: should display dialog when files are divided into series, including series count, number of images etc
-    //
-    // TODO: Disallow loading series with just one photo / warn in the dialog and choose if load?
-    QFileDialog* dialog = createLoadDialog();
-    if (dialog->exec())
-        viewStack->addPhotos(dialog->selectedFiles());
-    delete dialog;
-}
-
-QFileDialog* MainWindow::createLoadDialog()
-{
-    QFileDialog* dialog = new QFileDialog(this, tr("Load photos"));
-    if (firstLoadDialog)
-    {
-        firstLoadDialog = false;
-        QStringList const locations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-        if (locations.empty())
-            dialog->setDirectory(QDir::currentPath());
-        else
-            dialog->setDirectory(locations.last());
-    }
-
-    QStringList supportedTypes;
-    for (auto const& mtype : QImageReader::supportedMimeTypes())
-        supportedTypes.append(mtype);
-    supportedTypes.sort();
-    supportedTypes.insert(0, "application/octet-stream");
-    dialog->setMimeTypeFilters(supportedTypes);
-
-    dialog->setFileMode(QFileDialog::ExistingFiles);
-    return dialog;
+    QStringList const selectedFiles = selectImagesInDialog(this);
+    if (!selectedFiles.empty())
+        viewStack->addPhotos(selectedFiles);
 }
 
 void MainWindow::createMenus()

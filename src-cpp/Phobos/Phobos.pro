@@ -43,7 +43,8 @@ SOURCES += Phobos.cpp\
     NumSeriesView.cpp \
     NavigationBar.cpp \
     RowSeriesView.cpp \
-    HorizontalScrollArea.cpp
+    HorizontalScrollArea.cpp \
+    ImageOpenDialog.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -76,7 +77,8 @@ HEADERS  += MainWindow.h \
     RowSeriesView.h \
     HorizontalScrollArea.h \
     HeightResizeableInterface.h \
-    ViewDescription.h
+    ViewDescription.h \
+    ImageOpenDialog.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

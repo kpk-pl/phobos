@@ -4,8 +4,6 @@
 #include <QMainWindow>
 #include "ViewStack.h"
 
-class QFileDialog;
-
 namespace phobos {
 
 class MainWindow : public QMainWindow
@@ -17,13 +15,9 @@ public:
 
 private:
     void loadPhotos();
-
     void createMenus();
-    QFileDialog* createLoadDialog();
 
     ViewStack* viewStack;
-    bool firstLoadDialog;
-
 };
 
 } // namespace phobos
