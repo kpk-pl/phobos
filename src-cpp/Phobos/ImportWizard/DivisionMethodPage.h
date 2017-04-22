@@ -18,7 +18,8 @@ class DivisionMethodPage : public QWizardPage
 public:
     DivisionMethodPage(ImportWizard *parent);
 
-    void paintEvent(QPaintEvent *event) override;
+protected:
+    void initializePage() override;
 
 private:
     enum class Selection {

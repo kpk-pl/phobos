@@ -43,15 +43,15 @@ DivisionMethodPage::DivisionMethodPage(ImportWizard *parent) :
     setLayout(layout);
 }
 
-void DivisionMethodPage::paintEvent(QPaintEvent *event)
+void DivisionMethodPage::initializePage()
 {
     updateLabelText();
-    QWizardPage::paintEvent(event);
 }
 
 void DivisionMethodPage::importMoreFiles()
 {
     parentWizard->loadMoreFiles();
+    updateLabelText();
     update();
 }
 
