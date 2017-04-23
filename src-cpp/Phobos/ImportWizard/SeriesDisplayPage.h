@@ -10,6 +10,8 @@ namespace phobos { namespace importwiz {
 
 class SeriesDisplayPage : public QWizardPage
 {
+    Q_OBJECT
+
 public:
     SeriesDisplayPage(QWidget* parent = nullptr);
 

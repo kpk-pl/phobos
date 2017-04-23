@@ -12,12 +12,12 @@ class QRadioButton;
 
 namespace phobos { namespace importwiz {
 
-// http://stackoverflow.com/questions/41040906/qwizardpage-registerfield-for-class-property-not-working
-
 class DivisionMethodPage : public QWizardPage
 {
     Q_OBJECT
-    Q_PROPERTY(PhotoSeriesVec dividedSeries MEMBER _dividedSeries READ series NOTIFY seriesChanged)
+
+    // although docs does not mention the namespace needs to be fully specified, it really must be
+    Q_PROPERTY(phobos::importwiz::PhotoSeriesVec dividedSeries MEMBER _dividedSeries READ series NOTIFY seriesChanged)
 
 public:
     DivisionMethodPage(QWidget *parent = nullptr);

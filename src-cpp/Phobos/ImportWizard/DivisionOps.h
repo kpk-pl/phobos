@@ -8,6 +8,8 @@
 
 namespace phobos { namespace importwiz {
 
+// TODO: install and use EXIV2 lib for reading metadata
+
 PhotoSeriesVec divideToSeriesWithEqualSize(QStringList const& photos, std::size_t const photosInSeries);
 PhotoSeriesVec divideToSeriesOnMetadata(QStringList const& photos);
 
