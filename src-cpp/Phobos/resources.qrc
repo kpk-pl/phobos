@@ -1,11 +1,11 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-    <file>icon/focus.png</file>
-    <file>icon/star.png</file>
-    <file>icon/next.png</file>
-    <file>icon/prev.png</file>
-    <file>icon/num_grid.png</file>
-    <file>icon/scroll_grid.png</file>
-    <file>icon/all_grid.png</file>
+    <file>icons/focus.png</file>
+    <file>icons/star.png</file>
+    <file>icons/next.png</file>
+    <file>icons/prev.png</file>
+    <file>icons/num_grid.png</file>
+    <file>icons/scroll_grid.png</file>
+    <file>icons/all_grid.png</file>
 </qresource>
 </RCC>

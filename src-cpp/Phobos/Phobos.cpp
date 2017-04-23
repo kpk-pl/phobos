@@ -1,6 +1,6 @@
 #include <memory>
 #include <QApplication>
-#include <QPixmap>
+#include <QIcon>
 #include <easylogging++.h>
 #include "MainWindow.h"
 #include "ViewDescription.h"

@@ -24,7 +24,7 @@ padding = 7
 opacity = 0.5
 color = "orange"
 sizePercent = 0.15
-path = ":icon/focus.png"
+path = ":icons/focus.png"
 
 [photoItemWidget.qualityText]
 padding = 7
@@ -34,7 +34,7 @@ color = "red"
 font = { family = "Courier", pointSize = 10, weight = 75 }
 
 [photoItemWidget.bestMarkIcon]
-path = ":icon/star.png"
+path = ":icons/star.png"
 opacity = 0.5
 color = "yellow"
 sizePercent = 0.2
@@ -73,11 +73,9 @@ visibleItems = 2
 default = true
 
 [navigationBar]
-nextIcon = ":icon/next.png"
-prevIcon = ":icon/prev.png"
-allSeriesIcon = ":icon/all_grid.png"
-numSeriesIcon = ":icon/num_grid.png"
-oneSeriesIcon = ":icon/scroll_grid.png"
+allSeriesIcon = ":icons/all_grid.png"
+numSeriesIcon = ":icons/num_grid.png"
+oneSeriesIcon = ":icons/scroll_grid.png"
 iconColor = "blue"
 spacing = 2
 buttonSize = [40, 40]

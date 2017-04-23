@@ -86,15 +86,13 @@ NavigationBar::NavigationBar(int capabilities) :
 
     if (capabilities & Capability::LEFT)
     {
-        std::string const fileName = config::qualified("navigationBar.prevIcon", std::string{});
-        _leftButton = new IconButton(QIcon(fileName.c_str()));
+        _leftButton = new IconButton(QIcon::fromTheme("go-previous", QIcon(":icons/go-previous.png")));
         layout->addWidget(_leftButton);
     }
 
     if (capabilities & Capability::RIGHT)
     {
-        std::string const fileName = config::qualified("navigationBar.nextIcon", std::string{});
-        _rightButton = new IconButton(QIcon(fileName.c_str()));
+        _rightButton = new IconButton(QIcon::fromTheme("go-next", QIcon(":icons/go-next.png")));
         layout->addWidget(_rightButton);
     }
 }
