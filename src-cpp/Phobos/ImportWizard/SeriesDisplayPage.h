@@ -5,6 +5,7 @@
 
 class QTreeWidget;
 class QLabel;
+class QPushButton;
 
 namespace phobos { namespace importwiz {
 
@@ -19,10 +20,15 @@ protected:
     void initializePage() override;
     void cleanupPage() override;
 
-private:
+private slots:
+    void selectBackSeriesWithOnePhoto();
+
+private:  
     QTreeWidget *tree;
 
     QLabel *loadedStatusLabel;
+    QLabel *lengthOneWarning;
+    QPushButton *selectLengthOneButton;
 };
 
 }} // namespace phobos::importwiz
