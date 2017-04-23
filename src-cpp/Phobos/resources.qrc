@@ -2,8 +2,8 @@
 <qresource>
     <file>icons/focus.png</file>
     <file>icons/star.png</file>
-    <file>icons/next.png</file>
-    <file>icons/prev.png</file>
+    <file>icons/go-next.png</file>
+    <file>icons/go-previous.png</file>
     <file>icons/num_grid.png</file>
     <file>icons/scroll_grid.png</file>
     <file>icons/all_grid.png</file>

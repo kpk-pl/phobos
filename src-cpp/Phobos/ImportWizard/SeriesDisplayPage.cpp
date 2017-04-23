@@ -25,7 +25,7 @@ SeriesDisplayPage::SeriesDisplayPage(QWidget *parent) :
 
     loadedStatusLabel = new QLabel();
 
-    lengthOneWarning = new widgets::IconLabel(QIcon::fromTheme("dialog-warning", QIcon(":icons/dialog-warning.png")));
+    lengthOneWarning = new widgets::IconLabel(style()->standardIcon(QStyle::SP_MessageBoxWarning));
     lengthOneWarning->iconLabel()->setFixedSize(16, 16);
     lengthOneWarning->hide();
     selectLengthOneButton = new QPushButton("Select back");
@@ -84,6 +84,9 @@ void SeriesDisplayPage::initializePage()
         lengthOneWarning->label()->setText(tr("%1 series with only one photo %2 been disabled")
                 .arg(lengthOneSeries).arg(lengthOneSeries == 1 ? "has" : "have"));
     }
+
+    if (wizard()->button(QWizard::FinishButton))
+        wizard()->button(QWizard::FinishButton)->setFocus();
 }
 
 bool SeriesDisplayPage::validatePage()

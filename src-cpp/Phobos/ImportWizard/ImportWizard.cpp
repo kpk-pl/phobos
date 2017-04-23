@@ -18,6 +18,9 @@ ImportWizard::ImportWizard(QWidget *parent) :
 
     setWindowFlags(windowFlags() | Qt::CustomizeWindowHint);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+    setOptions(QWizard::NoDefaultButton);
+    setOption(QWizard::NoDefaultButton, true);
 }
 
 void ImportWizard::accept()

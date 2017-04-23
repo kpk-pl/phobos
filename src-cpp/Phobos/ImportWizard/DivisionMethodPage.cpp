@@ -11,8 +11,6 @@
 
 namespace phobos { namespace importwiz {
 
-// TODO: fix focus to be defaulted to "Next" button
-
 DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     QWizardPage(parent), currentSelection(Selection::Metadata)
 {
@@ -56,6 +54,11 @@ void DivisionMethodPage::initializePage()
     LOG(DEBUG) << "Initializing wizard";
     if (_selectedFiles.empty())
         importMoreFiles();
+
+    if (wizard()->button(QWizard::NextButton))
+        wizard()->button(QWizard::NextButton)->setFocus();
+    else if (wizard()->button(QWizard::FinishButton))
+        wizard()->button(QWizard::FinishButton)->setFocus();
 }
 
 void DivisionMethodPage::cleanupPage()
