@@ -7,6 +7,7 @@
 #include <easylogging++.h>
 #include "ImportWizard/SeriesDisplayPage.h"
 #include "ImportWizard/Types.h"
+#include "Widgets/IconLabel.h"
 
 #define TREEITEM_STANDARDSERIES 1
 #define TREEITEM_LENGTHONESERIES 2
@@ -24,7 +25,8 @@ SeriesDisplayPage::SeriesDisplayPage(QWidget *parent) :
 
     loadedStatusLabel = new QLabel();
 
-    lengthOneWarning = new QLabel();
+    lengthOneWarning = new widgets::IconLabel(QIcon::fromTheme("dialog-warning", QIcon(":icons/dialog-warning.png")));
+    lengthOneWarning->iconLabel()->setFixedSize(16, 16);
     lengthOneWarning->hide();
     selectLengthOneButton = new QPushButton("Select back");
     selectLengthOneButton->hide();
@@ -79,7 +81,7 @@ void SeriesDisplayPage::initializePage()
         LOG(INFO) << lengthOneSeries << " series have just one photo";
         selectLengthOneButton->show();
         lengthOneWarning->show();
-        lengthOneWarning->setText(tr("%1 series with only one photo %2 been disabled")
+        lengthOneWarning->label()->setText(tr("%1 series with only one photo %2 been disabled")
                 .arg(lengthOneSeries).arg(lengthOneSeries == 1 ? "has" : "have"));
     }
 }

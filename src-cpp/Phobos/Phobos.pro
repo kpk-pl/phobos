@@ -49,6 +49,7 @@ SOURCES += Phobos.cpp\
     ImportWizard/ImportWizard.cpp \
     ImportWizard/DivisionMethodPage.cpp \
     Utils/FileAttributes.cpp \
+    Widgets/IconLabel.cpp \
     ImportWizard/DivisionOps.cpp \
     ImportWizard/SeriesDisplayPage.cpp
 
@@ -89,6 +90,7 @@ HEADERS  += MainWindow.h \
     ImportWizard/ImportWizard.h \
     ImportWizard/DivisionMethodPage.h \
     Utils/FileAttributes.h \
+    Widgets/IconLabel.h \
     ImportWizard/DivisionOps.h \
     ImportWizard/Types.h \
     ImportWizard/SeriesDisplayPage.h

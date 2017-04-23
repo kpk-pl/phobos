@@ -8,6 +8,10 @@ class QTreeWidget;
 class QLabel;
 class QPushButton;
 
+namespace phobos { namespace widgets {
+class IconLabel;
+}}
+
 namespace phobos { namespace importwiz {
 
 class SeriesDisplayPage : public QWizardPage
@@ -35,7 +39,7 @@ private:
     QTreeWidget *tree;
 
     QLabel *loadedStatusLabel;
-    QLabel *lengthOneWarning;
+    widgets::IconLabel *lengthOneWarning;
     QPushButton *selectLengthOneButton;
 
     PhotoSeriesVec _dividedSeries;
