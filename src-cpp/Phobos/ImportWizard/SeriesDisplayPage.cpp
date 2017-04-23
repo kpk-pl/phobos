@@ -24,9 +24,9 @@ SeriesDisplayPage::SeriesDisplayPage(QWidget *parent) :
     loadedStatusLabel = new QLabel();
 
     lengthOneWarning = new QLabel();
-    lengthOneWarning->setVisible(false);
+    lengthOneWarning->hide();
     selectLengthOneButton = new QPushButton("Select back");
-    selectLengthOneButton->setVisible(false);
+    selectLengthOneButton->hide();
     QObject::connect(selectLengthOneButton, &QPushButton::clicked, this, &SeriesDisplayPage::selectBackSeriesWithOnePhoto);
 
     QGridLayout* grid = new QGridLayout();
@@ -70,8 +70,8 @@ void SeriesDisplayPage::initializePage()
 
     if (lengthOneSeries > 0)
     {
-        selectLengthOneButton->setVisible(true);
-        lengthOneWarning->setVisible(true);
+        selectLengthOneButton->show();
+        lengthOneWarning->show();
         lengthOneWarning->setText(tr("%1 series with only one photo %2 been disabled").arg(lengthOneSeries)
                                                                                       .arg(lengthOneSeries == 1 ? "has" : "have"));
     }
@@ -90,8 +90,8 @@ void SeriesDisplayPage::selectBackSeriesWithOnePhoto()
         if (tree->topLevelItem(i)->type() == TREEITEM_LENGTHONESERIES)
             tree->topLevelItem(i)->setCheckState(0, Qt::Checked);
 
-    lengthOneWarning->setVisible(false);
-    selectLengthOneButton->setVisible(false);
+    lengthOneWarning->hide();
+    selectLengthOneButton->hide();
 }
 
 }} // namespace phobos::importwiz

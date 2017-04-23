@@ -17,7 +17,7 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
 
     numImportedLabel = new QLabel("");
     importMoreButton = new QPushButton(tr("Import more"));
-    QObject::connect(importMoreButton, &QPushButton::clicked, this, importMoreFiles);
+    QObject::connect(importMoreButton, &QPushButton::clicked, this, &DivisionMethodPage::importMoreFiles);
 
     QFrame* hline = new QFrame();
     hline->setFrameShape(QFrame::HLine);
