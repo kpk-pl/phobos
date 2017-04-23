@@ -10,12 +10,14 @@
 
 namespace phobos { namespace importwiz {
 
+// TODO: fix focus to be defaulted to "Next" button
+
 DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     QWizardPage(parent), currentSelection(Selection::Metadata)
 {
     setTitle(tr("Division method"));
 
-    numImportedLabel = new QLabel("");
+    numImportedLabel = new QLabel();
     importMoreButton = new QPushButton(tr("Import more"));
     QObject::connect(importMoreButton, &QPushButton::clicked, this, &DivisionMethodPage::importMoreFiles);
 

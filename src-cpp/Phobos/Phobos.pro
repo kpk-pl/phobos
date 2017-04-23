@@ -5,6 +5,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Phobos
 TEMPLATE = app
 CONFIG += c++14
+RESOURCES = resources.qrc
 
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += ELPP_THREAD_SAFE
@@ -109,11 +110,9 @@ CONFIG(release, debug|release): DESTDIR = $$OUT_PWD/release
 CONFIG(debug, debug|release): DESTDIR = $$OUT_PWD/debug
 
 copydata_config.commands = $(COPY_FILE) \"$$shell_path($$PWD\\config.toml)\" \"$$shell_path($$DESTDIR)\"
-copydata_icons.commands = $(COPY_DIR) \"$$shell_path($$PWD\\icon)\" \"$$shell_path($$DESTDIR\\icon)\"
 copydata_logconfig.commands = $(COPY_FILE) \"$$shell_path($$PWD\\logging.conf)\" \"$$shell_path($$DESTDIR)\"
-first.depends = $(first) copydata_config copydata_icons copydata_logconfig
+first.depends = $(first) copydata_config copydata_logconfig
 export(first.depends)
 export(copydata_config.commands)
-export(copydata_icons.commands)
 export(copydata_logconfig.commands)
-QMAKE_EXTRA_TARGETS += first copydata_config copydata_icons copydata_logconfig
+QMAKE_EXTRA_TARGETS += first copydata_config copydata_logconfig
