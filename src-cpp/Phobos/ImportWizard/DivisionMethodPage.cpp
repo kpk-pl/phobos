@@ -4,6 +4,7 @@
 #include <QFrame>
 #include <QSpinBox>
 #include <QRadioButton>
+#include <easylogging++.h>
 #include "ImportWizard/DivisionMethodPage.h"
 #include "ImportWizard/ImageOpenDialog.h"
 #include "ImportWizard/DivisionOps.h"
@@ -52,6 +53,7 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
 
 void DivisionMethodPage::initializePage()
 {
+    LOG(DEBUG) << "Initializing wizard";
     if (_selectedFiles.empty())
         importMoreFiles();
 }
@@ -64,27 +66,33 @@ void DivisionMethodPage::cleanupPage()
 
 bool DivisionMethodPage::validatePage()
 {
-    // TODO: progres bar
     switch(currentSelection)
     {
     case Selection::FixedNum:
+        LOG(INFO) << "Dividing photos to series with equal size of " << fixedNumParam->value();
         _dividedSeries = divideToSeriesWithEqualSize(_selectedFiles, fixedNumParam->value());
         break;
     case Selection::Metadata:
+        LOG(INFO) << "Dividing photos based on metadata";
         _dividedSeries = divideToSeriesOnMetadata(_selectedFiles);
         break;
     }
 
+    LOG(INFO) << "Divided into " << _dividedSeries.size() << " series";
     emit seriesChanged(_dividedSeries);
     return true;
 }
 
 void DivisionMethodPage::importMoreFiles()
 {
+    LOG(INFO) << "Opening dialog to select additional photos";
     QStringList const newFiles = selectImagesInDialog(this);
+    LOG(INFO) << "Selected " << newFiles.size() << " files";
+
     _selectedFiles.append(newFiles);
     std::sort(_selectedFiles.begin(), _selectedFiles.end());
     _selectedFiles.erase(std::unique(_selectedFiles.begin(), _selectedFiles.end()), _selectedFiles.end());
+    LOG(INFO) << "Processing " << _selectedFiles.size() << " photos in total in current wizard";
 
     numImportedLabel->setText(tr("Selected %1 photos").arg(_selectedFiles.size()));
     update();

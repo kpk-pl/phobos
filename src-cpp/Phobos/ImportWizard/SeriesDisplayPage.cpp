@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QHeaderView>
+#include <easylogging++.h>
 #include "ImportWizard/SeriesDisplayPage.h"
 #include "ImportWizard/Types.h"
 
@@ -36,15 +37,19 @@ SeriesDisplayPage::SeriesDisplayPage(QWidget *parent) :
     grid->addWidget(selectLengthOneButton, 1, 2);
     grid->addWidget(tree, 2, 0, 1, -1);
     setLayout(grid);
+
+    registerField("chosenSeries", this, "chosenSeries", SIGNAL(seriesChanged(PhotoSeriesVec)));
 }
 
 void SeriesDisplayPage::initializePage()
 {
-    PhotoSeriesVec const seriesVec = field("dividedSeries").value<PhotoSeriesVec>();
+    _dividedSeries = field("dividedSeries").value<PhotoSeriesVec>();
+    LOG(DEBUG) << "Read " << _dividedSeries.size() << " series from previous dialog";
+
     std::size_t photoCount = 0;
     std::size_t lengthOneSeries = 0;
 
-    for (PhotoSeries const& series : seriesVec)
+    for (PhotoSeries const& series : _dividedSeries)
     {
         photoCount += series.size();
         if (series.size() == 1)
@@ -66,15 +71,49 @@ void SeriesDisplayPage::initializePage()
 
     // TODO add info / warning / error icons to project and to those labels! maybe use system icons???
     // http://stackoverflow.com/questions/4453945/show-standard-warning-icon-in-qt4
-    loadedStatusLabel->setText(tr("Loaded %1 photos into %2 series").arg(photoCount).arg(seriesVec.size()));
+    loadedStatusLabel->setText(tr("Loaded %1 photos into %2 series").arg(photoCount).arg(_dividedSeries.size()));
+    LOG(INFO) << "Displayed " << photoCount  << " photos in " << _dividedSeries.size() << " series";
 
     if (lengthOneSeries > 0)
     {
+        LOG(INFO) << lengthOneSeries << " series have just one photo";
         selectLengthOneButton->show();
         lengthOneWarning->show();
-        lengthOneWarning->setText(tr("%1 series with only one photo %2 been disabled").arg(lengthOneSeries)
-                                                                                      .arg(lengthOneSeries == 1 ? "has" : "have"));
+        lengthOneWarning->setText(tr("%1 series with only one photo %2 been disabled")
+                .arg(lengthOneSeries).arg(lengthOneSeries == 1 ? "has" : "have"));
     }
+}
+
+bool SeriesDisplayPage::validatePage()
+{
+    _chosenSeries.clear();
+
+    assert(_dividedSeries.size() == tree->topLevelItemCount());
+    for (int seriesNum = 0; seriesNum < _dividedSeries.size(); ++seriesNum)
+    {
+        auto const& currentSeries = _dividedSeries[seriesNum];
+        auto const& topLevel = tree->topLevelItem(seriesNum);
+        assert(currentSeries.size() == topLevel->childCount());
+
+        if (topLevel->checkState(0) == Qt::Checked)
+            _chosenSeries.push_back(currentSeries);
+        else if (topLevel->checkState(0) == Qt::PartiallyChecked)
+        {
+            PhotoSeries selectedPhotos;
+            selectedPhotos.reserve(currentSeries.size());
+
+            for (int photoNum = 0; photoNum < currentSeries.size(); ++photoNum)
+                if (topLevel->child(photoNum)->checkState(0) == Qt::Checked)
+                    selectedPhotos.push_back(currentSeries[photoNum]);
+
+            assert(!selectedPhotos.empty());
+            _chosenSeries.push_back(selectedPhotos);
+        }
+    }
+
+    LOG(INFO) << "User selected " << _chosenSeries.size() << " series to load";
+    emit seriesChanged(_chosenSeries);
+    return true;
 }
 
 void SeriesDisplayPage::cleanupPage()
@@ -82,10 +121,15 @@ void SeriesDisplayPage::cleanupPage()
     QTreeWidgetItem *item;
     while ((item = tree->takeTopLevelItem(0)))
         delete item;
+
+    _dividedSeries.clear();
+    _chosenSeries.clear();
+    emit seriesChanged(_chosenSeries);
 }
 
 void SeriesDisplayPage::selectBackSeriesWithOnePhoto()
 {
+    LOG(DEBUG) << "Selecting back series with just one photo";
     for (int i = 0; i < tree->topLevelItemCount(); ++i)
         if (tree->topLevelItem(i)->type() == TREEITEM_LENGTHONESERIES)
             tree->topLevelItem(i)->setCheckState(0, Qt::Checked);

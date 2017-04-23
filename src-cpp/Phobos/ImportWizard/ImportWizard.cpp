@@ -26,9 +26,9 @@ void ImportWizard::accept()
     QDialog::accept();
 }
 
-PhotoSeriesVec ImportWizard::loadedSeries() const
+PhotoSeriesVec ImportWizard::selectedSeries() const
 {
-    return divisionPage->series();
+    return field("chosenSeries").value<PhotoSeriesVec>();
 }
 
 }} // namespace phobos::importwiz

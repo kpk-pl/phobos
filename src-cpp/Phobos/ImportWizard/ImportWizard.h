@@ -14,7 +14,7 @@ class ImportWizard : public QWizard
 public:
     ImportWizard(QWidget *parent = nullptr);
 
-    PhotoSeriesVec loadedSeries() const;
+    PhotoSeriesVec selectedSeries() const;
     void accept() override;
 
 private:

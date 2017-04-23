@@ -26,7 +26,7 @@ void MainWindow::loadPhotos()
 {
     importwiz::ImportWizard importWizard(this);
     if (importWizard.exec())
-        viewStack->addPhotos(importWizard.loadedSeries());
+        viewStack->addPhotos(importWizard.selectedSeries());
 }
 
 void MainWindow::createMenus()

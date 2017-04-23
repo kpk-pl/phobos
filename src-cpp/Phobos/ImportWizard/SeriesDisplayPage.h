@@ -2,6 +2,7 @@
 #define IMPORTWIZARD_SERIESDISPLAYPAGE_H
 
 #include <QWizardPage>
+#include "ImportWizard/Types.h"
 
 class QTreeWidget;
 class QLabel;
@@ -12,23 +13,33 @@ namespace phobos { namespace importwiz {
 class SeriesDisplayPage : public QWizardPage
 {
     Q_OBJECT
+    Q_PROPERTY(phobos::importwiz::PhotoSeriesVec chosenSeries MEMBER _chosenSeries READ series NOTIFY seriesChanged)
 
 public:
     SeriesDisplayPage(QWidget* parent = nullptr);
 
+    PhotoSeriesVec series() const { return _chosenSeries; }
+
+signals:
+   void seriesChanged(PhotoSeriesVec);
+
 protected:
     void initializePage() override;
+    bool validatePage() override;
     void cleanupPage() override;
 
 private slots:
     void selectBackSeriesWithOnePhoto();
 
-private:  
+private:
     QTreeWidget *tree;
 
     QLabel *loadedStatusLabel;
     QLabel *lengthOneWarning;
     QPushButton *selectLengthOneButton;
+
+    PhotoSeriesVec _dividedSeries;
+    PhotoSeriesVec _chosenSeries;
 };
 
 }} // namespace phobos::importwiz
