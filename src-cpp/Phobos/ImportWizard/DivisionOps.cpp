@@ -5,11 +5,11 @@
 
 namespace phobos { namespace importwiz {
 
-std::vector<PhotoSeries> divideToSeriesWithEqualSize(QStringList const& photos, std::size_t const photosInSeries)
+PhotoSeriesVec divideToSeriesWithEqualSize(QStringList const& photos, std::size_t const photosInSeries)
 {
     assert(photosInSeries > 0);
 
-    std::vector<PhotoSeries> result;
+    PhotoSeriesVec result;
     for (int n = 0; n < photos.size(); ++n)
     {
         if (n % photosInSeries == 0)
@@ -23,7 +23,7 @@ std::vector<PhotoSeries> divideToSeriesWithEqualSize(QStringList const& photos, 
     return result;
 }
 
-std::vector<PhotoSeries> divideToSeriesOnMetadata(QStringList const& photos)
+PhotoSeriesVec divideToSeriesOnMetadata(QStringList const& photos)
 {
     std::vector<Photo> photosWithTime;
     photosWithTime.reserve(photos.size());
@@ -38,7 +38,7 @@ std::vector<PhotoSeries> divideToSeriesOnMetadata(QStringList const& photos)
                 return *fc1.lastModTime < *fc2.lastModTime;
             });
 
-    std::vector<PhotoSeries> result;
+    PhotoSeriesVec result;
     PhotoSeries current;
     unsigned const timeThreshold = config::qualified("photoSet.seriesTimeThreshold", 2u);
 
@@ -46,14 +46,14 @@ std::vector<PhotoSeries> divideToSeriesOnMetadata(QStringList const& photos)
     {
         if (!current.empty() && (*photo.lastModTime - *current.back().lastModTime > timeThreshold))
         {
-            result.emplace_back(std::move(current));
+            result.push_back(current);
             current.clear();
         }
         current.push_back(photo);
     }
 
     if (!current.empty())
-        result.emplace_back(std::move(current));
+        result.push_back(current);
 
     return result;
 }

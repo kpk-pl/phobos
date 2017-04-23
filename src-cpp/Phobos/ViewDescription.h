@@ -2,6 +2,7 @@
 #define VIEWDESCRIPTION_H
 
 #include <QUuid>
+#include <QMetaType>
 #include <memory>
 #include <boost/optional.hpp>
 
@@ -33,5 +34,7 @@ namespace phobos
 
     typedef std::shared_ptr<ViewDescription> ViewDescriptionPtr;
 } // namespace phobos
+
+Q_DECLARE_METATYPE(phobos::ViewDescriptionPtr)
 
 #endif // VIEWDESCRIPTION_H

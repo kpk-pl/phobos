@@ -1,6 +1,7 @@
 #ifndef IMAGE_PROCESSING_METRICS_H
 #define IMAGE_PROCESSING_METRICS_H
 
+#include <QMetaType>
 #include <memory>
 #include <boost/optional.hpp>
 
@@ -33,5 +34,7 @@ typedef std::shared_ptr<ScoredMetric> ScoredMetricPtr;
 typedef std::vector<ScoredMetricPtr> ScoredMetricPtrVec;
 
 }} // namespace phobos::iprocess
+
+Q_DECLARE_METATYPE(phobos::iprocess::MetricPtr)
 
 #endif // IMAGE_PROCESSING_METRICS_H

@@ -44,6 +44,8 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     layout->addWidget(fixedNumParam, 2, 2);
     layout->addWidget(metadataAutoChoice, 3, 0, 1, 2);
     setLayout(layout);
+
+    registerField("dividedSeries", this, "dividedSeries", SIGNAL(seriesChanged(PhotoSeriesVec)));
 }
 
 void DivisionMethodPage::initializePage()
@@ -55,6 +57,7 @@ void DivisionMethodPage::initializePage()
 void DivisionMethodPage::cleanupPage()
 {
     _dividedSeries.clear();
+    emit seriesChanged(_dividedSeries);
 }
 
 bool DivisionMethodPage::validatePage()
@@ -70,6 +73,7 @@ bool DivisionMethodPage::validatePage()
         break;
     }
 
+    emit seriesChanged(_dividedSeries);
     return true;
 }
 

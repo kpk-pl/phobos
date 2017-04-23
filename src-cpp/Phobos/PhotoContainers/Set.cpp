@@ -8,7 +8,7 @@ SeriesPtr const& Set::front() const
     return _photoSeries.front();
 }
 
-void Set::addSeries(std::vector<importwiz::PhotoSeries> const& newPhotoSeries)
+void Set::addSeries(importwiz::PhotoSeriesVec const& newPhotoSeries)
 {
     for (auto const& series : newPhotoSeries)
     {

@@ -7,12 +7,9 @@
 #include "ImageProcessing/Metrics.h"
 #include "Config.h"
 #include "PhotoBulkAction.h"
+#include "ImportWizard/Types.h"
 
 INITIALIZE_EASYLOGGINGPP
-
-Q_DECLARE_METATYPE(phobos::ViewDescriptionPtr)
-Q_DECLARE_METATYPE(phobos::iprocess::MetricPtr)
-Q_DECLARE_METATYPE(phobos::PhotoBulkAction)
 
 int main(int argc, char *argv[])
 {
@@ -29,6 +26,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<phobos::ViewDescriptionPtr>();
     qRegisterMetaType<phobos::iprocess::MetricPtr>();
     qRegisterMetaType<phobos::PhotoBulkAction>();
+    qRegisterMetaType<phobos::importwiz::PhotoSeriesVec>();
 
     phobos::MainWindow w;
     LOG(INFO) << "Application starting now...";

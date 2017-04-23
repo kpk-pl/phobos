@@ -6,6 +6,7 @@
 
 namespace phobos { namespace importwiz {
 class DivisionMethodPage;
+class SeriesDisplayPage;
 
 class ImportWizard : public QWizard
 {
@@ -13,11 +14,12 @@ class ImportWizard : public QWizard
 public:
     ImportWizard(QWidget *parent = nullptr);
 
-    std::vector<PhotoSeries> const& loadedSeries() const;
+    PhotoSeriesVec loadedSeries() const;
     void accept() override;
 
 private:
     DivisionMethodPage *divisionPage;
+    SeriesDisplayPage *displayPage;
 };
 
 }} // namespace phobos::importwiz

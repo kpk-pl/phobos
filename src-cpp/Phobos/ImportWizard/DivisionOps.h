@@ -8,8 +8,8 @@
 
 namespace phobos { namespace importwiz {
 
-std::vector<PhotoSeries> divideToSeriesWithEqualSize(QStringList const& photos, std::size_t const photosInSeries);
-std::vector<PhotoSeries> divideToSeriesOnMetadata(QStringList const& photos);
+PhotoSeriesVec divideToSeriesWithEqualSize(QStringList const& photos, std::size_t const photosInSeries);
+PhotoSeriesVec divideToSeriesOnMetadata(QStringList const& photos);
 
 }} // namespace phobos::importwiz
 

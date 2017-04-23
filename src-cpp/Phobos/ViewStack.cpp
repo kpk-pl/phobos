@@ -21,7 +21,7 @@ ViewStack::ViewStack() :
         currentSeriesWidget = numSeriesView;
 }
 
-void ViewStack::addPhotos(std::vector<importwiz::PhotoSeries> const& photoSeries)
+void ViewStack::addPhotos(importwiz::PhotoSeriesVec const& photoSeries)
 {
     seriesSet.addSeries(photoSeries);
 }

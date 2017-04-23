@@ -15,7 +15,7 @@ class Set : public QObject
 public:
     explicit Set() = default;
 
-    void addSeries(std::vector<importwiz::PhotoSeries> const& newPhotoSeries);
+    void addSeries(importwiz::PhotoSeriesVec const& newPhotoSeries);
     SeriesPtr const& findSeries(QUuid const& seriesUuid,
                                 int offset = 0) const;
 

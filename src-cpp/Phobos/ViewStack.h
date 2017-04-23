@@ -22,7 +22,7 @@ class ViewStack : public QStackedWidget
 
 public:
     explicit ViewStack();
-    void addPhotos(std::vector<importwiz::PhotoSeries> const& photoSeries);
+    void addPhotos(importwiz::PhotoSeriesVec const& photoSeries);
 
 public slots:
     void handleSwitchView(ViewDescriptionPtr viewDesc);

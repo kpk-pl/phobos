@@ -12,14 +12,20 @@ class QRadioButton;
 
 namespace phobos { namespace importwiz {
 
+// http://stackoverflow.com/questions/41040906/qwizardpage-registerfield-for-class-property-not-working
+
 class DivisionMethodPage : public QWizardPage
 {
     Q_OBJECT
+    Q_PROPERTY(PhotoSeriesVec dividedSeries MEMBER _dividedSeries READ series NOTIFY seriesChanged)
 
 public:
-    DivisionMethodPage(QWidget *parent);
+    DivisionMethodPage(QWidget *parent = nullptr);
 
-    std::vector<PhotoSeries> const& series() const { return _dividedSeries; }
+    PhotoSeriesVec series() const { return _dividedSeries; }
+
+signals:
+    void seriesChanged(PhotoSeriesVec);
 
 protected:
     bool validatePage() override;
@@ -45,7 +51,7 @@ private:
 
     Selection currentSelection;
     QStringList _selectedFiles;
-    std::vector<PhotoSeries> _dividedSeries;
+    PhotoSeriesVec _dividedSeries;
 };
 
 }} // namespace phobos::importwiz

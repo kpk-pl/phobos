@@ -48,7 +48,8 @@ SOURCES += Phobos.cpp\
     ImportWizard/ImportWizard.cpp \
     ImportWizard/DivisionMethodPage.cpp \
     Utils/FileAttributes.cpp \
-    ImportWizard/DivisionOps.cpp
+    ImportWizard/DivisionOps.cpp \
+    ImportWizard/SeriesDisplayPage.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -88,7 +89,8 @@ HEADERS  += MainWindow.h \
     ImportWizard/DivisionMethodPage.h \
     Utils/FileAttributes.h \
     ImportWizard/DivisionOps.h \
-    ImportWizard/Types.h
+    ImportWizard/Types.h \
+    ImportWizard/SeriesDisplayPage.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost
