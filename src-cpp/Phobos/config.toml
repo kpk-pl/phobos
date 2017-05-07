@@ -10,7 +10,7 @@ minimumSize = { width = 480, height = 360 }
 defaultSize = { width = 1024, height = 600 }
 
 [photoSet]
-seriesTimeThreshold = 2
+seriesTimeThreshold = 1
 
 [imageLoaderThread]
 processingSize = [1920, 1080]
