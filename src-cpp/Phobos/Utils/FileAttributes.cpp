@@ -39,7 +39,7 @@ namespace detail {
 
         CloseHandle(hFile);
 
-        return filetimeToUnix(creation);
+        return filetimeToUnix(lastWrite);
     }
 } // namespace detail
 #elif __linux__
