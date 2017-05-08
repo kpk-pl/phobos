@@ -9,6 +9,7 @@ enum class PhotoBulkAction
 {
     SELECT_BEST,
     SELECT_UNCHECKED,
+    DISCARD_UNCHECKED,
     INVERT,
     CLEAR
 };

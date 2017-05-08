@@ -84,6 +84,7 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
 }
 
 namespace {
+// TODO: template this, parameter selector and action to do
     void selectBestPhotos(pcontainer::Set const& seriesSet)
     {
         for (auto const& series : seriesSet)
@@ -100,6 +101,15 @@ namespace {
             for (auto const& item : *series)
                 if (item->state() == pcontainer::ItemState::UNKNOWN)
                     item->select();
+        }
+    }
+    void discardUncheckedPhotos(pcontainer::Set const& seriesSet)
+    {
+        for (auto const& series : seriesSet)
+        {
+            for (auto const& item : *series)
+                if (item->state() == pcontainer::ItemState::UNKNOWN)
+                    item->discard();
         }
     }
     void invertSelections(pcontainer::Set const& seriesSet)
@@ -125,6 +135,9 @@ void ViewStack::bulkSelect(PhotoBulkAction const action)
         break;
     case PhotoBulkAction::SELECT_UNCHECKED:
         selectUncheckedPhotos(seriesSet);
+        break;
+    case PhotoBulkAction::DISCARD_UNCHECKED:
+        discardUncheckedPhotos(seriesSet);
         break;
     case PhotoBulkAction::INVERT:
         invertSelections(seriesSet);
