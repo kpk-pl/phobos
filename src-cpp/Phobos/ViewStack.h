@@ -21,8 +21,20 @@ class ViewStack : public QStackedWidget
     Q_OBJECT
 
 public:
+    struct SelectionStatus
+    {
+        struct SeriesSelectionStatus
+        {
+            std::vector<std::string> selected;
+            std::vector<std::string> discarded;
+            std::vector<std::string> others;
+        };
+        std::vector<SeriesSelectionStatus> status;
+    };
+
     explicit ViewStack();
     void addPhotos(importwiz::PhotoSeriesVec const& photoSeries);
+    SelectionStatus getSelectionStatus() const;
 
 public slots:
     void handleSwitchView(ViewDescriptionPtr viewDesc);

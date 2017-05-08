@@ -13,6 +13,11 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
 
+private slots:
+    void removeSelected() const;
+    void moveSelected() const;
+    void copySelected() const;
+
 private:
     void loadPhotos();
     void createMenus();

@@ -155,4 +155,31 @@ void ViewStack::connectSignals()
     QObject::connect(numSeriesView, &RowSeriesView::switchView, this, &ViewStack::handleSwitchView);
 }
 
+ViewStack::SelectionStatus ViewStack::getSelectionStatus() const
+{
+    SelectionStatus result;
+
+    for (auto const& series : seriesSet)
+    {
+        result.status.emplace_back();
+        for (auto const& photo : *series)
+        {
+            switch(photo->state())
+            {
+            case pcontainer::ItemState::SELECTED:
+                result.status.back().selected.push_back(photo->fileName());
+                break;
+            case pcontainer::ItemState::DISCARDED:
+                result.status.back().discarded.push_back(photo->fileName());
+                break;
+            default:
+                result.status.back().others.push_back(photo->fileName());
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
 } // namespace phobos
