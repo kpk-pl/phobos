@@ -47,6 +47,9 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     setLayout(layout);
 
     registerField("dividedSeries", this, "dividedSeries", SIGNAL(seriesChanged(PhotoSeriesVec)));
+
+    // TODO: Provide input box to enter minimal number of photos in series. On next page automatically deselect those in the existing way.
+    // Update warning text
 }
 
 void DivisionMethodPage::initializePage()
@@ -115,5 +118,7 @@ void DivisionMethodPage::updateSelection(Selection selection)
         break;
     }
 }
+
+// TODO: division process should have progress bar
 
 }} // namespace phobos::importwiz

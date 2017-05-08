@@ -114,6 +114,8 @@ namespace {
         return pixmap.toImage();
     }
 
+    // Use EXIF data to read width and height and generate appropriate preload image
+
     QImage getPreloadImage()
     {
         // TODO: handle when size changes

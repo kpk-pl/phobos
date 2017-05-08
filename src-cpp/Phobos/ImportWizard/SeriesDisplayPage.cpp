@@ -76,6 +76,11 @@ void SeriesDisplayPage::initializePage()
     loadedStatusLabel->setText(tr("Loaded %1 photos into %2 series").arg(photoCount).arg(_dividedSeries.size()));
     LOG(INFO) << "Displayed " << photoCount  << " photos in " << _dividedSeries.size() << " series";
 
+    // TODO: warning when it is probable that series were not divided correctly -> double (multiple) size series (like 7 and 14 photos)
+    // Button to divide those again somehow
+
+    // TODO: display warning when found series of different length (display all lengths)
+
     if (lengthOneSeries > 0)
     {
         LOG(INFO) << lengthOneSeries << " series have just one photo";

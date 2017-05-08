@@ -73,10 +73,10 @@ void MainWindow::createMenus()
     viewMenu->addSeparator();
     viewMenu->addAction(tr("&Next series"),
                         [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::CURRENT, boost::none, +1)); },
-                        QKeySequence("Ctrl+N"))->setStatusTip(tr("Jump to next series"));
+                        QKeySequence("Shift+Right"))->setStatusTip(tr("Jump to next series"));
     viewMenu->addAction(tr("&Previous series"),
                         [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::CURRENT, boost::none, -1)); },
-                        QKeySequence("Ctrl+P"))->setStatusTip(tr("Jump to previous series"));
+                        QKeySequence("Shift+Left"))->setStatusTip(tr("Jump to previous series"));
 }
 
 void MainWindow::removeSelected() const
@@ -93,6 +93,9 @@ void MainWindow::removeSelected() const
         if (remove(fileName.c_str()) != 0)
             LOG(ERROR) << "Cannot remove file " << fileName;
     }
+
+    // TODO: use trash (or configurable option in dialog) http://stackoverflow.com/questions/17964439/move-files-to-trash-recycle-bin-in-qt
+    // TODO: after removing photos something must be done with whole application because loading these from hard drive will be impossible
 }
 
 void MainWindow::moveSelected() const
@@ -104,5 +107,7 @@ void MainWindow::copySelected() const
 {
 
 }
+
+// TODO: Status bar should display percent and fraction of photos(series) viewed, especially in series view
 
 } // namespace phobos

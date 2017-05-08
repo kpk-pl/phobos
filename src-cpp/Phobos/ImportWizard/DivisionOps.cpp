@@ -28,6 +28,10 @@ PhotoSeriesVec divideToSeriesOnMetadata(QStringList const& photos)
     std::vector<Photo> photosWithTime;
     photosWithTime.reserve(photos.size());
 
+    // TODO: use EXIF creation time when available
+    // TODO: detect brakes automatically, inteligently
+
+    // TODO: paramelize because it takes too long
     std::transform(photos.begin(), photos.end(), std::back_inserter(photosWithTime),
             [](QString const& str){
                 return Photo{str.toStdString(), utils::lastModificationTime(str.toStdString())};

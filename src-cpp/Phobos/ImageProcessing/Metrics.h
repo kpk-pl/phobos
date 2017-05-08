@@ -35,6 +35,8 @@ typedef std::vector<ScoredMetricPtr> ScoredMetricPtrVec;
 
 }} // namespace phobos::iprocess
 
+// TODO: Detect faces -> number of faces should be indicator if quality
+
 Q_DECLARE_METATYPE(phobos::iprocess::MetricPtr)
 
 #endif // IMAGE_PROCESSING_METRICS_H
