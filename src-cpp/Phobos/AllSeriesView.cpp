@@ -65,8 +65,8 @@ AllSeriesView::AllSeriesView()
 
     grid = new QGridLayout();
     grid->setContentsMargins(0, 0, 0, 0);
-    grid->setHorizontalSpacing(config::get()->get_qualified_as<unsigned>("allSeriesView.photoSpacing").value_or(3));
-    grid->setVerticalSpacing(config::get()->get_qualified_as<unsigned>("allSeriesView.seriesSpacing").value_or(15));
+    grid->setHorizontalSpacing(config::qualified("allSeriesView.photosSpacing", 3u));
+    grid->setVerticalSpacing(config::qualified("allSeriesView.seriesSpacing", 15u));
 
     QVBoxLayout* scrollLayout = new QVBoxLayout();
     scrollLayout->setContentsMargins(0, 0, 0, 0);
@@ -95,7 +95,7 @@ void AllSeriesView::focusSeries()
         grid->itemAtPosition(0, 0)->widget()->setFocus();
 }
 
-void AllSeriesView::focusSeries(QUuid const& seriesUuid)
+void AllSeriesView::focusSeries(QUuid const seriesUuid)
 {
     assert(utils::valueIn(seriesUuid, seriesUuidToRow));
     grid->itemAtPosition(seriesUuidToRow[seriesUuid], 0)->widget()->setFocus();
@@ -132,11 +132,10 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
         PhotoItemWidget* item = new PhotoItemWidget(series->item(col), getPreloadImage(),
             PhotoItemWidgetAddons(config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({})));
 
-        QObject::connect(item, &PhotoItemWidget::openInSeries, this,
-          [this](QUuid const& uuid){
-            switchView(ViewDescription::make(ViewType::ANY_SINGLE_SERIES, uuid));
-          }
-        );
+        QObject::connect(item, &PhotoItemWidget::openInSeries,
+          [this](QUuid const& uuid){ switchView(ViewDescription::make(ViewType::ANY_SINGLE_SERIES, uuid)); });
+
+        QObject::connect(item, &PhotoItemWidget::changeSeriesState, this, &AllSeriesView::changeSeriesState);
 
         grid->addWidget(item, row, col);
         series->item(col)->loadPhoto(preferredSize(), item, std::bind(&PhotoItemWidget::setImage, item, std::placeholders::_1));
@@ -239,6 +238,24 @@ AllSeriesView::Coords AllSeriesView::findValidProposal(std::vector<Coords> const
      */
     assert(false); // No valid proposals found
     return {0, 0};
+}
+
+void AllSeriesView::changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state)
+{
+    assert(utils::valueIn(seriesUuid, seriesUuidToRow));
+    unsigned const seriesRow = seriesUuidToRow.find(seriesUuid)->second;
+
+    for (int i = 0; i < grid->columnCount(); ++i)
+    {
+        auto const& widgetItem = grid->itemAtPosition(seriesRow, i);
+        if (!widgetItem || !widgetItem->widget())
+            continue;
+
+        PhotoItemWidget* photoWidget = dynamic_cast<PhotoItemWidget*>(widgetItem->widget());
+        assert(photoWidget);
+
+        photoWidget->photoItem().setState(state);
+    }
 }
 
 } // namespace phobos

@@ -10,7 +10,7 @@ minimumSize = { width = 480, height = 360 }
 defaultSize = { width = 1024, height = 600 }
 
 [photoSet]
-seriesTimeThreshold = 1
+seriesTimeThreshold = 2
 
 [imageLoaderThread]
 processingSize = [1920, 1080]
@@ -59,8 +59,8 @@ color = "red"
 fillColor = "transparent"
 
 [allSeriesView]
-seriesSpacing = 15
-photosSpacing = 3
+seriesSpacing = 10
+photosSpacing = 2
 pixmapSize = { width = 320, height = 240 } # should be the same as photoItem.pixmapSize
 enabledAddons = ["focus", "best", "score"]
 

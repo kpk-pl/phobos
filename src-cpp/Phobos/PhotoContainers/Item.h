@@ -47,14 +47,15 @@ public:
     QImage const& image() const { return _image; }
 
 public slots:
-    void select();
-    void discard();
-    void deselect();
-    void invert();
-    void toggleSelection();
+    void select() const;
+    void discard() const;
+    void deselect() const;
+    void invert() const;
+    void toggleSelection() const;
+    void setState(ItemState state) const;
 
 signals:
-    void stateChanged();
+    void stateChanged() const;
     void metricsReady();
 
 private slots:
@@ -65,7 +66,7 @@ private:
     std::string const _fileName;
     QUuid const _seriesId;
     unsigned const _ordinal;
-    ItemState _state;
+    mutable ItemState _state;
     QImage _image;
     iprocess::MetricPtr _metric;
     iprocess::ScoredMetricPtr _scoredMetric;

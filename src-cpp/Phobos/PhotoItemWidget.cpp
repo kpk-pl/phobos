@@ -32,6 +32,8 @@ namespace phobos {
 // TODO: another addon: show file name
 //
 // TODO: show "Quality" text in quality label
+//
+// TODO: Right-click menu to open a dialog displaying all metrics for photo or whole series
 
 PhotoItemWidget::PhotoItemWidget(pcontainer::ItemPtr const& photoItem,
                                  QImage const& preload,
@@ -265,27 +267,32 @@ void PhotoItemWidget::contextMenuEvent(QContextMenuEvent* event)
 {
     QMenu menu;
 
+    QMenu* photoMenu = menu.addMenu("Photo");
     if (_photoItem->state() == pcontainer::ItemState::UNKNOWN)
     {
-        QObject::connect(menu.addAction("Select"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::select);
-        QObject::connect(menu.addAction("Discard"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::discard);
+        QObject::connect(photoMenu->addAction("Select"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::select);
+        QObject::connect(photoMenu->addAction("Discard"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::discard);
     }
     else if (_photoItem->state() == pcontainer::ItemState::SELECTED)
     {
-        QObject::connect(menu.addAction("Discard"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::discard);
-        QObject::connect(menu.addAction("Deselect"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::deselect);
+        QObject::connect(photoMenu->addAction("Discard"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::discard);
+        QObject::connect(photoMenu->addAction("Deselect"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::deselect);
     }
     else if (_photoItem->state() == pcontainer::ItemState::DISCARDED)
     {
-        QObject::connect(menu.addAction("Select"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::select);
-        QObject::connect(menu.addAction("Deselect"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::deselect);
+        QObject::connect(photoMenu->addAction("Select"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::select);
+        QObject::connect(photoMenu->addAction("Deselect"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::deselect);
     }
+
+    QMenu* seriesMenu = menu.addMenu("Series");
+    QObject::connect(seriesMenu->addAction("Select all"), &QAction::triggered, [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::SELECTED); });
+    QObject::connect(seriesMenu->addAction("Discard all"), &QAction::triggered, [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::DISCARDED); });
+    QObject::connect(seriesMenu->addAction("Deselect all"), &QAction::triggered, [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::UNKNOWN); });
 
     menu.addSeparator();
 
     QAction* viewSeries = menu.addAction("View series");
-    QObject::connect(viewSeries, &QAction::triggered, this,
-                     [this](){ emit openInSeries(_photoItem->seriesUuid()); });
+    QObject::connect(viewSeries, &QAction::triggered, [this](){ emit openInSeries(_photoItem->seriesUuid()); });
 
     menu.exec(mapToGlobal(QPoint(event->x(), event->y())));
 }

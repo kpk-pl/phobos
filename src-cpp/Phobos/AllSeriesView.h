@@ -23,13 +23,16 @@ public:
     void keyPressEvent(QKeyEvent* keyEvent) override;
 
     void focusSeries();
-    void focusSeries(QUuid const& seriesUuid);
+    void focusSeries(QUuid const seriesUuid);
 
 signals:
     void switchView(ViewDescriptionPtr viewDesc);
 
 public slots:
     void addNewSeries(pcontainer::SeriesPtr series);
+
+private slots:
+    void changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state);
 
 private:
     struct Coords;

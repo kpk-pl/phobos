@@ -29,9 +29,13 @@ signals:
 protected:
     virtual void addToLayout(PhotoItemWidget* itemWidget) = 0;
     virtual std::vector<PhotoItemWidget*> moveItemsOut() = 0;
+    virtual void changeSeriesState(pcontainer::ItemState const state) const = 0;
     virtual void moveItemsIn(std::vector<PhotoItemWidget*> const& items);
 
     boost::optional<QUuid> currentSeriesUuid;
+
+private slots:
+    void changeCurrentSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state);
 };
 
 } // namespace phobos

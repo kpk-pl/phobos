@@ -81,25 +81,31 @@ bool Item::isSelected() const
     return _state == ItemState::SELECTED;
 }
 
-void Item::select()
+void Item::select() const
 {
     _state = ItemState::SELECTED;
     emit stateChanged();
 }
 
-void Item::discard()
+void Item::discard() const
 {
     _state = ItemState::DISCARDED;
     emit stateChanged();
 }
 
-void Item::deselect()
+void Item::deselect() const
 {
     _state = ItemState::UNKNOWN;
     emit stateChanged();
 }
 
-void Item::invert()
+void Item::setState(ItemState state) const
+{
+    _state = state;
+    emit stateChanged();
+}
+
+void Item::invert() const
 {
     switch(_state)
     {
@@ -114,7 +120,7 @@ void Item::invert()
     }
 }
 
-void Item::toggleSelection()
+void Item::toggleSelection() const
 {
     switch(_state)
     {

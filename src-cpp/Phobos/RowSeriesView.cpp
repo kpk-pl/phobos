@@ -68,7 +68,12 @@ std::vector<PhotoItemWidget*> RowSeriesView::moveItemsOut()
     std::vector<PhotoItemWidget*> result;
     result.reserve(scroll->boxLayout()->count());
     for (int i = 0; i < scroll->boxLayout()->count(); ++i)
-        result.push_back(dynamic_cast<PhotoItemWidget*>(scroll->boxLayout()->itemAt(i)->widget()));
+    {
+        PhotoItemWidget *photoWidget = dynamic_cast<PhotoItemWidget*>(scroll->boxLayout()->itemAt(i)->widget());
+        assert(photoWidget);
+        photoWidget->disconnect(this);
+        result.push_back(photoWidget);
+    }
 
     utils::clearLayout(scroll->boxLayout(), false);
     currentSeriesUuid.reset();
@@ -80,6 +85,16 @@ void RowSeriesView::moveItemsIn(std::vector<PhotoItemWidget*> const& items)
 {
     SeriesViewBase::moveItemsIn(items);
     scroll->boxLayout()->itemAt(0)->widget()->setFocus();
+}
+
+void RowSeriesView::changeSeriesState(pcontainer::ItemState const state) const
+{
+    for (int i = 0; i < scroll->boxLayout()->count(); ++i)
+    {
+        PhotoItemWidget *photoWidget = dynamic_cast<PhotoItemWidget*>(scroll->boxLayout()->itemAt(i)->widget());
+        assert(photoWidget);
+        photoWidget->photoItem().setState(state);
+    }
 }
 
 } // namespace phobos

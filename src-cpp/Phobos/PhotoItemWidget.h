@@ -27,7 +27,8 @@ public:
     void paintEvent(QPaintEvent*) override;
 
 signals:
-    void openInSeries(QUuid const& seriesUuid);
+    void openInSeries(QUuid const seriesUuid);
+    void changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState);
 
 private:
     class PixmapRenderer;

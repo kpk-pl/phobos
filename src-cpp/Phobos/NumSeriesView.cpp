@@ -77,6 +77,9 @@ std::vector<PhotoItemWidget*> NumSeriesView::moveItemsOut()
     currentSeriesUuid.reset();
     currentItem = 0;
 
+    for (PhotoItemWidget *photoWidget : photoItems)
+        photoWidget->disconnect(this);
+
     std::vector<PhotoItemWidget*> result(std::move(photoItems));
     photoItems.clear();
 
@@ -130,6 +133,12 @@ void NumSeriesView::addToLayout(PhotoItemWidget* itemWidget)
     photoItems.push_back(itemWidget);
     if (layoutForItems->count() < int(visibleItems))
         layoutForItems->addWidget(itemWidget);
+}
+
+void NumSeriesView::changeSeriesState(pcontainer::ItemState const state) const
+{
+    for (PhotoItemWidget *photoWidget : photoItems)
+        photoWidget->photoItem().setState(state);
 }
 
 } // namespace phobos

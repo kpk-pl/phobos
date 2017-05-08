@@ -21,6 +21,7 @@ private slots:
 protected:
     void addToLayout(PhotoItemWidget* itemWidget) override;
     std::vector<PhotoItemWidget*> moveItemsOut() override;
+    void changeSeriesState(pcontainer::ItemState const state) const override;
     void moveItemsIn(std::vector<PhotoItemWidget*> const& items) override;
 
 private:
