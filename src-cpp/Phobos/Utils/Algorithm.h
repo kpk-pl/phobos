@@ -19,6 +19,16 @@ bool valueIn(T const& value, std::map<U, V, Alloc> const& c)
     return c.find(value) != c.end();
 }
 
+template<typename OutContainer, typename InputIterator>
+OutContainer moveFromRange(InputIterator begin, InputIterator end)
+{
+    OutContainer result;
+    result.reserve(std::distance(begin, end));
+    for (; begin != end; ++begin)
+        result.insert(result.end(), std::move(*begin));
+    return result;
+}
+
 }} // namespace phobos::utils
 
 #endif // UTILS_ALGORITHM_H

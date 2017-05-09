@@ -2,10 +2,11 @@
 #include "ImportWizard/DivisionOps.h"
 #include "Utils/FileAttributes.h"
 #include "Utils/Comparators.h"
+#include "Utils/Algorithm.h"
 #include "ConfigExtension.h"
-#include <fstream>
 #include <thread>
 #include <future>
+#include <deque>
 
 namespace phobos { namespace importwiz {
 
@@ -28,16 +29,16 @@ PhotoSeriesVec divideToSeriesWithEqualSize(QStringList const& photos, std::size_
 }
 
 namespace {
-    void paralell_process(std::vector<Photo>::iterator destination,
-                          QStringList::const_iterator const& begin,
-                          QStringList::const_iterator const& end)
+    void paralellThransformModTime(std::vector<Photo>::iterator destination,
+                                   QStringList::const_iterator const& begin,
+                                   QStringList::const_iterator const& end)
     {
         std::transform(begin, end, destination, [](QString const& str){
             return Photo{str.toStdString(), utils::lastModificationTime(str.toStdString())};
         });
     }
 
-    std::vector<Photo> processPhotos(QStringList const& photos)
+    std::vector<Photo> processPhotosForModTime(QStringList const& photos)
     {
         std::vector<Photo> result;
         result.resize(photos.size());
@@ -54,45 +55,67 @@ namespace {
             std::size_t const increment = photos.size()/numThreads;
             for (unsigned i = 0; i < numThreads-1; ++i)
             {
-                futures.emplace_back(std::async(std::launch::async, paralell_process, destIt, sourceIt, std::next(sourceIt, increment)));
+                futures.emplace_back(std::async(std::launch::async, paralellThransformModTime, destIt, sourceIt, std::next(sourceIt, increment)));
                 std::advance(destIt, increment);
                 std::advance(sourceIt, increment);
             }
         }
 
-        paralell_process(destIt, sourceIt, photos.end());
+        paralellThransformModTime(destIt, sourceIt, photos.end());
 
         for (auto const& f : futures)
             f.wait();
 
         return result;
     }
+
+    double averageTimeDiff(auto beginIt, auto endIt)
+    {
+        unsigned sum = 0;
+        unsigned count = 0;
+        auto nextIt = beginIt+1;
+        while (nextIt != endIt)
+        {
+            sum += *nextIt->lastModTime - *beginIt->lastModTime;
+            ++count;
+            ++beginIt;
+            ++nextIt;
+        }
+
+        return double(sum) / count;
+    }
 } // unnamed namespace
 
 PhotoSeriesVec divideToSeriesOnMetadata(QStringList const& photos)
 {
     // TODO: use EXIF creation time when available
-    // TODO: detect brakes automatically, inteligently
 
-    std::vector<Photo> photosWithTime = processPhotos(photos);
+    std::vector<Photo> photosWithTime = processPhotosForModTime(photos);
     std::stable_sort(photosWithTime.begin(), photosWithTime.end(), utils::less().on([](Photo const& p){ return *p.lastModTime; }));
 
+    double const timeDrift = config::qualified("photoSet.allowedSecondDriftInSeries", 1.5);
+
     PhotoSeriesVec result;
-    PhotoSeries current;
-    unsigned const timeThreshold = config::qualified("photoSet.seriesTimeThreshold", 2u);
+    std::deque<Photo> stack;
 
     for (Photo const& photo : photosWithTime)
     {
-        if (!current.empty() && (*photo.lastModTime - *current.back().lastModTime > timeThreshold))
+        stack.push_back(photo);
+        if (stack.size() < 3)
+            continue;
+
+        auto const last = stack.begin() + (stack.size()-1);
+        unsigned const lastDiff = *last->lastModTime - *(last-1)->lastModTime;
+
+        if (double(lastDiff) > averageTimeDiff(stack.begin(), last) + timeDrift)
         {
-            result.push_back(current);
-            current.clear();
+            result.push_back(utils::moveFromRange<PhotoSeries>(stack.begin(), last));
+            stack.erase(stack.begin(), last);
         }
-        current.push_back(photo);
     }
 
-    if (!current.empty())
-        result.push_back(current);
+    if (!stack.empty())
+        result.push_back(utils::moveFromRange<PhotoSeries>(stack.begin(), stack.end()));
 
     return result;
 }

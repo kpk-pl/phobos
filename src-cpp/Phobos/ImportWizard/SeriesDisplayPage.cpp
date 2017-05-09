@@ -80,6 +80,7 @@ void SeriesDisplayPage::initializePage()
     // Button to divide those again somehow
 
     // TODO: display warning when found series of different length (display all lengths)
+    // use photoSet.minimumPhotosInSeries
 
     if (lengthOneSeries > 0)
     {
