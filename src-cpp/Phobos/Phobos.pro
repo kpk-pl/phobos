@@ -93,7 +93,8 @@ HEADERS  += MainWindow.h \
     Widgets/IconLabel.h \
     ImportWizard/DivisionOps.h \
     ImportWizard/Types.h \
-    ImportWizard/SeriesDisplayPage.h
+    ImportWizard/SeriesDisplayPage.h \
+    Utils/Comparators.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost
