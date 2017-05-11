@@ -95,6 +95,10 @@ PhotoSeriesVec divideToSeriesOnMetadata(QStringList const& photos)
 
     double const timeDrift = config::qualified("photoSet.allowedSecondDriftInSeries", 1.5);
 
+    auto const inRange = [timeDrift](double value, double targetPoint){
+        return value <= targetPoint + timeDrift && value >= targetPoint - timeDrift;
+    };
+
     PhotoSeriesVec result;
     std::deque<Photo> stack;
 
@@ -107,14 +111,19 @@ PhotoSeriesVec divideToSeriesOnMetadata(QStringList const& photos)
         auto const last = stack.begin() + (stack.size()-1);
         unsigned const lastDiff = *last->lastModTime - *(last-1)->lastModTime;
 
-        if (double(lastDiff) > averageTimeDiff(stack.begin(), last) + timeDrift)
+        if (!inRange(lastDiff, averageTimeDiff(stack.begin(), last)))
         {
-            result.push_back(utils::moveFromRange<PhotoSeries>(stack.begin(), last));
-            stack.erase(stack.begin(), last);
+            /* If only 3 photos on stack and they do not form any series, pop just one photo from the begin */
+            auto const endSeries = (stack.size() == 3 ? stack.begin()+1 : last);
+            result.push_back(utils::moveFromRange<PhotoSeries>(stack.begin(), endSeries));
+            stack.erase(stack.begin(), endSeries);
         }
     }
 
-    if (!stack.empty())
+    if (stack.size() < 3)
+        for (auto &el : stack)
+            result.push_back(PhotoSeries(1, std::move(el)));
+    else
         result.push_back(utils::moveFromRange<PhotoSeries>(stack.begin(), stack.end()));
 
     return result;
