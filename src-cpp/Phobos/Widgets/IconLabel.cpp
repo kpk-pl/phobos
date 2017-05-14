@@ -20,6 +20,8 @@ IconLabel::IconLabel(QPixmap const& icon, QString const& text, QWidget *parent) 
     _iconLabel->setScaledContents(true);
 
     QHBoxLayout *hlayout = new QHBoxLayout();
+    hlayout->setContentsMargins(0, 0, 0, 0);
+
     hlayout->addWidget(_iconLabel);
     hlayout->addWidget(_label);
     setLayout(hlayout);

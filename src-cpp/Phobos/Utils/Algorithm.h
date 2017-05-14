@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <initializer_list>
 #include <map>
+#include <sstream>
 
 namespace phobos { namespace utils {
 
@@ -27,6 +28,19 @@ OutContainer moveFromRange(InputIterator begin, InputIterator end)
     for (; begin != end; ++begin)
         result.insert(result.end(), std::move(*begin));
     return result;
+}
+
+template<typename ForwardIterator>
+std::string joinString(ForwardIterator begin, ForwardIterator end, std::string const& separator)
+{
+    std::ostringstream buffer;
+    for (ForwardIterator it = begin; it != end; ++it)
+    {
+        if (it != begin)
+            buffer << separator;
+        buffer << *it;
+    }
+    return buffer.str();
 }
 
 }} // namespace phobos::utils

@@ -1,12 +1,15 @@
 #ifndef IMPORTWIZARD_SERIESDISPLAYPAGE_H
 #define IMPORTWIZARD_SERIESDISPLAYPAGE_H
 
+#include <set>
+#include <map>
 #include <QWizardPage>
 #include "ImportWizard/Types.h"
 
 class QTreeWidget;
 class QLabel;
 class QPushButton;
+class QGridLayout;
 
 namespace phobos { namespace widgets {
 class IconLabel;
@@ -36,11 +39,19 @@ private slots:
     void selectBackSeriesWithOnePhoto();
 
 private:
+    QGridLayout* grid;
     QTreeWidget *tree;
-
     QLabel *loadedStatusLabel;
+
+    using LengthCountMap = std::map<std::size_t, unsigned>;
+    void initializeInfoLabels(LengthCountMap const& lengthsCount);
+
+    void initializeLengthOneWarning(std::size_t const count);
     widgets::IconLabel *lengthOneWarning;
     QPushButton *selectLengthOneButton;
+
+    void initializeMultipleLengthsInfo(std::set<std::size_t> const& lengths);
+    widgets::IconLabel *multipleLengthsInfo;
 
     PhotoSeriesVec _dividedSeries;
     PhotoSeriesVec _chosenSeries;

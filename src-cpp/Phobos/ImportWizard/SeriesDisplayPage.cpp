@@ -8,6 +8,7 @@
 #include "ImportWizard/SeriesDisplayPage.h"
 #include "ImportWizard/Types.h"
 #include "Widgets/IconLabel.h"
+#include "Utils/Algorithm.h"
 
 #define TREEITEM_STANDARDSERIES 1
 #define TREEITEM_LENGTHONESERIES 2
@@ -25,22 +26,67 @@ SeriesDisplayPage::SeriesDisplayPage(QWidget *parent) :
 
     loadedStatusLabel = new QLabel();
 
+    multipleLengthsInfo = new widgets::IconLabel(style()->standardIcon(QStyle::SP_MessageBoxInformation));
+    multipleLengthsInfo->iconLabel()->setFixedSize(16, 16);
+
     lengthOneWarning = new widgets::IconLabel(style()->standardIcon(QStyle::SP_MessageBoxWarning));
     lengthOneWarning->iconLabel()->setFixedSize(16, 16);
-    lengthOneWarning->hide();
+
     selectLengthOneButton = new QPushButton("Select back");
-    selectLengthOneButton->hide();
     QObject::connect(selectLengthOneButton, &QPushButton::clicked, this, &SeriesDisplayPage::selectBackSeriesWithOnePhoto);
 
-    QGridLayout* grid = new QGridLayout();
+    grid = new QGridLayout();
     grid->setColumnStretch(1, 1);
     grid->addWidget(loadedStatusLabel, 0, 0, 1, -1);
-    grid->addWidget(lengthOneWarning, 1, 0, 1, 2);
-    grid->addWidget(selectLengthOneButton, 1, 2);
-    grid->addWidget(tree, 2, 0, 1, -1);
+    grid->addWidget(multipleLengthsInfo, 1, 0, 1, 2);
+    grid->addWidget(lengthOneWarning, 2, 0, 1, 2);
+    grid->addWidget(selectLengthOneButton, 2, 2);
+    grid->addWidget(tree, 3, 0, 1, -1);
     setLayout(grid);
 
     registerField("chosenSeries", this, "chosenSeries", SIGNAL(seriesChanged(PhotoSeriesVec)));
+}
+
+void SeriesDisplayPage::initializeInfoLabels(LengthCountMap const& lengthsCount)
+{
+    auto const oneIt = lengthsCount.find(1);
+    if (oneIt != lengthsCount.end())
+        initializeLengthOneWarning(oneIt->second);
+    else
+    {
+        lengthOneWarning->hide();
+        selectLengthOneButton->hide();
+    }
+
+    std::set<std::size_t> lengths;
+    for (auto const& lc : lengthsCount)
+        if (lc.first != 1)
+            lengths.insert(lc.first);
+
+    if (lengths.size() > 1)
+        initializeMultipleLengthsInfo(lengths);
+    else
+        multipleLengthsInfo->hide();
+}
+
+void SeriesDisplayPage::initializeLengthOneWarning(std::size_t const count)
+{
+    LOG(INFO) << count << " series have just one photo";
+
+    lengthOneWarning->show();
+    lengthOneWarning->label()->setText(tr("%1 series with only one photo %2 been disabled")
+            .arg(count).arg(count == 1 ? "has" : "have"));
+
+    selectLengthOneButton->show();
+}
+
+void SeriesDisplayPage::initializeMultipleLengthsInfo(std::set<std::size_t> const& lengths)
+{
+    QString const lengthList(utils::joinString(lengths.begin(), lengths.end(), ", ").c_str());
+    LOG(INFO) << "Detected series with multiple different lengths: " << lengthList;
+
+    multipleLengthsInfo->show();
+    multipleLengthsInfo->label()->setText(tr("Found series with different lengths: %1 photos").arg(lengthList));
 }
 
 void SeriesDisplayPage::initializePage()
@@ -49,13 +95,12 @@ void SeriesDisplayPage::initializePage()
     LOG(DEBUG) << "Read " << _dividedSeries.size() << " series from previous dialog";
 
     std::size_t photoCount = 0;
-    std::size_t lengthOneSeries = 0;
+    LengthCountMap seriesLengths;
 
     for (PhotoSeries const& series : _dividedSeries)
     {
         photoCount += series.size();
-        if (series.size() == 1)
-            ++lengthOneSeries;
+        seriesLengths[series.size()]++;
 
         int const seriesType = (series.size() == 1 ? TREEITEM_LENGTHONESERIES : TREEITEM_STANDARDSERIES);
         QTreeWidgetItem* seriesItem = new QTreeWidgetItem(tree, seriesType);
@@ -79,17 +124,7 @@ void SeriesDisplayPage::initializePage()
     // TODO: warning when it is probable that series were not divided correctly -> double (multiple) size series (like 7 and 14 photos)
     // Button to divide those again somehow
 
-    // TODO: display warning when found series of different length (display all lengths)
-    // use photoSet.minimumPhotosInSeries
-
-    if (lengthOneSeries > 0)
-    {
-        LOG(INFO) << lengthOneSeries << " series have just one photo";
-        selectLengthOneButton->show();
-        lengthOneWarning->show();
-        lengthOneWarning->label()->setText(tr("%1 series with only one photo %2 been disabled")
-                .arg(lengthOneSeries).arg(lengthOneSeries == 1 ? "has" : "have"));
-    }
+    initializeInfoLabels(seriesLengths);
 
     if (wizard()->button(QWizard::FinishButton))
         wizard()->button(QWizard::FinishButton)->setFocus();
