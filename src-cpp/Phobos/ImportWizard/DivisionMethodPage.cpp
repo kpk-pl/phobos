@@ -30,11 +30,14 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     fixedNumParam->setSuffix(tr(" photos", "As in '5 photos'"));
     fixedNumParam->setDisabled(true);
     fixedNumParam->setMinimum(1);
-    QObject::connect(fixedNumChoice, &QRadioButton::toggled, this, [this]{ updateSelection(Selection::FixedNum); });
+    QObject::connect(fixedNumChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::FixedNum); });
 
     metadataAutoChoice = new QRadioButton(tr("Divide to series automatically based on metadata"));
     metadataAutoChoice->setChecked(true);
-    QObject::connect(metadataAutoChoice, &QRadioButton::toggled, this, [this]{ updateSelection(Selection::Metadata); });
+    QObject::connect(metadataAutoChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::Metadata); });
+
+    noopChoice = new QRadioButton(tr("Don't divide photos - create one series"));
+    QObject::connect(noopChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::DontDivide); });
 
     QGridLayout *layout = new QGridLayout();
     layout->setColumnStretch(1, 1);
@@ -44,6 +47,7 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     layout->addWidget(fixedNumChoice, 2, 0, 1, 2);
     layout->addWidget(fixedNumParam, 2, 2);
     layout->addWidget(metadataAutoChoice, 3, 0, 1, 2);
+    layout->addWidget(noopChoice, 4, 0, 1, 2);
     setLayout(layout);
 
     registerField("dividedSeries", this, "dividedSeries", SIGNAL(seriesChanged(PhotoSeriesVec)));
@@ -74,6 +78,10 @@ bool DivisionMethodPage::validatePage()
 {
     switch(currentSelection)
     {
+    case Selection::DontDivide:
+        LOG(INFO) << "Dividing photos as noop";
+        _dividedSeries = divideToSeriesNoop(_selectedFiles);
+        break;
     case Selection::FixedNum:
         LOG(INFO) << "Dividing photos to series with equal size of " << fixedNumParam->value();
         _dividedSeries = divideToSeriesWithEqualSize(_selectedFiles, fixedNumParam->value());
@@ -114,6 +122,7 @@ void DivisionMethodPage::updateSelection(Selection selection)
         fixedNumParam->setDisabled(false);
         break;
     case Selection::Metadata:
+    case Selection::DontDivide:
         fixedNumParam->setDisabled(true);
         break;
     }

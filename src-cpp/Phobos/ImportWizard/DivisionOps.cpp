@@ -10,10 +10,19 @@
 
 namespace phobos { namespace importwiz {
 
+PhotoSeriesVec divideToSeriesNoop(QStringList const& photos)
+{
+    PhotoSeriesVec result;
+    result.push_back(PhotoSeries());
+
+    result.back().reserve(photos.size());
+    for (auto const& photo : photos)
+        result.back().push_back(Photo{photo.toStdString(), boost::none});
+    return result;
+}
+
 PhotoSeriesVec divideToSeriesWithEqualSize(QStringList const& photos, std::size_t const photosInSeries)
 {
-    assert(photosInSeries > 0);
-
     PhotoSeriesVec result;
     for (int n = 0; n < photos.size(); ++n)
     {

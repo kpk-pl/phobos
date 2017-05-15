@@ -34,6 +34,7 @@ protected:
 
 private:
     enum class Selection {
+        DontDivide,
         FixedNum,
         Metadata
     };
@@ -48,6 +49,7 @@ private:
     QSpinBox *fixedNumParam;
 
     QRadioButton *metadataAutoChoice;
+    QRadioButton *noopChoice;
 
     Selection currentSelection;
     QStringList _selectedFiles;
