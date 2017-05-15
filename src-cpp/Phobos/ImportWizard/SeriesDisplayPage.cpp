@@ -5,10 +5,11 @@
 #include <QPushButton>
 #include <QHeaderView>
 #include <easylogging++.h>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/range/adaptor/transformed.hpp>
 #include "ImportWizard/SeriesDisplayPage.h"
 #include "ImportWizard/Types.h"
 #include "Widgets/IconLabel.h"
-#include "Utils/Algorithm.h"
 
 #define TREEITEM_STANDARDSERIES 1
 #define TREEITEM_LENGTHONESERIES 2
@@ -82,11 +83,13 @@ void SeriesDisplayPage::initializeLengthOneWarning(std::size_t const count)
 
 void SeriesDisplayPage::initializeMultipleLengthsInfo(std::set<std::size_t> const& lengths)
 {
-    QString const lengthList(utils::joinString(lengths.begin(), lengths.end(), ", ").c_str());
-    LOG(INFO) << "Detected series with multiple different lengths: " << lengthList;
+    std::string const sLengthList =
+            boost::algorithm::join(lengths | boost::adaptors::transformed(static_cast<std::string(*)(std::size_t)>(std::to_string)), ", ");
+
+    LOG(INFO) << "Detected series with multiple different lengths: " << sLengthList;
 
     multipleLengthsInfo->show();
-    multipleLengthsInfo->label()->setText(tr("Found series with different lengths: %1 photos").arg(lengthList));
+    multipleLengthsInfo->label()->setText(tr("Found series with different lengths: %1 photos").arg(sLengthList.c_str()));
 }
 
 void SeriesDisplayPage::initializePage()
