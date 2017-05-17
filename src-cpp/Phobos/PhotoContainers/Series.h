@@ -1,9 +1,9 @@
 #ifndef PHOTO_CONTAINERS_SERIES_H
 #define PHOTO_CONTAINERS_SERIES_H
 
-#include <vector>
 #include <QUuid>
 #include <QObject>
+#include "PhotoContainers/Fwd.h"
 #include "PhotoContainers/Item.h"
 #include "ImageProcessing/Metrics.h"
 #include "ImportWizard/Types.h"
@@ -38,8 +38,7 @@ private:
     QUuid const _uuid;
 };
 
-using SeriesPtr = std::shared_ptr<Series>;
-using SeriesPtrVec = std::vector<SeriesPtr>;
+
 
 }} // namespace phobos::pcontainer
 

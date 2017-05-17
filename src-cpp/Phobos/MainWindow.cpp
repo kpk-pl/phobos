@@ -14,7 +14,8 @@ namespace phobos {
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    viewStack(new ViewStack())
+    imageCache(seriesSet),
+    viewStack(new ViewStack(seriesSet, imageCache))
 {
     setCentralWidget(viewStack);
     createMenus();
@@ -28,7 +29,7 @@ void MainWindow::loadPhotos()
 {
     importwiz::ImportWizard importWizard(this);
     if (importWizard.exec())
-        viewStack->addPhotos(importWizard.selectedSeries());
+        seriesSet.addSeries(importWizard.selectedSeries());
 }
 
 void MainWindow::createMenus()

@@ -13,6 +13,7 @@
 #include "PhotoItemWidgetAddon.h"
 #include "Utils/Algorithm.h"
 #include "Utils/Focused.h"
+#include "ImageCache/Cache.h"
 
 namespace phobos {
 
@@ -59,7 +60,8 @@ struct AllSeriesView::Coords
     int row, col;
 };
 
-AllSeriesView::AllSeriesView()
+AllSeriesView::AllSeriesView(icache::Cache const& imageCache) :
+    imageCache(imageCache)
 {
     // TODO: navigationBar
 

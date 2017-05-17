@@ -2,13 +2,12 @@
 #define PHOTOCONTAINERS_ITEM_H
 
 #include <functional>
-#include <memory>
-#include <vector>
 #include <QObject>
 #include <QUuid>
 #include <QImage>
 #include <QMetaObject>
 #include "ImageProcessing/Metrics.h"
+#include "PhotoContainers/Fwd.h"
 
 namespace phobos { namespace pcontainer {
 
@@ -71,9 +70,6 @@ private:
     iprocess::MetricPtr _metric;
     iprocess::ScoredMetricPtr _scoredMetric;
 };
-
-using ItemPtr = std::shared_ptr<Item>;
-using ItemPtrVec = std::vector<ItemPtr>;
 
 }} // namespace phobos::pcontainer
 

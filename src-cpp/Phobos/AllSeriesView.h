@@ -6,6 +6,7 @@
 #include <QWidget>
 #include <boost/optional.hpp>
 #include "PhotoContainers/Series.h"
+#include "ImageCache/CacheFwd.h"
 #include "ViewDescription.h"
 
 class QGridLayout;
@@ -16,7 +17,7 @@ class AllSeriesView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit AllSeriesView();
+    explicit AllSeriesView(icache::Cache const& imageCache);
 
     std::size_t numberOfSeries() const { return seriesUuidToRow.size(); }
 
@@ -41,6 +42,7 @@ private:
                                           int const directionKey) const;
     Coords findValidProposal(std::vector<Coords> const& proposals) const;
 
+    icache::Cache const& imageCache;
     std::map<QUuid, std::size_t> seriesUuidToRow;
     QGridLayout* grid;
 };

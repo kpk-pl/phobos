@@ -51,7 +51,9 @@ SOURCES += Phobos.cpp\
     Utils/FileAttributes.cpp \
     Widgets/IconLabel.cpp \
     ImportWizard/DivisionOps.cpp \
-    ImportWizard/SeriesDisplayPage.cpp
+    ImportWizard/SeriesDisplayPage.cpp \
+    ImageCache/Cache.cpp \
+    ImageCache/Promise.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -94,7 +96,12 @@ HEADERS  += MainWindow.h \
     ImportWizard/DivisionOps.h \
     ImportWizard/Types.h \
     ImportWizard/SeriesDisplayPage.h \
-    Utils/Comparators.h
+    Utils/Comparators.h \
+    ImageCache/Cache.h \
+    ImageCache/CacheFwd.h \
+    PhotoContainers/Fwd.h \
+    ImageCache/Promise.h \
+    ImageCache/PromiseFwd.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

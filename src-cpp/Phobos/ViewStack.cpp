@@ -4,11 +4,13 @@
 #include "RowSeriesView.h"
 #include "Utils/Focused.h"
 #include "ConfigExtension.h"
+#include "PhotoContainers/Set.h"
+#include "ImageCache/Cache.h"
 
 namespace phobos {
 
-ViewStack::ViewStack() :
-    QStackedWidget()
+ViewStack::ViewStack(pcontainer::Set const& seriesSet, icache::Cache const& cache) :
+    QStackedWidget(), seriesSet(seriesSet), imageCache(cache)
 {
     setupUI();
     connectSignals();
@@ -19,11 +21,6 @@ ViewStack::ViewStack() :
         currentSeriesWidget = rowSeriesView;
     else
         currentSeriesWidget = numSeriesView;
-}
-
-void ViewStack::addPhotos(importwiz::PhotoSeriesVec const& photoSeries)
-{
-    seriesSet.addSeries(photoSeries);
 }
 
 pcontainer::SeriesPtr const& ViewStack::findRequestedSeries(ViewDescriptionPtr const& viewDesc) const
@@ -150,7 +147,7 @@ void ViewStack::bulkSelect(PhotoBulkAction const action)
 
 void ViewStack::setupUI()
 {
-    allSeriesView = new AllSeriesView();
+    allSeriesView = new AllSeriesView(imageCache);
     rowSeriesView = new RowSeriesView();
     numSeriesView = new NumSeriesView();
 

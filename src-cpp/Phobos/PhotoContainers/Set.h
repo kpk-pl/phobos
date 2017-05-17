@@ -1,9 +1,9 @@
 #ifndef PHOTO_CONTAINERS_SET_H
 #define PHOTO_CONTAINERS_SET_H
 
-#include <vector>
 #include <QObject>
 #include <QUuid>
+#include "PhotoContainers/Fwd.h"
 #include "PhotoContainers/Series.h"
 #include "ImportWizard/Types.h"
 

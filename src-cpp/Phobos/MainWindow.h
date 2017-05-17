@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include "ViewStack.h"
+#include "PhotoContainers/Set.h"
+#include "ImageCache/Cache.h"
 
 namespace phobos {
 
@@ -22,6 +24,8 @@ private:
     void loadPhotos();
     void createMenus();
 
+    pcontainer::Set seriesSet;
+    icache::Cache imageCache;
     ViewStack* viewStack;
 };
 

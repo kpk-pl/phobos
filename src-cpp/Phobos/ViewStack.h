@@ -4,10 +4,11 @@
 #include <boost/optional.hpp>
 #include <QStackedWidget>
 #include <QUuid>
-#include "PhotoContainers/Set.h"
 #include "ViewDescription.h"
 #include "PhotoBulkAction.h"
 #include "ImportWizard/Types.h"
+#include "PhotoContainers/Fwd.h"
+#include "ImageCache/CacheFwd.h"
 
 namespace phobos {
 
@@ -32,8 +33,7 @@ public:
         std::vector<SeriesSelectionStatus> status;
     };
 
-    explicit ViewStack();
-    void addPhotos(importwiz::PhotoSeriesVec const& photoSeries);
+    explicit ViewStack(pcontainer::Set const& seriesSet, icache::Cache const& cache);
     SelectionStatus getSelectionStatus() const;
 
 public slots:
@@ -46,7 +46,8 @@ private:
     void setupUI();
     void connectSignals();
 
-    pcontainer::Set seriesSet;
+    pcontainer::Set const& seriesSet;
+    icache::Cache const& imageCache;
     boost::optional<QUuid> currentSeriesInView;
 
     AllSeriesView* allSeriesView;
