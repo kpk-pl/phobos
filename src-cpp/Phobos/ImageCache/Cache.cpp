@@ -1,5 +1,7 @@
+#include <easylogging++.h>
 #include "ImageCache/Cache.h"
 #include "ImageCache/Promise.h"
+#include "ImageCache/Future.h"
 
 namespace phobos { namespace icache {
 
@@ -9,16 +11,16 @@ Cache::Cache(pcontainer::Set const& photoSet) :
 
 }
 
-ConstPromisePtrVec Cache::getSeries(QUuid const seriesUuid) const
+FuturePtrVec Cache::getSeries(QUuid const seriesUuid) const
 {
     pcontainer::SeriesPtr const& requestedSeries = photoSet.findSeries(seriesUuid);
     assert(requestedSeries);
 
-    ConstPromisePtrVec result;
+    FuturePtrVec result;
     result.reserve(requestedSeries->size());
 
     for (auto const& photo : *requestedSeries)
-        result.push_back(makePromise(photo->fileName()));
+        result.push_back(getFuture(photo->fileName()));
 
     return result;
 }
@@ -51,33 +53,33 @@ iprocess::ScoredMetric const& Cache::getScoredMetrics(std::string const& photoFi
     return it->second;
 }
 
-ConstPromisePtr Cache::makePromise(std::string const& imageFilename) const
+FuturePtr Cache::getFuture(std::string const& imageFilename) const
 {
     auto const imageIt = preloadCache.find(imageFilename);
     if (imageIt != preloadCache.end())
-        return Promise::create(imageIt->second);
+        return Future::create(imageIt->second);
 
     auto const promiseIt = promiseMap.find(imageFilename);
     if (promiseIt != promiseMap.end())
-        return promiseIt->second;
+        return promiseIt->second->future;
 
-    return makeLoadingPromise(imageFilename);
+    return makeLoadingPromise(imageFilename)->future;
 }
 
 ConstPromisePtr Cache::makeLoadingPromise(std::string const& imageFilename) const
 {
-    auto newPromise = Promise::create(imageFilename);
+    bool const loadMetrics = !hasMetrics(imageFilename);
+    auto newPromise = Promise::create(imageFilename, 1, loadMetrics);
 
-    if (!hasMetrics(imageFilename))
+    if (loadMetrics)
     {
-        newPromise->enableMetricsCall();
-        QObject::connect(newPromise.get(), &Promise::metricsReady,
+        QObject::connect(newPromise.get(), &Promise::threadLoadedMetrics,
                 [this, imageFilename](iprocess::MetricPtr metrics){
                        updateMetrics(imageFilename, metrics);
                 });
     }
 
-    QObject::connect(newPromise.get(), &Promise::imageReady,
+    QObject::connect(newPromise.get(), &Promise::threadLoadedImage,
             [this, imageFilename](QImage image){
                    updateImage(imageFilename, image);
             });
@@ -93,7 +95,12 @@ void Cache::updateMetrics(std::string const& imageFilename, iprocess::MetricPtr 
 
 void Cache::updateImage(std::string const& imageFilename, QImage const& image) const
 {
+    preloadCache.emplace(imageFilename, image);
+    LOG(INFO) << "Updated image cache for: " << imageFilename;
 
+    auto promiseIt = promiseMap.find(imageFilename);
+    if (promiseIt != promiseMap.end())
+        promiseMap.erase(promiseIt);
 }
 
 }} // namespace phobos::icache

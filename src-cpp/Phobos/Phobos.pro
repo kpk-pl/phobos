@@ -53,7 +53,8 @@ SOURCES += Phobos.cpp\
     ImportWizard/DivisionOps.cpp \
     ImportWizard/SeriesDisplayPage.cpp \
     ImageCache/Cache.cpp \
-    ImageCache/Promise.cpp
+    ImageCache/Promise.cpp \
+    ImageCache/Future.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -101,7 +102,10 @@ HEADERS  += MainWindow.h \
     ImageCache/CacheFwd.h \
     PhotoContainers/Fwd.h \
     ImageCache/Promise.h \
-    ImageCache/PromiseFwd.h
+    ImageCache/PromiseFwd.h \
+    ImageCache/Future.h \
+    ImageCache/FutureFwd.h \
+    Utils/Streaming.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

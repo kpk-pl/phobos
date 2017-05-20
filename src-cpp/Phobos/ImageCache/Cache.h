@@ -7,6 +7,7 @@
 #include <QImage>
 #include "ImageCache/CacheFwd.h"
 #include "ImageCache/PromiseFwd.h"
+#include "ImageCache/FutureFwd.h"
 #include "PhotoContainers/Set.h"
 
 namespace phobos { namespace icache {
@@ -26,7 +27,7 @@ class Cache : public QObject
 public:
     explicit Cache(pcontainer::Set const& photoSet);
 
-    ConstPromisePtrVec getSeries(QUuid const seriesUuid) const;
+    FuturePtrVec getSeries(QUuid const seriesUuid) const;
 
     bool hasMetrics(std::string const& photoFilename) const;
     bool hasScoredMetrics(std::string const& photoFilename) const;
@@ -36,7 +37,7 @@ public:
 private:
     pcontainer::Set const& photoSet;
 
-    ConstPromisePtr makePromise(std::string const& imageFilename) const;
+    FuturePtr getFuture(std::string const& imageFilename) const;
     ConstPromisePtr makeLoadingPromise(std::string const& imageFilename) const;
 
     void updateMetrics(std::string const& imageFilename, iprocess::MetricPtr const& metrics) const;
