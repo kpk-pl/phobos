@@ -14,6 +14,7 @@
 #include "Utils/Algorithm.h"
 #include "Utils/Focused.h"
 #include "ImageCache/Cache.h"
+#include "ImageCache/Future.h"
 
 namespace phobos {
 
@@ -128,13 +129,21 @@ namespace {
 
 void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
 {
+    // TODO: pass only series Uuid
+    //
     std::size_t const row = numberOfSeries();
     seriesUuidToRow.emplace(series->uuid(), row);
 
+    icache::FuturePtrVec const futures = imageCache.getSeries(series->uuid());
+    assert(futures.size() == series->size());
+
     for (std::size_t col = 0; col < series->size(); ++col)
     {
-        PhotoItemWidget* item = new PhotoItemWidget(series->item(col), getPreloadImage(),
-            PhotoItemWidgetAddons(config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({})));
+        auto const& future = *futures[col];
+        auto const widgetAddons = PhotoItemWidgetAddons(
+                config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({}));
+
+        PhotoItemWidget* item = new PhotoItemWidget(series->item(col), getPreloadImage(), widgetAddons);
 
         QObject::connect(item, &PhotoItemWidget::openInSeries,
           [this](QUuid const& uuid){ switchView(ViewDescription::make(ViewType::ANY_SINGLE_SERIES, uuid)); });
@@ -142,6 +151,7 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
         QObject::connect(item, &PhotoItemWidget::changeSeriesState, this, &AllSeriesView::changeSeriesState);
 
         grid->addWidget(item, row, col);
+
         series->item(col)->loadPhoto(preferredSize(), item, std::bind(&PhotoItemWidget::setImage, item, std::placeholders::_1));
     }
 }

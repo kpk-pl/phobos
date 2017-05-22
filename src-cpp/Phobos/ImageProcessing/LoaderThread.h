@@ -28,6 +28,7 @@ public:
                           std::vector<QSize> const& requestedSizes,
                           bool calculateMetrics = false);
 
+    void withMetrics(bool calculate) { calculateMetrics = calculate; }
     void run() override;
 
     LoaderThreadSignals readySignals;
@@ -40,7 +41,7 @@ private:
 
     std::string const fileToLoad;
     std::vector<QSize> const requestedSizes;
-    bool const calculateMetrics;
+    bool calculateMetrics;
 };
 
 }} // namespace phobos::iprocess

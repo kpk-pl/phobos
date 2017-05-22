@@ -14,21 +14,25 @@ class Future : public QObject
 friend class Promise;
 
 public:
-    explicit Future();
-    explicit Future(QImage const& readyImage);
+    enum class CreateMode { Ready, Preload };
 
-    static FuturePtr create();
-    static FuturePtr create(QImage const& readyImage);
+    explicit Future(CreateMode mode, QImage const& image);
+
+    static FuturePtr createReady(QImage const& readyImage);
+    static FuturePtr createPreload(QImage const& preloadImage);
 
     operator bool() const { return !readyImage.isNull(); }
     QImage getImage() const { return readyImage; }
+    QImage getPreload() const { return preloadImage; }
 
 signals:
     void imageReady(QImage);
 
-private:
-    void setImage(QImage const& image);
+private slots:
+    void setImage(QImage image);
 
+private:
+    QImage preloadImage;
     QImage readyImage;
 };
 

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <initializer_list>
 #include <map>
+#include <unordered_map>
 #include <sstream>
 
 namespace phobos { namespace utils {
@@ -16,6 +17,12 @@ bool valueIn(T const& value, std::initializer_list<U> const& c)
 
 template<typename T, typename U, typename V, typename Alloc>
 bool valueIn(T const& value, std::map<U, V, Alloc> const& c)
+{
+    return c.find(value) != c.end();
+}
+
+template<typename T, typename U, typename V, typename Alloc>
+bool valueIn(T const& value, std::unordered_map<U, V, Alloc> const& c)
 {
     return c.find(value) != c.end();
 }
