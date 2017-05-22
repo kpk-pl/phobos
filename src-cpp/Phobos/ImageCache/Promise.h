@@ -18,22 +18,24 @@ class Promise : public QObject
 friend class Cache;
 
 public:
-    explicit Promise() = default;
-
-    static PromisePtr create(QImage const& readyImage);
+    explicit Promise(std::unique_ptr<iprocess::LoaderThread> loaderThread,
+                     FuturePtr const loaderFuture);
 
     static PromisePtr create(std::string const& filenameToLoad,
-                             QImage const& preloadImage,
-                             bool callMetrics);
+                             QImage const& initialPreloadImage);
 
     FuturePtr future() const { return _future; }
 
 signals:
+    void metricsReady(phobos::iprocess::MetricPtr);
+
+private slots:
     void threadLoadedMetrics(phobos::iprocess::MetricPtr);
 
 private:
-    FuturePtr _future;
-    std::unique_ptr<iprocess::LoaderThread> _loadingThread;
+    std::unique_ptr<iprocess::LoaderThread> _loaderThread;
+    FuturePtr const _future;
+    bool _loadedMetrics;
 };
 
 }} // namespace phobos::icache

@@ -1,42 +1,39 @@
-#include <cassert>
 #include <easylogging++.h>
 #include "Future.h"
 #include "Utils/Streaming.h"
 
 namespace phobos { namespace icache {
 
-Future::Future(CreateMode mode, QImage const& image)
+Future::Future(QImage const& initialPreloadImage) :
+    preloadImage(initialPreloadImage),
+    preloadReady(false)
 {
-    switch(mode)
-    {
-    case CreateMode::Ready:
-        LOG(DEBUG) << "F" << utils::stream::ObjId()(this) << " : creating ready";
-        readyImage = image;
-        break;
-    case CreateMode::Preload:
-        LOG(DEBUG) << "F" << utils::stream::ObjId()(this) << " : creating preload";
-        preloadImage = image;
-        break;
-    default:
-        assert(false);
-    };
 }
 
-FuturePtr Future::createReady(QImage const& readyImage)
+FuturePtr Future::create(QImage const& initialPreloadImage)
 {
-    return std::make_shared<Future>(CreateMode::Ready, readyImage);
-}
-
-FuturePtr Future::createPreload(QImage const& preloadImage)
-{
-    return std::make_shared<Future>(CreateMode::Preload, preloadImage);
+    return std::make_shared<Future>(initialPreloadImage);
 }
 
 void Future::setImage(QImage image)
 {
-    LOG(DEBUG) << "F" << utils::stream::ObjId()(this) << " : setting image";
+    LOG(DEBUG) << "F" << utils::stream::ObjId{}(this) << " : setting image";
+
     readyImage = image;
-    emit imageReady(readyImage);
+
+    if (!preloadReady)
+    {
+       preloadImage = image; // TODO fixme scale to size based on config
+       preloadReady = true;
+    }
+
+    emit changed();
+}
+
+void Future::voidImage()
+{
+    LOG(DEBUG) << "F" << utils::stream::ObjId{}(this) << " : voiding image";
+    readyImage = QImage{};
 }
 
 }} // namespace phobos::icache

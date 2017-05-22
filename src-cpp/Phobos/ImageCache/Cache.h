@@ -38,19 +38,14 @@ private:
     pcontainer::Set const& photoSet;
 
     FuturePtr getFuture(std::string const& imageFilename) const;
-    FuturePtr makeLoadingPromiseAndFuture(std::string const& imageFilename) const;
-    QImage getPreloadNow(std::string const& imageFilename) const;
+    void makeNewPromise(std::string const& imageFilename) const;
+    QImage getInitialPreload() const;
 
     void updateMetrics(std::string const& imageFilename, iprocess::MetricPtr const& metrics) const;
-    void updateImage(std::string const& imageFilename, QImage const& image) const;
 
     using LookupKeyType = std::string;
 
-    std::unordered_map<LookupKeyType, ConstPromisePtr> mutable promiseMap;
-
-    std::unordered_map<LookupKeyType, const QImage> mutable preloadCache;
-    std::unordered_map<LookupKeyType, const QImage> mutable imageCache;
-
+    std::unordered_map<LookupKeyType, PromisePtr> mutable imagePromiseMap;
     std::unordered_map<LookupKeyType, const iprocess::Metric> mutable metricCache;
     std::unordered_map<LookupKeyType, const iprocess::ScoredMetric> mutable scoredMetricCache;
 };

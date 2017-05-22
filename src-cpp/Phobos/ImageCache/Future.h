@@ -14,19 +14,16 @@ class Future : public QObject
 friend class Promise;
 
 public:
-    enum class CreateMode { Ready, Preload };
+    Future(QImage const& initialPreloadImage);
+    static FuturePtr create(QImage const& initialPreloadImage);
 
-    explicit Future(CreateMode mode, QImage const& image);
-
-    static FuturePtr createReady(QImage const& readyImage);
-    static FuturePtr createPreload(QImage const& preloadImage);
-
-    operator bool() const { return !readyImage.isNull(); }
     QImage getImage() const { return readyImage; }
-    QImage getPreload() const { return preloadImage; }
+    void voidImage();
+
+    QImage getPreloadImage() const { return preloadImage; }
 
 signals:
-    void imageReady(QImage);
+    void changed();
 
 private slots:
     void setImage(QImage image);
@@ -34,6 +31,7 @@ private slots:
 private:
     QImage preloadImage;
     QImage readyImage;
+    bool preloadReady;
 };
 
 }} // namespace phobos::icache

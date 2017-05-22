@@ -4,43 +4,43 @@
 
 namespace phobos { namespace icache {
 
-PromisePtr Promise::create(QImage const& readyImage)
+Promise::Promise(std::unique_ptr<iprocess::LoaderThread> loaderThread,
+                 FuturePtr const loaderFuture) :
+    _loaderThread(std::move(loaderThread)),
+    _future(loaderFuture),
+    _loadedMetrics(false)
 {
-    auto const promise = std::make_shared<Promise>();
-    LOG(DEBUG) << "P" << utils::stream::ObjId{}(promise) << " : creating with ready image";
+    LOG(INFO) << "P" << utils::stream::ObjId{}(this) << " : creating";
 
-    promise->_future = Future::createReady(readyImage);
-    return promise;
+    QObject::connect(&_loaderThread->readySignals, &iprocess::LoaderThreadSignals::metricsReady,
+                     this, &Promise::threadLoadedMetrics, Qt::QueuedConnection);
 }
 
+
 PromisePtr Promise::create(std::string const& filenameToLoad,
-                           QImage const& preloadImage,
-                           bool callMetrics)
+                           QImage const& initialPreloadImage)
 {
     // TODO: pass size limit from config (only one max size is enough)
     std::vector<QSize> vs = { QSize(1920, 1080) };
 
-    PromisePtr const promise = std::make_shared<Promise>();
-    LOG(INFO) << "P" << utils::stream::ObjId{}(promise)
-              << " : " << filenameToLoad << (callMetrics ? " with metrics" : " without metrics");
+    auto future = Future::create(initialPreloadImage);
 
-    promise->_future = Future::createPreload(preloadImage);
+    auto thread = std::make_unique<iprocess::LoaderThread>(filenameToLoad, vs);
+    thread->setAutoDelete(false);
+    thread->withMetrics(true);
 
-    promise->_loadingThread = std::make_unique<iprocess::LoaderThread>(filenameToLoad, vs);
-    auto& loadingThread = *promise->_loadingThread;
-    loadingThread.setAutoDelete(true);
+    QObject::connect(&thread->readySignals, &iprocess::LoaderThreadSignals::imageReady,
+                     future.get(), &Future::setImage, Qt::QueuedConnection);
 
-    if (callMetrics)
-    {
-        loadingThread.withMetrics(true);
-        QObject::connect(&loadingThread.readySignals, &iprocess::LoaderThreadSignals::metricsReady,
-                         promise.get(), &Promise::threadLoadedMetrics, Qt::QueuedConnection);
-    }
+    return std::make_shared<Promise>(std::move(thread), future);
+}
 
-    QObject::connect(&loadingThread.readySignals, &iprocess::LoaderThreadSignals::imageReady,
-                     promise->_future.get(), &Future::setImage, Qt::QueuedConnection);
+void Promise::threadLoadedMetrics(phobos::iprocess::MetricPtr metrics)
+{
+    emit metricsReady(metrics);
 
-    return promise;
+    _loaderThread->withMetrics(false);
+    QObject::disconnect(&_loaderThread->readySignals, &iprocess::LoaderThreadSignals::metricsReady, this, 0);
 }
 
 }} // namespace phobos::icache
