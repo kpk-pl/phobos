@@ -134,12 +134,12 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
     std::size_t const row = numberOfSeries();
     seriesUuidToRow.emplace(series->uuid(), row);
 
-    icache::FuturePtrVec const futures = imageCache.getSeries(series->uuid());
-    assert(futures.size() == series->size());
+    //icache::FuturePtrVec const futures = imageCache.getSeries(series->uuid());
+    //assert(futures.size() == series->size());
 
     for (std::size_t col = 0; col < series->size(); ++col)
     {
-        auto const& future = *futures[col];
+        //auto const& future = *futures[col];
         auto const widgetAddons = PhotoItemWidgetAddons(
                 config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({}));
 

@@ -69,7 +69,8 @@ void Cache::updateMetrics(std::string const& imageFilename, iprocess::MetricPtr 
     // TODO: keep metrics object, not shared_ptrs
     // TODO: scored metrics fill
     //
-    // When scored metrics done, disconnect signals
+    // TODO: disconnect signal
+    // TODO: fill scored series when all for series done
 }
 
 bool Cache::hasMetrics(std::string const& photoFilename) const
