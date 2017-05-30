@@ -4,16 +4,16 @@ namespace phobos { namespace iprocess {
 
 namespace {
     template <typename Func>
-    auto maxMetric(MetricPtrVec const& metrics, Func const& func)
+    auto maxMetric(std::vector<Metric const*> const& metrics, Func const& func)
         -> decltype(std::declval<Func>()(*metrics.front()))
     {
         auto maxIt = std::max_element(metrics.begin(), metrics.end(),
-            [&func](MetricPtr const& m1, MetricPtr const& m2){ return func(*m1) < func(*m2); });
+            [&func](Metric const* m1, Metric const* m2){ return func(*m1) < func(*m2); });
         return func(**maxIt);
     };
 
     template<typename Func>
-    void aggregateMetric(MetricPtrVec const& metrics, ScoredMetricPtrVec &scored,
+    void aggregateMetric(std::vector<Metric const*> const& metrics, std::vector<ScoredMetric> &scored,
                          Func const& getter)
     {
         auto const maxM = maxMetric(metrics, getter);
@@ -24,20 +24,18 @@ namespace {
         for (std::size_t i = 0; i < metrics.size(); ++i)
         {
             if (getter(*metrics[i]) != boost::none)
-                getter(scored[i]->seriesMetric) = *getter(*metrics[i]) / *maxM;
+                getter(scored[i].seriesMetric) = *getter(*metrics[i]) / *maxM;
         }
     }
 } // unnamed namespace
 
-ScoredMetricPtrVec aggregateMetrics(MetricPtrVec const& metrics)
+std::vector<ScoredMetric> aggregateMetrics(std::vector<Metric const*> const& metrics)
 {
-    ScoredMetricPtrVec result;
-    result.reserve(metrics.size());
+    std::vector<ScoredMetric> result;
     if (metrics.empty())
         return result;
 
-    for (std::size_t i = 0; i < metrics.size(); ++i)
-        result.emplace_back(std::make_shared<ScoredMetric>());
+    result.resize(metrics.size());
 
     aggregateMetric(metrics, result, [](auto& m)->auto&{ return m.blur.sobel; });
     aggregateMetric(metrics, result, [](auto& m)->auto&{ return m.blur.laplace; });
@@ -45,9 +43,9 @@ ScoredMetricPtrVec aggregateMetrics(MetricPtrVec const& metrics)
     aggregateMetric(metrics, result, [](auto& m)->auto&{ return m.noise; });
     aggregateMetric(metrics, result, [](auto& m)->auto&{ return m.contrast; });
 
-    auto const& bestEl = *std::max_element(result.begin(), result.end(),
-            [](ScoredMetricPtr const& l, ScoredMetricPtr const& r){ return l->score() < r->score(); });
-    bestEl->bestQuality = true;
+    auto& bestEl = *std::max_element(result.begin(), result.end(),
+            [](ScoredMetric const& l, ScoredMetric const& r){ return l.score() < r.score(); });
+    bestEl.bestQuality = true;
 
     return result;
 }

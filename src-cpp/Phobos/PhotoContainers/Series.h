@@ -5,7 +5,6 @@
 #include <QObject>
 #include "PhotoContainers/Fwd.h"
 #include "PhotoContainers/Item.h"
-#include "ImageProcessing/Metrics.h"
 #include "ImportWizard/Types.h"
 
 namespace phobos { namespace pcontainer {
@@ -20,8 +19,6 @@ public:
     void addPhotoItems(std::vector<std::string> const& fileNames);
     void addPhotoItem(std::string const& fileName);
 
-    ItemPtr best() const;
-
     std::size_t size() const { return photoItems.size(); }
     QUuid const& uuid() const { return _uuid; }
 
@@ -29,9 +26,6 @@ public:
     ItemPtrVec::const_reference item(std::size_t i) const { return (*this)[i]; }
     ItemPtrVec::const_iterator begin() const { return photoItems.begin(); }
     ItemPtrVec::const_iterator end() const { return photoItems.end(); }
-
-private slots:
-    void newMetricCalculated();
 
 private:
     ItemPtrVec photoItems;

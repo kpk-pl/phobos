@@ -34,6 +34,7 @@ public slots:
 
 private slots:
     void changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state);
+    void updateImage(QUuid seriesUuid, std::string filename);
 
 private:
     struct Coords;

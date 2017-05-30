@@ -3,6 +3,7 @@
 
 #include "SeriesViewBase.h"
 #include "HorizontalScrollArea.h"
+#include "ImageCache/CacheFwd.h"
 
 namespace phobos {
 
@@ -10,7 +11,7 @@ class RowSeriesView : public SeriesViewBase
 {
     Q_OBJECT
 public:
-    explicit RowSeriesView();
+    explicit RowSeriesView(icache::Cache const& imageCache);
 
     void showSeries(pcontainer::SeriesPtr const& series) override;
     void clear() override;
@@ -20,9 +21,10 @@ private slots:
 
 protected:
     void addToLayout(PhotoItemWidget* itemWidget) override;
-    std::vector<PhotoItemWidget*> moveItemsOut() override;
     void changeSeriesState(pcontainer::ItemState const state) const override;
-    void moveItemsIn(std::vector<PhotoItemWidget*> const& items) override;
+
+private slots:
+    void updateImage(QUuid seriesUuid, std::string filename, QImage image);
 
 private:
     HorizontalScrollArea* scroll;

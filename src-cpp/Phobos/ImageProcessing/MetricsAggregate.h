@@ -5,7 +5,7 @@
 
 namespace phobos { namespace iprocess {
 
-ScoredMetricPtrVec aggregateMetrics(MetricPtrVec const& metrics);
+std::vector<ScoredMetric> aggregateMetrics(std::vector<Metric const*> const& metrics);
 
 }} // namespace phobos::iprocess
 

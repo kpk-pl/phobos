@@ -30,13 +30,6 @@ std::ostream& operator<<(std::ostream& os, Metric const& metric)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, MetricPtr metric)
-{
-    if (metric) os << *metric;
-    else        os << "none";
-    return os;
-}
-
 std::ostream& operator<<(std::ostream& os, ScoredMetric const& scored)
 {
     os << "{" << std::endl
@@ -44,13 +37,6 @@ std::ostream& operator<<(std::ostream& os, ScoredMetric const& scored)
        << "best: " << (scored.bestQuality ? "true" : "false") << std::endl
        << "score: " << scored.score() << std::endl
        << "}";
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, ScoredMetricPtr scored)
-{
-    if (scored) os << *scored;
-    else        os << "none";
     return os;
 }
 

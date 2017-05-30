@@ -6,15 +6,19 @@
 #include "PhotoItemWidget.h"
 #include "Config.h"
 #include "Utils/LayoutClear.h"
+#include "ImageCache/Cache.h"
 
 namespace phobos {
 
 // TODO: Runtime configurable selection of items visible
 
-NumSeriesView::NumSeriesView() :
+NumSeriesView::NumSeriesView(icache::Cache const& imageCache) :
+    SeriesViewBase(imageCache),
     visibleItems(config::get()->get_qualified_as<unsigned>("seriesView.num.visibleItems").value_or(2)),
     currentItem(0)
 {
+    QObject::connect(&imageCache, &icache::Cache::updateImage, this, &NumSeriesView::updateImage);
+
     NavigationBar* navigationBar = new NavigationBar(NavigationBar::Capability::ALL_SERIES |
                                                      NavigationBar::Capability::ONE_SERIES |
                                                      NavigationBar::Capability::LEFT |
@@ -53,11 +57,23 @@ void NumSeriesView::showSeries(pcontainer::SeriesPtr const& series)
     layoutForItems->itemAt(0)->widget()->setFocus();
 }
 
-void NumSeriesView::moveItemsIn(std::vector<PhotoItemWidget*> const& items)
+void NumSeriesView::updateImage(QUuid seriesUuid, std::string filename, QImage image)
 {
-    SeriesViewBase::moveItemsIn(items);
-    currentItem = 0;
-    layoutForItems->itemAt(0)->widget()->setFocus();
+    if (currentSeriesUuid != seriesUuid)
+        return;
+
+    for (QWidget* widget : photoItems)
+    {
+        auto const photoItemWidget = dynamic_cast<PhotoItemWidget*>(widget);
+        assert(photoItemWidget);
+        if (photoItemWidget->photoItem().fileName() == filename)
+        {
+            photoItemWidget->setImage(image);
+            return;
+        }
+    }
+
+    assert(false); // impossible
 }
 
 void NumSeriesView::clear()
@@ -69,21 +85,6 @@ void NumSeriesView::clear()
         delete widget;
     photoItems.clear();
     update();
-}
-
-std::vector<PhotoItemWidget*> NumSeriesView::moveItemsOut()
-{
-    utils::clearLayout(layoutForItems, false);
-    currentSeriesUuid.reset();
-    currentItem = 0;
-
-    for (PhotoItemWidget *photoWidget : photoItems)
-        photoWidget->disconnect(this);
-
-    std::vector<PhotoItemWidget*> result(std::move(photoItems));
-    photoItems.clear();
-
-    return result;
 }
 
 void NumSeriesView::keyPressEvent(QKeyEvent* keyEvent)

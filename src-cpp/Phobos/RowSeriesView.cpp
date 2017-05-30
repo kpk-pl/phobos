@@ -4,11 +4,15 @@
 #include "NavigationBar.h"
 #include "Utils/LayoutClear.h"
 #include "PhotoItemWidget.h"
+#include "ImageCache/Cache.h"
 
 namespace phobos {
 
-RowSeriesView::RowSeriesView()
+RowSeriesView::RowSeriesView(icache::Cache const& imageCache) :
+    SeriesViewBase(imageCache)
 {
+    QObject::connect(&imageCache, &icache::Cache::updateImage, this, &RowSeriesView::updateImage);
+
     NavigationBar* navigationBar = new NavigationBar(NavigationBar::Capability::ALL_SERIES |
                                                      NavigationBar::Capability::NUM_SERIES |
                                                      NavigationBar::Capability::SLIDER |
@@ -53,9 +57,29 @@ void RowSeriesView::resizeImages(int percent)
 void RowSeriesView::clear()
 {
     SeriesViewBase::clear();
-    utils::clearLayout(scroll->boxLayout());    
+    utils::clearLayout(scroll->boxLayout());
     scroll->horizontalScrollBar()->setValue(0);
     update();
+}
+
+void RowSeriesView::updateImage(QUuid seriesUuid, std::string filename, QImage image)
+{
+    if (currentSeriesUuid != seriesUuid)
+        return;
+
+    for (int i = 0; i < scroll->boxLayout()->count(); ++i)
+    {
+        auto const photoWidget = dynamic_cast<PhotoItemWidget*>(scroll->boxLayout()->itemAt(i)->widget());
+        assert(photoWidget);
+
+        if (photoWidget->photoItem().fileName() == filename)
+        {
+            photoWidget->setImage(image);
+            return;
+        }
+    }
+
+    assert(false); // impossible
 }
 
 void RowSeriesView::addToLayout(PhotoItemWidget* itemWidget)
@@ -63,29 +87,23 @@ void RowSeriesView::addToLayout(PhotoItemWidget* itemWidget)
     scroll->boxLayout()->addWidget(itemWidget);
 }
 
-std::vector<PhotoItemWidget*> RowSeriesView::moveItemsOut()
-{
-    std::vector<PhotoItemWidget*> result;
-    result.reserve(scroll->boxLayout()->count());
-    for (int i = 0; i < scroll->boxLayout()->count(); ++i)
-    {
-        PhotoItemWidget *photoWidget = dynamic_cast<PhotoItemWidget*>(scroll->boxLayout()->itemAt(i)->widget());
-        assert(photoWidget);
-        photoWidget->disconnect(this);
-        result.push_back(photoWidget);
-    }
+//std::vector<PhotoItemWidget*> RowSeriesView::moveItemsOut()
+//{
+    //std::vector<PhotoItemWidget*> result;
+    //result.reserve(scroll->boxLayout()->count());
+    //for (int i = 0; i < scroll->boxLayout()->count(); ++i)
+    //{
+        //PhotoItemWidget *photoWidget = dynamic_cast<PhotoItemWidget*>(scroll->boxLayout()->itemAt(i)->widget());
+        //assert(photoWidget);
+        //photoWidget->disconnect(this);
+        //result.push_back(photoWidget);
+    //}
 
-    utils::clearLayout(scroll->boxLayout(), false);
-    currentSeriesUuid.reset();
-    scroll->horizontalScrollBar()->setValue(0);
-    return result;
-}
-
-void RowSeriesView::moveItemsIn(std::vector<PhotoItemWidget*> const& items)
-{
-    SeriesViewBase::moveItemsIn(items);
-    scroll->boxLayout()->itemAt(0)->widget()->setFocus();
-}
+    //utils::clearLayout(scroll->boxLayout(), false);
+    //currentSeriesUuid.reset();
+    //scroll->horizontalScrollBar()->setValue(0);
+    //return result;
+//}
 
 void RowSeriesView::changeSeriesState(pcontainer::ItemState const state) const
 {

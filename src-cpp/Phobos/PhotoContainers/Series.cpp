@@ -1,9 +1,7 @@
-#include <algorithm>
-#include <easylogging++.h>
 #include "PhotoContainers/Series.h"
-#include "ImageProcessing/MetricsAggregate.h"
-#include "ImageProcessing/MetricsIO.h"
-#include "ConfigExtension.h"
+//#include "ImageProcessing/MetricsAggregate.h"
+//#include "ImageProcessing/MetricsIO.h"
+//#include "ConfigExtension.h"
 
 namespace phobos { namespace pcontainer {
 
@@ -29,44 +27,16 @@ void Series::addPhotoItems(std::vector<std::string> const& fileNames)
 void Series::addPhotoItem(std::string const& fileName)
 {
     auto newItem = std::make_shared<Item>(fileName, _uuid, photoItems.size());
-    QObject::connect(newItem.get(), &Item::metricsReady, this, &Series::newMetricCalculated);
     photoItems.emplace_back(std::move(newItem));
 }
 
-ItemPtr Series::best() const
-{
-    for (auto const& item : photoItems)
-        if (item->scoredMetric() && item->scoredMetric()->bestQuality)
-            return item;
+//ItemPtr Series::best() const
+//{
+    //for (auto const& item : photoItems)
+        //if (item->scoredMetric() && item->scoredMetric()->bestQuality)
+            //return item;
 
-    return nullptr;
-}
-
-void Series::newMetricCalculated()
-{
-    using namespace iprocess;
-
-    MetricPtrVec allMetrics;
-    allMetrics.reserve(photoItems.size());
-    std::transform(photoItems.begin(), photoItems.end(), std::back_inserter(allMetrics),
-                   [](ItemPtr const& item){ return item->metric();} );
-
-    if (!std::all_of(allMetrics.begin(), allMetrics.end(),
-                     [](MetricPtr const& m){ return bool(m); }))
-        return;
-
-    ScoredMetricPtrVec scoredMetrics = aggregateMetrics(allMetrics);
-    for (std::size_t i = 0; i < photoItems.size(); ++i)
-    {
-        Item& item = *photoItems[i];
-        item.setScoredMetric(scoredMetrics[i]);
-
-        LOG_IF(config::qualified("logging.metrics", false), DEBUG)
-           << "Calculated series metrics" << std::endl
-           << "photoItem: " << item.fileName() << std::endl
-           << "metric: " << item.metric() << std::endl
-           << "scoredMetric: " << item.scoredMetric();
-    }
-}
+    //return nullptr;
+//}
 
 }} // namespace phobos::pcontainer

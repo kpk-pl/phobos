@@ -248,16 +248,17 @@ void PhotoItemWidget::paintEvent(QPaintEvent*)
     if (addons.has(PhotoItemWidgetAddonType::FOCUS_IND) && hasFocus())
         renderer.focusMark();
 
-    auto const seriesMetric = _photoItem->scoredMetric();
-    if (addons.has(PhotoItemWidgetAddonType::SCORE_NUM) && seriesMetric)
-        renderer.scoreNum(seriesMetric->score());
+    // TODO: CACHE: FIXME
+    //auto const seriesMetric = _photoItem->scoredMetric();
+    //if (addons.has(PhotoItemWidgetAddonType::SCORE_NUM) && seriesMetric)
+        //renderer.scoreNum(seriesMetric->score());
 
-    if (addons.has(PhotoItemWidgetAddonType::BEST_IND) && seriesMetric && seriesMetric->bestQuality)
-        renderer.bestMark();
+    //if (addons.has(PhotoItemWidgetAddonType::BEST_IND) && seriesMetric && seriesMetric->bestQuality)
+        //renderer.bestMark();
 
-    auto const metric = _photoItem->metric();
-    if (addons.has(PhotoItemWidgetAddonType::HISTOGRAM) && metric && metric->histogram)
-        renderer.histogram(*metric->histogram);
+    //auto const metric = _photoItem->metric();
+    //if (addons.has(PhotoItemWidgetAddonType::HISTOGRAM) && metric && metric->histogram)
+        //renderer.histogram(*metric->histogram);
 
     if (addons.has(PhotoItemWidgetAddonType::ORD_NUM))
         renderer.ordNum(_photoItem->ord());

@@ -14,7 +14,6 @@
 #include "Utils/Algorithm.h"
 #include "Utils/Focused.h"
 #include "ImageCache/Cache.h"
-#include "ImageCache/Future.h"
 
 namespace phobos {
 
@@ -64,6 +63,8 @@ struct AllSeriesView::Coords
 AllSeriesView::AllSeriesView(icache::Cache const& imageCache) :
     imageCache(imageCache)
 {
+    QObject::connect(&imageCache, &icache::Cache::updateImage, this, &AllSeriesView::updateImage);
+
     // TODO: navigationBar
 
     grid = new QGridLayout();
@@ -104,46 +105,18 @@ void AllSeriesView::focusSeries(QUuid const seriesUuid)
     grid->itemAtPosition(seriesUuidToRow[seriesUuid], 0)->widget()->setFocus();
 }
 
-namespace {
-    QSize preferredSize()
-    {
-        return config::qSize("allSeriesView.pixmapSize").value_or(QSize(320, 240));
-    }
-
-    QImage buildPreloadImage()
-    {
-        QPixmap pixmap(preferredSize());
-        pixmap.fill(Qt::lightGray);
-        return pixmap.toImage();
-    }
-
-    // Use EXIF data to read width and height and generate appropriate preload image
-
-    QImage getPreloadImage()
-    {
-        // TODO: handle when size changes
-        static QImage const image = buildPreloadImage();
-        return image;
-    }
-} // unnamed namespace
-
 void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
 {
-    // TODO: pass only series Uuid
-    //
     std::size_t const row = numberOfSeries();
     seriesUuidToRow.emplace(series->uuid(), row);
 
-    //icache::FuturePtrVec const futures = imageCache.getSeries(series->uuid());
-    //assert(futures.size() == series->size());
-
     for (std::size_t col = 0; col < series->size(); ++col)
     {
-        //auto const& future = *futures[col];
         auto const widgetAddons = PhotoItemWidgetAddons(
                 config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({}));
 
-        PhotoItemWidget* item = new PhotoItemWidget(series->item(col), getPreloadImage(), widgetAddons);
+        auto const& itemPtr = series->item(col);
+        PhotoItemWidget* item = new PhotoItemWidget(itemPtr, imageCache.getPreload(*itemPtr), widgetAddons);
 
         QObject::connect(item, &PhotoItemWidget::openInSeries,
           [this](QUuid const& uuid){ switchView(ViewDescription::make(ViewType::ANY_SINGLE_SERIES, uuid)); });
@@ -151,9 +124,32 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
         QObject::connect(item, &PhotoItemWidget::changeSeriesState, this, &AllSeriesView::changeSeriesState);
 
         grid->addWidget(item, row, col);
-
-        series->item(col)->loadPhoto(preferredSize(), item, std::bind(&PhotoItemWidget::setImage, item, std::placeholders::_1));
     }
+}
+
+void AllSeriesView::updateImage(QUuid seriesUuid, std::string filename)
+{
+    assert(utils::valueIn(seriesUuid, seriesUuidToRow));
+    auto const seriesRow = seriesUuidToRow[seriesUuid];
+
+    for (int i = 0; i < grid->columnCount(); ++i)
+    {
+        auto const& widgetItem = grid->itemAtPosition(seriesRow, i);
+        if (!widgetItem || !widgetItem->widget())
+            continue;
+
+        auto const photoItemWgt = dynamic_cast<PhotoItemWidget*>(widgetItem->widget());
+        assert(photoItemWgt);
+        auto const& photoItem = photoItemWgt->photoItem();
+
+        if (photoItem.fileName() == filename)
+        {
+            photoItemWgt->setImage(imageCache.getPreload(photoItem));
+            return;
+        }
+    }
+
+    assert(false); // impossible if image is not found
 }
 
 void AllSeriesView::keyPressEvent(QKeyEvent* keyEvent)

@@ -52,9 +52,7 @@ SOURCES += Phobos.cpp\
     Widgets/IconLabel.cpp \
     ImportWizard/DivisionOps.cpp \
     ImportWizard/SeriesDisplayPage.cpp \
-    ImageCache/Cache.cpp \
-    ImageCache/Promise.cpp \
-    ImageCache/Future.cpp
+    ImageCache/Cache.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -101,10 +99,6 @@ HEADERS  += MainWindow.h \
     ImageCache/Cache.h \
     ImageCache/CacheFwd.h \
     PhotoContainers/Fwd.h \
-    ImageCache/Promise.h \
-    ImageCache/PromiseFwd.h \
-    ImageCache/Future.h \
-    ImageCache/FutureFwd.h \
     Utils/Streaming.h
 
 INCLUDEPATH += cpptoml

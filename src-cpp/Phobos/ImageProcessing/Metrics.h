@@ -28,10 +28,7 @@ struct ScoredMetric
     double score() const;
 };
 
-typedef std::shared_ptr<Metric> MetricPtr ;
-typedef std::vector<MetricPtr> MetricPtrVec;
-typedef std::shared_ptr<ScoredMetric> ScoredMetricPtr;
-typedef std::vector<ScoredMetricPtr> ScoredMetricPtrVec;
+typedef std::shared_ptr<Metric> MetricPtr;
 
 }} // namespace phobos::iprocess
 

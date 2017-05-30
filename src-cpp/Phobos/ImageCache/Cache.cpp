@@ -1,10 +1,13 @@
 #include <easylogging++.h>
+#include <QThreadPool>
 #include "PhotoContainers/Series.h"
 #include "ImageCache/Cache.h"
-#include "ImageCache/Promise.h"
-#include "ImageCache/Future.h"
 #include "Utils/Algorithm.h"
 #include "Utils/Preload.h"
+#include "Utils/Asserted.h"
+#include "ConfigExtension.h"
+#include "ImageProcessing/MetricsAggregate.h"
+#include "ImageProcessing/MetricsIO.h"
 
 namespace phobos { namespace icache {
 
@@ -13,64 +16,127 @@ Cache::Cache(pcontainer::Set const& photoSet) :
 {
 }
 
-FuturePtrVec Cache::getSeries(QUuid const seriesUuid) const
+namespace {
+    QImage getInitialPreload()
+    {
+        static QImage const preloadImage =
+            utils::preloadImage(config::qSize("imageCache.preloadSize", QSize(320, 240)));
+
+        return preloadImage;
+    }
+} // unnamed namespace
+
+QImage Cache::getImage(pcontainer::Item const& item) const
 {
-    pcontainer::SeriesPtr const& requestedSeries = photoSet.findSeries(seriesUuid);
-    assert(requestedSeries);
+    auto it = imageCache.find(item.fileName());
+    if (it != imageCache.end() && !it->second.full.isNull())
+        return it->second.full;
 
-    FuturePtrVec result;
-    result.reserve(requestedSeries->size());
+    startThreadForItem(item);
 
-    for (auto const& photo : *requestedSeries)
-        result.push_back(getFuture(photo->fileName()));
-
-    return result;
+    if (!it->second.preload.isNull())
+        return it->second.preload;
+    else
+        return getInitialPreload();
 }
 
-FuturePtr Cache::getFuture(std::string const& imageFilename) const
+QImage Cache::getPreload(pcontainer::Item const& item) const
 {
-    if (!utils::valueIn(imageFilename, imagePromiseMap))
-        makeNewPromise(imageFilename);
+    auto it = imageCache.find(item.fileName());
+    if (it != imageCache.end() && !it->second.preload.isNull())
+        return it->second.preload;
 
-    auto const promiseIt = imagePromiseMap.find(imageFilename);
-    assert(promiseIt != imagePromiseMap.end());
-    return promiseIt->second->future();
+    startThreadForItem(item);
+    return getInitialPreload();
 }
 
-QImage Cache::getInitialPreload() const
+std::unique_ptr<iprocess::LoaderThread> Cache::makeLoadingThread(std::string const& filename) const
 {
-    // TODO: this function will accept preferred size
-    // return preload of this size
-    // cache same sizes to not produce copies each call
-    static QImage const preloadImage = utils::preloadImage(QSize(400, 300));
-    return preloadImage;
+    // TODO: pass size limit from config (only one max size is enough)
+    std::vector<QSize> vs = { config::qSize("imageCache.fullSize", QSize(1920, 1080)) };
+
+    auto thread = std::make_unique<iprocess::LoaderThread>(filename, vs);
+
+    thread->setAutoDelete(true);
+
+    if (!hasMetrics(filename))
+    {
+        thread->withMetrics(hasMetrics(filename));
+        QObject::connect(&thread->readySignals, &iprocess::LoaderThreadSignals::metricsReady,
+                         this, &Cache::metricsReadyFromThread, Qt::QueuedConnection);
+    }
+
+    QObject::connect(&thread->readySignals, &iprocess::LoaderThreadSignals::imageReady,
+                     this, &Cache::imageReadyFromThread, Qt::QueuedConnection);
+
+    return thread;
 }
 
-// TODO: a lot of methods in Cache take imageFilename
-// maybe create a special tyle of CacheTransaction (?) that will hold this and be passed to all
-// methods in here?
-
-void Cache::makeNewPromise(std::string const& imageFilename) const
+void Cache::startThreadForItem(pcontainer::Item const& item) const
 {
-    auto newPromise = Promise::create(imageFilename, getInitialPreload());
+    if (utils::valueIn(item.fileName(), loadingImageSeriesId))
+        return;
 
-    QObject::connect(newPromise.get(), &Promise::threadLoadedMetrics,
-            [this, imageFilename](iprocess::MetricPtr metrics){
-                   updateMetrics(imageFilename, metrics);
-            });
+    loadingImageSeriesId.emplace(item.fileName(), item.seriesUuid());
 
-    imagePromiseMap.emplace(imageFilename, std::move(newPromise));
+    auto thread = makeLoadingThread(item.fileName());
+    QThreadPool::globalInstance()->start(thread.release());
 }
 
-void Cache::updateMetrics(std::string const& imageFilename, iprocess::MetricPtr const& metrics) const
+void Cache::imageReadyFromThread(QImage image, std::string fileName)
 {
-    metricCache.emplace(imageFilename, *metrics);
+    auto& entry = imageCache[fileName];
+    entry.full = image;
 
-    // TODO: keep metrics object, not shared_ptrs
-    // TODO: scored metrics fill
-    //
-    // TODO: disconnect signal
-    // TODO: fill scored series when all for series done
+    if (entry.preload.isNull())
+    {
+        auto const preloadSize = config::qSize("imageCache.preloadSize", QSize(320, 240));
+        entry.preload = image.scaled(preloadSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    }
+
+    auto const uuidIt = loadingImageSeriesId.find(fileName);
+    assert(uuidIt != loadingImageSeriesId.end());
+
+    QUuid const seriesId = uuidIt->second;
+    loadingImageSeriesId.erase(uuidIt);
+
+    emit updateImage(seriesId, fileName, image);
+}
+
+void Cache::metricsReadyFromThread(iprocess::MetricPtr metrics, std::string fileName)
+{
+    metricCache.emplace(fileName, *metrics);
+
+    auto const& seriesUuid = utils::asserted::fromMap(loadingImageSeriesId, fileName);
+    auto const& series = photoSet.findSeries(seriesUuid);
+
+    if (!std::any_of(series->begin(), series->end(),
+                [this](pcontainer::ItemPtr const& item){
+                    return utils::valueIn(item->fileName(), metricCache);
+                }))
+    {
+        return;
+    }
+
+    std::vector<iprocess::Metric const*> allMetrics;
+    allMetrics.reserve(series->size());
+    for (auto const& item : *series)
+        allMetrics.push_back(&metricCache[item->fileName()]);
+
+    std::vector<iprocess::ScoredMetric> scoredMetrics = iprocess::aggregateMetrics(allMetrics);
+    assert(scoredMetrics.size() == series->size());
+
+    for (std::size_t i = 0; i < series->size(); ++i)
+    {
+        auto const& fileName = series->item(i)->fileName();
+        scoredMetricCache.emplace(fileName, std::move(scoredMetrics[i]));
+
+        LOG_IF(config::qualified("logging.metrics", false), DEBUG)
+           << "Calculated series metrics" << std::endl
+           << "photoItem: " << fileName << std::endl
+           << "metric: " << metricCache[fileName] << std::endl
+           << "scoredMetric: " << scoredMetricCache[fileName];
+    }
 }
 
 bool Cache::hasMetrics(std::string const& photoFilename) const

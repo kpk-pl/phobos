@@ -16,9 +16,11 @@ namespace phobos { namespace iprocess {
 class LoaderThreadSignals : public QObject
 {
     Q_OBJECT
+
+    using FileNameType = std::string;
 signals:
-    void imageReady(QImage) const;
-    void metricsReady(phobos::iprocess::MetricPtr) const;
+    void imageReady(QImage, FileNameType) const;
+    void metricsReady(phobos::iprocess::MetricPtr, FileNameType) const;
 };
 
 class LoaderThread : public QRunnable

@@ -6,6 +6,7 @@
 #include <QMetaObject>
 #include <boost/optional.hpp>
 #include "PhotoContainers/Series.h"
+#include "ImageCache/CacheFwd.h"
 #include "ViewDescription.h"
 
 namespace phobos {
@@ -16,22 +17,20 @@ class SeriesViewBase : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SeriesViewBase() = default;
+    explicit SeriesViewBase(icache::Cache const& imageCache);
     virtual ~SeriesViewBase() = default;
 
     virtual void showSeries(pcontainer::SeriesPtr const& series);
     virtual void clear();
-    void exchangeItemsFrom(SeriesViewBase *source);
 
 signals:
     void switchView(ViewDescriptionPtr viewDesc);
 
 protected:
     virtual void addToLayout(PhotoItemWidget* itemWidget) = 0;
-    virtual std::vector<PhotoItemWidget*> moveItemsOut() = 0;
     virtual void changeSeriesState(pcontainer::ItemState const state) const = 0;
-    virtual void moveItemsIn(std::vector<PhotoItemWidget*> const& items);
 
+    icache::Cache const& imageCache;
     boost::optional<QUuid> currentSeriesUuid;
 
 private slots:

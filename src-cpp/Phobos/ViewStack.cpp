@@ -58,12 +58,14 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
     {
         if (viewDesc->type == ViewType::NUM_SINGLE_SERIES && currentSeriesWidget == rowSeriesView)
         {
-            numSeriesView->exchangeItemsFrom(rowSeriesView);
+            rowSeriesView->clear();
+            numSeriesView->showSeries(targetSeries);
             currentSeriesWidget = numSeriesView;
         }
         else if (viewDesc->type == ViewType::ROW_SINGLE_SERIES && currentSeriesWidget == numSeriesView)
         {
-            rowSeriesView->exchangeItemsFrom(numSeriesView);
+            numSeriesView->clear();
+            rowSeriesView->showSeries(targetSeries);
             currentSeriesWidget = rowSeriesView;
         }
     }
@@ -86,9 +88,10 @@ namespace {
     {
         for (auto const& series : seriesSet)
         {
-            pcontainer::ItemPtr bestItem = series->best();
-            if (bestItem)
-               bestItem->select();
+            //pcontainer::ItemPtr bestItem = series->best();
+            //if (bestItem)
+               //bestItem->select();
+            // TODO: CACHE: FIXME!
         }
     }
     void selectUncheckedPhotos(pcontainer::Set const& seriesSet)
@@ -148,8 +151,8 @@ void ViewStack::bulkSelect(PhotoBulkAction const action)
 void ViewStack::setupUI()
 {
     allSeriesView = new AllSeriesView(imageCache);
-    rowSeriesView = new RowSeriesView();
-    numSeriesView = new NumSeriesView();
+    rowSeriesView = new RowSeriesView(imageCache);
+    numSeriesView = new NumSeriesView(imageCache);
 
     addWidget(allSeriesView);
     addWidget(numSeriesView);

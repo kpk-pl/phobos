@@ -4,9 +4,7 @@
 #include <functional>
 #include <QObject>
 #include <QUuid>
-#include <QImage>
 #include <QMetaObject>
-#include "ImageProcessing/Metrics.h"
 #include "PhotoContainers/Fwd.h"
 
 namespace phobos { namespace pcontainer {
@@ -25,25 +23,14 @@ class Item : public QObject
 public:
     explicit Item(std::string const& fileName, QUuid const seriesId, unsigned const ordinal);
 
-    /*
-     * Loads new pixmap in separate thread.
-     * Receiver is notified with a signal.
-     */
-    void loadPhoto(QSize const& size, QObject const* onLoadReceiver,
-                   std::function<void(QImage)> onLoadCallback);
-
     bool isSelected() const;
     QUuid const& seriesUuid() const { return _seriesId; }
     ItemState state() const { return _state; }
-    iprocess::MetricPtr metric() const { return _metric; }
-    iprocess::ScoredMetricPtr scoredMetric() const { return _scoredMetric; }
     std::string const& fileName() const { return _fileName; }
     unsigned ord() const { return _ordinal; }
 
-    void setScoredMetric(iprocess::ScoredMetricPtr const& scoredMetric);
-
-    bool hasImage() const { return !_image.isNull(); }
-    QImage const& image() const { return _image; }
+signals:
+    void stateChanged() const;
 
 public slots:
     void select() const;
@@ -53,22 +40,11 @@ public slots:
     void toggleSelection() const;
     void setState(ItemState state) const;
 
-signals:
-    void stateChanged() const;
-    void metricsReady();
-
-private slots:
-    void loadedPhotoFromThread(QImage image);
-    void metricsReadyFromThread(iprocess::MetricPtr metric);
-
 private:
     std::string const _fileName;
     QUuid const _seriesId;
     unsigned const _ordinal;
     mutable ItemState _state;
-    QImage _image;
-    iprocess::MetricPtr _metric;
-    iprocess::ScoredMetricPtr _scoredMetric;
 };
 
 }} // namespace phobos::pcontainer

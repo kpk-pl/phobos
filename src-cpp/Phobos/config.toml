@@ -17,9 +17,6 @@ allowedSecondDriftInSeries = 1.1
 processingSize = [1920, 1080]
 noiseMedianSize = 3
 
-[photoItem]
-pixmapSize = { width = 320, height = 240 }
-
 [photoItemWidget.focusIcon]
 padding = 7
 opacity = 0.5
@@ -62,11 +59,9 @@ fillColor = "transparent"
 [allSeriesView]
 seriesSpacing = 10
 photosSpacing = 2
-pixmapSize = { width = 320, height = 240 } # should be the same as photoItem.pixmapSize
 enabledAddons = ["focus", "best", "score"]
 
 [seriesView]
-maxPixmapSize = { width = 1920, height = 1080 }
 enabledAddons = ["focus", "best", "score", "histogram", "ord"]
 
 [seriesView.num]
@@ -81,4 +76,8 @@ iconColor = "blue"
 spacing = 2
 buttonSize = [40, 40]
 buttonMargin = 4
+
+[imageCache]
+preloadSize = { width = 320, height = 240 }
+fullSize = { width = 1920, height = 1080 }
 
