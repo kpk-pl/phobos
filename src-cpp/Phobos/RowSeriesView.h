@@ -4,6 +4,7 @@
 #include "SeriesViewBase.h"
 #include "HorizontalScrollArea.h"
 #include "ImageCache/CacheFwd.h"
+#include "ImageProcessing/MetricsFwd.h"
 
 namespace phobos {
 
@@ -25,8 +26,11 @@ protected:
 
 private slots:
     void updateImage(QUuid seriesUuid, std::string filename, QImage image);
+    void updateMetrics(QUuid seriesUuid, std::string filename, iprocess::MetricPtr metrics);
 
 private:
+    PhotoItemWidget* findItemWidget(QUuid const& seriesUuid, std::string const& fileName) const;
+
     HorizontalScrollArea* scroll;
 };
 

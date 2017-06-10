@@ -13,6 +13,7 @@
 #include "PhotoItemWidgetAddon.h"
 #include "Utils/Algorithm.h"
 #include "Utils/Focused.h"
+#include "Utils/Asserted.h"
 #include "ImageCache/Cache.h"
 
 namespace phobos {
@@ -64,6 +65,7 @@ AllSeriesView::AllSeriesView(icache::Cache const& imageCache) :
     imageCache(imageCache)
 {
     QObject::connect(&imageCache, &icache::Cache::updateImage, this, &AllSeriesView::updateImage);
+    QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &AllSeriesView::updateMetrics);
 
     // TODO: navigationBar
 
@@ -127,10 +129,21 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
     }
 }
 
-void AllSeriesView::updateImage(QUuid seriesUuid, std::string filename)
+void AllSeriesView::updateImage(QUuid seriesUuid, std::string fileName)
 {
-    assert(utils::valueIn(seriesUuid, seriesUuidToRow));
-    auto const seriesRow = seriesUuidToRow[seriesUuid];
+  auto& widget = utils::asserted::fromPtr(findItem(seriesUuid, fileName));
+  widget.setImage(imageCache.getPreload(widget.photoItem()));
+}
+
+void AllSeriesView::updateMetrics(QUuid seriesUuid, std::string fileName, iprocess::MetricPtr metrics)
+{
+  auto& widget = utils::asserted::fromPtr(findItem(seriesUuid, fileName));
+  widget.setMetrics(metrics);
+}
+
+PhotoItemWidget* AllSeriesView::findItem(QUuid const& seriesUuid, std::string const& filename) const
+{
+    auto const seriesRow = utils::asserted::fromMap(seriesUuidToRow, seriesUuid);
 
     for (int i = 0; i < grid->columnCount(); ++i)
     {
@@ -140,13 +153,9 @@ void AllSeriesView::updateImage(QUuid seriesUuid, std::string filename)
 
         auto const photoItemWgt = dynamic_cast<PhotoItemWidget*>(widgetItem->widget());
         assert(photoItemWgt);
-        auto const& photoItem = photoItemWgt->photoItem();
 
-        if (photoItem.fileName() == filename)
-        {
-            photoItemWgt->setImage(imageCache.getPreload(photoItem));
-            return;
-        }
+        if (photoItemWgt->photoItem().fileName() == filename)
+          return photoItemWgt;
     }
 
     assert(false); // impossible if image is not found

@@ -2,7 +2,6 @@
 #define PHOBOS_IMAGECACHE_CACHE_H_
 
 #include <unordered_map>
-#include <stdexcept>
 #include <string>
 #include <memory>
 #include <QObject>
@@ -17,14 +16,6 @@ class Cache : public QObject
 {
     Q_OBJECT
 
-    class NoMetricException : public std::runtime_error
-    {
-    public:
-        NoMetricException(std::string const& filename) :
-            std::runtime_error("No metrics available for " + filename)
-        {}
-    };
-
 public:
     explicit Cache(pcontainer::Set const& photoSet);
 
@@ -32,12 +23,11 @@ public:
     QImage getPreload(pcontainer::Item const& item) const;
 
     bool hasMetrics(std::string const& photoFilename) const;
-    bool hasScoredMetrics(std::string const& photoFilename) const;
-    iprocess::Metric const& getMetrics(std::string const& photoFilename) const;
-    iprocess::ScoredMetric const& getScoredMetrics(std::string const& photoFilename) const;
+    iprocess::MetricPtr getMetrics(std::string const& photoFilename) const;
 
 signals:
     void updateImage(QUuid seriesUuid, std::string filename, QImage image);
+    void updateMetrics(QUuid seriesUuid, std::string filename, iprocess::MetricPtr);
 
 private slots:
     void imageReadyFromThread(QImage image, std::string fileName);
@@ -59,8 +49,7 @@ private:
     std::unordered_map<LookupKeyType, QUuid> mutable loadingImageSeriesId;
 
     std::unordered_map<LookupKeyType, CachedType> mutable imageCache;
-    std::unordered_map<LookupKeyType, const iprocess::Metric> mutable metricCache;
-    std::unordered_map<LookupKeyType, const iprocess::ScoredMetric> mutable scoredMetricCache;
+    std::unordered_map<LookupKeyType, iprocess::MetricPtr> mutable metricCache;
 };
 
 }} // namespace phobos::icache

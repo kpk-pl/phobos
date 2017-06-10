@@ -2,7 +2,7 @@
 
 namespace phobos { namespace iprocess {
 
-double ScoredMetric::score() const
+double Metric::score() const
 {
     double result = 1.0;
     result *= seriesMetric.blur.sobel.value_or(1);

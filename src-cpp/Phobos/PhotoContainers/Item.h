@@ -16,6 +16,9 @@ enum class ItemState
     DISCARDED
 };
 
+// TODO: Introduce UUID type signature for each Item. This will contain seriesUuid in it. Pass it
+// instead of seriesUuid and filename for item
+
 class Item : public QObject
 {
     Q_OBJECT

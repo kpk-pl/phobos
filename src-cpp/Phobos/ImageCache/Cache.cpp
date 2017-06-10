@@ -52,10 +52,8 @@ QImage Cache::getPreload(pcontainer::Item const& item) const
 
 std::unique_ptr<iprocess::LoaderThread> Cache::makeLoadingThread(std::string const& filename) const
 {
-    // TODO: pass size limit from config (only one max size is enough)
-    std::vector<QSize> vs = { config::qSize("imageCache.fullSize", QSize(1920, 1080)) };
-
-    auto thread = std::make_unique<iprocess::LoaderThread>(filename, vs);
+    QSize const fullSize = config::qSize("imageCache.fullSize", QSize(1920, 1080));
+    auto thread = std::make_unique<iprocess::LoaderThread>(filename, fullSize);
 
     thread->setAutoDelete(true);
 
@@ -103,39 +101,37 @@ void Cache::imageReadyFromThread(QImage image, std::string fileName)
     emit updateImage(seriesId, fileName, image);
 }
 
+// TODO: Pass QString (if implicitly shared) or write some string adapter with sharing
 void Cache::metricsReadyFromThread(iprocess::MetricPtr metrics, std::string fileName)
 {
-    metricCache.emplace(fileName, *metrics);
+    metricCache.emplace(fileName, metrics);
 
     auto const& seriesUuid = utils::asserted::fromMap(loadingImageSeriesId, fileName);
     auto const& series = photoSet.findSeries(seriesUuid);
 
-    if (!std::any_of(series->begin(), series->end(),
+    if (!std::all_of(series->begin(), series->end(),
                 [this](pcontainer::ItemPtr const& item){
                     return utils::valueIn(item->fileName(), metricCache);
                 }))
     {
-        return;
+        emit updateMetrics(seriesUuid, fileName, metrics);
     }
 
-    std::vector<iprocess::Metric const*> allMetrics;
-    allMetrics.reserve(series->size());
-    for (auto const& item : *series)
-        allMetrics.push_back(&metricCache[item->fileName()]);
+    auto allMetrics = utils::transformToVector<iprocess::MetricPtr>(series->begin(), series->end(),
+        [this](auto const& item){ return metricCache[item->fileName()]; });
 
-    std::vector<iprocess::ScoredMetric> scoredMetrics = iprocess::aggregateMetrics(allMetrics);
-    assert(scoredMetrics.size() == series->size());
+    iprocess::aggregateMetrics(allMetrics);
 
+    bool const doLog = config::qualified("logging.metrics", false);
     for (std::size_t i = 0; i < series->size(); ++i)
     {
-        auto const& fileName = series->item(i)->fileName();
-        scoredMetricCache.emplace(fileName, std::move(scoredMetrics[i]));
+      std::string const& fn = series->item(i)->fileName();
+      auto const& m = metricCache[fn];
+      emit updateMetrics(seriesUuid, fn, m);
 
-        LOG_IF(config::qualified("logging.metrics", false), DEBUG)
-           << "Calculated series metrics" << std::endl
-           << "photoItem: " << fileName << std::endl
-           << "metric: " << metricCache[fileName] << std::endl
-           << "scoredMetric: " << scoredMetricCache[fileName];
+      LOG_IF(doLog, DEBUG) << "Calculated series metrics" << std::endl
+         << "photoItem: " << fn << std::endl
+         << "metric: " << m;
     }
 }
 
@@ -144,25 +140,11 @@ bool Cache::hasMetrics(std::string const& photoFilename) const
     return utils::valueIn(photoFilename, metricCache);
 }
 
-bool Cache::hasScoredMetrics(std::string const& photoFilename) const
-{
-    return utils::valueIn(photoFilename, scoredMetricCache);
-}
-
-iprocess::Metric const& Cache::getMetrics(std::string const& photoFilename) const
+iprocess::MetricPtr Cache::getMetrics(std::string const& photoFilename) const
 {
     auto const it = metricCache.find(photoFilename);
     if (it == metricCache.end())
-        throw NoMetricException(photoFilename);
-
-    return it->second;
-}
-
-iprocess::ScoredMetric const& Cache::getScoredMetrics(std::string const& photoFilename) const
-{
-    auto const it = scoredMetricCache.find(photoFilename);
-    if (it == scoredMetricCache.end())
-        throw NoMetricException(photoFilename);
+      return nullptr;
 
     return it->second;
 }

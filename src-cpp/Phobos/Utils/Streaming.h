@@ -34,7 +34,7 @@ struct ObjId
     std::enable_if_t<!is_shared_ptr<T>::value && !std::is_pointer<T>::value, std::string>
     operator()(T const& t) const
     {
-        return std::to_string(std::uintptr_t(t.get()));
+        return std::to_string(std::uintptr_t(&t));
     }
 };
 

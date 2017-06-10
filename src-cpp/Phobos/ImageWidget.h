@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QSize>
 #include "HeightResizeableInterface.h"
+#include "ImageProcessing/MetricsFwd.h"
 
 namespace phobos {
 
@@ -17,6 +18,7 @@ public:
     explicit ImageWidget(QImage const& image);
 
     QImage image() const { return _image; }
+    iprocess::MetricPtr metrics() const { return _metrics; }
 
     int heightForWidth(const int width) const override;
     int widthForHeight(const int height) const override;
@@ -29,12 +31,14 @@ public:
 
 public slots:
     void setImage(QImage image);
+    void setMetrics(iprocess::MetricPtr metrics);
 
 signals:
     void clicked();
 
 private:
     QImage _image;
+    iprocess::MetricPtr _metrics;
 };
 
 } // namespace phobos

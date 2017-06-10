@@ -4,6 +4,7 @@
 #include <vector>
 #include "SeriesViewBase.h"
 #include "ImageCache/CacheFwd.h"
+#include "ImageProcessing/MetricsFwd.h"
 
 namespace phobos {
 
@@ -24,6 +25,7 @@ protected:
 
 private slots:
     void updateImage(QUuid seriesUuid, std::string filename, QImage image);
+    void updateMetrics(QUuid seriesUuid, std::string filename, iprocess::MetricPtr metrics);
 
 private:
     void showNextItem();

@@ -70,6 +70,7 @@ HEADERS  += MainWindow.h \
     ImageProcessing/Histogram.h \
     ImageProcessing/MetricsAggregate.h \
     ImageProcessing/ColoredPixmap.h \
+    PhotoContainers/Fwd.h \
     PhotoContainers/Series.h \
     PhotoContainers/Set.h \
     PhotoContainers/Item.h \
@@ -91,15 +92,14 @@ HEADERS  += MainWindow.h \
     ImportWizard/ImportWizard.h \
     ImportWizard/DivisionMethodPage.h \
     Utils/FileAttributes.h \
+    Utils/Comparators.h \
+    Utils/Streaming.h \
     Widgets/IconLabel.h \
     ImportWizard/DivisionOps.h \
     ImportWizard/Types.h \
     ImportWizard/SeriesDisplayPage.h \
-    Utils/Comparators.h \
     ImageCache/Cache.h \
-    ImageCache/CacheFwd.h \
-    PhotoContainers/Fwd.h \
-    Utils/Streaming.h
+    ImageCache/CacheFwd.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

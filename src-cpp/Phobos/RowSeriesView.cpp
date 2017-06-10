@@ -3,6 +3,7 @@
 #include "RowSeriesView.h"
 #include "NavigationBar.h"
 #include "Utils/LayoutClear.h"
+#include "Utils/Asserted.h"
 #include "PhotoItemWidget.h"
 #include "ImageCache/Cache.h"
 
@@ -12,6 +13,7 @@ RowSeriesView::RowSeriesView(icache::Cache const& imageCache) :
     SeriesViewBase(imageCache)
 {
     QObject::connect(&imageCache, &icache::Cache::updateImage, this, &RowSeriesView::updateImage);
+    QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &RowSeriesView::updateMetrics);
 
     NavigationBar* navigationBar = new NavigationBar(NavigationBar::Capability::ALL_SERIES |
                                                      NavigationBar::Capability::NUM_SERIES |
@@ -64,19 +66,26 @@ void RowSeriesView::clear()
 
 void RowSeriesView::updateImage(QUuid seriesUuid, std::string filename, QImage image)
 {
+  utils::asserted::fromPtr(findItemWidget(seriesUuid, filename)).setImage(image);
+}
+
+void RowSeriesView::updateMetrics(QUuid seriesUuid, std::string filename, iprocess::MetricPtr metrics)
+{
+  utils::asserted::fromPtr(findItemWidget(seriesUuid, filename)).setMetrics(metrics);
+}
+
+PhotoItemWidget* RowSeriesView::findItemWidget(QUuid const& seriesUuid, std::string const& fileName) const
+{
     if (currentSeriesUuid != seriesUuid)
-        return;
+        return nullptr;
 
     for (int i = 0; i < scroll->boxLayout()->count(); ++i)
     {
         auto const photoWidget = dynamic_cast<PhotoItemWidget*>(scroll->boxLayout()->itemAt(i)->widget());
         assert(photoWidget);
 
-        if (photoWidget->photoItem().fileName() == filename)
-        {
-            photoWidget->setImage(image);
-            return;
-        }
+        if (photoWidget->photoItem().fileName() == fileName)
+          return photoWidget;
     }
 
     assert(false); // impossible

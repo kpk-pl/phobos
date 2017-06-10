@@ -20,6 +20,12 @@ void ImageWidget::setImage(QImage image)
     update();
 }
 
+void ImageWidget::setMetrics(iprocess::MetricPtr metrics)
+{
+  _metrics = metrics;
+  update();
+}
+
 void ImageWidget::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton)

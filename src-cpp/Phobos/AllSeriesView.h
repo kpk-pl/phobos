@@ -8,10 +8,13 @@
 #include "PhotoContainers/Series.h"
 #include "ImageCache/CacheFwd.h"
 #include "ViewDescription.h"
+#include "ImageProcessing/MetricsFwd.h"
 
 class QGridLayout;
 
 namespace phobos {
+
+class PhotoItemWidget;
 
 class AllSeriesView : public QWidget
 {
@@ -34,7 +37,8 @@ public slots:
 
 private slots:
     void changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state);
-    void updateImage(QUuid seriesUuid, std::string filename);
+    void updateImage(QUuid seriesUuid, std::string fileName);
+    void updateMetrics(QUuid seriesUuid, std::string fileName, iprocess::MetricPtr metrics);
 
 private:
     struct Coords;
@@ -42,6 +46,8 @@ private:
     std::vector<Coords> nextJumpProposals(Coords const& coords,
                                           int const directionKey) const;
     Coords findValidProposal(std::vector<Coords> const& proposals) const;
+
+    PhotoItemWidget* findItem(QUuid const& seriesUuid, std::string const& filename) const;
 
     icache::Cache const& imageCache;
     std::map<QUuid, std::size_t> seriesUuidToRow;

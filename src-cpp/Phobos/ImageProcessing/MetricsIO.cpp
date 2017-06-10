@@ -20,7 +20,7 @@ std::ostream& operator<<(std::ostream& os, Blur const& blur)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, Metric const& metric)
+std::ostream& operator<<(std::ostream& os, MetricValues const& metric)
 {
     os << "{" << std::endl
        << "blur: " << metric.blur << std::endl
@@ -30,13 +30,21 @@ std::ostream& operator<<(std::ostream& os, Metric const& metric)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, ScoredMetric const& scored)
+std::ostream& operator<<(std::ostream& os, Metric const& scored)
 {
     os << "{" << std::endl
+       << "itemMetric: " << dynamic_cast<MetricValues const&>(scored) << std::endl
        << "seriesMetric: " << scored.seriesMetric << std::endl
        << "best: " << (scored.bestQuality ? "true" : "false") << std::endl
        << "score: " << scored.score() << std::endl
        << "}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, MetricPtr scored)
+{
+    if (scored) os << *scored;
+    else        os << "none";
     return os;
 }
 

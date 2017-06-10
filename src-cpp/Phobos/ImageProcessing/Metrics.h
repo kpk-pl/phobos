@@ -4,6 +4,7 @@
 #include <QMetaType>
 #include <memory>
 #include <boost/optional.hpp>
+#include "ImageProcessing/MetricsFwd.h"
 
 namespace phobos { namespace iprocess {
 
@@ -13,22 +14,20 @@ struct Blur {
     boost::optional<double> laplaceMod;
 };
 
-struct Metric
+struct MetricValues
 {
     Blur blur;
     boost::optional<double> noise;
     boost::optional<double> contrast;
-    boost::optional<std::vector<float>> histogram;
 };
 
-struct ScoredMetric
+struct Metric : public MetricValues
 {
-    Metric seriesMetric;
+    MetricValues seriesMetric;
+    boost::optional<std::vector<float>> histogram;
     bool bestQuality = false;
     double score() const;
 };
-
-typedef std::shared_ptr<Metric> MetricPtr;
 
 }} // namespace phobos::iprocess
 

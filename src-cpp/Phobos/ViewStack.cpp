@@ -83,47 +83,45 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
 }
 
 namespace {
-// TODO: template this, parameter selector and action to do
-    void selectBestPhotos(pcontainer::Set const& seriesSet)
-    {
-        for (auto const& series : seriesSet)
+  void selectBestPhotos(pcontainer::Set const& seriesSet, icache::Cache const& cache)
+  {
+    for (auto const& series : seriesSet)
+      for (auto const& item : *series)
+      {
+        auto const& itemMetrics = cache.getMetrics(item->fileName());
+        if (itemMetrics && itemMetrics->bestQuality)
         {
-            //pcontainer::ItemPtr bestItem = series->best();
-            //if (bestItem)
-               //bestItem->select();
-            // TODO: CACHE: FIXME!
+          item->select();
+          break; // inner loop, continue to next series
         }
-    }
-    void selectUncheckedPhotos(pcontainer::Set const& seriesSet)
-    {
-        for (auto const& series : seriesSet)
-        {
-            for (auto const& item : *series)
-                if (item->state() == pcontainer::ItemState::UNKNOWN)
-                    item->select();
-        }
-    }
-    void discardUncheckedPhotos(pcontainer::Set const& seriesSet)
-    {
-        for (auto const& series : seriesSet)
-        {
-            for (auto const& item : *series)
-                if (item->state() == pcontainer::ItemState::UNKNOWN)
-                    item->discard();
-        }
-    }
-    void invertSelections(pcontainer::Set const& seriesSet)
-    {
-        for (auto const& series : seriesSet)
-            for (auto const& item : *series)
-                item->invert();
-    }
-    void clearSelections(pcontainer::Set const& seriesSet)
-    {
-        for (auto const& series : seriesSet)
-            for (auto const& item : *series)
-                item->deselect();
-    }
+      }
+  }
+  void selectUncheckedPhotos(pcontainer::Set const& seriesSet)
+  {
+    for (auto const& series : seriesSet)
+      for (auto const& item : *series)
+        if (item->state() == pcontainer::ItemState::UNKNOWN)
+          item->select();
+  }
+  void discardUncheckedPhotos(pcontainer::Set const& seriesSet)
+  {
+    for (auto const& series : seriesSet)
+      for (auto const& item : *series)
+        if (item->state() == pcontainer::ItemState::UNKNOWN)
+          item->discard();
+  }
+  void invertSelections(pcontainer::Set const& seriesSet)
+  {
+    for (auto const& series : seriesSet)
+      for (auto const& item : *series)
+        item->invert();
+  }
+  void clearSelections(pcontainer::Set const& seriesSet)
+  {
+    for (auto const& series : seriesSet)
+      for (auto const& item : *series)
+        item->deselect();
+  }
 } // unnamed namespace
 
 void ViewStack::bulkSelect(PhotoBulkAction const action)
@@ -131,7 +129,7 @@ void ViewStack::bulkSelect(PhotoBulkAction const action)
     switch(action)
     {
     case PhotoBulkAction::SELECT_BEST:
-        selectBestPhotos(seriesSet);
+        selectBestPhotos(seriesSet, imageCache);
         break;
     case PhotoBulkAction::SELECT_UNCHECKED:
         selectUncheckedPhotos(seriesSet);

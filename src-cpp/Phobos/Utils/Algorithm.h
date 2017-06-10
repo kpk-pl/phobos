@@ -37,6 +37,21 @@ OutContainer moveFromRange(InputIterator begin, InputIterator end)
     return result;
 }
 
+template<typename OutContainer, typename InputIterator, typename Projection>
+void transformToVector(OutContainer &out, InputIterator begin, InputIterator end, Projection && p)
+{
+  out.reserve(out.size() + std::distance(begin, end));
+  std::transform(begin, end, std::back_inserter(out), std::forward<Projection>(p));
+}
+
+template<typename T, typename InputIterator, typename Projection>
+std::vector<T> transformToVector(InputIterator begin, InputIterator end, Projection && p)
+{
+  std::vector<T> result;
+  transformToVector(result, begin, end, std::forward<Projection>(p));
+  return result;
+}
+
 }} // namespace phobos::utils
 
 #endif // UTILS_ALGORITHM_H

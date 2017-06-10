@@ -18,6 +18,7 @@ NumSeriesView::NumSeriesView(icache::Cache const& imageCache) :
     currentItem(0)
 {
     QObject::connect(&imageCache, &icache::Cache::updateImage, this, &NumSeriesView::updateImage);
+    QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &NumSeriesView::updateMetrics);
 
     NavigationBar* navigationBar = new NavigationBar(NavigationBar::Capability::ALL_SERIES |
                                                      NavigationBar::Capability::ONE_SERIES |
@@ -62,18 +63,23 @@ void NumSeriesView::updateImage(QUuid seriesUuid, std::string filename, QImage i
     if (currentSeriesUuid != seriesUuid)
         return;
 
-    for (QWidget* widget : photoItems)
-    {
-        auto const photoItemWidget = dynamic_cast<PhotoItemWidget*>(widget);
-        assert(photoItemWidget);
-        if (photoItemWidget->photoItem().fileName() == filename)
-        {
-            photoItemWidget->setImage(image);
-            return;
-        }
-    }
+    auto const widgetIt = std::find_if(photoItems.begin(), photoItems.end(),
+        [&filename](PhotoItemWidget* const p){ return p->photoItem().fileName() == filename; });
 
-    assert(false); // impossible
+    assert(widgetIt != photoItems.end());
+    (*widgetIt)->setImage(image);
+}
+
+void NumSeriesView::updateMetrics(QUuid seriesUuid, std::string filename, iprocess::MetricPtr metrics)
+{
+    if (currentSeriesUuid != seriesUuid)
+        return;
+
+    auto const widgetIt = std::find_if(photoItems.begin(), photoItems.end(),
+        [&filename](PhotoItemWidget* const p){ return p->photoItem().fileName() == filename; });
+
+    assert(widgetIt != photoItems.end());
+    (*widgetIt)->setMetrics(metrics);
 }
 
 void NumSeriesView::clear()
@@ -81,8 +87,9 @@ void NumSeriesView::clear()
     SeriesViewBase::clear();
     utils::clearLayout(layoutForItems, false);
     currentItem = 0;
-    for (QWidget* widget : photoItems)
-        delete widget;
+    for (auto widgetPtr : photoItems)
+        delete widgetPtr;
+
     photoItems.clear();
     update();
 }

@@ -25,6 +25,13 @@ auto fromMap(std::unordered_map<U, V> const& m, T const& key)
     return it->second;
 }
 
+template<typename T>
+T& fromPtr(T * t)
+{
+  assert(t);
+  return(*t);
+}
+
 }}} // namespace phobos::utils::asserted
 
 #endif // _UTILS_ASSERTED_H_

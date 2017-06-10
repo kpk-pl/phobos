@@ -21,12 +21,9 @@
 
 namespace phobos { namespace iprocess {
 
-LoaderThread::LoaderThread(std::string const& fileName,
-                           std::vector<QSize> const& requestedSizes,
-                           bool calculateMetrics) :
+LoaderThread::LoaderThread(std::string const& fileName, QSize const& requestedSize) :
     fileToLoad(fileName),
-    requestedSizes(requestedSizes),
-    calculateMetrics(calculateMetrics)
+    requestedSize(requestedSize)
 {
 }
 
@@ -67,7 +64,8 @@ void LoaderThread::runWithoutMetrics() const
     QImageReader reader(fileToLoad.c_str());
     reader.setAutoTransform(true);
     reader.setAutoDetectImageFormat(true);
-    reader.setScaledSize(biggestClosestSize(reader.size()));
+    // TODO: ensure no scaling up here
+    reader.setScaledSize(requestedSize.scaled(reader.size(), Qt::KeepAspectRatio));
 
     QImage image;
     TIMED("QImageReade:read", image = reader.read());
@@ -78,7 +76,8 @@ void LoaderThread::runWithoutMetrics() const
 void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
 {
     QSize const cvSize(cvImage.cols, cvImage.rows);
-    QSize const pixmapSize = biggestClosestSize(cvSize);
+    // TODO: ensure no scaling up here
+    QSize const pixmapSize = requestedSize.scaled(cvSize, Qt::KeepAspectRatio);
     LOG(DEBUG) << "Scaling image from " << cvImage.cols << "x" << cvImage.rows
                << " to " << pixmapSize.width() << "x" << pixmapSize.height();
 
@@ -116,25 +115,6 @@ void LoaderThread::runMetrics(cv::Mat cvImage) const
     TIMED("runMetrics: laplaceMod", metrics->blur.laplaceMod = blur::laplaceMod(resized));
 
     emit readySignals.metricsReady(metrics, fileToLoad);
-}
-
-QSize LoaderThread::biggestClosestSize(QSize const& pixmapSize) const
-{
-    std::vector<QSize> scaledSizes;
-    std::vector<std::size_t> pixels;
-
-    scaledSizes.reserve(requestedSizes.size());
-    pixels.reserve(requestedSizes.size());
-
-    for (auto const& size : requestedSizes)
-    {
-        QSize const scaled = pixmapSize.scaled(size, Qt::KeepAspectRatio);
-        scaledSizes.push_back(scaled);
-        pixels.push_back(scaled.width() * scaled.height());
-    }
-
-    auto const bestPixels = std::max_element(pixels.begin(), pixels.end());
-    return scaledSizes[std::distance(pixels.begin(), bestPixels)];
 }
 
 }} // namespace phobos::iprocess
