@@ -24,8 +24,8 @@ protected:
     void changeSeriesState(pcontainer::ItemState const state) const override;
 
 private slots:
-    void updateImage(QUuid seriesUuid, std::string filename, QImage image);
-    void updateMetrics(QUuid seriesUuid, std::string filename, iprocess::MetricPtr metrics);
+    void updateImage(QUuid seriesUuid, QString filename, QImage image);
+    void updateMetrics(QUuid seriesUuid, QString filename, iprocess::MetricPtr metrics);
 
 private:
     void showNextItem();

@@ -17,10 +17,9 @@ class LoaderThreadSignals : public QObject
 {
     Q_OBJECT
 
-    using FileNameType = std::string;
 signals:
-    void imageReady(QImage, FileNameType) const;
-    void metricsReady(phobos::iprocess::MetricPtr, FileNameType) const;
+    void imageReady(QImage, QString) const;
+    void metricsReady(phobos::iprocess::MetricPtr, QString) const;
 };
 
 class LoaderThread : public QRunnable

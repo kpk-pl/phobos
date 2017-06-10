@@ -81,58 +81,59 @@ void Cache::startThreadForItem(pcontainer::Item const& item) const
     QThreadPool::globalInstance()->start(thread.release());
 }
 
-void Cache::imageReadyFromThread(QImage image, std::string fileName)
+void Cache::imageReadyFromThread(QImage image, QString fileName)
 {
-    auto& entry = imageCache[fileName];
-    entry.full = image;
+  std::string stdFilename = fileName.toStdString();
+  auto& entry = imageCache[stdFilename];
+  entry.full = image;
 
-    if (entry.preload.isNull())
-    {
-        auto const preloadSize = config::qSize("imageCache.preloadSize", QSize(320, 240));
-        entry.preload = image.scaled(preloadSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    }
+  if (entry.preload.isNull())
+  {
+      auto const preloadSize = config::qSize("imageCache.preloadSize", QSize(320, 240));
+      entry.preload = image.scaled(preloadSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  }
 
-    auto const uuidIt = loadingImageSeriesId.find(fileName);
-    assert(uuidIt != loadingImageSeriesId.end());
+  auto const uuidIt = loadingImageSeriesId.find(stdFilename);
+  assert(uuidIt != loadingImageSeriesId.end());
 
-    QUuid const seriesId = uuidIt->second;
-    loadingImageSeriesId.erase(uuidIt);
+  QUuid const seriesId = uuidIt->second;
+  loadingImageSeriesId.erase(uuidIt);
 
-    emit updateImage(seriesId, fileName, image);
+  emit updateImage(seriesId, fileName, image);
 }
 
-// TODO: Pass QString (if implicitly shared) or write some string adapter with sharing
-void Cache::metricsReadyFromThread(iprocess::MetricPtr metrics, std::string fileName)
+void Cache::metricsReadyFromThread(iprocess::MetricPtr metrics, QString fileName)
 {
-    metricCache.emplace(fileName, metrics);
+  std::string const stdFilename = fileName.toStdString();
+  metricCache.emplace(stdFilename, metrics);
 
-    auto const& seriesUuid = utils::asserted::fromMap(loadingImageSeriesId, fileName);
-    auto const& series = photoSet.findSeries(seriesUuid);
+  auto const& seriesUuid = utils::asserted::fromMap(loadingImageSeriesId, stdFilename);
+  auto const& series = photoSet.findSeries(seriesUuid);
 
-    if (!std::all_of(series->begin(), series->end(),
-                [this](pcontainer::ItemPtr const& item){
-                    return utils::valueIn(item->fileName(), metricCache);
-                }))
-    {
-        emit updateMetrics(seriesUuid, fileName, metrics);
-    }
+  if (!std::all_of(series->begin(), series->end(),
+              [this](pcontainer::ItemPtr const& item){
+                  return utils::valueIn(item->fileName(), metricCache);
+              }))
+  {
+      emit updateMetrics(seriesUuid, fileName, metrics);
+  }
 
-    auto allMetrics = utils::transformToVector<iprocess::MetricPtr>(series->begin(), series->end(),
-        [this](auto const& item){ return metricCache[item->fileName()]; });
+  auto allMetrics = utils::transformToVector<iprocess::MetricPtr>(series->begin(), series->end(),
+      [this](auto const& item){ return metricCache[item->fileName()]; });
 
-    iprocess::aggregateMetrics(allMetrics);
+  iprocess::aggregateMetrics(allMetrics);
 
-    bool const doLog = config::qualified("logging.metrics", false);
-    for (std::size_t i = 0; i < series->size(); ++i)
-    {
-      std::string const& fn = series->item(i)->fileName();
-      auto const& m = metricCache[fn];
-      emit updateMetrics(seriesUuid, fn, m);
+  bool const doLog = config::qualified("logging.metrics", false);
+  for (std::size_t i = 0; i < series->size(); ++i)
+  {
+    std::string const& fn = series->item(i)->fileName();
+    auto const& m = metricCache[fn];
+    emit updateMetrics(seriesUuid, QString(fn.c_str()), m);
 
-      LOG_IF(doLog, DEBUG) << "Calculated series metrics" << std::endl
-         << "photoItem: " << fn << std::endl
-         << "metric: " << m;
-    }
+    LOG_IF(doLog, DEBUG) << "Calculated series metrics" << std::endl
+       << "photoItem: " << fn << std::endl
+       << "metric: " << m;
+  }
 }
 
 bool Cache::hasMetrics(std::string const& photoFilename) const

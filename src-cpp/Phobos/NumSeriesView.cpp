@@ -58,25 +58,25 @@ void NumSeriesView::showSeries(pcontainer::SeriesPtr const& series)
     layoutForItems->itemAt(0)->widget()->setFocus();
 }
 
-void NumSeriesView::updateImage(QUuid seriesUuid, std::string filename, QImage image)
+void NumSeriesView::updateImage(QUuid seriesUuid, QString filename, QImage image)
 {
     if (currentSeriesUuid != seriesUuid)
         return;
 
     auto const widgetIt = std::find_if(photoItems.begin(), photoItems.end(),
-        [&filename](PhotoItemWidget* const p){ return p->photoItem().fileName() == filename; });
+        [filename = filename.toStdString()](PhotoItemWidget* const p){ return p->photoItem().fileName() == filename; });
 
     assert(widgetIt != photoItems.end());
     (*widgetIt)->setImage(image);
 }
 
-void NumSeriesView::updateMetrics(QUuid seriesUuid, std::string filename, iprocess::MetricPtr metrics)
+void NumSeriesView::updateMetrics(QUuid seriesUuid, QString filename, iprocess::MetricPtr metrics)
 {
     if (currentSeriesUuid != seriesUuid)
         return;
 
     auto const widgetIt = std::find_if(photoItems.begin(), photoItems.end(),
-        [&filename](PhotoItemWidget* const p){ return p->photoItem().fileName() == filename; });
+        [filename = filename.toStdString()](PhotoItemWidget* const p){ return p->photoItem().fileName() == filename; });
 
     assert(widgetIt != photoItems.end());
     (*widgetIt)->setMetrics(metrics);

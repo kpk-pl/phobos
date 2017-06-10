@@ -37,8 +37,8 @@ public slots:
 
 private slots:
     void changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state);
-    void updateImage(QUuid seriesUuid, std::string fileName);
-    void updateMetrics(QUuid seriesUuid, std::string fileName, iprocess::MetricPtr metrics);
+    void updateImage(QUuid seriesUuid, QString fileName);
+    void updateMetrics(QUuid seriesUuid, QString fileName, iprocess::MetricPtr metrics);
 
 private:
     struct Coords;

@@ -26,12 +26,12 @@ public:
     iprocess::MetricPtr getMetrics(std::string const& photoFilename) const;
 
 signals:
-    void updateImage(QUuid seriesUuid, std::string filename, QImage image);
-    void updateMetrics(QUuid seriesUuid, std::string filename, iprocess::MetricPtr);
+    void updateImage(QUuid seriesUuid, QString filename, QImage image);
+    void updateMetrics(QUuid seriesUuid, QString filename, iprocess::MetricPtr);
 
 private slots:
-    void imageReadyFromThread(QImage image, std::string fileName);
-    void metricsReadyFromThread(iprocess::MetricPtr image, std::string fileName);
+    void imageReadyFromThread(QImage image, QString fileName);
+    void metricsReadyFromThread(iprocess::MetricPtr image, QString fileName);
 
 private:
     pcontainer::Set const& photoSet;

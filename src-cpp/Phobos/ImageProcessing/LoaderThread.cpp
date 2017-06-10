@@ -70,7 +70,7 @@ void LoaderThread::runWithoutMetrics() const
     QImage image;
     TIMED("QImageReade:read", image = reader.read());
 
-    emit readySignals.imageReady(image, fileToLoad);
+    emit readySignals.imageReady(image, QString(fileToLoad.c_str()));
 }
 
 void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
@@ -87,7 +87,7 @@ void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
     QImage image;
     TIMED("cv:convQt", image = iprocess::convCvToImage(resized));
 
-    emit readySignals.imageReady(image, fileToLoad);
+    emit readySignals.imageReady(image, QString(fileToLoad.c_str()));
 }
 
 // TODO optimize double scaling when calculating metrics
@@ -114,7 +114,7 @@ void LoaderThread::runMetrics(cv::Mat cvImage) const
     TIMED("runMetrics: laplace", metrics->blur.laplace = blur::laplace(resized));
     TIMED("runMetrics: laplaceMod", metrics->blur.laplaceMod = blur::laplaceMod(resized));
 
-    emit readySignals.metricsReady(metrics, fileToLoad);
+    emit readySignals.metricsReady(metrics, QString(fileToLoad.c_str()));
 }
 
 }} // namespace phobos::iprocess

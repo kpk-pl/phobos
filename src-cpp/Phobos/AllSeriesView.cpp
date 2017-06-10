@@ -129,15 +129,15 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
     }
 }
 
-void AllSeriesView::updateImage(QUuid seriesUuid, std::string fileName)
+void AllSeriesView::updateImage(QUuid seriesUuid, QString fileName)
 {
-  auto& widget = utils::asserted::fromPtr(findItem(seriesUuid, fileName));
+  auto& widget = utils::asserted::fromPtr(findItem(seriesUuid, fileName.toStdString()));
   widget.setImage(imageCache.getPreload(widget.photoItem()));
 }
 
-void AllSeriesView::updateMetrics(QUuid seriesUuid, std::string fileName, iprocess::MetricPtr metrics)
+void AllSeriesView::updateMetrics(QUuid seriesUuid, QString fileName, iprocess::MetricPtr metrics)
 {
-  auto& widget = utils::asserted::fromPtr(findItem(seriesUuid, fileName));
+  auto& widget = utils::asserted::fromPtr(findItem(seriesUuid, fileName.toStdString()));
   widget.setMetrics(metrics);
 }
 

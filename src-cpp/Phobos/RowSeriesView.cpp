@@ -3,7 +3,6 @@
 #include "RowSeriesView.h"
 #include "NavigationBar.h"
 #include "Utils/LayoutClear.h"
-#include "Utils/Asserted.h"
 #include "PhotoItemWidget.h"
 #include "ImageCache/Cache.h"
 
@@ -64,14 +63,18 @@ void RowSeriesView::clear()
     update();
 }
 
-void RowSeriesView::updateImage(QUuid seriesUuid, std::string filename, QImage image)
+void RowSeriesView::updateImage(QUuid seriesUuid, QString filename, QImage image)
 {
-  utils::asserted::fromPtr(findItemWidget(seriesUuid, filename)).setImage(image);
+  PhotoItemWidget* item = findItemWidget(seriesUuid, filename.toStdString());
+  if (item)
+    item->setImage(image);
 }
 
-void RowSeriesView::updateMetrics(QUuid seriesUuid, std::string filename, iprocess::MetricPtr metrics)
+void RowSeriesView::updateMetrics(QUuid seriesUuid, QString filename, iprocess::MetricPtr metrics)
 {
-  utils::asserted::fromPtr(findItemWidget(seriesUuid, filename)).setMetrics(metrics);
+  PhotoItemWidget* item = findItemWidget(seriesUuid, filename.toStdString());
+  if (item)
+    item->setMetrics(metrics);
 }
 
 PhotoItemWidget* RowSeriesView::findItemWidget(QUuid const& seriesUuid, std::string const& fileName) const
