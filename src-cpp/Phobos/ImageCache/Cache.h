@@ -40,15 +40,12 @@ private:
     void startThreadForItem(pcontainer::Item const& item) const;
 
     using LookupKeyType = std::string;
-    struct CachedType {
-        QImage preload;
-        QImage full;
-    };
 
     // if image is in this map, it is already loading
     std::unordered_map<LookupKeyType, QUuid> mutable loadingImageSeriesId;
 
-    std::unordered_map<LookupKeyType, CachedType> mutable imageCache;
+    std::unordered_map<LookupKeyType, QImage> mutable preloadImageCache;
+    std::unordered_map<LookupKeyType, QImage> mutable fullImageCache;
     std::unordered_map<LookupKeyType, iprocess::MetricPtr> mutable metricCache;
 };
 

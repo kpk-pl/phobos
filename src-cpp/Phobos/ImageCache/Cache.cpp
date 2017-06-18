@@ -29,14 +29,15 @@ namespace {
 QImage Cache::getImage(pcontainer::Item const& item) const
 {
   LOG(DEBUG) << "[Cache] Requested full image for " << item.fileName();
-  auto it = imageCache.find(item.fileName());
-  if (it != imageCache.end() && !it->second.full.isNull())
-    return it->second.full;
+  auto it = fullImageCache.find(item.fileName());
+  if (it != fullImageCache.end() && !it->second.isNull())
+    return it->second;
 
   startThreadForItem(item);
 
-  if (!it->second.preload.isNull())
-    return it->second.preload;
+  it = preloadImageCache.find(item.fileName());
+  if (it != preloadImageCache.end() && !it->second.isNull())
+    return it->second;
   else
     return getInitialPreload();
 }
@@ -44,9 +45,9 @@ QImage Cache::getImage(pcontainer::Item const& item) const
 QImage Cache::getPreload(pcontainer::Item const& item) const
 {
   LOG(DEBUG) << "[Cache] Requested preload image for " << item.fileName();
-  auto it = imageCache.find(item.fileName());
-  if (it != imageCache.end() && !it->second.preload.isNull())
-    return it->second.preload;
+  auto it = preloadImageCache.find(item.fileName());
+  if (it != preloadImageCache.end() && !it->second.isNull())
+    return it->second;
 
   startThreadForItem(item);
   return getInitialPreload();
@@ -89,15 +90,15 @@ void Cache::startThreadForItem(pcontainer::Item const& item) const
 
 void Cache::imageReadyFromThread(QImage image, QString fileName)
 {
-  std::string stdFilename = fileName.toStdString();
-  auto& entry = imageCache[stdFilename];
-  entry.full = image;
+  std::string const stdFilename = fileName.toStdString();
+  fullImageCache[stdFilename] = image;
   LOG(DEBUG) << "[Cache] Saved new full image " << stdFilename;
 
-  if (entry.preload.isNull())
+  auto& preload = preloadImageCache[stdFilename];
+  if (preload.isNull())
   {
       auto const preloadSize = config::qSize("imageCache.preloadSize", QSize(320, 240));
-      entry.preload = image.scaled(preloadSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+      preload = image.scaled(preloadSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
       LOG(DEBUG) << "[Cache] Saved new preload image " << stdFilename;
   }
 
