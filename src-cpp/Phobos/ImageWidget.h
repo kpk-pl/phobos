@@ -5,12 +5,12 @@
 #include <QImage>
 #include <QLabel>
 #include <QSize>
-#include "HeightResizeableInterface.h"
+#include "Widgets/HeightResizeableInterface.h"
 #include "ImageProcessing/MetricsFwd.h"
 
 namespace phobos {
 
-class ImageWidget : public QLabel, public HeightResizeableInterface
+class ImageWidget : public QLabel, public widgets::HeightResizeableInterface
 {
     Q_OBJECT
 

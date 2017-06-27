@@ -20,7 +20,7 @@ RowSeriesView::RowSeriesView(icache::Cache const& imageCache) :
                                                      NavigationBar::Capability::LEFT |
                                                      NavigationBar::Capability::RIGHT);
 
-    scroll = new HorizontalScrollArea();
+    scroll = new widgets::HorizontalScrollArea();
     scroll->boxLayout()->setContentsMargins(0, 0, 0, 0);
 
     QVBoxLayout* layout = new QVBoxLayout();

@@ -2,7 +2,7 @@
 #define ROWSERIESVIEW_H
 
 #include "SeriesViewBase.h"
-#include "HorizontalScrollArea.h"
+#include "Widgets/HorizontalScrollArea.h"
 #include "ImageCache/CacheFwd.h"
 #include "ImageProcessing/MetricsFwd.h"
 
@@ -31,7 +31,7 @@ private slots:
 private:
     PhotoItemWidget* findItemWidget(QUuid const& seriesUuid, std::string const& fileName) const;
 
-    HorizontalScrollArea* scroll;
+    widgets::HorizontalScrollArea* scroll;
 };
 
 } // namespace phobos

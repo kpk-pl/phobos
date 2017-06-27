@@ -1,10 +1,10 @@
-#ifndef HORIZONTALSCROLLAREA_H
-#define HORIZONTALSCROLLAREA_H
+#ifndef PHOBOS_WIDGETS_HORIZONTALSCROLLAREA_H
+#define PHOBOS_WIDGETS_HORIZONTALSCROLLAREA_H
 
 #include <QScrollArea>
 #include <QHBoxLayout>
 
-namespace phobos {
+namespace phobos { namespace widgets {
 
 class HorizontalScrollArea : public QScrollArea
 {
@@ -22,6 +22,6 @@ private:
     QHBoxLayout* _boxLayout;
 };
 
-} // namespace phobos
+}} // namespace phobos::widgets
 
-#endif // HORIZONTALSCROLLAREA_H
+#endif // PHOBOS_WIDGETS_HORIZONTALSCROLLAREA_H

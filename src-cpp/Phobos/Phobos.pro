@@ -44,12 +44,12 @@ SOURCES += Phobos.cpp\
     NumSeriesView.cpp \
     NavigationBar.cpp \
     RowSeriesView.cpp \
-    HorizontalScrollArea.cpp \
     ImportWizard/ImageOpenDialog.cpp \
     ImportWizard/ImportWizard.cpp \
     ImportWizard/DivisionMethodPage.cpp \
     Utils/FileAttributes.cpp \
     Widgets/IconLabel.cpp \
+    Widgets/HorizontalScrollArea.cpp \
     ImportWizard/DivisionOps.cpp \
     ImportWizard/SeriesDisplayPage.cpp \
     ImageCache/Cache.cpp \
@@ -85,8 +85,6 @@ HEADERS  += MainWindow.h \
     NumSeriesView.h \
     NavigationBar.h \
     RowSeriesView.h \
-    HorizontalScrollArea.h \
-    HeightResizeableInterface.h \
     ViewDescription.h \
     PhotoBulkAction.h \
     ImportWizard/ImageOpenDialog.h \
@@ -95,7 +93,9 @@ HEADERS  += MainWindow.h \
     Utils/FileAttributes.h \
     Utils/Comparators.h \
     Utils/Streaming.h \
+    Widgets/HeightResizeableInterface.h \
     Widgets/IconLabel.h \
+    Widgets/HorizontalScrollArea.h \
     ImportWizard/DivisionOps.h \
     ImportWizard/Types.h \
     ImportWizard/SeriesDisplayPage.h \

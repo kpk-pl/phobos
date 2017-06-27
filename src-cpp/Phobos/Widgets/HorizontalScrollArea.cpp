@@ -1,10 +1,10 @@
 #include <QFrame>
 #include <QWidget>
 #include <QEvent>
-#include "HorizontalScrollArea.h"
-#include "HeightResizeableInterface.h"
+#include "Widgets/HorizontalScrollArea.h"
+#include "Widgets/HeightResizeableInterface.h"
 
-namespace phobos {
+namespace phobos { namespace widgets {
 
 HorizontalScrollArea::HorizontalScrollArea(QWidget* parent) :
     QScrollArea(parent)
@@ -57,4 +57,4 @@ int HorizontalScrollArea::calcWidthForHeight(int const height) const
     return width;
 }
 
-} // namespace phobos
+}} // namespace phobos::widgets
