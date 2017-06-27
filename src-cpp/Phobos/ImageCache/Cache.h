@@ -2,6 +2,7 @@
 #define PHOBOS_IMAGECACHE_CACHE_H_
 
 #include <unordered_map>
+#include <list>
 #include <string>
 #include <memory>
 #include <QObject>
@@ -33,11 +34,16 @@ private slots:
     void imageReadyFromThread(QImage image, QString fileName);
     void metricsReadyFromThread(iprocess::MetricPtr image, QString fileName);
 
+// TODO: get rid of those mutables
+//
+// Split into image cache and metrics cache
+// cache should contain both of them
 private:
     pcontainer::Set const& photoSet;
 
     std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(std::string const& filename) const;
     void startThreadForItem(pcontainer::Item const& item) const;
+    void insertToFullCache(QImage const& image, std::string const& filename) const;
 
     using LookupKeyType = std::string;
 
@@ -47,6 +53,9 @@ private:
     std::unordered_map<LookupKeyType, QImage> mutable preloadImageCache;
     std::unordered_map<LookupKeyType, QImage> mutable fullImageCache;
     std::unordered_map<LookupKeyType, iprocess::MetricPtr> mutable metricCache;
+
+    std::size_t mutable fullCacheSize = 0;
+    std::list<LookupKeyType> mutable fullImageLastAccess;
 };
 
 }} // namespace phobos::icache

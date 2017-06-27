@@ -91,15 +91,14 @@ void Cache::startThreadForItem(pcontainer::Item const& item) const
 void Cache::imageReadyFromThread(QImage image, QString fileName)
 {
   std::string const stdFilename = fileName.toStdString();
-  fullImageCache[stdFilename] = image;
-  LOG(DEBUG) << "[Cache] Saved new full image " << stdFilename;
+  insertToFullCache(image, stdFilename);
 
   auto& preload = preloadImageCache[stdFilename];
   if (preload.isNull())
   {
       auto const preloadSize = config::qSize("imageCache.preloadSize", QSize(320, 240));
       preload = image.scaled(preloadSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-      LOG(DEBUG) << "[Cache] Saved new preload image " << stdFilename;
+      LOG(DEBUG) << "[Cache] Saved new preload image " << fileName;
   }
 
   auto const uuidIt = loadingImageSeriesId.find(stdFilename);
@@ -111,11 +110,55 @@ void Cache::imageReadyFromThread(QImage image, QString fileName)
   emit updateImage(seriesId, fileName, image);
 }
 
+namespace {
+  double bytesToMega(unsigned const bytes)
+  {
+    return static_cast<double>(bytes)/1024.0/1024.0;
+  }
+}
+
+void Cache::insertToFullCache(QImage const& image, std::string const& filename) const
+{
+  auto& entry = fullImageCache[filename];
+
+  if (entry.isNull())
+  {
+    fullCacheSize += image.byteCount();
+    LOG(DEBUG) << "[Cache] Saved new full image " << filename << " (" << bytesToMega(image.byteCount()) << "MB)";
+  }
+  else
+  {
+    fullCacheSize = fullCacheSize - entry.byteCount() + image.byteCount();
+    fullImageLastAccess.remove(filename);
+    LOG(DEBUG) << "[Cache] Replaced full image " << filename << " (" << bytesToMega(image.byteCount()) << "MB)";
+  }
+
+  LOG(DEBUG) << "[Cache] Total full size: " << bytesToMega(fullCacheSize) << "MB";
+
+  entry = image;
+  fullImageLastAccess.push_back(filename);
+
+  auto const maxSpace = config::qualified("imageCache.fullMaxBytes", 0u);
+  while (!fullImageLastAccess.empty() && fullCacheSize > maxSpace)
+  {
+    auto const it = fullImageCache.find(fullImageLastAccess.front());
+
+    assert(it != fullImageCache.end());
+    LOG(DEBUG) << "[Cache] Removed full image " << it->first;
+
+    fullCacheSize -= it->second.byteCount();
+    LOG(DEBUG) << "[Cache] Total full size: " << bytesToMega(fullCacheSize) << "MB";
+
+    fullImageCache.erase(it);
+    fullImageLastAccess.pop_front();
+  }
+}
+
 void Cache::metricsReadyFromThread(iprocess::MetricPtr metrics, QString fileName)
 {
   std::string const stdFilename = fileName.toStdString();
   metricCache.emplace(stdFilename, metrics);
-  LOG(DEBUG) << "[Cache] Saved new metrics for " << stdFilename;
+  LOG(DEBUG) << "[Cache] Saved new metrics for " << fileName;
 
   auto const& seriesUuid = utils::asserted::fromMap(loadingImageSeriesId, stdFilename);
   auto const& series = photoSet.findSeries(seriesUuid);
