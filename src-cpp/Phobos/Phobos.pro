@@ -52,7 +52,8 @@ SOURCES += Phobos.cpp\
     Widgets/IconLabel.cpp \
     ImportWizard/DivisionOps.cpp \
     ImportWizard/SeriesDisplayPage.cpp \
-    ImageCache/Cache.cpp
+    ImageCache/Cache.cpp \
+    ImageCache/LimitedMap.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -99,7 +100,8 @@ HEADERS  += MainWindow.h \
     ImportWizard/Types.h \
     ImportWizard/SeriesDisplayPage.h \
     ImageCache/Cache.h \
-    ImageCache/CacheFwd.h
+    ImageCache/CacheFwd.h \
+    ImageCache/LimitedMap.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

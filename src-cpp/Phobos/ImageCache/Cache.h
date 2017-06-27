@@ -2,12 +2,12 @@
 #define PHOBOS_IMAGECACHE_CACHE_H_
 
 #include <unordered_map>
-#include <list>
 #include <string>
 #include <memory>
 #include <QObject>
 #include <QImage>
 #include "ImageCache/CacheFwd.h"
+#include "ImageCache/LimitedMap.h"
 #include "PhotoContainers/Set.h"
 #include "ImageProcessing/LoaderThread.h"
 
@@ -43,7 +43,6 @@ private:
 
     std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(std::string const& filename) const;
     void startThreadForItem(pcontainer::Item const& item) const;
-    void insertToFullCache(QImage const& image, std::string const& filename) const;
 
     using LookupKeyType = std::string;
 
@@ -51,11 +50,8 @@ private:
     std::unordered_map<LookupKeyType, QUuid> mutable loadingImageSeriesId;
 
     std::unordered_map<LookupKeyType, QImage> mutable preloadImageCache;
-    std::unordered_map<LookupKeyType, QImage> mutable fullImageCache;
+    LimitedMap mutable fullImageCache;
     std::unordered_map<LookupKeyType, iprocess::MetricPtr> mutable metricCache;
-
-    std::size_t mutable fullCacheSize = 0;
-    std::list<LookupKeyType> mutable fullImageLastAccess;
 };
 
 }} // namespace phobos::icache

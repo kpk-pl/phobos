@@ -9,6 +9,8 @@
 #include "ImageProcessing/MetricsAggregate.h"
 #include "ImageProcessing/MetricsIO.h"
 
+// TODO: Maybe use transaction-like logic and log TRXID
+
 namespace phobos { namespace icache {
 
 Cache::Cache(pcontainer::Set const& photoSet) :
@@ -29,17 +31,26 @@ namespace {
 QImage Cache::getImage(pcontainer::Item const& item) const
 {
   LOG(DEBUG) << "[Cache] Requested full image for " << item.fileName();
-  auto it = fullImageCache.find(item.fileName());
-  if (it != fullImageCache.end() && !it->second.isNull())
-    return it->second;
+  QImage const fullImage = fullImageCache.find(item.fileName());
+  if (!fullImage.isNull())
+  {
+    LOG(DEBUG) << "[Cache] Returned full image for " << item.fileName();
+    return fullImage;
+  }
 
   startThreadForItem(item);
 
-  it = preloadImageCache.find(item.fileName());
+  auto it = preloadImageCache.find(item.fileName());
   if (it != preloadImageCache.end() && !it->second.isNull())
+  {
+    LOG(DEBUG) << "[Cache] Returned preload image for " << item.fileName();
     return it->second;
+  }
   else
+  {
+    LOG(DEBUG) << "[Cache] Returned initial placeholder image for " << item.fileName();
     return getInitialPreload();
+  }
 }
 
 QImage Cache::getPreload(pcontainer::Item const& item) const
@@ -47,9 +58,14 @@ QImage Cache::getPreload(pcontainer::Item const& item) const
   LOG(DEBUG) << "[Cache] Requested preload image for " << item.fileName();
   auto it = preloadImageCache.find(item.fileName());
   if (it != preloadImageCache.end() && !it->second.isNull())
+  {
+    LOG(DEBUG) << "[Cache] Returned preload image for " << item.fileName();
     return it->second;
+  }
 
   startThreadForItem(item);
+
+  LOG(DEBUG) << "[Cache] Returned initial placeholder image for " << item.fileName();
   return getInitialPreload();
 }
 
@@ -91,7 +107,7 @@ void Cache::startThreadForItem(pcontainer::Item const& item) const
 void Cache::imageReadyFromThread(QImage image, QString fileName)
 {
   std::string const stdFilename = fileName.toStdString();
-  insertToFullCache(image, stdFilename);
+  fullImageCache.replace(stdFilename, image);
 
   auto& preload = preloadImageCache[stdFilename];
   if (preload.isNull())
@@ -108,50 +124,6 @@ void Cache::imageReadyFromThread(QImage image, QString fileName)
   loadingImageSeriesId.erase(uuidIt);
 
   emit updateImage(seriesId, fileName, image);
-}
-
-namespace {
-  double bytesToMega(unsigned const bytes)
-  {
-    return static_cast<double>(bytes)/1024.0/1024.0;
-  }
-}
-
-void Cache::insertToFullCache(QImage const& image, std::string const& filename) const
-{
-  auto& entry = fullImageCache[filename];
-
-  if (entry.isNull())
-  {
-    fullCacheSize += image.byteCount();
-    LOG(DEBUG) << "[Cache] Saved new full image " << filename << " (" << bytesToMega(image.byteCount()) << "MB)";
-  }
-  else
-  {
-    fullCacheSize = fullCacheSize - entry.byteCount() + image.byteCount();
-    fullImageLastAccess.remove(filename);
-    LOG(DEBUG) << "[Cache] Replaced full image " << filename << " (" << bytesToMega(image.byteCount()) << "MB)";
-  }
-
-  LOG(DEBUG) << "[Cache] Total full size: " << bytesToMega(fullCacheSize) << "MB";
-
-  entry = image;
-  fullImageLastAccess.push_back(filename);
-
-  auto const maxSpace = config::qualified("imageCache.fullMaxBytes", 0u);
-  while (!fullImageLastAccess.empty() && fullCacheSize > maxSpace)
-  {
-    auto const it = fullImageCache.find(fullImageLastAccess.front());
-
-    assert(it != fullImageCache.end());
-    LOG(DEBUG) << "[Cache] Removed full image " << it->first;
-
-    fullCacheSize -= it->second.byteCount();
-    LOG(DEBUG) << "[Cache] Total full size: " << bytesToMega(fullCacheSize) << "MB";
-
-    fullImageCache.erase(it);
-    fullImageLastAccess.pop_front();
-  }
 }
 
 void Cache::metricsReadyFromThread(iprocess::MetricPtr metrics, QString fileName)
