@@ -8,14 +8,14 @@
 #include <QPainter>
 #include <QTransform>
 #include <sstream>
-#include "Widgets/PhotoItemWidget.h"
+#include "Widgets/PhotoItem/PhotoItem.h"
 #include "Config.h"
 #include "ConfigExtension.h"
 #include "ImageProcessing/ColoredPixmap.h"
 #include "ImageProcessing/Metrics.h"
 #include "Utils/Algorithm.h"
 
-namespace phobos { namespace widgets {
+namespace phobos { namespace widgets { namespace pitem {
 
 // TODO: bestmark, focus pixmaps -> CACHE IT by size!!! Those are calculated hundreds of times and the result is always the same!
 // Time it before to make sure it has some impact
@@ -36,9 +36,7 @@ namespace phobos { namespace widgets {
 //
 // TODO: Right-click menu to open a dialog displaying all metrics for photo or whole series
 
-PhotoItemWidget::PhotoItemWidget(pcontainer::ItemPtr const& photoItem,
-                                 QImage const& preload,
-                                 PhotoItemWidgetAddons const& addons) :
+PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem, QImage const& preload, Addons const& addons) :
     ImageWidget(preload), _photoItem(photoItem), addons(addons)
 {
     setFocusPolicy(Qt::StrongFocus);
@@ -67,7 +65,7 @@ namespace {
     }
 } // unnamed namespace
 
-class PhotoItemWidget::PixmapRenderer
+class PhotoItem::PixmapRenderer
 {
 public:
     static std::string percentString(double const val, unsigned const decimalPlaces)
@@ -109,7 +107,7 @@ public:
         return accumulated;
     }
 
-    PixmapRenderer(PhotoItemWidget &widget) :
+    PixmapRenderer(PhotoItem &widget) :
         borderWidth(config::qualified("photoItemWidget.border.width", 2u)),
         painter(&widget)
     {
@@ -242,28 +240,28 @@ private:
     QPainter painter;
 };
 
-void PhotoItemWidget::paintEvent(QPaintEvent*)
+void PhotoItem::paintEvent(QPaintEvent*)
 {
     PixmapRenderer renderer(*this);
 
-    if (addons.has(PhotoItemWidgetAddonType::FOCUS_IND) && hasFocus())
+    if (addons.has(AddonType::FOCUS_IND) && hasFocus())
         renderer.focusMark();
 
     auto const metric = metrics();
-    if (addons.has(PhotoItemWidgetAddonType::SCORE_NUM) && metric)
+    if (addons.has(AddonType::SCORE_NUM) && metric)
         renderer.scoreNum(metric->score());
 
-    if (addons.has(PhotoItemWidgetAddonType::BEST_IND) && metric && metric->bestQuality)
+    if (addons.has(AddonType::BEST_IND) && metric && metric->bestQuality)
         renderer.bestMark();
 
-    if (addons.has(PhotoItemWidgetAddonType::HISTOGRAM) && metric && metric->histogram)
+    if (addons.has(AddonType::HISTOGRAM) && metric && metric->histogram)
         renderer.histogram(*metric->histogram);
 
-    if (addons.has(PhotoItemWidgetAddonType::ORD_NUM))
+    if (addons.has(AddonType::ORD_NUM))
         renderer.ordNum(_photoItem->ord());
 }
 
-void PhotoItemWidget::contextMenuEvent(QContextMenuEvent* event)
+void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
 {
     QMenu menu;
 
@@ -297,17 +295,17 @@ void PhotoItemWidget::contextMenuEvent(QContextMenuEvent* event)
     menu.exec(mapToGlobal(QPoint(event->x(), event->y())));
 }
 
-void PhotoItemWidget::focusInEvent(QFocusEvent*)
+void PhotoItem::focusInEvent(QFocusEvent*)
 {
     update();
 }
 
-void PhotoItemWidget::focusOutEvent(QFocusEvent*)
+void PhotoItem::focusOutEvent(QFocusEvent*)
 {
     update();
 }
 
-bool PhotoItemWidget::eventFilter(QObject* object, QEvent* event)
+bool PhotoItem::eventFilter(QObject* object, QEvent* event)
 {
     if (object != this)
         return false;
@@ -320,7 +318,7 @@ bool PhotoItemWidget::eventFilter(QObject* object, QEvent* event)
            focusEvent->reason() == Qt::ActiveWindowFocusReason;
 }
 
-void PhotoItemWidget::keyPressEvent(QKeyEvent* event)
+void PhotoItem::keyPressEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
         _photoItem->toggleSelection();
@@ -328,4 +326,4 @@ void PhotoItemWidget::keyPressEvent(QKeyEvent* event)
         ImageWidget::keyPressEvent(event);
 }
 
-}} // namespace phobos::widgets
+}}} // namespace phobos::widgets::pitem

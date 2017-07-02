@@ -1,21 +1,21 @@
-#ifndef WIDGETS_PHOTOITEMWIDGET_H
-#define WIDGETS_PHOTOITEMWIDGET_H
+#ifndef WIDGETS_PHOTOITEM_PHOTOITEM_H
+#define WIDGETS_PHOTOITEM_PHOTOITEM_H
 
 #include <memory>
 #include <QUuid>
 #include "Widgets/ImageWidget.h"
-#include "Widgets/PhotoItemWidgetAddon.h"
+#include "Widgets/PhotoItem/Addon.h"
 #include "PhotoContainers/Item.h"
 
-namespace phobos { namespace widgets {
+namespace phobos { namespace widgets { namespace pitem {
 
-class PhotoItemWidget : public ImageWidget
+class PhotoItem : public ImageWidget
 {
     Q_OBJECT
 public:
-    explicit PhotoItemWidget(pcontainer::ItemPtr const& photoItem,
-                             QImage const& preload,
-                             PhotoItemWidgetAddons const& addons);
+    explicit PhotoItem(pcontainer::ItemPtr const& photoItem,
+                       QImage const& preload,
+                       Addons const& addons);
 
     pcontainer::Item const& photoItem() const { return *_photoItem; }
 
@@ -35,9 +35,9 @@ private:
     friend class PixmapRenderer;
 
     pcontainer::ItemPtr const _photoItem;
-    PhotoItemWidgetAddons const addons;
+    Addons const addons;
 };
 
-}} // namespace phobos::widgets
+}}} // namespace phobos::widgets::pitem
 
-#endif // WIDGETS_PHOTOITEMWIDGET_H
+#endif // WIDGETS_PHOTOITEM_PHOTOITEM_H

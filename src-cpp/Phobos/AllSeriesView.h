@@ -14,9 +14,9 @@ class QGridLayout;
 
 namespace phobos {
 
-namespace widgets {
-class PhotoItemWidget;
-} // namespace widgets
+namespace widgets { namespace pitem {
+class PhotoItem;
+}} // namespace widgets::pitem
 
 class AllSeriesView : public QWidget
 {
@@ -49,7 +49,7 @@ private:
                                           int const directionKey) const;
     Coords findValidProposal(std::vector<Coords> const& proposals) const;
 
-    widgets::PhotoItemWidget* findItem(QUuid const& seriesUuid, std::string const& filename) const;
+    widgets::pitem::PhotoItem* findItem(QUuid const& seriesUuid, std::string const& filename) const;
 
     icache::Cache const& imageCache;
     std::map<QUuid, std::size_t> seriesUuidToRow;

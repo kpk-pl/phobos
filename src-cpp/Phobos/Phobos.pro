@@ -48,8 +48,8 @@ SOURCES += Phobos.cpp\
     Widgets/IconLabel.cpp \
     Widgets/HorizontalScrollArea.cpp \
     Widgets/ImageWidget.cpp \
-    Widgets/PhotoItemWidget.cpp \
-    Widgets/PhotoItemWidgetAddon.cpp \
+    Widgets/PhotoItem/PhotoItem.cpp \
+    Widgets/PhotoItem/Addon.cpp \
     ImportWizard/DivisionOps.cpp \
     ImportWizard/SeriesDisplayPage.cpp \
     ImageCache/Cache.cpp \
@@ -94,8 +94,8 @@ HEADERS  += MainWindow.h \
     Widgets/IconLabel.h \
     Widgets/HorizontalScrollArea.h \
     Widgets/ImageWidget.h \
-    Widgets/PhotoItemWidget.h \
-    Widgets/PhotoItemWidgetAddon.h \
+    Widgets/PhotoItem/PhotoItem.h \
+    Widgets/PhotoItem/Addon.h \
     ImportWizard/DivisionOps.h \
     ImportWizard/Types.h \
     ImportWizard/SeriesDisplayPage.h \

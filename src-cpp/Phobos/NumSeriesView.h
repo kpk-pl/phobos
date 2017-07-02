@@ -20,7 +20,7 @@ public:
     void keyPressEvent(QKeyEvent* keyEvent) override;
 
 protected:
-    void addToLayout(widgets::PhotoItemWidget* itemWidget) override;
+    void addToLayout(widgets::pitem::PhotoItem* itemWidget) override;
     void changeSeriesState(pcontainer::ItemState const state) const override;
 
 private slots:
@@ -34,7 +34,7 @@ private:
 
     unsigned const visibleItems;
     unsigned currentItem;
-    std::vector<widgets::PhotoItemWidget*> photoItems;
+    std::vector<widgets::pitem::PhotoItem*> photoItems;
     QLayout* layoutForItems;
 };
 

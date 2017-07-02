@@ -3,7 +3,7 @@
 #include "RowSeriesView.h"
 #include "NavigationBar.h"
 #include "Utils/LayoutClear.h"
-#include "Widgets/PhotoItemWidget.h"
+#include "Widgets/PhotoItem/PhotoItem.h"
 #include "ImageCache/Cache.h"
 
 namespace phobos {
@@ -65,26 +65,26 @@ void RowSeriesView::clear()
 
 void RowSeriesView::updateImage(QUuid seriesUuid, QString filename, QImage image)
 {
-  widgets::PhotoItemWidget* item = findItemWidget(seriesUuid, filename.toStdString());
+  widgets::pitem::PhotoItem* item = findItemWidget(seriesUuid, filename.toStdString());
   if (item)
     item->setImage(image);
 }
 
 void RowSeriesView::updateMetrics(QUuid seriesUuid, QString filename, iprocess::MetricPtr metrics)
 {
-  widgets::PhotoItemWidget* item = findItemWidget(seriesUuid, filename.toStdString());
+  widgets::pitem::PhotoItem* item = findItemWidget(seriesUuid, filename.toStdString());
   if (item)
     item->setMetrics(metrics);
 }
 
-widgets::PhotoItemWidget* RowSeriesView::findItemWidget(QUuid const& seriesUuid, std::string const& fileName) const
+widgets::pitem::PhotoItem* RowSeriesView::findItemWidget(QUuid const& seriesUuid, std::string const& fileName) const
 {
     if (currentSeriesUuid != seriesUuid)
         return nullptr;
 
     for (int i = 0; i < scroll->boxLayout()->count(); ++i)
     {
-        auto const photoWidget = dynamic_cast<widgets::PhotoItemWidget*>(scroll->boxLayout()->itemAt(i)->widget());
+        auto const photoWidget = dynamic_cast<widgets::pitem::PhotoItem*>(scroll->boxLayout()->itemAt(i)->widget());
         assert(photoWidget);
 
         if (photoWidget->photoItem().fileName() == fileName)
@@ -95,7 +95,7 @@ widgets::PhotoItemWidget* RowSeriesView::findItemWidget(QUuid const& seriesUuid,
     return nullptr;
 }
 
-void RowSeriesView::addToLayout(widgets::PhotoItemWidget* itemWidget)
+void RowSeriesView::addToLayout(widgets::pitem::PhotoItem* itemWidget)
 {
     scroll->boxLayout()->addWidget(itemWidget);
 }
@@ -104,7 +104,7 @@ void RowSeriesView::changeSeriesState(pcontainer::ItemState const state) const
 {
     for (int i = 0; i < scroll->boxLayout()->count(); ++i)
     {
-        widgets::PhotoItemWidget *photoWidget = dynamic_cast<widgets::PhotoItemWidget*>(scroll->boxLayout()->itemAt(i)->widget());
+        widgets::pitem::PhotoItem *photoWidget = dynamic_cast<widgets::pitem::PhotoItem*>(scroll->boxLayout()->itemAt(i)->widget());
         assert(photoWidget);
         photoWidget->photoItem().setState(state);
     }

@@ -3,7 +3,7 @@
 #include <QKeyEvent>
 #include "NumSeriesView.h"
 #include "NavigationBar.h"
-#include "Widgets/PhotoItemWidget.h"
+#include "Widgets/PhotoItem/PhotoItem.h"
 #include "Config.h"
 #include "Utils/LayoutClear.h"
 #include "ImageCache/Cache.h"
@@ -64,7 +64,7 @@ void NumSeriesView::updateImage(QUuid seriesUuid, QString filename, QImage image
         return;
 
     auto const widgetIt = std::find_if(photoItems.begin(), photoItems.end(),
-        [filename = filename.toStdString()](widgets::PhotoItemWidget* const p){ return p->photoItem().fileName() == filename; });
+        [filename = filename.toStdString()](widgets::pitem::PhotoItem* const p){ return p->photoItem().fileName() == filename; });
 
     assert(widgetIt != photoItems.end());
     (*widgetIt)->setImage(image);
@@ -76,7 +76,7 @@ void NumSeriesView::updateMetrics(QUuid seriesUuid, QString filename, iprocess::
         return;
 
     auto const widgetIt = std::find_if(photoItems.begin(), photoItems.end(),
-        [filename = filename.toStdString()](widgets::PhotoItemWidget* const p){ return p->photoItem().fileName() == filename; });
+        [filename = filename.toStdString()](widgets::pitem::PhotoItem* const p){ return p->photoItem().fileName() == filename; });
 
     assert(widgetIt != photoItems.end());
     (*widgetIt)->setMetrics(metrics);
@@ -136,7 +136,7 @@ void NumSeriesView::setCurrentView()
     layoutForItems->itemAt(currentItem - startShow)->widget()->setFocus();
 }
 
-void NumSeriesView::addToLayout(widgets::PhotoItemWidget* itemWidget)
+void NumSeriesView::addToLayout(widgets::pitem::PhotoItem* itemWidget)
 {
     photoItems.push_back(itemWidget);
     if (layoutForItems->count() < int(visibleItems))
@@ -145,7 +145,7 @@ void NumSeriesView::addToLayout(widgets::PhotoItemWidget* itemWidget)
 
 void NumSeriesView::changeSeriesState(pcontainer::ItemState const state) const
 {
-    for (widgets::PhotoItemWidget *photoWidget : photoItems)
+    for (widgets::pitem::PhotoItem *photoWidget : photoItems)
         photoWidget->photoItem().setState(state);
 }
 

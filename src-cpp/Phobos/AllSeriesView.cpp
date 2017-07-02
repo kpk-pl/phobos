@@ -9,8 +9,8 @@
 #include "AllSeriesView.h"
 #include "Config.h"
 #include "ConfigExtension.h"
-#include "Widgets/PhotoItemWidget.h"
-#include "Widgets/PhotoItemWidgetAddon.h"
+#include "Widgets/PhotoItem/PhotoItem.h"
+#include "Widgets/PhotoItem/Addon.h"
 #include "Utils/Algorithm.h"
 #include "Utils/Focused.h"
 #include "Utils/Asserted.h"
@@ -109,21 +109,23 @@ void AllSeriesView::focusSeries(QUuid const seriesUuid)
 
 void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
 {
+    using namespace widgets::pitem;
+
     std::size_t const row = numberOfSeries();
     seriesUuidToRow.emplace(series->uuid(), row);
 
     for (std::size_t col = 0; col < series->size(); ++col)
     {
-        auto const widgetAddons = widgets::PhotoItemWidgetAddons(
+        auto const widgetAddons = Addons(
                 config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({}));
 
         auto const& itemPtr = series->item(col);
-        widgets::PhotoItemWidget* item = new widgets::PhotoItemWidget(itemPtr, imageCache.getPreload(*itemPtr), widgetAddons);
+        PhotoItem* item = new PhotoItem(itemPtr, imageCache.getPreload(*itemPtr), widgetAddons);
 
-        QObject::connect(item, &widgets::PhotoItemWidget::openInSeries,
+        QObject::connect(item, &PhotoItem::openInSeries,
           [this](QUuid const& uuid){ switchView(ViewDescription::make(ViewType::ANY_SINGLE_SERIES, uuid)); });
 
-        QObject::connect(item, &widgets::PhotoItemWidget::changeSeriesState, this, &AllSeriesView::changeSeriesState);
+        QObject::connect(item, &PhotoItem::changeSeriesState, this, &AllSeriesView::changeSeriesState);
 
         grid->addWidget(item, row, col);
     }
@@ -141,7 +143,7 @@ void AllSeriesView::updateMetrics(QUuid seriesUuid, QString fileName, iprocess::
   widget.setMetrics(metrics);
 }
 
-widgets::PhotoItemWidget* AllSeriesView::findItem(QUuid const& seriesUuid, std::string const& filename) const
+widgets::pitem::PhotoItem* AllSeriesView::findItem(QUuid const& seriesUuid, std::string const& filename) const
 {
     auto const seriesRow = utils::asserted::fromMap(seriesUuidToRow, seriesUuid);
 
@@ -151,7 +153,7 @@ widgets::PhotoItemWidget* AllSeriesView::findItem(QUuid const& seriesUuid, std::
         if (!widgetItem || !widgetItem->widget())
             continue;
 
-        auto const photoItemWgt = dynamic_cast<widgets::PhotoItemWidget*>(widgetItem->widget());
+        auto const photoItemWgt = dynamic_cast<widgets::pitem::PhotoItem*>(widgetItem->widget());
         assert(photoItemWgt);
 
         if (photoItemWgt->photoItem().fileName() == filename)
@@ -182,7 +184,7 @@ void AllSeriesView::keyPressEvent(QKeyEvent* keyEvent)
 
 boost::optional<AllSeriesView::Coords> AllSeriesView::focusGridCoords() const
 {
-    widgets::PhotoItemWidget* focusItem = utils::focusedPhotoItemWidget();
+    widgets::pitem::PhotoItem* focusItem = utils::focusedPhotoItemWidget();
     if (!focusItem)
         return boost::none;
 
@@ -271,7 +273,7 @@ void AllSeriesView::changeSeriesState(QUuid const seriesUuid, pcontainer::ItemSt
         if (!widgetItem || !widgetItem->widget())
             continue;
 
-        widgets::PhotoItemWidget* photoWidget = dynamic_cast<widgets::PhotoItemWidget*>(widgetItem->widget());
+        widgets::pitem::PhotoItem* photoWidget = dynamic_cast<widgets::pitem::PhotoItem*>(widgetItem->widget());
         assert(photoWidget);
 
         photoWidget->photoItem().setState(state);
