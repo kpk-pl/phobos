@@ -15,15 +15,16 @@ SeriesViewBase::SeriesViewBase(icache::Cache const& imageCache) :
 
 void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
 {
+    using namespace widgets::pitem;
     clear();
 
-    auto const& addons = widgets::pitem::Addons(config::get()->get_qualified_array_of<std::string>("seriesView.enabledAddons").value_or({}));
+    auto const& addons = Addons(config::get()->get_qualified_array_of<std::string>("seriesView.enabledAddons").value_or({}));
 
     for (pcontainer::ItemPtr const& item : *series)
     {
-        widgets::pitem::PhotoItem* widget = new widgets::pitem::PhotoItem(item, imageCache.getImage(*item), addons);
+        PhotoItem* widget = new PhotoItem(item, imageCache.getImage(*item), addons, Capabilities());
 
-        QObject::connect(widget, &widgets::pitem::PhotoItem::changeSeriesState,
+        QObject::connect(widget, &PhotoItem::changeSeriesState,
                          this, &SeriesViewBase::changeCurrentSeriesState);
 
         addToLayout(widget);

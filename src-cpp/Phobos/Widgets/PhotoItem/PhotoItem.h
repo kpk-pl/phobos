@@ -5,6 +5,7 @@
 #include <QUuid>
 #include "Widgets/ImageWidget.h"
 #include "Widgets/PhotoItem/Addon.h"
+#include "Widgets/PhotoItem/Capability.h"
 #include "PhotoContainers/Item.h"
 
 namespace phobos { namespace widgets { namespace pitem {
@@ -15,7 +16,8 @@ class PhotoItem : public ImageWidget
 public:
     explicit PhotoItem(pcontainer::ItemPtr const& photoItem,
                        QImage const& preload,
-                       Addons const& addons);
+                       Addons const& addons,
+                       Capabilities const& capabilities);
 
     pcontainer::Item const& photoItem() const { return *_photoItem; }
 
@@ -36,6 +38,7 @@ private:
 
     pcontainer::ItemPtr const _photoItem;
     Addons const addons;
+    Capabilities const capabilities;
 };
 
 }}} // namespace phobos::widgets::pitem

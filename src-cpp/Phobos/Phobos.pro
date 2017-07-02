@@ -96,6 +96,7 @@ HEADERS  += MainWindow.h \
     Widgets/ImageWidget.h \
     Widgets/PhotoItem/PhotoItem.h \
     Widgets/PhotoItem/Addon.h \
+    Widgets/PhotoItem/Capability.h \
     ImportWizard/DivisionOps.h \
     ImportWizard/Types.h \
     ImportWizard/SeriesDisplayPage.h \

@@ -36,8 +36,8 @@ namespace phobos { namespace widgets { namespace pitem {
 //
 // TODO: Right-click menu to open a dialog displaying all metrics for photo or whole series
 
-PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem, QImage const& preload, Addons const& addons) :
-    ImageWidget(preload), _photoItem(photoItem), addons(addons)
+PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem, QImage const& preload, Addons const& addons, Capabilities const& capabilities) :
+    ImageWidget(preload), _photoItem(photoItem), addons(addons), capabilities(capabilities)
 {
     setFocusPolicy(Qt::StrongFocus);
     installEventFilter(this);
@@ -289,8 +289,11 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
 
     menu.addSeparator();
 
-    QAction* viewSeries = menu.addAction("View series");
-    QObject::connect(viewSeries, &QAction::triggered, [this](){ emit openInSeries(_photoItem->seriesUuid()); });
+    if (capabilities.has(CapabilityType::OPEN_SERIES))
+    {
+      QAction* viewSeries = menu.addAction("View series");
+      QObject::connect(viewSeries, &QAction::triggered, [this](){ emit openInSeries(_photoItem->seriesUuid()); });
+    }
 
     menu.exec(mapToGlobal(QPoint(event->x(), event->y())));
 }

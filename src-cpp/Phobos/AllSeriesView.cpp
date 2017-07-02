@@ -11,6 +11,7 @@
 #include "ConfigExtension.h"
 #include "Widgets/PhotoItem/PhotoItem.h"
 #include "Widgets/PhotoItem/Addon.h"
+#include "Widgets/PhotoItem/Capability.h"
 #include "Utils/Algorithm.h"
 #include "Utils/Focused.h"
 #include "Utils/Asserted.h"
@@ -120,7 +121,7 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
                 config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({}));
 
         auto const& itemPtr = series->item(col);
-        PhotoItem* item = new PhotoItem(itemPtr, imageCache.getPreload(*itemPtr), widgetAddons);
+        PhotoItem* item = new PhotoItem(itemPtr, imageCache.getPreload(*itemPtr), widgetAddons, CapabilityType::OPEN_SERIES);
 
         QObject::connect(item, &PhotoItem::openInSeries,
           [this](QUuid const& uuid){ switchView(ViewDescription::make(ViewType::ANY_SINGLE_SERIES, uuid)); });
