@@ -22,7 +22,7 @@ void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
 
     for (pcontainer::ItemPtr const& item : *series)
     {
-        PhotoItem* widget = new PhotoItem(item, imageCache.getImage(*item), addons, Capabilities());
+        PhotoItem* widget = new PhotoItem(item, imageCache.getImage(*item), addons, CapabilityType::REMOVE_PHOTO);
 
         QObject::connect(widget, &PhotoItem::changeSeriesState,
                          this, &SeriesViewBase::changeCurrentSeriesState);

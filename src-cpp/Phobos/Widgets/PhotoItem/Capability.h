@@ -7,7 +7,8 @@ namespace phobos { namespace widgets { namespace pitem {
 
 enum class CapabilityType
 {
-  OPEN_SERIES
+  OPEN_SERIES,
+  REMOVE_PHOTO
 };
 
 struct Capabilities
@@ -18,12 +19,7 @@ struct Capabilities
     capabilities.insert(type);
   }
 
-  friend Capabilities operator|(CapabilityType lhs, CapabilityType rhs)
-  {
-    Capabilities c(lhs);
-    c.capabilities.insert(rhs);
-    return c;
-  }
+  friend Capabilities operator|(CapabilityType lhs, CapabilityType rhs);
 
   friend Capabilities operator|(Capabilities &&lhs, CapabilityType rhs)
   {
@@ -45,6 +41,13 @@ struct Capabilities
 private:
   std::set<CapabilityType> capabilities;
 };
+
+inline Capabilities operator|(CapabilityType lhs, CapabilityType rhs)
+{
+  Capabilities c(lhs);
+  c.capabilities.insert(rhs);
+  return c;
+}
 
 }}} // namespace phobos::widgets::pitem
 

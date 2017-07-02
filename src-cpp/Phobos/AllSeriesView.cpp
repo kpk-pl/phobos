@@ -115,18 +115,18 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
     std::size_t const row = numberOfSeries();
     seriesUuidToRow.emplace(series->uuid(), row);
 
+    auto const widgetAddons = Addons(config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({}));
+
     for (std::size_t col = 0; col < series->size(); ++col)
     {
-        auto const widgetAddons = Addons(
-                config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({}));
-
         auto const& itemPtr = series->item(col);
-        PhotoItem* item = new PhotoItem(itemPtr, imageCache.getPreload(*itemPtr), widgetAddons, CapabilityType::OPEN_SERIES);
+        PhotoItem* item = new PhotoItem(itemPtr, imageCache.getPreload(*itemPtr), widgetAddons, CapabilityType::OPEN_SERIES | CapabilityType::REMOVE_PHOTO);
 
         QObject::connect(item, &PhotoItem::openInSeries,
           [this](QUuid const& uuid){ switchView(ViewDescription::make(ViewType::ANY_SINGLE_SERIES, uuid)); });
 
         QObject::connect(item, &PhotoItem::changeSeriesState, this, &AllSeriesView::changeSeriesState);
+        //QObject::connect(item, &PhotoItem::removePhotoFromSeries, this, &AllSeriesView::removePhotoFromSeries);
 
         grid->addWidget(item, row, col);
     }
@@ -263,6 +263,8 @@ AllSeriesView::Coords AllSeriesView::findValidProposal(std::vector<Coords> const
     return {0, 0};
 }
 
+// TODO: Presumably using itemAtPosition is not that quick especially when done in loops
+// Try to iterate to grid->count(), use getItemPosition to get row and column
 void AllSeriesView::changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state)
 {
     assert(utils::valueIn(seriesUuid, seriesUuidToRow));
