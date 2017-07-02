@@ -57,6 +57,18 @@ void LoaderThread::run()
 //
 // TODO: configurable options for metric calculations, weights, disable some portions of calculations
 
+// TODO: Use transaction-like logic with unique IDs to display INFO information about loaded images
+
+namespace {
+  QSize scaledDown(QSize const& size, QSize const& limit)
+  {
+    QSize const dummyScale = size.scaled(limit, Qt::KeepAspectRatio);
+    if (dummyScale.width() > size.width() || dummyScale.height() > size.height())
+        return size;
+    return dummyScale;
+  }
+}
+
 void LoaderThread::runWithoutMetrics() const
 {
     TIMED_FUNC(id);
@@ -64,8 +76,12 @@ void LoaderThread::runWithoutMetrics() const
     QImageReader reader(fileToLoad.c_str());
     reader.setAutoTransform(true);
     reader.setAutoDetectImageFormat(true);
-    // TODO: ensure no scaling up here
-    reader.setScaledSize(requestedSize.scaled(reader.size(), Qt::KeepAspectRatio));
+
+    QSize const scaledSize = scaledDown(reader.size(), requestedSize);
+    LOG(DEBUG) << "Reading image " << fileToLoad
+               << " with size: " << reader.size().width() << "x" << reader.size().height()
+               << " scaled to " << scaledSize.width() << "x" << scaledSize.height();
+    reader.setScaledSize(scaledSize);
 
     QImage image;
     TIMED("QImageReade:read", image = reader.read());
@@ -76,9 +92,8 @@ void LoaderThread::runWithoutMetrics() const
 void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
 {
     QSize const cvSize(cvImage.cols, cvImage.rows);
-    // TODO: ensure no scaling up here
-    QSize const pixmapSize = requestedSize.scaled(cvSize, Qt::KeepAspectRatio);
-    LOG(DEBUG) << "Scaling image from " << cvImage.cols << "x" << cvImage.rows
+    QSize const pixmapSize = scaledDown(cvSize, requestedSize);
+    LOG(DEBUG) << "Scaling " << fileToLoad << " from " << cvImage.cols << "x" << cvImage.rows
                << " to " << pixmapSize.width() << "x" << pixmapSize.height();
 
     cv::Mat resized;
