@@ -26,9 +26,9 @@ public:
     {
         struct SeriesSelectionStatus
         {
-            std::vector<std::string> selected;
-            std::vector<std::string> discarded;
-            std::vector<std::string> others;
+            std::vector<QString> selected;
+            std::vector<QString> discarded;
+            std::vector<QString> others;
         };
         std::vector<SeriesSelectionStatus> status;
     };

@@ -3,8 +3,6 @@
 
 #include <algorithm>
 #include <initializer_list>
-#include <map>
-#include <unordered_map>
 #include <sstream>
 
 namespace phobos { namespace utils {
@@ -15,16 +13,10 @@ bool valueIn(T const& value, std::initializer_list<U> const& c)
     return std::find(c.begin(), c.end(), value) != c.end();
 }
 
-template<typename T, typename U, typename V>
-bool valueIn(T const& value, std::map<U, V> const& c)
+template<typename T, typename Container>
+auto valueIn(T const& value, Container const& c) -> decltype(c.find(value), false)
 {
-    return c.find(value) != c.end();
-}
-
-template<typename T, typename U, typename V>
-bool valueIn(T const& value, std::unordered_map<U, V> const& c)
-{
-    return c.find(value) != c.end();
+  return c.find(value) != c.end();
 }
 
 template<typename OutContainer, typename InputIterator>

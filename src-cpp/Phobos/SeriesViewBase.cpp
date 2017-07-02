@@ -11,6 +11,8 @@ namespace phobos {
 SeriesViewBase::SeriesViewBase(icache::Cache const& imageCache) :
     imageCache(imageCache)
 {
+  QObject::connect(&imageCache, &icache::Cache::updateImage, this, &SeriesViewBase::updateImage);
+  QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &SeriesViewBase::updateMetrics);
 }
 
 void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
@@ -22,7 +24,7 @@ void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
 
     for (pcontainer::ItemPtr const& item : *series)
     {
-        PhotoItem* widget = new PhotoItem(item, imageCache.getImage(*item), addons, CapabilityType::REMOVE_PHOTO);
+        PhotoItem* widget = new PhotoItem(item, imageCache.getImage(item->id()), addons, CapabilityType::REMOVE_PHOTO);
 
         QObject::connect(widget, &PhotoItem::changeSeriesState,
                          this, &SeriesViewBase::changeCurrentSeriesState);
@@ -31,6 +33,20 @@ void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
     }
 
     currentSeriesUuid = series->uuid();
+}
+
+void SeriesViewBase::updateImage(pcontainer::ItemId const& itemId, QImage image)
+{
+  widgets::pitem::PhotoItem* item = findItemWidget(itemId);
+  if (item)
+    item->setImage(image);
+}
+
+void SeriesViewBase::updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics)
+{
+  widgets::pitem::PhotoItem* item = findItemWidget(itemId);
+  if (item)
+    item->setMetrics(metrics);
 }
 
 void SeriesViewBase::clear()

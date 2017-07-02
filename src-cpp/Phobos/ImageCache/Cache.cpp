@@ -28,157 +28,154 @@ namespace {
   }
 } // unnamed namespace
 
-QImage Cache::getImage(pcontainer::Item const& item) const
+QImage Cache::getImage(pcontainer::ItemId const& itemId) const
 {
-  LOG(DEBUG) << "[Cache] Requested full image for " << item.fileName();
-  QImage const fullImage = fullImageCache.find(item.fileName());
+  LOG(DEBUG) << "[Cache] Requested full image for " << itemId.fileName;
+  QImage const fullImage = fullImageCache.find(itemId.fileName);
   if (!fullImage.isNull())
   {
-    LOG(DEBUG) << "[Cache] Returned full image for " << item.fileName();
+    LOG(DEBUG) << "[Cache] Returned full image for " << itemId.fileName;
     return fullImage;
   }
 
-  startThreadForItem(item);
+  startThreadForItem(itemId);
 
-  auto it = preloadImageCache.find(item.fileName());
+  auto it = preloadImageCache.find(itemId.fileName);
   if (it != preloadImageCache.end() && !it->second.isNull())
   {
-    LOG(DEBUG) << "[Cache] Returned preload image for " << item.fileName();
+    LOG(DEBUG) << "[Cache] Returned preload image for " << itemId.fileName;
     return it->second;
   }
   else
   {
-    LOG(DEBUG) << "[Cache] Returned initial placeholder image for " << item.fileName();
+    LOG(DEBUG) << "[Cache] Returned initial placeholder image for " << itemId.fileName;
     return getInitialPreload();
   }
 }
 
-QImage Cache::getPreload(pcontainer::Item const& item) const
+QImage Cache::getPreload(pcontainer::ItemId const& itemId) const
 {
-  LOG(DEBUG) << "[Cache] Requested preload image for " << item.fileName();
-  auto it = preloadImageCache.find(item.fileName());
+  LOG(DEBUG) << "[Cache] Requested preload image for " << itemId.fileName;
+  auto it = preloadImageCache.find(itemId.fileName);
   if (it != preloadImageCache.end() && !it->second.isNull())
   {
-    LOG(DEBUG) << "[Cache] Returned preload image for " << item.fileName();
+    LOG(DEBUG) << "[Cache] Returned preload image for " << itemId.fileName;
     return it->second;
   }
 
-  startThreadForItem(item);
+  startThreadForItem(itemId);
 
-  LOG(DEBUG) << "[Cache] Returned initial placeholder image for " << item.fileName();
+  LOG(DEBUG) << "[Cache] Returned initial placeholder image for " << itemId.fileName;
   return getInitialPreload();
 }
 
-std::unique_ptr<iprocess::LoaderThread> Cache::makeLoadingThread(std::string const& filename) const
+std::unique_ptr<iprocess::LoaderThread> Cache::makeLoadingThread(pcontainer::ItemId const& itemId) const
 {
-    QSize const fullSize = config::qSize("imageCache.fullSize", QSize(1920, 1080));
-    auto thread = std::make_unique<iprocess::LoaderThread>(filename, fullSize);
+  QSize const fullSize = config::qSize("imageCache.fullSize", QSize(1920, 1080));
+  auto thread = std::make_unique<iprocess::LoaderThread>(itemId, fullSize);
 
-    thread->setAutoDelete(true);
+  thread->setAutoDelete(true);
 
-    if (!hasMetrics(filename))
-    {
-        thread->withMetrics(hasMetrics(filename));
-        QObject::connect(&thread->readySignals, &iprocess::LoaderThreadSignals::metricsReady,
-                         this, &Cache::metricsReadyFromThread, Qt::QueuedConnection);
-    }
+  if (!hasMetrics(itemId))
+  {
+    thread->withMetrics(true);
+    QObject::connect(&thread->readySignals, &iprocess::LoaderThreadSignals::metricsReady,
+                     this, &Cache::metricsReadyFromThread, Qt::QueuedConnection);
+  }
 
-    QObject::connect(&thread->readySignals, &iprocess::LoaderThreadSignals::imageReady,
-                     this, &Cache::imageReadyFromThread, Qt::QueuedConnection);
+  QObject::connect(&thread->readySignals, &iprocess::LoaderThreadSignals::imageReady,
+                   this, &Cache::imageReadyFromThread, Qt::QueuedConnection);
 
-    return thread;
+  return thread;
 }
 
-void Cache::startThreadForItem(pcontainer::Item const& item) const
+void Cache::startThreadForItem(pcontainer::ItemId const& itemId) const
 {
-  LOG(DEBUG) << "[Cache] Requested thread load for " << item.fileName();
-  if (utils::valueIn(item.fileName(), loadingImageSeriesId))
+  LOG(DEBUG) << "[Cache] Requested thread load for " << itemId.fileName;
+  if (utils::valueIn(itemId.fileName, alreadyLoading))
   {
-    LOG(DEBUG) << "[Cache] Already loading " << item.fileName();
+    LOG(DEBUG) << "[Cache] Already loading " << itemId.fileName;
     return;
   }
 
-  loadingImageSeriesId.emplace(item.fileName(), item.seriesUuid());
+  alreadyLoading.insert(itemId.fileName);
 
-  auto thread = makeLoadingThread(item.fileName());
+  auto thread = makeLoadingThread(itemId);
   QThreadPool::globalInstance()->start(thread.release());
 }
 
-void Cache::imageReadyFromThread(QImage image, QString fileName)
+void Cache::imageReadyFromThread(pcontainer::ItemId itemId, QImage image)
 {
   // TODO: BUG! Handle when image is NULL, as this can happen when in OOM conditions
   // Currently the code goes into infinite loop requesting new preload and failing to deliver one from cache
   // because preload is in fact null
 
-  std::string const stdFilename = fileName.toStdString();
-  fullImageCache.replace(stdFilename, image);
+  fullImageCache.replace(itemId.fileName, image);
 
-  auto& preload = preloadImageCache[stdFilename];
+  auto& preload = preloadImageCache[itemId.fileName];
   if (preload.isNull())
   {
       auto const preloadSize = config::qSize("imageCache.preloadSize", QSize(320, 240));
       preload = image.scaled(preloadSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-      LOG(DEBUG) << "[Cache] Saved new preload image " << fileName;
+      LOG(DEBUG) << "[Cache] Saved new preload image " << itemId.fileName;
   }
 
-  auto const uuidIt = loadingImageSeriesId.find(stdFilename);
-  assert(uuidIt != loadingImageSeriesId.end());
+  auto const uuidIt = alreadyLoading.find(itemId.fileName);
+  assert(uuidIt != alreadyLoading.end());
 
-  QUuid const seriesId = uuidIt->second;
-  loadingImageSeriesId.erase(uuidIt);
+  alreadyLoading.erase(uuidIt);
 
-  emit updateImage(seriesId, fileName, image);
+  emit updateImage(itemId, image);
 }
 
-void Cache::metricsReadyFromThread(iprocess::MetricPtr metrics, QString fileName)
+void Cache::metricsReadyFromThread(pcontainer::ItemId itemId, iprocess::MetricPtr metrics)
 {
-  std::string const stdFilename = fileName.toStdString();
-  metricCache.emplace(stdFilename, metrics);
-  LOG(DEBUG) << "[Cache] Saved new metrics for " << fileName;
+  metricCache.emplace(itemId.fileName, metrics);
+  LOG(DEBUG) << "[Cache] Saved new metrics for " << itemId.fileName;
 
-  auto const& seriesUuid = utils::asserted::fromMap(loadingImageSeriesId, stdFilename);
-  auto const& series = photoSet.findSeries(seriesUuid);
+  auto const& series = photoSet.findSeries(itemId.seriesUuid);
 
   if (!std::all_of(series->begin(), series->end(),
-              [this](pcontainer::ItemPtr const& item){
-                  return utils::valueIn(item->fileName(), metricCache);
-              }))
+        [this](pcontainer::ItemPtr const& item){
+            return utils::valueIn(item->fileName(), metricCache);
+        }))
   {
     // not all metrics done -> emit just current one
-    emit updateMetrics(seriesUuid, fileName, metrics);
+    emit updateMetrics(itemId, metrics);
+    return;
   }
 
   auto allMetrics = utils::transformToVector<iprocess::MetricPtr>(series->begin(), series->end(),
       [this](auto const& item){ return metricCache[item->fileName()]; });
 
-  LOG(DEBUG) << "[Cache] Aggregating metrics for series " << seriesUuid.toString() << " after photo " << stdFilename;
+  LOG(DEBUG) << "[Cache] Aggregating metrics for series " << itemId.seriesUuid.toString() << " after photo " << itemId.fileName;
   iprocess::aggregateMetrics(allMetrics);
 
   bool const doLog = config::qualified("logging.metrics", false);
   for (std::size_t i = 0; i < series->size(); ++i)
   {
-    std::string const& fn = series->item(i)->fileName();
-    auto const& m = metricCache[fn];
-    emit updateMetrics(seriesUuid, QString(fn.c_str()), m);
+    auto const& filename = series->item(i)->fileName();
+    auto const& metric = metricCache[filename];
+    emit updateMetrics(pcontainer::ItemId{itemId.seriesUuid, filename}, metric);
 
     LOG_IF(doLog, DEBUG) << "Calculated series metrics" << std::endl
-       << "photoItem: " << fn << std::endl
-       << "metric: " << m;
+       << "photoItem: " << filename << std::endl
+       << "metric: " << metric;
   }
 }
 
-bool Cache::hasMetrics(std::string const& photoFilename) const
+bool Cache::hasMetrics(pcontainer::ItemId const& itemId) const
 {
-    return utils::valueIn(photoFilename, metricCache);
+    return utils::valueIn(itemId.fileName, metricCache);
 }
 
-iprocess::MetricPtr Cache::getMetrics(std::string const& photoFilename) const
+iprocess::MetricPtr Cache::getMetrics(pcontainer::ItemId const& itemId) const
 {
-    auto const it = metricCache.find(photoFilename);
+    auto const it = metricCache.find(itemId.fileName);
     if (it == metricCache.end())
       return nullptr;
 
-    LOG(DEBUG) << "[Cache] Retrieved metrics for " << photoFilename;
+    LOG(DEBUG) << "[Cache] Retrieved metrics for " << itemId.fileName;
     return it->second;
 }
 

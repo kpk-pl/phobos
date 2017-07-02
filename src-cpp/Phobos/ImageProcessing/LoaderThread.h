@@ -10,6 +10,7 @@
 #include <QSize>
 #include <QImage>
 #include "ImageProcessing/Metrics.h"
+#include "PhotoContainers/ItemId.h"
 
 namespace phobos { namespace iprocess {
 
@@ -18,15 +19,14 @@ class LoaderThreadSignals : public QObject
     Q_OBJECT
 
 signals:
-    void imageReady(QImage, QString) const;
-    void metricsReady(phobos::iprocess::MetricPtr, QString) const;
+    void imageReady(pcontainer::ItemId, QImage) const;
+    void metricsReady(pcontainer::ItemId, phobos::iprocess::MetricPtr) const;
 };
 
 class LoaderThread : public QRunnable
 {
 public:
-    explicit LoaderThread(std::string const& fileName,
-                          QSize const& requestedSize);
+    explicit LoaderThread(pcontainer::ItemId const& itemId, QSize const& requestedSize);
 
     void withMetrics(bool calculate) { calculateMetrics = calculate; }
     void run() override;
@@ -38,7 +38,7 @@ private:
     void emitLoadedSignal(cv::Mat const& cvImage);
     void runMetrics(cv::Mat cvImage) const;
 
-    std::string const fileToLoad;
+    pcontainer::ItemId const itemId;
     QSize const requestedSize;
     bool calculateMetrics;
 };

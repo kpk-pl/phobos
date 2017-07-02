@@ -11,9 +11,6 @@ namespace phobos {
 RowSeriesView::RowSeriesView(icache::Cache const& imageCache) :
     SeriesViewBase(imageCache)
 {
-    QObject::connect(&imageCache, &icache::Cache::updateImage, this, &RowSeriesView::updateImage);
-    QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &RowSeriesView::updateMetrics);
-
     NavigationBar* navigationBar = new NavigationBar(NavigationBar::Capability::ALL_SERIES |
                                                      NavigationBar::Capability::NUM_SERIES |
                                                      NavigationBar::Capability::SLIDER |
@@ -63,23 +60,9 @@ void RowSeriesView::clear()
     update();
 }
 
-void RowSeriesView::updateImage(QUuid seriesUuid, QString filename, QImage image)
+widgets::pitem::PhotoItem* RowSeriesView::findItemWidget(pcontainer::ItemId const& itemId) const
 {
-  widgets::pitem::PhotoItem* item = findItemWidget(seriesUuid, filename.toStdString());
-  if (item)
-    item->setImage(image);
-}
-
-void RowSeriesView::updateMetrics(QUuid seriesUuid, QString filename, iprocess::MetricPtr metrics)
-{
-  widgets::pitem::PhotoItem* item = findItemWidget(seriesUuid, filename.toStdString());
-  if (item)
-    item->setMetrics(metrics);
-}
-
-widgets::pitem::PhotoItem* RowSeriesView::findItemWidget(QUuid const& seriesUuid, std::string const& fileName) const
-{
-    if (currentSeriesUuid != seriesUuid)
+    if (currentSeriesUuid != itemId.seriesUuid)
         return nullptr;
 
     for (int i = 0; i < scroll->boxLayout()->count(); ++i)
@@ -87,7 +70,7 @@ widgets::pitem::PhotoItem* RowSeriesView::findItemWidget(QUuid const& seriesUuid
         auto const photoWidget = dynamic_cast<widgets::pitem::PhotoItem*>(scroll->boxLayout()->itemAt(i)->widget());
         assert(photoWidget);
 
-        if (photoWidget->photoItem().fileName() == fileName)
+        if (photoWidget->photoItem().id() == itemId)
           return photoWidget;
     }
 

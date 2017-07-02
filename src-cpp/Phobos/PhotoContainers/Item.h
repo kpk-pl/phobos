@@ -6,6 +6,7 @@
 #include <QUuid>
 #include <QMetaObject>
 #include "PhotoContainers/Fwd.h"
+#include "PhotoContainers/ItemId.h"
 
 namespace phobos { namespace pcontainer {
 
@@ -27,10 +28,12 @@ public:
     explicit Item(std::string const& fileName, QUuid const seriesId, unsigned const ordinal);
 
     bool isSelected() const;
-    QUuid const& seriesUuid() const { return _seriesId; }
     ItemState state() const { return _state; }
-    std::string const& fileName() const { return _fileName; }
     unsigned ord() const { return _ordinal; }
+
+    ItemId const& id() const { return _id; }
+    QUuid const& seriesUuid() const { return _id.seriesUuid; }
+    QString const& fileName() const { return _id.fileName; }
 
 signals:
     void stateChanged() const;
@@ -44,8 +47,7 @@ public slots:
     void setState(ItemState state) const;
 
 private:
-    std::string const _fileName;
-    QUuid const _seriesId;
+    ItemId const _id;
     unsigned const _ordinal;
     mutable ItemState _state;
 };

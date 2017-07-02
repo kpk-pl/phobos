@@ -1,8 +1,8 @@
 #ifndef PHOBOS_IMAGECACHE_CACHE_H_
 #define PHOBOS_IMAGECACHE_CACHE_H_
 
-#include <unordered_map>
-#include <string>
+#include <map>
+#include <set>
 #include <memory>
 #include <QObject>
 #include <QImage>
@@ -10,6 +10,7 @@
 #include "ImageCache/LimitedMap.h"
 #include "PhotoContainers/Set.h"
 #include "ImageProcessing/LoaderThread.h"
+#include "PhotoContainers/ItemId.h"
 
 namespace phobos { namespace icache {
 
@@ -20,19 +21,19 @@ class Cache : public QObject
 public:
     explicit Cache(pcontainer::Set const& photoSet);
 
-    QImage getImage(pcontainer::Item const& item) const;
-    QImage getPreload(pcontainer::Item const& item) const;
+    QImage getImage(pcontainer::ItemId const& itemId) const;
+    QImage getPreload(pcontainer::ItemId const& itemId) const;
 
-    bool hasMetrics(std::string const& photoFilename) const;
-    iprocess::MetricPtr getMetrics(std::string const& photoFilename) const;
+    bool hasMetrics(pcontainer::ItemId const& itemId) const;
+    iprocess::MetricPtr getMetrics(pcontainer::ItemId const& itemId) const;
 
 signals:
-    void updateImage(QUuid seriesUuid, QString filename, QImage image);
-    void updateMetrics(QUuid seriesUuid, QString filename, iprocess::MetricPtr);
+    void updateImage(pcontainer::ItemId itemId, QImage image);
+    void updateMetrics(pcontainer::ItemId itemId, iprocess::MetricPtr);
 
 private slots:
-    void imageReadyFromThread(QImage image, QString fileName);
-    void metricsReadyFromThread(iprocess::MetricPtr image, QString fileName);
+    void imageReadyFromThread(pcontainer::ItemId itemId, QImage image);
+    void metricsReadyFromThread(pcontainer::ItemId itemId, iprocess::MetricPtr image);
 
 // TODO: get rid of those mutables
 //
@@ -41,17 +42,17 @@ private slots:
 private:
     pcontainer::Set const& photoSet;
 
-    std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(std::string const& filename) const;
-    void startThreadForItem(pcontainer::Item const& item) const;
+    std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(pcontainer::ItemId const& itemId) const;
+    void startThreadForItem(pcontainer::ItemId const& itemId) const;
 
-    using LookupKeyType = std::string;
+    using LookupKeyType = QString;
 
     // if image is in this map, it is already loading
-    std::unordered_map<LookupKeyType, QUuid> mutable loadingImageSeriesId;
+    std::set<LookupKeyType> mutable alreadyLoading;
 
-    std::unordered_map<LookupKeyType, QImage> mutable preloadImageCache;
+    std::map<LookupKeyType, QImage> mutable preloadImageCache;
     LimitedMap mutable fullImageCache;
-    std::unordered_map<LookupKeyType, iprocess::MetricPtr> mutable metricCache;
+    std::map<LookupKeyType, iprocess::MetricPtr> mutable metricCache;
 };
 
 }} // namespace phobos::icache

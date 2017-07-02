@@ -119,8 +119,8 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
 
     for (std::size_t col = 0; col < series->size(); ++col)
     {
-        auto const& itemPtr = series->item(col);
-        PhotoItem* item = new PhotoItem(itemPtr, imageCache.getPreload(*itemPtr), widgetAddons, CapabilityType::OPEN_SERIES | CapabilityType::REMOVE_PHOTO);
+        pcontainer::ItemPtr const& itemPtr = series->item(col);
+        PhotoItem* item = new PhotoItem(itemPtr, imageCache.getPreload(itemPtr->id()), widgetAddons, CapabilityType::OPEN_SERIES | CapabilityType::REMOVE_PHOTO);
 
         QObject::connect(item, &PhotoItem::openInSeries,
           [this](QUuid const& uuid){ switchView(ViewDescription::make(ViewType::ANY_SINGLE_SERIES, uuid)); });
@@ -132,21 +132,22 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
     }
 }
 
-void AllSeriesView::updateImage(QUuid seriesUuid, QString fileName)
+void AllSeriesView::updateImage(pcontainer::ItemId const& itemId)
 {
-  auto& widget = utils::asserted::fromPtr(findItem(seriesUuid, fileName.toStdString()));
-  widget.setImage(imageCache.getPreload(widget.photoItem()));
+  auto& widget = utils::asserted::fromPtr(findItem(itemId));
+  widget.setImage(imageCache.getPreload(itemId));
 }
 
-void AllSeriesView::updateMetrics(QUuid seriesUuid, QString fileName, iprocess::MetricPtr metrics)
+void AllSeriesView::updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics)
 {
-  auto& widget = utils::asserted::fromPtr(findItem(seriesUuid, fileName.toStdString()));
+  auto& widget = utils::asserted::fromPtr(findItem(itemId));
   widget.setMetrics(metrics);
 }
 
-widgets::pitem::PhotoItem* AllSeriesView::findItem(QUuid const& seriesUuid, std::string const& filename) const
+// TODO: lookup with itemAtPosition is probably not that good
+widgets::pitem::PhotoItem* AllSeriesView::findItem(pcontainer::ItemId const& itemId) const
 {
-    auto const seriesRow = utils::asserted::fromMap(seriesUuidToRow, seriesUuid);
+    auto const seriesRow = utils::asserted::fromMap(seriesUuidToRow, itemId.seriesUuid);
 
     for (int i = 0; i < grid->columnCount(); ++i)
     {
@@ -157,7 +158,7 @@ widgets::pitem::PhotoItem* AllSeriesView::findItem(QUuid const& seriesUuid, std:
         auto const photoItemWgt = dynamic_cast<widgets::pitem::PhotoItem*>(widgetItem->widget());
         assert(photoItemWgt);
 
-        if (photoItemWgt->photoItem().fileName() == filename)
+        if (photoItemWgt->photoItem().id() == itemId)
           return photoItemWgt;
     }
 

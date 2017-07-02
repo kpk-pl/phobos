@@ -21,9 +21,8 @@
 
 namespace phobos { namespace iprocess {
 
-LoaderThread::LoaderThread(std::string const& fileName, QSize const& requestedSize) :
-    fileToLoad(fileName),
-    requestedSize(requestedSize)
+LoaderThread::LoaderThread(pcontainer::ItemId const& itemId, QSize const& requestedSize) :
+    itemId(itemId), requestedSize(requestedSize)
 {
 }
 
@@ -36,7 +35,7 @@ void LoaderThread::run()
     {
         cv::Mat cvImage;
         {
-            TIMED("load:imread", cvImage = cv::imread(fileToLoad));
+            TIMED("load:imread", cvImage = cv::imread(itemId.fileName.toStdString().c_str()));
             emitLoadedSignal(cvImage);
         }
         runMetrics(std::move(cvImage));
@@ -73,12 +72,12 @@ void LoaderThread::runWithoutMetrics() const
 {
     TIMED_FUNC(id);
 
-    QImageReader reader(fileToLoad.c_str());
+    QImageReader reader(itemId.fileName.toStdString().c_str());
     reader.setAutoTransform(true);
     reader.setAutoDetectImageFormat(true);
 
     QSize const scaledSize = scaledDown(reader.size(), requestedSize);
-    LOG(DEBUG) << "Reading image " << fileToLoad
+    LOG(DEBUG) << "Reading image " << itemId.fileName
                << " with size: " << reader.size().width() << "x" << reader.size().height()
                << " scaled to " << scaledSize.width() << "x" << scaledSize.height();
     reader.setScaledSize(scaledSize);
@@ -86,14 +85,14 @@ void LoaderThread::runWithoutMetrics() const
     QImage image;
     TIMED("QImageReade:read", image = reader.read());
 
-    emit readySignals.imageReady(image, QString(fileToLoad.c_str()));
+    emit readySignals.imageReady(itemId, image);
 }
 
 void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
 {
     QSize const cvSize(cvImage.cols, cvImage.rows);
     QSize const pixmapSize = scaledDown(cvSize, requestedSize);
-    LOG(DEBUG) << "Scaling " << fileToLoad << " from " << cvImage.cols << "x" << cvImage.rows
+    LOG(DEBUG) << "Scaling " << itemId.fileName << " from " << cvImage.cols << "x" << cvImage.rows
                << " to " << pixmapSize.width() << "x" << pixmapSize.height();
 
     cv::Mat resized;
@@ -102,7 +101,7 @@ void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
     QImage image;
     TIMED("cv:convQt", image = iprocess::convCvToImage(resized));
 
-    emit readySignals.imageReady(image, QString(fileToLoad.c_str()));
+    emit readySignals.imageReady(itemId, image);
 }
 
 // TODO optimize double scaling when calculating metrics
@@ -129,7 +128,7 @@ void LoaderThread::runMetrics(cv::Mat cvImage) const
     TIMED("runMetrics: laplace", metrics->blur.laplace = blur::laplace(resized));
     TIMED("runMetrics: laplaceMod", metrics->blur.laplaceMod = blur::laplaceMod(resized));
 
-    emit readySignals.metricsReady(metrics, QString(fileToLoad.c_str()));
+    emit readySignals.metricsReady(itemId, metrics);
 }
 
 }} // namespace phobos::iprocess

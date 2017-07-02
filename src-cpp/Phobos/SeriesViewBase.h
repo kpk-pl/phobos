@@ -6,8 +6,10 @@
 #include <QMetaObject>
 #include <boost/optional.hpp>
 #include "PhotoContainers/Series.h"
+#include "PhotoContainers/ItemId.h"
 #include "ImageCache/CacheFwd.h"
 #include "ViewDescription.h"
+#include "ImageProcessing/MetricsFwd.h"
 
 namespace phobos {
 
@@ -37,6 +39,12 @@ protected:
 
 private slots:
     void changeCurrentSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state);
+    void updateImage(pcontainer::ItemId const& itemId, QImage image);
+    void updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics);
+
+private:
+    virtual widgets::pitem::PhotoItem*
+        findItemWidget(pcontainer::ItemId const& itemId) const = 0;
 };
 
 } // namespace phobos

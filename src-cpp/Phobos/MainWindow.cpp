@@ -83,15 +83,15 @@ void MainWindow::createMenus()
 void MainWindow::removeSelected() const
 {
     auto const selections = viewStack->getSelectionStatus();
-    std::vector<std::string> toDelete;
+    std::vector<QString> toDelete;
     for (auto const& seriesStat : selections.status)
         toDelete.insert(toDelete.end(), seriesStat.discarded.begin(), seriesStat.discarded.end());
 
-    for (auto const& fileName : toDelete)
+    for (QString const& fileName : toDelete)
     {
         LOG(DEBUG) << ":: deleting " << fileName;
 
-        if (remove(fileName.c_str()) != 0)
+        if (remove(fileName.toStdString().c_str()) != 0)
             LOG(ERROR) << "Cannot remove file " << fileName;
     }
 

@@ -74,6 +74,7 @@ HEADERS  += MainWindow.h \
     PhotoContainers/Series.h \
     PhotoContainers/Set.h \
     PhotoContainers/Item.h \
+    PhotoContainers/ItemId.h \
     Utils/LayoutClear.h \
     Utils/Algorithm.h \
     Utils/Focused.h \

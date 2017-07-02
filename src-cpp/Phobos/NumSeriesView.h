@@ -4,7 +4,6 @@
 #include <vector>
 #include "SeriesViewBase.h"
 #include "ImageCache/CacheFwd.h"
-#include "ImageProcessing/MetricsFwd.h"
 
 namespace phobos {
 
@@ -23,14 +22,12 @@ protected:
     void addToLayout(widgets::pitem::PhotoItem* itemWidget) override;
     void changeSeriesState(pcontainer::ItemState const state) const override;
 
-private slots:
-    void updateImage(QUuid seriesUuid, QString filename, QImage image);
-    void updateMetrics(QUuid seriesUuid, QString filename, iprocess::MetricPtr metrics);
-
 private:
     void showNextItem();
     void showPrevItem();
     void setCurrentView();
+
+    widgets::pitem::PhotoItem* findItemWidget(pcontainer::ItemId const& itemId) const override;
 
     unsigned const visibleItems;
     unsigned currentItem;

@@ -1,9 +1,9 @@
 #ifndef PHOBOS_IMAGECACHE_LIMITED_MAP_H_
 #define PHOBOS_IMAGECACHE_LIMITED_MAP_H_
 
-#include <unordered_map>
+#include <map>
 #include <list>
-#include <string>
+#include <QString>
 #include <QImage>
 
 namespace phobos { namespace icache {
@@ -11,9 +11,9 @@ namespace phobos { namespace icache {
 class LimitedMap
 {
 public:
-  using KeyType = std::string;
+  using KeyType = QString;
   using ValueType = QImage;
-  using UnderlyingType = std::unordered_map<KeyType, ValueType>;
+  using UnderlyingType = std::map<KeyType, ValueType>;
 
   LimitedMap() = default;
 

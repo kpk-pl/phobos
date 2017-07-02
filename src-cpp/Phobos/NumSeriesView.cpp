@@ -17,9 +17,6 @@ NumSeriesView::NumSeriesView(icache::Cache const& imageCache) :
     visibleItems(config::get()->get_qualified_as<unsigned>("seriesView.num.visibleItems").value_or(2)),
     currentItem(0)
 {
-    QObject::connect(&imageCache, &icache::Cache::updateImage, this, &NumSeriesView::updateImage);
-    QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &NumSeriesView::updateMetrics);
-
     NavigationBar* navigationBar = new NavigationBar(NavigationBar::Capability::ALL_SERIES |
                                                      NavigationBar::Capability::ONE_SERIES |
                                                      NavigationBar::Capability::LEFT |
@@ -58,28 +55,16 @@ void NumSeriesView::showSeries(pcontainer::SeriesPtr const& series)
     layoutForItems->itemAt(0)->widget()->setFocus();
 }
 
-void NumSeriesView::updateImage(QUuid seriesUuid, QString filename, QImage image)
+widgets::pitem::PhotoItem* NumSeriesView::findItemWidget(pcontainer::ItemId const& itemId) const
 {
-    if (currentSeriesUuid != seriesUuid)
-        return;
+  if (currentSeriesUuid != itemId.seriesUuid)
+      return nullptr;
 
-    auto const widgetIt = std::find_if(photoItems.begin(), photoItems.end(),
-        [filename = filename.toStdString()](widgets::pitem::PhotoItem* const p){ return p->photoItem().fileName() == filename; });
+  auto const widgetIt = std::find_if(photoItems.begin(), photoItems.end(),
+      [&itemId](widgets::pitem::PhotoItem* const p){ return p->photoItem().id() == itemId; });
 
-    assert(widgetIt != photoItems.end());
-    (*widgetIt)->setImage(image);
-}
-
-void NumSeriesView::updateMetrics(QUuid seriesUuid, QString filename, iprocess::MetricPtr metrics)
-{
-    if (currentSeriesUuid != seriesUuid)
-        return;
-
-    auto const widgetIt = std::find_if(photoItems.begin(), photoItems.end(),
-        [filename = filename.toStdString()](widgets::pitem::PhotoItem* const p){ return p->photoItem().fileName() == filename; });
-
-    assert(widgetIt != photoItems.end());
-    (*widgetIt)->setMetrics(metrics);
+  assert(widgetIt != photoItems.end());
+  return *widgetIt;
 }
 
 void NumSeriesView::clear()
