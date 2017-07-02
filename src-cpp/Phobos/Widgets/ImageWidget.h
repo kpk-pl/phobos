@@ -1,5 +1,5 @@
-#ifndef IMAGEWIDGET_H
-#define IMAGEWIDGET_H
+#ifndef WIDGETS_IMAGEWIDGET_H
+#define WIDGETS_IMAGEWIDGET_H
 
 #include <memory>
 #include <QImage>
@@ -8,9 +8,9 @@
 #include "Widgets/HeightResizeableInterface.h"
 #include "ImageProcessing/MetricsFwd.h"
 
-namespace phobos {
+namespace phobos { namespace widgets {
 
-class ImageWidget : public QLabel, public widgets::HeightResizeableInterface
+class ImageWidget : public QLabel, public HeightResizeableInterface
 {
     Q_OBJECT
 
@@ -41,6 +41,6 @@ private:
     iprocess::MetricPtr _metrics;
 };
 
-} // namespace phobos
+}} // namespace phobos::widgets
 
-#endif // IMAGEWIDGET_H
+#endif // WIDGETS_IMAGEWIDGET_H

@@ -1,7 +1,7 @@
 #include <functional>
 #include "SeriesViewBase.h"
-#include "PhotoItemWidget.h"
-#include "PhotoItemWidgetAddon.h"
+#include "Widgets/PhotoItemWidget.h"
+#include "Widgets/PhotoItemWidgetAddon.h"
 #include "Config.h"
 #include "ConfigExtension.h"
 #include "ImageCache/Cache.h"
@@ -17,13 +17,13 @@ void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
 {
     clear();
 
-    auto const& addons = PhotoItemWidgetAddons(config::get()->get_qualified_array_of<std::string>("seriesView.enabledAddons").value_or({}));
+    auto const& addons = widgets::PhotoItemWidgetAddons(config::get()->get_qualified_array_of<std::string>("seriesView.enabledAddons").value_or({}));
 
     for (pcontainer::ItemPtr const& item : *series)
     {
-        PhotoItemWidget* widget = new PhotoItemWidget(item, imageCache.getImage(*item), addons);
+        widgets::PhotoItemWidget* widget = new widgets::PhotoItemWidget(item, imageCache.getImage(*item), addons);
 
-        QObject::connect(widget, &PhotoItemWidget::changeSeriesState,
+        QObject::connect(widget, &widgets::PhotoItemWidget::changeSeriesState,
                          this, &SeriesViewBase::changeCurrentSeriesState);
 
         addToLayout(widget);

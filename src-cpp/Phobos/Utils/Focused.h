@@ -2,17 +2,17 @@
 #define UTILS_FOCUSED_H
 
 #include <QApplication>
-#include "PhotoItemWidget.h"
+#include "Widgets/PhotoItemWidget.h"
 
 namespace phobos { namespace utils {
 
-inline PhotoItemWidget* focusedPhotoItemWidget()
+inline widgets::PhotoItemWidget* focusedPhotoItemWidget()
 {
     auto focusWidget = QApplication::focusWidget();
     if (!focusWidget)
         return nullptr;
 
-    PhotoItemWidget* piw = dynamic_cast<PhotoItemWidget*>(focusWidget);
+    widgets::PhotoItemWidget* piw = dynamic_cast<widgets::PhotoItemWidget*>(focusWidget);
     return piw;
 }
 

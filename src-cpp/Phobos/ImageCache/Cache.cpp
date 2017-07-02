@@ -106,6 +106,10 @@ void Cache::startThreadForItem(pcontainer::Item const& item) const
 
 void Cache::imageReadyFromThread(QImage image, QString fileName)
 {
+  // TODO: BUG! Handle when image is NULL, as this can happen when in OOM conditions
+  // Currently the code goes into infinite loop requesting new preload and failing to deliver one from cache
+  // because preload is in fact null
+
   std::string const stdFilename = fileName.toStdString();
   fullImageCache.replace(stdFilename, image);
 

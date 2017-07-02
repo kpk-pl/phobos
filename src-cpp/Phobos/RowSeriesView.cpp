@@ -3,7 +3,7 @@
 #include "RowSeriesView.h"
 #include "NavigationBar.h"
 #include "Utils/LayoutClear.h"
-#include "PhotoItemWidget.h"
+#include "Widgets/PhotoItemWidget.h"
 #include "ImageCache/Cache.h"
 
 namespace phobos {
@@ -65,26 +65,26 @@ void RowSeriesView::clear()
 
 void RowSeriesView::updateImage(QUuid seriesUuid, QString filename, QImage image)
 {
-  PhotoItemWidget* item = findItemWidget(seriesUuid, filename.toStdString());
+  widgets::PhotoItemWidget* item = findItemWidget(seriesUuid, filename.toStdString());
   if (item)
     item->setImage(image);
 }
 
 void RowSeriesView::updateMetrics(QUuid seriesUuid, QString filename, iprocess::MetricPtr metrics)
 {
-  PhotoItemWidget* item = findItemWidget(seriesUuid, filename.toStdString());
+  widgets::PhotoItemWidget* item = findItemWidget(seriesUuid, filename.toStdString());
   if (item)
     item->setMetrics(metrics);
 }
 
-PhotoItemWidget* RowSeriesView::findItemWidget(QUuid const& seriesUuid, std::string const& fileName) const
+widgets::PhotoItemWidget* RowSeriesView::findItemWidget(QUuid const& seriesUuid, std::string const& fileName) const
 {
     if (currentSeriesUuid != seriesUuid)
         return nullptr;
 
     for (int i = 0; i < scroll->boxLayout()->count(); ++i)
     {
-        auto const photoWidget = dynamic_cast<PhotoItemWidget*>(scroll->boxLayout()->itemAt(i)->widget());
+        auto const photoWidget = dynamic_cast<widgets::PhotoItemWidget*>(scroll->boxLayout()->itemAt(i)->widget());
         assert(photoWidget);
 
         if (photoWidget->photoItem().fileName() == fileName)
@@ -92,36 +92,19 @@ PhotoItemWidget* RowSeriesView::findItemWidget(QUuid const& seriesUuid, std::str
     }
 
     assert(false); // impossible
+    return nullptr;
 }
 
-void RowSeriesView::addToLayout(PhotoItemWidget* itemWidget)
+void RowSeriesView::addToLayout(widgets::PhotoItemWidget* itemWidget)
 {
     scroll->boxLayout()->addWidget(itemWidget);
 }
-
-//std::vector<PhotoItemWidget*> RowSeriesView::moveItemsOut()
-//{
-    //std::vector<PhotoItemWidget*> result;
-    //result.reserve(scroll->boxLayout()->count());
-    //for (int i = 0; i < scroll->boxLayout()->count(); ++i)
-    //{
-        //PhotoItemWidget *photoWidget = dynamic_cast<PhotoItemWidget*>(scroll->boxLayout()->itemAt(i)->widget());
-        //assert(photoWidget);
-        //photoWidget->disconnect(this);
-        //result.push_back(photoWidget);
-    //}
-
-    //utils::clearLayout(scroll->boxLayout(), false);
-    //currentSeriesUuid.reset();
-    //scroll->horizontalScrollBar()->setValue(0);
-    //return result;
-//}
 
 void RowSeriesView::changeSeriesState(pcontainer::ItemState const state) const
 {
     for (int i = 0; i < scroll->boxLayout()->count(); ++i)
     {
-        PhotoItemWidget *photoWidget = dynamic_cast<PhotoItemWidget*>(scroll->boxLayout()->itemAt(i)->widget());
+        widgets::PhotoItemWidget *photoWidget = dynamic_cast<widgets::PhotoItemWidget*>(scroll->boxLayout()->itemAt(i)->widget());
         assert(photoWidget);
         photoWidget->photoItem().setState(state);
     }

@@ -11,7 +11,9 @@
 
 namespace phobos {
 
+namespace widgets {
 class PhotoItemWidget;
+} // namespace widgets
 
 class SeriesViewBase : public QWidget
 {
@@ -27,7 +29,7 @@ signals:
     void switchView(ViewDescriptionPtr viewDesc);
 
 protected:
-    virtual void addToLayout(PhotoItemWidget* itemWidget) = 0;
+    virtual void addToLayout(widgets::PhotoItemWidget* itemWidget) = 0;
     virtual void changeSeriesState(pcontainer::ItemState const state) const = 0;
 
     icache::Cache const& imageCache;

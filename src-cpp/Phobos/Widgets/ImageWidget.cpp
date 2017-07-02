@@ -2,10 +2,10 @@
 #include <QPaintEvent>
 #include <QPoint>
 #include <QPainter>
-#include "ImageWidget.h"
+#include "Widgets/ImageWidget.h"
 #include "ImageProcessing/ScalePixmap.h"
 
-namespace phobos {
+namespace phobos { namespace widgets {
 
 ImageWidget::ImageWidget(QImage const& image)
 {
@@ -66,4 +66,4 @@ bool ImageWidget::hasWidthForHeight() const
     return !_image.isNull();
 }
 
-} // namespace phobos
+}} // namespace phobos::widgets

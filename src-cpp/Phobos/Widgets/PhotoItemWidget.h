@@ -1,13 +1,13 @@
-#ifndef PHOTOITEMWIDGET_H
-#define PHOTOITEMWIDGET_H
+#ifndef WIDGETS_PHOTOITEMWIDGET_H
+#define WIDGETS_PHOTOITEMWIDGET_H
 
 #include <memory>
 #include <QUuid>
-#include "ImageWidget.h"
+#include "Widgets/ImageWidget.h"
+#include "Widgets/PhotoItemWidgetAddon.h"
 #include "PhotoContainers/Item.h"
-#include "PhotoItemWidgetAddon.h"
 
-namespace phobos {
+namespace phobos { namespace widgets {
 
 class PhotoItemWidget : public ImageWidget
 {
@@ -38,6 +38,6 @@ private:
     PhotoItemWidgetAddons const addons;
 };
 
-} // namespace phobos
+}} // namespace phobos::widgets
 
-#endif // PHOTOITEMWIDGET_H
+#endif // WIDGETS_PHOTOITEMWIDGET_H

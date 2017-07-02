@@ -21,7 +21,6 @@ SOURCES += Phobos.cpp\
     ViewStack.cpp \
     Config.cpp \
     AllSeriesView.cpp \
-    ImageWidget.cpp \
     ImageProcessing/Metrics.cpp \
     ImageProcessing/MetricsIO.cpp \
     ImageProcessing/LoaderThread.cpp \
@@ -38,8 +37,6 @@ SOURCES += Phobos.cpp\
     Utils/LayoutClear.cpp \
     easyloggingpp/src/easylogging++.cc \
     ConfigExtension.cpp \
-    PhotoItemWidget.cpp \
-    PhotoItemWidgetAddon.cpp \
     SeriesViewBase.cpp \
     NumSeriesView.cpp \
     NavigationBar.cpp \
@@ -50,6 +47,9 @@ SOURCES += Phobos.cpp\
     Utils/FileAttributes.cpp \
     Widgets/IconLabel.cpp \
     Widgets/HorizontalScrollArea.cpp \
+    Widgets/ImageWidget.cpp \
+    Widgets/PhotoItemWidget.cpp \
+    Widgets/PhotoItemWidgetAddon.cpp \
     ImportWizard/DivisionOps.cpp \
     ImportWizard/SeriesDisplayPage.cpp \
     ImageCache/Cache.cpp \
@@ -60,7 +60,6 @@ HEADERS  += MainWindow.h \
     Config.h \
     AllSeriesView.h \
     ConfigExtension.h \
-    ImageWidget.h \
     ImageProcessing/Metrics.h \
     ImageProcessing/MetricsIO.h \
     ImageProcessing/LoaderThread.h \
@@ -79,8 +78,6 @@ HEADERS  += MainWindow.h \
     Utils/Algorithm.h \
     Utils/Focused.h \
     easyloggingpp/src/easylogging++.h \
-    PhotoItemWidget.h \
-    PhotoItemWidgetAddon.h \
     SeriesViewBase.h \
     NumSeriesView.h \
     NavigationBar.h \
@@ -96,6 +93,9 @@ HEADERS  += MainWindow.h \
     Widgets/HeightResizeableInterface.h \
     Widgets/IconLabel.h \
     Widgets/HorizontalScrollArea.h \
+    Widgets/ImageWidget.h \
+    Widgets/PhotoItemWidget.h \
+    Widgets/PhotoItemWidgetAddon.h \
     ImportWizard/DivisionOps.h \
     ImportWizard/Types.h \
     ImportWizard/SeriesDisplayPage.h \

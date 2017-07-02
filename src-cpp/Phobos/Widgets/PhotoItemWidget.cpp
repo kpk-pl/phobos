@@ -8,14 +8,14 @@
 #include <QPainter>
 #include <QTransform>
 #include <sstream>
-#include "PhotoItemWidget.h"
+#include "Widgets/PhotoItemWidget.h"
 #include "Config.h"
 #include "ConfigExtension.h"
 #include "ImageProcessing/ColoredPixmap.h"
 #include "ImageProcessing/Metrics.h"
 #include "Utils/Algorithm.h"
 
-namespace phobos {
+namespace phobos { namespace widgets {
 
 // TODO: bestmark, focus pixmaps -> CACHE IT by size!!! Those are calculated hundreds of times and the result is always the same!
 // Time it before to make sure it has some impact
@@ -328,4 +328,4 @@ void PhotoItemWidget::keyPressEvent(QKeyEvent* event)
         ImageWidget::keyPressEvent(event);
 }
 
-} // namespace phobos
+}} // namespace phobos::widgets

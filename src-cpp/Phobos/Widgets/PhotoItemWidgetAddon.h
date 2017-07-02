@@ -1,10 +1,10 @@
-#ifndef PHOTOITEMWIDGETADDON_H
-#define PHOTOITEMWIDGETADDON_H
+#ifndef WIDGETS_PHOTOITEMWIDGETADDON_H
+#define WIDGETS_PHOTOITEMWIDGETADDON_H
 
 #include <string>
 #include <vector>
 
-namespace phobos {
+namespace phobos { namespace widgets {
 
 enum class PhotoItemWidgetAddonType
 {
@@ -25,6 +25,6 @@ public:
     std::vector<PhotoItemWidgetAddonType> addons;
 };
 
-} // namespace phobos
+}} // namespace phobos::widgets
 
-#endif // PHOTOITEMWIDGETADDON_H
+#endif // WIDGETS_PHOTOITEMWIDGETADDON_H

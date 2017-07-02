@@ -21,7 +21,7 @@ private slots:
     void resizeImages(int percent);
 
 protected:
-    void addToLayout(PhotoItemWidget* itemWidget) override;
+    void addToLayout(widgets::PhotoItemWidget* itemWidget) override;
     void changeSeriesState(pcontainer::ItemState const state) const override;
 
 private slots:
@@ -29,7 +29,7 @@ private slots:
     void updateMetrics(QUuid seriesUuid, QString filename, iprocess::MetricPtr metrics);
 
 private:
-    PhotoItemWidget* findItemWidget(QUuid const& seriesUuid, std::string const& fileName) const;
+    widgets::PhotoItemWidget* findItemWidget(QUuid const& seriesUuid, std::string const& fileName) const;
 
     widgets::HorizontalScrollArea* scroll;
 };

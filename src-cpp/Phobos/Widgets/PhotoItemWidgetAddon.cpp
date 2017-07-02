@@ -1,7 +1,7 @@
 #include <algorithm>
-#include "PhotoItemWidgetAddon.h"
+#include "Widgets/PhotoItemWidgetAddon.h"
 
-namespace phobos {
+namespace phobos { namespace widgets {
 
 PhotoItemWidgetAddons::PhotoItemWidgetAddons(std::vector<std::string> const& specifiers)
 {
@@ -27,4 +27,4 @@ bool PhotoItemWidgetAddons::has(PhotoItemWidgetAddonType type) const
     return std::binary_search(addons.begin(), addons.end(), type);
 }
 
-} // namespace phobos
+}} // namespace phobos::widgets
