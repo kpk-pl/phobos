@@ -26,6 +26,7 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
 
     fixedNumChoice = new QRadioButton(tr("Each series has the same number of photos"));
     fixedNumParam = new QSpinBox();
+    // TODO: Try to guess best value based on number of photos being loaded. Try 13, 11, 7, 5, 3
     fixedNumParam->setValue(5);
     fixedNumParam->setSuffix(tr(" photos", "As in '5 photos'"));
     fixedNumParam->setDisabled(true);

@@ -28,6 +28,7 @@ void Item::discard() const
   emit stateChanged();
 }
 
+// TODO: Change to "reset"
 void Item::deselect() const
 {
   LOG(INFO) << "Deselected item " << _id.toString();

@@ -31,13 +31,24 @@ namespace phobos { namespace widgets { namespace pitem {
 //
 // TODO: from config, enable setBackground(color) for text, enable opacity
 //
+// TODO: display max scores as in "Quality: 80%/94%". 100% is not always maximum
 // TODO: another addon: show file name
+// TODO: addon: histogram with each RGB channel each
+// TODO: addon: cumulative histogram
+// TODO: addon: diff from previous photo as a heat map like something?
+// TODO: addon: vector flow from previous photo
+// TODO: addon: Display selected metrics in text form on single series views.
+// TODO: rightclick menu should open a dialog with all metrics displayed
+// TODO: for best item, background under ord number might be green
 //
 // TODO: show "Quality" text in quality label
+//
+// TODO: Display image filename in tooltip or on the bar on the bottom of the app
 //
 // TODO: Right-click menu to open a dialog displaying all metrics for photo or whole series
 //
 // TODO: Tooltil on mouse over to display image filename
+// TODO: Change focus icon color to blueish
 
 PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem, QImage const& preload, Addons const& addons, Capabilities const& capabilities) :
     ImageWidget(preload), _photoItem(photoItem), addons(addons), capabilities(capabilities)

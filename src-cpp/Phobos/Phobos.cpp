@@ -12,7 +12,7 @@
 #include "PhotoContainers/ItemId.h"
 
 INITIALIZE_EASYLOGGINGPP
-
+// TODO: My app has no icon - add one
 int main(int argc, char *argv[])
 {
     auto const elConf = phobos::config::get()->get_qualified_as<std::string>("global.loggingConfig");

@@ -22,6 +22,8 @@ Cache::Cache(pcontainer::Set const& photoSet) :
 namespace {
   QImage getInitialPreload()
   {
+    // TODO: use thumbnails from OS if available
+    // https://stackoverflow.com/questions/19523599/how-to-get-thumbnail-of-file-using-the-windows-api
     static QImage const preloadImage =
       utils::preloadImage(config::qSize("imageCache.preloadSize", QSize(320, 240)));
 
@@ -102,6 +104,8 @@ void Cache::startThreadForItem(pcontainer::ItemId const& itemId) const
   alreadyLoading.insert(itemId.fileName);
 
   auto thread = makeLoadingThread(itemId);
+  // TODO: own threadpool is a MUST
+  // TODO: prioritize loading of full images
   QThreadPool::globalInstance()->start(thread.release());
 }
 

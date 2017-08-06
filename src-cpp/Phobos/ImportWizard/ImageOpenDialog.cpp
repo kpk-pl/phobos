@@ -8,6 +8,8 @@
 
 namespace phobos { namespace importwiz {
 
+
+// TODO: Enable selecting directory and process all photos from it
 namespace {
 std::unique_ptr<QFileDialog> createLoadDialog(QWidget *parent)
 {

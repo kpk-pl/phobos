@@ -16,6 +16,7 @@ SeriesViewBase::SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache c
   QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &SeriesViewBase::updateSeries);
 }
 
+// TODO: maybe if at all possible. Ctrl+Arrow jump focus to best photo in series
 // TODO: This function has a lot in common with AllSeriesView -> derive from common base
 void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
 {

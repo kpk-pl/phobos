@@ -87,6 +87,8 @@ void SeriesDisplayPage::initializeMultipleLengthsInfo(std::set<std::size_t> cons
             boost::algorithm::join(lengths | boost::adaptors::transformed(static_cast<std::string(*)(std::size_t)>(std::to_string)), ", ");
 
     LOG(INFO) << "Detected series with multiple different lengths: " << sLengthList;
+    // TODO: When detecting series of multiples of lenghts, display warning that probably those can be divided in half.
+    // Ex. series of length 7 and 21. Can be divided into 3 series.
 
     multipleLengthsInfo->show();
     multipleLengthsInfo->label()->setText(tr("Found series with different lengths: %1 photos").arg(sLengthList.c_str()));

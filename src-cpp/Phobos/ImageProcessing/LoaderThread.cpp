@@ -58,6 +58,10 @@ void LoaderThread::run()
 
 // TODO: Use transaction-like logic with unique IDs to display INFO information about loaded images
 
+// TODO: BUG: handle nullptrs and QImage.isNull() == true. Probably sometimes it is impossible to allocate more memory and nullpts are used
+// If this thread crashes, whole app crashes.
+// To reproduce try to load A LOT of phtoos with increased cache size. Huge cache size helps to reproduce.
+
 namespace {
   QSize scaledDown(QSize const& size, QSize const& limit)
   {

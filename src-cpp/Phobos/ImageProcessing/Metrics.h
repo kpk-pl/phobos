@@ -32,6 +32,8 @@ struct Metric : public MetricValues
 }} // namespace phobos::iprocess
 
 // TODO: Detect faces -> number of faces should be indicator if quality
+// TODO: cumulative histogram calculate linearity -> indicator of quality
+// TODO: Figure out some sort of Hough transform quality that tells how well-oriented the image is. Display angle the image is skewed.
 
 Q_DECLARE_METATYPE(phobos::iprocess::MetricPtr)
 
