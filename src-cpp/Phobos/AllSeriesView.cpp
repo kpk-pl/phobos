@@ -15,7 +15,9 @@
 #include "Utils/Algorithm.h"
 #include "Utils/Focused.h"
 #include "Utils/Asserted.h"
+#include "Utils/LayoutClear.h"
 #include "ImageCache/Cache.h"
+#include <easylogging++.h>
 
 namespace phobos {
 
@@ -62,11 +64,13 @@ struct AllSeriesView::Coords
     int row, col;
 };
 
-AllSeriesView::AllSeriesView(icache::Cache const& imageCache) :
-    imageCache(imageCache)
+AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache const& imageCache) :
+    seriesSet(seriesSet), imageCache(imageCache)
 {
     QObject::connect(&imageCache, &icache::Cache::updateImage, this, &AllSeriesView::updateImage);
     QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &AllSeriesView::updateMetrics);
+    QObject::connect(&seriesSet, &pcontainer::Set::newSeries, this, &AllSeriesView::addNewSeries);
+    QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &AllSeriesView::updateExistingSeries);
 
     // TODO: navigationBar
 
@@ -110,26 +114,96 @@ void AllSeriesView::focusSeries(QUuid const seriesUuid)
 
 void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
 {
-    using namespace widgets::pitem;
+  std::size_t const row = numberOfSeries();
+  seriesUuidToRow.emplace(series->uuid(), row);
 
-    std::size_t const row = numberOfSeries();
-    seriesUuidToRow.emplace(series->uuid(), row);
+  for (std::size_t col = 0; col < series->size(); ++col)
+    addItemToGrid(row, col, series->item(col));
+}
 
-    auto const widgetAddons = Addons(config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({}));
+namespace {
+  using PhotoItemsContentMap = std::map<pcontainer::ItemId, std::unique_ptr<widgets::pitem::PhotoItem> >;
 
-    for (std::size_t col = 0; col < series->size(); ++col)
+  PhotoItemsContentMap clearRowInGrid(QGridLayout *grid, std::size_t const row)
+  {
+    LOG(DEBUG) << "Clearing row " << row;
+    PhotoItemsContentMap oldContent;
+
+    for (int idx = 0; idx < grid->count(); /* none */)
     {
-        pcontainer::ItemPtr const& itemPtr = series->item(col);
-        PhotoItem* item = new PhotoItem(itemPtr, imageCache.getPreload(itemPtr->id()), widgetAddons, CapabilityType::OPEN_SERIES | CapabilityType::REMOVE_PHOTO);
+      int r, c, rSpan, cSpan;
+      grid->getItemPosition(idx, &r, &c, &rSpan, &cSpan);
+      if (static_cast<long>(row) != r)
+      {
+        ++idx;
+        continue;
+      }
 
-        QObject::connect(item, &PhotoItem::openInSeries,
-          [this](QUuid const& uuid){ switchView(ViewDescription::make(ViewType::ANY_SINGLE_SERIES, uuid)); });
+      QLayoutItem *layoutItem = grid->takeAt(idx);
+      assert(layoutItem);
 
-        QObject::connect(item, &PhotoItem::changeSeriesState, this, &AllSeriesView::changeSeriesState);
-        //QObject::connect(item, &PhotoItem::removePhotoFromSeries, this, &AllSeriesView::removePhotoFromSeries);
+      std::unique_ptr<widgets::pitem::PhotoItem> photoItem(dynamic_cast<widgets::pitem::PhotoItem*>(layoutItem->widget()));
+      if (!photoItem)
+      {
+        utils::clearLayoutItem(layoutItem);
+        continue;
+      }
 
-        grid->addWidget(item, row, col);
+      LOG(DEBUG) << "Saving item at column " << c << ": " << photoItem->photoItem().id().toString();
+      oldContent.emplace(photoItem->photoItem().id(), std::move(photoItem));
+      utils::clearLayoutItem(layoutItem, false);
     }
+
+    LOG(DEBUG) << "Returned " << oldContent.size() << " items";
+    return oldContent;
+  }
+} // unnamed namespace
+
+void AllSeriesView::updateExistingSeries(QUuid seriesUuid)
+{
+  auto const seriesRow = utils::asserted::fromMap(seriesUuidToRow, seriesUuid);
+  auto oldContent = clearRowInGrid(grid, seriesRow);
+
+  pcontainer::SeriesPtr const& series = seriesSet.findSeries(seriesUuid);
+  assert(series);
+
+  for (std::size_t col = 0; col < series->size(); ++col)
+  {
+    pcontainer::ItemPtr const item = series->item(col);
+    auto const it = oldContent.find(item->id());
+    if (it == oldContent.end() || !it->second)
+    {
+      LOG(DEBUG) << "Adding at col " << col << " newly constructed item " << item->id().toString();
+      addItemToGrid(seriesRow, col, item);
+    }
+    else
+    {
+      LOG(DEBUG) << "Adding at col " << col << " item from saved content " << it->second->photoItem().id().toString();
+      grid->addWidget(it->second.release(), seriesRow, col);
+    }
+  }
+
+  LOG(DEBUG) << std::count_if(oldContent.begin(), oldContent.end(), [](auto const& p){return p.second != nullptr;})
+             << " items were left from saved content";
+}
+
+void AllSeriesView::addItemToGrid(int row, int col, pcontainer::ItemPtr const& itemPtr)
+{
+  using namespace widgets::pitem;
+
+  auto const widgetAddons = Addons(config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({}));
+
+  auto const& itemId = itemPtr->id();
+  PhotoItem* item = new PhotoItem(itemPtr, imageCache.getPreload(itemId), widgetAddons, CapabilityType::OPEN_SERIES | CapabilityType::REMOVE_PHOTO);
+  item->setMetrics(imageCache.getMetrics(itemId));
+
+  QObject::connect(item, &PhotoItem::openInSeries,
+    [this](QUuid const& uuid){ switchView(ViewDescription::make(ViewType::ANY_SINGLE_SERIES, uuid)); });
+
+  QObject::connect(item, &PhotoItem::changeSeriesState, this, &AllSeriesView::changeSeriesState);
+  QObject::connect(item, &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
+
+  grid->addWidget(item, row, col);
 }
 
 void AllSeriesView::updateImage(pcontainer::ItemId const& itemId)

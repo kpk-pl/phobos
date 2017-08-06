@@ -16,8 +16,10 @@ public:
     explicit Set() = default;
 
     void addSeries(importwiz::PhotoSeriesVec const& newPhotoSeries);
-    SeriesPtr const& findSeries(QUuid const& seriesUuid,
-                                int offset = 0) const;
+
+    // TODO: since in findSeries there is an assert on the validity of return value, return by (const?) reference
+    SeriesPtr const& findSeries(QUuid const& seriesUuid, int offset) const;
+    SeriesPtr const& findSeries(QUuid const& seriesUuid) const;
 
     std::size_t size() const { return _photoSeries.size(); }
     bool empty() const { return _photoSeries.empty(); }
@@ -28,6 +30,10 @@ public:
 
 signals:
     void newSeries(SeriesPtr);
+    void changedSeries(QUuid seriesUuid);
+
+public slots:
+    void removeImage(pcontainer::ItemId const& itemId);
 
 private:
     SeriesPtrVec _photoSeries;

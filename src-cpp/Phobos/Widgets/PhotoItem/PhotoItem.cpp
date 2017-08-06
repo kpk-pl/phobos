@@ -14,6 +14,7 @@
 #include "ImageProcessing/ColoredPixmap.h"
 #include "ImageProcessing/Metrics.h"
 #include "Utils/Algorithm.h"
+#include <easylogging++.h>
 
 namespace phobos { namespace widgets { namespace pitem {
 
@@ -35,6 +36,8 @@ namespace phobos { namespace widgets { namespace pitem {
 // TODO: show "Quality" text in quality label
 //
 // TODO: Right-click menu to open a dialog displaying all metrics for photo or whole series
+//
+// TODO: Tooltil on mouse over to display image filename
 
 PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem, QImage const& preload, Addons const& addons, Capabilities const& capabilities) :
     ImageWidget(preload), _photoItem(photoItem), addons(addons), capabilities(capabilities)
@@ -282,6 +285,12 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
         QObject::connect(photoMenu->addAction("Deselect"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::deselect);
     }
 
+    if (capabilities.has(CapabilityType::REMOVE_PHOTO))
+    {
+      photoMenu->addSeparator();
+      QObject::connect(photoMenu->addAction("Remove"), &QAction::triggered, this, [this](){ emit removeFromSeries(_photoItem->id()); });
+    }
+
     QMenu* seriesMenu = menu.addMenu("Series");
     QObject::connect(seriesMenu->addAction("Select all"), &QAction::triggered, [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::SELECTED); });
     QObject::connect(seriesMenu->addAction("Discard all"), &QAction::triggered, [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::DISCARDED); });
@@ -295,6 +304,7 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
       QObject::connect(viewSeries, &QAction::triggered, [this](){ emit openInSeries(_photoItem->seriesUuid()); });
     }
 
+    LOG(INFO) << "Displayed context menu for " << _photoItem->id().toString();
     menu.exec(mapToGlobal(QPoint(event->x(), event->y())));
 }
 

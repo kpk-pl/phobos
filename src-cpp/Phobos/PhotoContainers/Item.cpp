@@ -1,4 +1,5 @@
 #include "PhotoContainers/Item.h"
+#include <easylogging++.h>
 
 namespace phobos { namespace pcontainer {
 
@@ -15,26 +16,39 @@ bool Item::isSelected() const
 
 void Item::select() const
 {
-    _state = ItemState::SELECTED;
-    emit stateChanged();
+  LOG(INFO) << "Selected item " << _id.toString();
+  _state = ItemState::SELECTED;
+  emit stateChanged();
 }
 
 void Item::discard() const
 {
-    _state = ItemState::DISCARDED;
-    emit stateChanged();
+  LOG(INFO) << "Discarded item " << _id.toString();
+  _state = ItemState::DISCARDED;
+  emit stateChanged();
 }
 
 void Item::deselect() const
 {
-    _state = ItemState::UNKNOWN;
-    emit stateChanged();
+  LOG(INFO) << "Deselected item " << _id.toString();
+  _state = ItemState::UNKNOWN;
+  emit stateChanged();
 }
 
 void Item::setState(ItemState state) const
 {
-    _state = state;
-    emit stateChanged();
+  switch(state)
+  {
+  case ItemState::SELECTED:
+    select();
+    break;
+  case ItemState::DISCARDED:
+    discard();
+    break;
+  case ItemState::UNKNOWN:
+    deselect();
+    break;
+  }
 }
 
 void Item::invert() const

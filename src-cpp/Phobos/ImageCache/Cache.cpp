@@ -16,6 +16,7 @@ namespace phobos { namespace icache {
 Cache::Cache(pcontainer::Set const& photoSet) :
     photoSet(photoSet)
 {
+  QObject::connect(&photoSet, &pcontainer::Set::changedSeries, this, &Cache::updateSeriesMetrics);
 }
 
 namespace {
@@ -133,22 +134,26 @@ void Cache::metricsReadyFromThread(pcontainer::ItemId itemId, iprocess::MetricPt
   metricCache.emplace(itemId.fileName, metrics);
   LOG(DEBUG) << "[Cache] Saved new metrics for " << itemId.fileName;
 
-  auto const& series = photoSet.findSeries(itemId.seriesUuid);
+  if (!updateSeriesMetrics(itemId.seriesUuid))
+    emit updateMetrics(itemId, metrics); // if not all metrics are loaded, emit just for the current one
+}
+
+bool Cache::updateSeriesMetrics(QUuid const& seriesUuid)
+{
+  auto const& series = photoSet.findSeries(seriesUuid);
 
   if (!std::all_of(series->begin(), series->end(),
         [this](pcontainer::ItemPtr const& item){
             return utils::valueIn(item->fileName(), metricCache);
         }))
   {
-    // not all metrics done -> emit just current one
-    emit updateMetrics(itemId, metrics);
-    return;
+    return false;
   }
 
   auto allMetrics = utils::transformToVector<iprocess::MetricPtr>(series->begin(), series->end(),
       [this](auto const& item){ return metricCache[item->fileName()]; });
 
-  LOG(DEBUG) << "[Cache] Aggregating metrics for series " << itemId.seriesUuid.toString() << " after photo " << itemId.fileName;
+  LOG(DEBUG) << "[Cache] Aggregating metrics for series " << seriesUuid.toString();
   iprocess::aggregateMetrics(allMetrics);
 
   bool const doLog = config::qualified("logging.metrics", false);
@@ -156,12 +161,14 @@ void Cache::metricsReadyFromThread(pcontainer::ItemId itemId, iprocess::MetricPt
   {
     auto const& filename = series->item(i)->fileName();
     auto const& metric = metricCache[filename];
-    emit updateMetrics(pcontainer::ItemId{itemId.seriesUuid, filename}, metric);
+    emit updateMetrics(pcontainer::ItemId{seriesUuid, filename}, metric);
 
     LOG_IF(doLog, DEBUG) << "Calculated series metrics" << std::endl
        << "photoItem: " << filename << std::endl
        << "metric: " << metric;
   }
+
+  return true;
 }
 
 bool Cache::hasMetrics(pcontainer::ItemId const& itemId) const

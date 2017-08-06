@@ -148,9 +148,9 @@ void ViewStack::bulkSelect(PhotoBulkAction const action)
 
 void ViewStack::setupUI()
 {
-    allSeriesView = new AllSeriesView(imageCache);
-    rowSeriesView = new RowSeriesView(imageCache);
-    numSeriesView = new NumSeriesView(imageCache);
+    allSeriesView = new AllSeriesView(seriesSet, imageCache);
+    rowSeriesView = new RowSeriesView(seriesSet, imageCache);
+    numSeriesView = new NumSeriesView(seriesSet, imageCache);
 
     addWidget(allSeriesView);
     addWidget(numSeriesView);
@@ -159,9 +159,7 @@ void ViewStack::setupUI()
 
 void ViewStack::connectSignals()
 {
-    QObject::connect(&seriesSet, &pcontainer::Set::newSeries, allSeriesView, &AllSeriesView::addNewSeries);
     QObject::connect(allSeriesView, &AllSeriesView::switchView, this, &ViewStack::handleSwitchView);
-
     QObject::connect(rowSeriesView, &RowSeriesView::switchView, this, &ViewStack::handleSwitchView);
     QObject::connect(numSeriesView, &RowSeriesView::switchView, this, &ViewStack::handleSwitchView);
 }

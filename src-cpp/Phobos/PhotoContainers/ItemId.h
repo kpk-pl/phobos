@@ -20,6 +20,11 @@ struct ItemId
   {
     return (seriesUuid == rhs.seriesUuid) ? fileName < rhs.fileName : seriesUuid < rhs.seriesUuid;
   }
+
+  std::string toString() const
+  {
+    return "[" + fileName.toStdString() + "@" + seriesUuid.toString().toStdString() + "]";
+  }
 };
 
 }} // namespace phobos::pcontainer

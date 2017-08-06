@@ -6,6 +6,7 @@
 #include <memory>
 #include <QObject>
 #include <QImage>
+#include <QString>
 #include "ImageCache/CacheFwd.h"
 #include "ImageCache/LimitedMap.h"
 #include "PhotoContainers/Set.h"
@@ -34,6 +35,7 @@ signals:
 private slots:
     void imageReadyFromThread(pcontainer::ItemId itemId, QImage image);
     void metricsReadyFromThread(pcontainer::ItemId itemId, iprocess::MetricPtr image);
+    bool updateSeriesMetrics(QUuid const& seriesUuid);
 
 // TODO: get rid of those mutables
 //

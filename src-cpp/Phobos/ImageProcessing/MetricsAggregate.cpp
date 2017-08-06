@@ -40,7 +40,9 @@ void aggregateMetrics(MetricPtrVec const& metrics)
 
     auto& bestEl = *std::max_element(metrics.begin(), metrics.end(),
             [](MetricPtr const& l, MetricPtr const& r){ return l->score() < r->score(); });
-    bestEl->bestQuality = true;
+
+    for (auto & metric : metrics)
+      metric->bestQuality = (metric == bestEl);
 }
 
 }} // namespace phobos::iprocess

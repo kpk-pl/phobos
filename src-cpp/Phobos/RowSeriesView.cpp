@@ -8,8 +8,8 @@
 
 namespace phobos {
 
-RowSeriesView::RowSeriesView(icache::Cache const& imageCache) :
-    SeriesViewBase(imageCache)
+RowSeriesView::RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache const& imageCache) :
+    SeriesViewBase(seriesSet, imageCache)
 {
     NavigationBar* navigationBar = new NavigationBar(NavigationBar::Capability::ALL_SERIES |
                                                      NavigationBar::Capability::NUM_SERIES |
@@ -76,6 +76,14 @@ widgets::pitem::PhotoItem* RowSeriesView::findItemWidget(pcontainer::ItemId cons
 
     assert(false); // impossible
     return nullptr;
+}
+
+void RowSeriesView::updateCurrentSeries()
+{
+  clear();
+  // TODO: Optimize so no clear is done when not necessary.
+  pcontainer::SeriesPtr const& series = seriesSet.findSeries(*currentSeriesUuid);
+  showSeries(series);
 }
 
 void RowSeriesView::addToLayout(widgets::pitem::PhotoItem* itemWidget)

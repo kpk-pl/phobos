@@ -8,13 +8,15 @@
 
 namespace phobos {
 
-SeriesViewBase::SeriesViewBase(icache::Cache const& imageCache) :
-    imageCache(imageCache)
+SeriesViewBase::SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache const& imageCache) :
+    seriesSet(seriesSet), imageCache(imageCache)
 {
   QObject::connect(&imageCache, &icache::Cache::updateImage, this, &SeriesViewBase::updateImage);
   QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &SeriesViewBase::updateMetrics);
+  QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &SeriesViewBase::updateSeries);
 }
 
+// TODO: This function has a lot in common with AllSeriesView -> derive from common base
 void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
 {
     using namespace widgets::pitem;
@@ -24,10 +26,13 @@ void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
 
     for (pcontainer::ItemPtr const& item : *series)
     {
-        PhotoItem* widget = new PhotoItem(item, imageCache.getImage(item->id()), addons, CapabilityType::REMOVE_PHOTO);
+        auto const& itemId = item->id();
+        PhotoItem* widget = new PhotoItem(item, imageCache.getImage(itemId), addons, CapabilityType::REMOVE_PHOTO);
+        widget->setMetrics(imageCache.getMetrics(itemId));
 
         QObject::connect(widget, &PhotoItem::changeSeriesState,
                          this, &SeriesViewBase::changeCurrentSeriesState);
+        QObject::connect(widget, &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
 
         addToLayout(widget);
     }
@@ -47,6 +52,14 @@ void SeriesViewBase::updateMetrics(pcontainer::ItemId const& itemId, iprocess::M
   widgets::pitem::PhotoItem* item = findItemWidget(itemId);
   if (item)
     item->setMetrics(metrics);
+}
+
+void SeriesViewBase::updateSeries(QUuid seriesUuid)
+{
+  if (currentSeriesUuid != seriesUuid)
+    return;
+
+  updateCurrentSeries();
 }
 
 void SeriesViewBase::clear()

@@ -1,4 +1,5 @@
 #include "PhotoContainers/Set.h"
+#include "Utils/Comparators.h"
 
 namespace phobos { namespace pcontainer {
 
@@ -18,6 +19,14 @@ void Set::addSeries(importwiz::PhotoSeriesVec const& newPhotoSeries)
     }
 }
 
+SeriesPtr const& Set::findSeries(QUuid const& seriesUuid) const
+{
+  auto const uuidEqual = [&](SeriesPtr const& series){ return series->uuid() == seriesUuid; };
+  auto const it = std::find_if(_photoSeries.begin(), _photoSeries.end(), uuidEqual);
+  assert(it != _photoSeries.end());
+  return *it;
+}
+
 SeriesPtr const& Set::findSeries(QUuid const& seriesUuid,
                                  int offset) const
 {
@@ -27,6 +36,15 @@ SeriesPtr const& Set::findSeries(QUuid const& seriesUuid,
 
     assert(false);
     return _photoSeries.front(); // dummy
+}
+
+void Set::removeImage(pcontainer::ItemId const& itemId)
+{
+  SeriesPtr const& series = findSeries(itemId.seriesUuid);
+  series->remove(itemId.fileName);
+  // possible that this series remains empty forever
+
+  emit changedSeries(series->uuid());
 }
 
 }} // namespace phobos::pcontainer

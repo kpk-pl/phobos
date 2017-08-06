@@ -5,6 +5,7 @@
 #include <QUuid>
 #include <QMetaObject>
 #include <boost/optional.hpp>
+#include "PhotoContainers/Fwd.h"
 #include "PhotoContainers/Series.h"
 #include "PhotoContainers/ItemId.h"
 #include "ImageCache/CacheFwd.h"
@@ -21,7 +22,7 @@ class SeriesViewBase : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SeriesViewBase(icache::Cache const& imageCache);
+    explicit SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache const& imageCache);
     virtual ~SeriesViewBase() = default;
 
     virtual void showSeries(pcontainer::SeriesPtr const& series);
@@ -33,7 +34,12 @@ signals:
 protected:
     virtual void addToLayout(widgets::pitem::PhotoItem* itemWidget) = 0;
     virtual void changeSeriesState(pcontainer::ItemState const state) const = 0;
+    virtual widgets::pitem::PhotoItem*
+        findItemWidget(pcontainer::ItemId const& itemId) const = 0;
 
+    virtual void updateCurrentSeries() = 0;
+
+    pcontainer::Set const& seriesSet;
     icache::Cache const& imageCache;
     boost::optional<QUuid> currentSeriesUuid;
 
@@ -41,10 +47,7 @@ private slots:
     void changeCurrentSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state);
     void updateImage(pcontainer::ItemId const& itemId, QImage image);
     void updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics);
-
-private:
-    virtual widgets::pitem::PhotoItem*
-        findItemWidget(pcontainer::ItemId const& itemId) const = 0;
+    void updateSeries(QUuid seriesUuid);
 };
 
 } // namespace phobos

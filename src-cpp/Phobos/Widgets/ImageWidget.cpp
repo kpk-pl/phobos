@@ -22,6 +22,9 @@ void ImageWidget::setImage(QImage image)
 
 void ImageWidget::setMetrics(iprocess::MetricPtr metrics)
 {
+  if (!metrics)
+    return;
+
   _metrics = metrics;
   update();
 }

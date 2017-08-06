@@ -1,7 +1,5 @@
 #include "PhotoContainers/Series.h"
-//#include "ImageProcessing/MetricsAggregate.h"
-//#include "ImageProcessing/MetricsIO.h"
-//#include "ConfigExtension.h"
+#include <easylogging++.h>
 
 namespace phobos { namespace pcontainer {
 
@@ -30,13 +28,14 @@ void Series::addPhotoItem(std::string const& fileName)
     photoItems.emplace_back(std::move(newItem));
 }
 
-//ItemPtr Series::best() const
-//{
-    //for (auto const& item : photoItems)
-        //if (item->scoredMetric() && item->scoredMetric()->bestQuality)
-            //return item;
+void Series::remove(QString const& fileName)
+{
+  auto const fileNameEqual = [&](ItemPtr const& item){ return item->fileName() == fileName; };
+  auto const it = std::find_if(photoItems.begin(), photoItems.end(), fileNameEqual);
+  assert(it != photoItems.end());
 
-    //return nullptr;
-//}
+  LOG(INFO) << "Removing from series: " << (*it)->id().toString();
+  photoItems.erase(it, it+1);
+}
 
 }} // namespace phobos::pcontainer

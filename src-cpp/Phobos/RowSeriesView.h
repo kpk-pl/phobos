@@ -11,7 +11,7 @@ class RowSeriesView : public SeriesViewBase
 {
     Q_OBJECT
 public:
-    explicit RowSeriesView(icache::Cache const& imageCache);
+    explicit RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache const& imageCache);
 
     void showSeries(pcontainer::SeriesPtr const& series) override;
     void clear() override;
@@ -22,10 +22,12 @@ private slots:
 protected:
     void addToLayout(widgets::pitem::PhotoItem* itemWidget) override;
     void changeSeriesState(pcontainer::ItemState const state) const override;
+    widgets::pitem::PhotoItem*
+        findItemWidget(pcontainer::ItemId const& itemId) const override;
+
+    void updateCurrentSeries() override;
 
 private:
-    widgets::pitem::PhotoItem* findItemWidget(pcontainer::ItemId const& itemId) const override;
-
     widgets::HorizontalScrollArea* scroll;
 };
 

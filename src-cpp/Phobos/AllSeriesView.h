@@ -5,7 +5,7 @@
 #include <tuple>
 #include <QWidget>
 #include <boost/optional.hpp>
-#include "PhotoContainers/Series.h"
+#include "PhotoContainers/Item.h"
 #include "ImageCache/CacheFwd.h"
 #include "ViewDescription.h"
 #include "ImageProcessing/MetricsFwd.h"
@@ -22,7 +22,7 @@ class AllSeriesView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit AllSeriesView(icache::Cache const& imageCache);
+    explicit AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache const& imageCache);
 
     std::size_t numberOfSeries() const { return seriesUuidToRow.size(); }
 
@@ -36,6 +36,7 @@ signals:
 
 public slots:
     void addNewSeries(pcontainer::SeriesPtr series);
+    void updateExistingSeries(QUuid seriesUuid);
 
 private slots:
     void changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state);
@@ -51,6 +52,9 @@ private:
 
     widgets::pitem::PhotoItem* findItem(pcontainer::ItemId const& itemId) const;
 
+    void addItemToGrid(int row, int col, pcontainer::ItemPtr const& itemPtr);
+
+    pcontainer::Set const& seriesSet;
     icache::Cache const& imageCache;
     std::map<QUuid, std::size_t> seriesUuidToRow;
     QGridLayout* grid;

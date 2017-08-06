@@ -20,12 +20,15 @@ public:
     void addPhotoItem(std::string const& fileName);
 
     std::size_t size() const { return photoItems.size(); }
+    bool empty() const { return photoItems.empty(); }
     QUuid const& uuid() const { return _uuid; }
 
     ItemPtrVec::const_reference operator[](std::size_t i) const { return photoItems[i]; }
     ItemPtrVec::const_reference item(std::size_t i) const { return (*this)[i]; }
     ItemPtrVec::const_iterator begin() const { return photoItems.begin(); }
     ItemPtrVec::const_iterator end() const { return photoItems.end(); }
+
+    void remove(QString const& fileName);
 
 private:
     ItemPtrVec photoItems;

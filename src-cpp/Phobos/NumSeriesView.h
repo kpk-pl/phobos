@@ -10,7 +10,7 @@ namespace phobos {
 class NumSeriesView : public SeriesViewBase
 {
 public:
-    explicit NumSeriesView(icache::Cache const& imageCache);
+    explicit NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache const& imageCache);
     ~NumSeriesView();
 
     void showSeries(pcontainer::SeriesPtr const& series) override;
@@ -21,13 +21,15 @@ public:
 protected:
     void addToLayout(widgets::pitem::PhotoItem* itemWidget) override;
     void changeSeriesState(pcontainer::ItemState const state) const override;
+    widgets::pitem::PhotoItem*
+        findItemWidget(pcontainer::ItemId const& itemId) const override;
+
+    void updateCurrentSeries() override;
 
 private:
     void showNextItem();
     void showPrevItem();
     void setCurrentView();
-
-    widgets::pitem::PhotoItem* findItemWidget(pcontainer::ItemId const& itemId) const override;
 
     unsigned const visibleItems;
     unsigned currentItem;

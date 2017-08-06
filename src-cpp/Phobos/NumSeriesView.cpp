@@ -12,8 +12,8 @@ namespace phobos {
 
 // TODO: Runtime configurable selection of items visible
 
-NumSeriesView::NumSeriesView(icache::Cache const& imageCache) :
-    SeriesViewBase(imageCache),
+NumSeriesView::NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache const& imageCache) :
+    SeriesViewBase(seriesSet, imageCache),
     visibleItems(config::get()->get_qualified_as<unsigned>("seriesView.num.visibleItems").value_or(2)),
     currentItem(0)
 {
@@ -126,6 +126,14 @@ void NumSeriesView::addToLayout(widgets::pitem::PhotoItem* itemWidget)
     photoItems.push_back(itemWidget);
     if (layoutForItems->count() < int(visibleItems))
         layoutForItems->addWidget(itemWidget);
+}
+
+void NumSeriesView::updateCurrentSeries()
+{
+  clear();
+  // TODO: Optimize this so that no clear is performed.
+  pcontainer::SeriesPtr const& series = seriesSet.findSeries(*currentSeriesUuid);
+  showSeries(series);
 }
 
 void NumSeriesView::changeSeriesState(pcontainer::ItemState const state) const

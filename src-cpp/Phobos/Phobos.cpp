@@ -5,6 +5,7 @@
 #include "MainWindow.h"
 #include "ViewDescription.h"
 #include "ImageProcessing/Metrics.h"
+#include "PhotoContainers/ItemId.h"
 #include "Config.h"
 #include "PhotoBulkAction.h"
 #include "ImportWizard/Types.h"

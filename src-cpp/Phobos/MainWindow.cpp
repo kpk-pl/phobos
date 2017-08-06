@@ -14,6 +14,7 @@ namespace phobos {
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
+    seriesSet(),
     imageCache(seriesSet),
     viewStack(new ViewStack(seriesSet, imageCache))
 {
