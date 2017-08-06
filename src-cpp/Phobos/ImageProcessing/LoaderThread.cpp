@@ -36,6 +36,7 @@ void LoaderThread::run()
         cv::Mat cvImage;
         {
             TIMED("load:imread", cvImage = cv::imread(itemId.fileName.toStdString().c_str()));
+            // if (!cvImage.data) ...
             emitLoadedSignal(cvImage);
         }
         runMetrics(std::move(cvImage));
@@ -108,11 +109,9 @@ void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
     emit readySignals.imageReady(itemId, image);
 }
 
-// TODO optimize double scaling when calculating metrics
 void LoaderThread::runMetrics(cv::Mat cvImage) const
 {
     TIMED_FUNC(scopefunc);
-    cv::cvtColor(cvImage, cvImage, cv::COLOR_BGR2GRAY);
 
     QSize const maxSize = config::qSize("imageLoaderThread.processingSize", QSize(1920, 1080));
     QSize const scaledSize = QSize(cvImage.cols, cvImage.rows).scaled(maxSize, Qt::KeepAspectRatio);
@@ -125,8 +124,20 @@ void LoaderThread::runMetrics(cv::Mat cvImage) const
 
     MetricPtr metrics = std::make_shared<Metric>();
 
+    {
+      std::vector<cv::Mat> bgrPlanes;
+      cv::split(resized, bgrPlanes);
+      assert(bgrPlanes.size() == 3);
+      TIMED("runMetrics: blueHistogram", metrics->histogram.data.emplace(Histogram::Channel::Blue, normalizedHistogram(bgrPlanes[0], nullptr)));
+      TIMED("runMetrics: greenHistogram", metrics->histogram.data.emplace(Histogram::Channel::Green, normalizedHistogram(bgrPlanes[1], nullptr)));
+      TIMED("runMetrics: redHistogram", metrics->histogram.data.emplace(Histogram::Channel::Red, normalizedHistogram(bgrPlanes[2], nullptr)));
+    }
+
+    cv::cvtColor(resized, resized, cv::COLOR_BGR2GRAY);
+
     metrics->contrast = 0;
-    TIMED("runMetrics: contrast", metrics->histogram = normalizedHistogram(resized, *metrics->contrast));
+    TIMED("runMetrics: contrast", metrics->histogram.data.emplace(Histogram::Channel::Value, normalizedHistogram(resized, &*metrics->contrast)));
+
     TIMED("runMetrics: noise", metrics->noise = noiseMeasure(resized, config::qualified("imageLoaderThread.noiseMedianSize", 3)));
     TIMED("runMetrics: sobel", metrics->blur.sobel = blur::sobel(resized));
     TIMED("runMetrics: laplace", metrics->blur.laplace = blur::laplace(resized));

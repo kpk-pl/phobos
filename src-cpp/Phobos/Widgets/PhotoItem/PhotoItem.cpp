@@ -15,6 +15,7 @@
 #include "ImageProcessing/ColoredPixmap.h"
 #include "ImageProcessing/Metrics.h"
 #include "Utils/Algorithm.h"
+#include "Utils/Asserted.h"
 #include <easylogging++.h>
 
 namespace phobos { namespace widgets { namespace pitem {
@@ -34,7 +35,6 @@ namespace phobos { namespace widgets { namespace pitem {
 //
 // TODO: display max scores as in "Quality: 80%/94%". 100% is not always maximum
 // TODO: another addon: show file name
-// TODO: addon: histogram with each RGB channel each
 // TODO: addon: cumulative histogram
 // TODO: addon: diff from previous photo as a heat map like something?
 // TODO: addon: vector flow from previous photo
@@ -90,19 +90,26 @@ public:
         return oss.str();
     }
 
-    static QSize histogramSize(std::vector<float> const& data)
+    static QSize histogramSize(config::ConfigPath const& histConfig, iprocess::Histogram const& histogram)
     {
-        static std::initializer_list<unsigned> const POW2 = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
-        assert(utils::valueIn(data.size(), POW2));
+      static std::vector<unsigned> const POW2 = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
 
-        unsigned width = config::qualified("photoItemWidget.histogram.width", 32);
-        unsigned height = config::qualified("photoItemWidget.histogram.height", 32);
-        if (!utils::valueIn(width, POW2)) width = 32;
-        if (width > data.size()) width = data.size();
-        if (!utils::valueIn(height, POW2) || height > data.size()) height = width;
+      std::size_t maxHistSize = 0;
+      for (auto const& data : histogram.data)
+      {
+        assert(utils::valueIn(data.second.size(), POW2));
+        maxHistSize = std::max(maxHistSize, data.second.size());
+      }
 
-        return QSize(width, height);
+      unsigned width = config::qualified(histConfig("width"), 32);
+      unsigned height = config::qualified(histConfig("height"), 32);
+      if (!utils::valueIn(width, POW2)) width = 32;
+      if (width > maxHistSize) width = maxHistSize;
+      if (!utils::valueIn(height, POW2) || height > maxHistSize) height = width;
+
+      return QSize(width, height);
     }
+
     static std::vector<float> scaleHistogram(std::vector<float> const& data, std::size_t const width)
     {
         if (data.empty()) return data;
@@ -150,18 +157,18 @@ public:
     void scoreNum(double const scorePercent)
     {
       auto const textConfig = baseConfig + "qualityText";
-        painter.save();
-        painter.setOpacity(config::qualified(textConfig("opacity"), 1u));
-        painter.setPen(config::qColor(textConfig("color"), Qt::black));
-        painter.setFont(config::qFont(textConfig("font")));
+      painter.save();
+      painter.setOpacity(config::qualified(textConfig("opacity"), 1u));
+      painter.setPen(config::qColor(textConfig("color"), Qt::black));
+      painter.setFont(config::qFont(textConfig("font")));
 
-        unsigned decimalPlaces = config::qualified(textConfig("decimalPlaces"), 0u);
-        std::string const text = percentString(scorePercent, decimalPlaces);
+      unsigned decimalPlaces = config::qualified(textConfig("decimalPlaces"), 0u);
+      std::string const text = percentString(scorePercent, decimalPlaces);
 
-        unsigned const padding = config::qualified(textConfig("padding"), 7u);
-        painter.drawText(drawStartPoint(Qt::AlignLeft | Qt::AlignBottom, padding), text.c_str());
+      unsigned const padding = config::qualified(textConfig("padding"), 7u);
+      painter.drawText(drawStartPoint(Qt::AlignLeft | Qt::AlignBottom, padding), text.c_str());
 
-        painter.restore();
+      painter.restore();
     }
 
     void ordNum(unsigned const ordNumber, bool best)
@@ -196,22 +203,37 @@ public:
       painter.restore();
     }
 
-    void histogram(std::vector<float> const& data)
+    void histogram(iprocess::Histogram const& histogram)
     {
       auto const histConfig = baseConfig + "histogram";
-      QSize const histSize = histogramSize(data);
-      auto const scaledHist = scaleHistogram(data, histSize.width());
-      unsigned const padding = config::qualified(histConfig("padding"), 7u);
 
       painter.save();
-      painter.setPen(config::qColor(histConfig("color"), Qt::black));
-      painter.setOpacity(config::qualified(histConfig("opacity"), 1.0));
 
+      QSize const histSize = histogramSize(histConfig, histogram);
+      unsigned const padding = config::qualified(histConfig("padding"), 7u);
       double const H = histSize.height();
       QPoint const origin = drawStartPoint(Qt::AlignRight | Qt::AlignBottom, padding, histSize);
-      for (std::size_t i = 0; i < scaledHist.size(); ++i)
-        painter.drawLine(origin.x() + i, origin.y() + H,
-                         origin.x() + i, origin.y() + (1.0-scaledHist[i])*H);
+
+      auto const drawData = [&](iprocess::Histogram::DataType const& data, config::ConfigPath const& binConfig){
+        painter.setPen(config::qColor(binConfig("color"), Qt::black));
+        painter.setOpacity(config::qualified(binConfig("opacity"), 1.0));
+        auto const scaledHist = scaleHistogram(data, histSize.width());
+        std::string const& type = config::qualified<std::string>(binConfig("style"), "none");
+
+        if (type == "fill")
+          for (std::size_t i = 0; i < scaledHist.size(); ++i)
+            painter.drawLine(origin.x() + i, origin.y() + H,
+                             origin.x() + i, origin.y() + (1.0-scaledHist[i])*H);
+        else if (type == "line")
+          for (std::size_t i = 1; i < scaledHist.size(); ++i)
+            painter.drawLine(origin.x() + (i-1), origin.y() + (1.0-scaledHist[i-1])*H,
+                             origin.x() + i,     origin.y() + (1.0-scaledHist[i])*H);
+      };
+
+      drawData(utils::asserted::fromMap(histogram.data, iprocess::Histogram::Channel::Value), histConfig("value"));
+      drawData(utils::asserted::fromMap(histogram.data, iprocess::Histogram::Channel::Blue), histConfig("blue"));
+      drawData(utils::asserted::fromMap(histogram.data, iprocess::Histogram::Channel::Green), histConfig("green"));
+      drawData(utils::asserted::fromMap(histogram.data, iprocess::Histogram::Channel::Red), histConfig("red"));
 
       painter.restore();
     }
@@ -277,7 +299,7 @@ void PhotoItem::paintEvent(QPaintEvent*)
         renderer.bestMark();
 
     if (addons.has(AddonType::HISTOGRAM) && metric && metric->histogram)
-        renderer.histogram(*metric->histogram);
+        renderer.histogram(metric->histogram);
 
     if (addons.has(AddonType::ORD_NUM))
         renderer.ordNum(_photoItem->ord(), metric && metric->bestQuality);

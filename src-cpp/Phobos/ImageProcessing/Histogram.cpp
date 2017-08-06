@@ -3,7 +3,7 @@
 
 namespace phobos { namespace iprocess {
 
-std::vector<float> normalizedHistogram(cv::Mat const& cvImage, double &outContrast)
+std::vector<float> normalizedHistogram(cv::Mat const& cvImage, double *outContrast)
 {
     int histSize = 256;
     float range[] = {0, 256};
@@ -13,12 +13,12 @@ std::vector<float> normalizedHistogram(cv::Mat const& cvImage, double &outContra
     cv::calcHist(&cvImage, 1, 0, cv::Mat(), hist, 1, &histSize, ranges, true, false);
     cv::normalize(hist, hist, 0, 1, cv::NORM_MINMAX, -1, cv::Mat());
 
-    cv::Scalar mean, stddev;
-    cv::meanStdDev(hist, mean, stddev);
-    outContrast = stddev[0];
-
-    double min, max;
-    cv::minMaxLoc(hist, &min, &max, nullptr, nullptr);
+    if (outContrast)
+    {
+      cv::Scalar mean, stddev;
+      cv::meanStdDev(hist, mean, stddev);
+      *outContrast = stddev[0];
+    }
 
     std::vector<float> result(histSize, 0);
     for (int i = 0; i<histSize; ++i)

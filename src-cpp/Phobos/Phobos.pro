@@ -80,6 +80,7 @@ HEADERS  += MainWindow.h \
     Utils/LayoutClear.h \
     Utils/Algorithm.h \
     Utils/Focused.h \
+    Utils/Asserted.h \
     easyloggingpp/src/easylogging++.h \
     SeriesViewBase.h \
     NumSeriesView.h \

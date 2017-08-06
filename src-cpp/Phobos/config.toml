@@ -53,9 +53,11 @@ colorDiscarded = "red"
 [photoItemWidget.histogram]
 width = 128
 height = 64
-opacity = 0.6
-color = "red"
 fillColor = "transparent"
+value = { style = "fill", color = "#CC9900", opacity = 0.8 }
+red = { style = "line", color = "red", opacity = 0.4 }
+green = { style = "line", color = "limegreen", opacity = 0.4 }
+blue = { style = "line", color = "#0939FF", opacity = 0.4 }
 
 [allSeriesView]
 seriesSpacing = 10

@@ -14,6 +14,14 @@ struct Blur {
     boost::optional<double> laplaceMod;
 };
 
+struct Histogram {
+  using DataType = std::vector<float>;
+  enum Channel { Value, Red, Green, Blue };
+
+  std::map<Channel, DataType> data;
+  operator bool() const { return !data.empty(); }
+};
+
 struct MetricValues
 {
     Blur blur;
@@ -24,7 +32,7 @@ struct MetricValues
 struct Metric : public MetricValues
 {
     MetricValues seriesMetric;
-    boost::optional<std::vector<float>> histogram;
+    Histogram histogram;
     bool bestQuality = false;
     double score() const;
 };

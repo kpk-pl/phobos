@@ -37,6 +37,7 @@ private:
     void runWithoutMetrics() const;
     void emitLoadedSignal(cv::Mat const& cvImage);
     void runMetrics(cv::Mat cvImage) const;
+    void runHistogram(cv::Mat const& image, iprocess::Metric const& metrics) const;
 
     pcontainer::ItemId const itemId;
     QSize const requestedSize;
