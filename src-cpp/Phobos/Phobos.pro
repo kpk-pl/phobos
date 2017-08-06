@@ -20,6 +20,7 @@ SOURCES += Phobos.cpp\
     MainWindow.cpp \
     ViewStack.cpp \
     Config.cpp \
+    ConfigPath.cpp \
     AllSeriesView.cpp \
     ImageProcessing/Metrics.cpp \
     ImageProcessing/MetricsIO.cpp \
@@ -58,6 +59,7 @@ SOURCES += Phobos.cpp\
 HEADERS  += MainWindow.h \
     ViewStack.h \
     Config.h \
+    ConfigPath.h \
     AllSeriesView.h \
     ConfigExtension.h \
     ImageProcessing/Metrics.h \

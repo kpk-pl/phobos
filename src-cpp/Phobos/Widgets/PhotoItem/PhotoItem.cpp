@@ -11,6 +11,7 @@
 #include "Widgets/PhotoItem/PhotoItem.h"
 #include "Config.h"
 #include "ConfigExtension.h"
+#include "ConfigPath.h"
 #include "ImageProcessing/ColoredPixmap.h"
 #include "ImageProcessing/Metrics.h"
 #include "Utils/Algorithm.h"
@@ -121,8 +122,8 @@ public:
     }
 
     PixmapRenderer(PhotoItem &widget) :
-        borderWidth(config::qualified("photoItemWidget.border.width", 2u)),
-        painter(&widget)
+      borderWidth(config::qualified(baseConfig("border")("width"), 2u)),
+      painter(&widget)
     {
         QSize const imageSize(widget.width() - 2*borderWidth, widget.height() - 2*borderWidth);
         QImage const scaledImage = widget.image().scaled(imageSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -138,25 +139,26 @@ public:
 
     void focusMark()
     {
-        alignedIcon("photoItemWidget.focusIcon", Qt::AlignRight | Qt::AlignTop);
+      alignedIcon(baseConfig("focusIcon"), Qt::AlignRight | Qt::AlignTop);
     }
 
     void bestMark()
     {
-        alignedIcon("photoItemWidget.bestMarkIcon", Qt::AlignTop | Qt::AlignLeft);
+      alignedIcon(baseConfig("bestMarkIcon"), Qt::AlignTop | Qt::AlignLeft);
     }
 
     void scoreNum(double const scorePercent)
     {
+      auto const textConfig = baseConfig + "qualityText";
         painter.save();
-        painter.setOpacity(config::qualified("photoItemWidget.qualityText.opacity", 1u));
-        painter.setPen(config::qColor("photoItemWidget.qualityText.color", Qt::black));
-        painter.setFont(config::qFont("photoItemWidget.qualityText.font"));
+        painter.setOpacity(config::qualified(textConfig("opacity"), 1u));
+        painter.setPen(config::qColor(textConfig("color"), Qt::black));
+        painter.setFont(config::qFont(textConfig("font")));
 
-        unsigned decimalPlaces = config::qualified("photoItemWidget.qualityText.decimalPlaces", 0u);
+        unsigned decimalPlaces = config::qualified(textConfig("decimalPlaces"), 0u);
         std::string const text = percentString(scorePercent, decimalPlaces);
 
-        unsigned const padding = config::qualified("photoItemWidget.qualityText.padding", 7u);
+        unsigned const padding = config::qualified(textConfig("padding"), 7u);
         painter.drawText(drawStartPoint(Qt::AlignLeft | Qt::AlignBottom, padding), text.c_str());
 
         painter.restore();
@@ -164,20 +166,21 @@ public:
 
     void ordNum(unsigned const ordNumber, bool best)
     {
-      using namespace std::string_literals;
-      std::string const bgConfig = "photoItemWidget.ordNum."s + (best ? "bestBackground" : "background");
-      unsigned const width = config::qualified("photoItemWidget.ordNum.size", 20);
+      auto const ordConfig = baseConfig + "ordNum";
+      auto const bgConfig = ordConfig + (best ? "bestBackground" : "background");
+
+      unsigned const width = config::qualified(ordConfig("size"), 20);
       QSize const size(width, width);
       QPoint const startPoint = drawStartPoint(Qt::AlignLeft | Qt::AlignTop, 0, size);
-      QColor const backgroundColor = config::qColor(bgConfig + ".color", Qt::transparent);
+      QColor const backgroundColor = config::qColor(bgConfig("color"), Qt::transparent);
 
       if (backgroundColor != Qt::transparent)
       {
         painter.save();
         painter.setPen(backgroundColor);
         painter.setBrush(backgroundColor);
-        painter.setOpacity(config::qualified(bgConfig + ".opacity", 1.0));
-        if (config::qualified(bgConfig + ".type", std::string("")) == "circle")
+        painter.setOpacity(config::qualified(bgConfig("opacity"), 1.0));
+        if (config::qualified(bgConfig("type"), std::string("")) == "circle")
           painter.drawEllipse(startPoint.x(), startPoint.y(), width, width);
         else
           painter.drawRect(startPoint.x(), startPoint.y(), width, width);
@@ -185,9 +188,9 @@ public:
       }
 
       painter.save();
-      painter.setFont(config::qFont("photoItemWidget.ordNum.font"));
-      painter.setOpacity(config::qualified("photoItemWidget.ordNum.font.opacity", 1.0));
-      painter.setPen(config::qColor("photoItemWidget.ordNum.font.color", Qt::black));
+      painter.setFont(config::qFont(ordConfig("font")));
+      painter.setOpacity(config::qualified(ordConfig("font")("opacity"), 1.0));
+      painter.setPen(config::qColor(ordConfig("font")("color"), Qt::black));
       painter.drawText(QRect(startPoint, size), Qt::AlignCenter, QString::number(ordNumber));
 
       painter.restore();
@@ -195,21 +198,22 @@ public:
 
     void histogram(std::vector<float> const& data)
     {
-        QSize const histSize = histogramSize(data);
-        auto const scaledHist = scaleHistogram(data, histSize.width());
-        unsigned const padding = config::qualified("photoItemWidget.histogram.padding", 7u);
+      auto const histConfig = baseConfig + "histogram";
+      QSize const histSize = histogramSize(data);
+      auto const scaledHist = scaleHistogram(data, histSize.width());
+      unsigned const padding = config::qualified(histConfig("padding"), 7u);
 
-        painter.save();
-        painter.setPen(config::qColor("photoItemWidget.histogram.color", Qt::black));
-        painter.setOpacity(config::qualified("photoItemWidget.histogram.opacity", 1.0));
+      painter.save();
+      painter.setPen(config::qColor(histConfig("color"), Qt::black));
+      painter.setOpacity(config::qualified(histConfig("opacity"), 1.0));
 
-        double const H = histSize.height();
-        QPoint const origin = drawStartPoint(Qt::AlignRight | Qt::AlignBottom, padding, histSize);
-        for (std::size_t i = 0; i < scaledHist.size(); ++i)
-            painter.drawLine(origin.x() + i, origin.y() + H,
-                             origin.x() + i, origin.y() + (1.0-scaledHist[i])*H);
+      double const H = histSize.height();
+      QPoint const origin = drawStartPoint(Qt::AlignRight | Qt::AlignBottom, padding, histSize);
+      for (std::size_t i = 0; i < scaledHist.size(); ++i)
+        painter.drawLine(origin.x() + i, origin.y() + H,
+                         origin.x() + i, origin.y() + (1.0-scaledHist[i])*H);
 
-        painter.restore();
+      painter.restore();
     }
 
 private:
@@ -230,30 +234,33 @@ private:
         return result;
     }
 
-    void alignedIcon(std::string const& configTable, int const alignment)
+    void alignedIcon(config::ConfigPath const& configTable, int const alignment)
     {
-        unsigned const padding = config::qualified(configTable+".padding", 7u);
-        QPixmap const pixmap = coloredIcon(configTable);
-        painter.drawPixmap(drawStartPoint(alignment, padding, pixmap.size()), pixmap);
+      unsigned const padding = config::qualified(configTable("padding"), 7u);
+      QPixmap const pixmap = coloredIcon(configTable);
+      painter.drawPixmap(drawStartPoint(alignment, padding, pixmap.size()), pixmap);
     }
 // TODO: specify min and max sizes for icons, if possible keep min->percent->max size, if size exceeds
 // pixmap, scale down
-    QPixmap coloredIcon(std::string const& configTable)
+    QPixmap coloredIcon(config::ConfigPath const& configTable)
     {
-        double const sizePercent = config::qualified(configTable+".sizePercent", 0.2);
-        QSize const iconSize(withBorderSize.width() * sizePercent,
-                             withBorderSize.height() * sizePercent);
-        QColor const color = config::qColor(configTable+".color", Qt::black);
-        double const opacity = config::qualified(configTable+".opacity", 0.5);
-        std::string const path = config::qualified(configTable+".path", std::string{});
+      double const sizePercent = config::qualified(configTable("sizePercent"), 0.2);
+      QSize const iconSize(withBorderSize.width() * sizePercent,
+                           withBorderSize.height() * sizePercent);
+      QColor const color = config::qColor(configTable("color"), Qt::black);
+      double const opacity = config::qualified(configTable("opacity"), 0.5);
+      std::string const path = config::qualified(configTable("path"), std::string{});
 
-        return iprocess::coloredPixmap(path, iconSize, color, opacity);
+      return iprocess::coloredPixmap(path, iconSize, color, opacity);
     }
 
+    static config::ConfigPath const baseConfig;
     std::size_t const borderWidth;
     QSize withBorderSize;
     QPainter painter;
 };
+
+config::ConfigPath const PhotoItem::PixmapRenderer::baseConfig("photoItemWidget");
 
 void PhotoItem::paintEvent(QPaintEvent*)
 {
