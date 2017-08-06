@@ -105,6 +105,7 @@ void DivisionMethodPage::importMoreFiles()
     LOG(INFO) << "Selected " << newFiles.size() << " files";
 
     _selectedFiles.append(newFiles);
+    // TODO: Sort order must be configurable. Definetely filename is not enough. Need to use date or EXIF date.
     std::sort(_selectedFiles.begin(), _selectedFiles.end());
     _selectedFiles.erase(std::unique(_selectedFiles.begin(), _selectedFiles.end()), _selectedFiles.end());
     LOG(INFO) << "Processing " << _selectedFiles.size() << " photos in total in current wizard";

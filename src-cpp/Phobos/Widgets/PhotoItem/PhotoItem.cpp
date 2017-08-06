@@ -39,7 +39,6 @@ namespace phobos { namespace widgets { namespace pitem {
 // TODO: addon: vector flow from previous photo
 // TODO: addon: Display selected metrics in text form on single series views.
 // TODO: rightclick menu should open a dialog with all metrics displayed
-// TODO: for best item, background under ord number might be green
 //
 // TODO: show "Quality" text in quality label
 //
@@ -163,33 +162,35 @@ public:
         painter.restore();
     }
 
-    void ordNum(unsigned const ordNumber)
+    void ordNum(unsigned const ordNumber, bool best)
     {
-        unsigned const width = config::qualified("photoItemWidget.ordNum.size", 20);
-        QSize const size(width, width);
-        QPoint const startPoint = drawStartPoint(Qt::AlignLeft | Qt::AlignTop, 0, size);
-        QColor const backgroundColor = config::qColor("photoItemWidget.ordNum.background.color", Qt::transparent);
+      using namespace std::string_literals;
+      std::string const bgConfig = "photoItemWidget.ordNum."s + (best ? "bestBackground" : "background");
+      unsigned const width = config::qualified("photoItemWidget.ordNum.size", 20);
+      QSize const size(width, width);
+      QPoint const startPoint = drawStartPoint(Qt::AlignLeft | Qt::AlignTop, 0, size);
+      QColor const backgroundColor = config::qColor(bgConfig + ".color", Qt::transparent);
 
-        if (backgroundColor != Qt::transparent)
-        {
-            painter.save();
-            painter.setPen(backgroundColor);
-            painter.setBrush(backgroundColor);
-            painter.setOpacity(config::qualified("photoItemWidget.ordNum.background.opacity", 1.0));
-            if (config::qualified("photoItemWidget.ordNum.background.type", std::string("")) == "circle")
-                painter.drawEllipse(startPoint.x(), startPoint.y(), width, width);
-            else
-                painter.drawRect(startPoint.x(), startPoint.y(), width, width);
-            painter.restore();
-        }
-
+      if (backgroundColor != Qt::transparent)
+      {
         painter.save();
-        painter.setFont(config::qFont("photoItemWidget.ordNum.font"));
-        painter.setOpacity(config::qualified("photoItemWidget.ordNum.font.opacity", 1.0));
-        painter.setPen(config::qColor("photoItemWidget.ordNum.font.color", Qt::black));
-        painter.drawText(QRect(startPoint, size), Qt::AlignCenter, QString::number(ordNumber));
-
+        painter.setPen(backgroundColor);
+        painter.setBrush(backgroundColor);
+        painter.setOpacity(config::qualified(bgConfig + ".opacity", 1.0));
+        if (config::qualified(bgConfig + ".type", std::string("")) == "circle")
+          painter.drawEllipse(startPoint.x(), startPoint.y(), width, width);
+        else
+          painter.drawRect(startPoint.x(), startPoint.y(), width, width);
         painter.restore();
+      }
+
+      painter.save();
+      painter.setFont(config::qFont("photoItemWidget.ordNum.font"));
+      painter.setOpacity(config::qualified("photoItemWidget.ordNum.font.opacity", 1.0));
+      painter.setPen(config::qColor("photoItemWidget.ordNum.font.color", Qt::black));
+      painter.drawText(QRect(startPoint, size), Qt::AlignCenter, QString::number(ordNumber));
+
+      painter.restore();
     }
 
     void histogram(std::vector<float> const& data)
@@ -272,7 +273,7 @@ void PhotoItem::paintEvent(QPaintEvent*)
         renderer.histogram(*metric->histogram);
 
     if (addons.has(AddonType::ORD_NUM))
-        renderer.ordNum(_photoItem->ord());
+        renderer.ordNum(_photoItem->ord(), metric && metric->bestQuality);
 }
 
 void PhotoItem::contextMenuEvent(QContextMenuEvent* event)

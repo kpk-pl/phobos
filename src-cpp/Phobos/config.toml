@@ -42,6 +42,7 @@ padding = 7
 size = 20
 font = { family = "Courier", pointSize = 12, weight = 75, color = "black", opacity = 1.0 }
 background = { type = "square", color = "red", opacity = 0.5 } # type circle is possible
+bestBackground = { type = "square", color = "green", opacity = 0.5 }
 
 [photoItemWidget.border]
 width = 3
