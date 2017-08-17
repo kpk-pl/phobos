@@ -16,6 +16,7 @@
 #include "ImageProcessing/Metrics.h"
 #include "Utils/Algorithm.h"
 #include "Utils/Asserted.h"
+#include "Utils/ItemStateColor.h"
 #include <easylogging++.h>
 
 namespace phobos { namespace widgets { namespace pitem {
@@ -60,24 +61,6 @@ PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem, QImage const& preload
     QObject::connect(_photoItem.get(), &pcontainer::Item::stateChanged,
                      this, static_cast<void (QWidget::*)()>(&QWidget::update));
 }
-
-namespace {
-    QColor colorForState(pcontainer::ItemState const state)
-    {
-        switch(state)
-        {
-        case pcontainer::ItemState::UNKNOWN:
-            return config::qColor("photoItemWidget.border.colorUnknown", Qt::lightGray);
-        case pcontainer::ItemState::SELECTED:
-            return config::qColor("photoItemWidget.border.colorSelected", Qt::green);
-        case pcontainer::ItemState::DISCARDED:
-            return config::qColor("photoItemWidget.border.colorDiscarded", Qt::red);
-        }
-
-        assert(false);
-        return QColor();
-    }
-} // unnamed namespace
 
 class PhotoItem::PixmapRenderer
 {
@@ -140,7 +123,7 @@ public:
         painter.setWorldTransform(QTransform().translate((widget.width() - withBorderSize.width()) / 2,
                                                          (widget.height() - withBorderSize.height()) / 2));
 
-        painter.fillRect(QRect(QPoint(), withBorderSize), colorForState(widget.photoItem().state()));
+        painter.fillRect(QRect(QPoint(), withBorderSize), utils::itemStateColor(widget.photoItem().state()));
         painter.drawImage(borderWidth, borderWidth, scaledImage);
     }
 

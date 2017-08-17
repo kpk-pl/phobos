@@ -35,7 +35,9 @@ SOURCES += Phobos.cpp\
     PhotoContainers/Item.cpp \
     PhotoContainers/Series.cpp \
     PhotoContainers/Set.cpp \
+    PhotoContainers/ItemState.cpp \
     Utils/LayoutClear.cpp \
+    Utils/ItemStateColor.cpp \
     easyloggingpp/src/easylogging++.cc \
     ConfigExtension.cpp \
     SeriesViewBase.cpp \
@@ -51,10 +53,19 @@ SOURCES += Phobos.cpp\
     Widgets/ImageWidget.cpp \
     Widgets/PhotoItem/PhotoItem.cpp \
     Widgets/PhotoItem/Addon.cpp \
+    Widgets/HorizontalLine.cpp \
     ImportWizard/DivisionOps.cpp \
     ImportWizard/SeriesDisplayPage.cpp \
     ImageCache/Cache.cpp \
-    ImageCache/LimitedMap.cpp
+    ImageCache/LimitedMap.cpp \
+    ProcessWizard/ProcessWizard.cpp \
+    ProcessWizard/Operation.cpp \
+    ProcessWizard/ActionsCreatorPage.cpp \
+    ProcessWizard/Action.cpp \
+    ProcessWizard/ActionTab.cpp \
+    ProcessWizard/SeriesCounts.cpp \
+    ProcessWizard/WarningsPage.cpp \
+    ProcessWizard/TypeActionTab.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -77,6 +88,7 @@ HEADERS  += MainWindow.h \
     PhotoContainers/Set.h \
     PhotoContainers/Item.h \
     PhotoContainers/ItemId.h \
+    PhotoContainers/ItemState.h \
     Utils/LayoutClear.h \
     Utils/Algorithm.h \
     Utils/Focused.h \
@@ -94,6 +106,8 @@ HEADERS  += MainWindow.h \
     Utils/FileAttributes.h \
     Utils/Comparators.h \
     Utils/Streaming.h \
+    Utils/LexicalCast.h \
+    Utils/ItemStateColor.h \
     Widgets/HeightResizeableInterface.h \
     Widgets/IconLabel.h \
     Widgets/HorizontalScrollArea.h \
@@ -101,12 +115,22 @@ HEADERS  += MainWindow.h \
     Widgets/PhotoItem/PhotoItem.h \
     Widgets/PhotoItem/Addon.h \
     Widgets/PhotoItem/Capability.h \
+    Widgets/HorizontalLine.h \
     ImportWizard/DivisionOps.h \
     ImportWizard/Types.h \
     ImportWizard/SeriesDisplayPage.h \
     ImageCache/Cache.h \
     ImageCache/CacheFwd.h \
-    ImageCache/LimitedMap.h
+    ImageCache/LimitedMap.h \
+    ProcessWizard/ProcessWizard.h \
+    ProcessWizard/Operation.h \
+    ProcessWizard/ActionsCreatorPage.h \
+    ProcessWizard/Action.h \
+    ProcessWizard/ActionFwd.h \
+    ProcessWizard/ActionTab.h \
+    ProcessWizard/SeriesCounts.h \
+    ProcessWizard/WarningsPage.h \
+    ProcessWizard/TypeActionTab.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

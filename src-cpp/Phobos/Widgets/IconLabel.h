@@ -23,7 +23,14 @@ public:
 protected:
     QLabel *_iconLabel;
     QLabel *_label;
+};
 
+class TextIconLabel : public IconLabel
+{
+public:
+  TextIconLabel(QString const& text = "", QWidget *parent = nullptr);
+  TextIconLabel(QPixmap const& icon, QString const& text = "", QWidget *parent = nullptr);
+  TextIconLabel(QIcon const& icon, QString const& text = "", QWidget *parent = nullptr);
 };
 
 }} // namespace phobos::widgets

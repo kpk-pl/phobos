@@ -1,13 +1,13 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QGridLayout>
-#include <QFrame>
 #include <QSpinBox>
 #include <QRadioButton>
 #include <easylogging++.h>
 #include "ImportWizard/DivisionMethodPage.h"
 #include "ImportWizard/ImageOpenDialog.h"
 #include "ImportWizard/DivisionOps.h"
+#include "Widgets/HorizontalLine.h"
 
 namespace phobos { namespace importwiz {
 
@@ -19,10 +19,6 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     numImportedLabel = new QLabel();
     importMoreButton = new QPushButton(tr("Import more"));
     QObject::connect(importMoreButton, &QPushButton::clicked, this, &DivisionMethodPage::importMoreFiles);
-
-    QFrame* hline = new QFrame();
-    hline->setFrameShape(QFrame::HLine);
-    hline->setFrameShadow(QFrame::Sunken);
 
     fixedNumChoice = new QRadioButton(tr("Each series has the same number of photos"));
     fixedNumParam = new QSpinBox();
@@ -44,7 +40,7 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     layout->setColumnStretch(1, 1);
     layout->addWidget(numImportedLabel, 0, 0);
     layout->addWidget(importMoreButton, 0, 2);
-    layout->addWidget(hline, 1, 0, 1, -1);
+    layout->addWidget(new widgets::HorizontalLine(), 1, 0, 1, -1);
     layout->addWidget(fixedNumChoice, 2, 0, 1, 2);
     layout->addWidget(fixedNumParam, 2, 2);
     layout->addWidget(metadataAutoChoice, 3, 0, 1, 2);

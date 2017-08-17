@@ -9,6 +9,7 @@
 #include "ViewDescription.h"
 #include "PhotoBulkAction.h"
 #include "ImportWizard/ImportWizard.h"
+#include "ProcessWizard/ProcessWizard.h"
 
 namespace phobos {
 
@@ -42,24 +43,6 @@ void MainWindow::createMenus()
     fileMenu->addSeparator();
     fileMenu->addAction(tr("&Exit"), this, &MainWindow::close, QKeySequence("Ctrl+Q"))->setStatusTip(tr("Exit the application"));
 
-    QMenu* execMenu = menuBar()->addMenu(tr("&Execute"));
-    execMenu->addAction(tr("&Remove"), this, &MainWindow::removeSelected)->setStatusTip(tr("Remove selected files from hard drive"));
-    execMenu->addAction(tr("&Move"), this, &MainWindow::moveSelected)->setStatusTip(tr("Move selected files to another directory"));
-    execMenu->addAction(tr("&Copy"), this, &MainWindow::copySelected)->setStatusTip(tr("Copy selected files to another directory"));
-
-    QMenu* actionMenu = menuBar()->addMenu(tr("&Action"));
-    actionMenu->addAction(tr("Select &best"), [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_BEST); })
-            ->setStatusTip(tr("Select best photos in each series"));
-    actionMenu->addAction(tr("Select &unchecked"), [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_UNCHECKED); })
-            ->setStatusTip(tr("Select all unchecked photos"));
-    actionMenu->addAction(tr("&Discard unchecked"), [this](){ viewStack->bulkSelect(PhotoBulkAction::DISCARD_UNCHECKED); })
-            ->setStatusTip(tr("Select all unchecked photos"));
-    actionMenu->addAction(tr("&Invert selection"), [this](){ viewStack->bulkSelect(PhotoBulkAction::INVERT); })
-            ->setStatusTip(tr("Invert selection"));
-    actionMenu->addAction(tr("&Clear selection"), [this](){ viewStack->bulkSelect(PhotoBulkAction::CLEAR); })
-            ->setStatusTip(tr("Clear selection"));
-
-    // TODO: Action: Report -> show dialog with number of series / num selected photos, num unchecked series etc
     // TODO: to viewMenubar add selectable options to enable/disable addons on photoitemwidgets
 
     QMenu* viewMenu = menuBar()->addMenu(tr("&View"));
@@ -80,35 +63,48 @@ void MainWindow::createMenus()
     viewMenu->addAction(tr("&Previous series"),
                         [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::CURRENT, boost::none, -1)); },
                         QKeySequence("Shift+Left"))->setStatusTip(tr("Jump to previous series"));
+
+    // TODO: Action: Report -> show dialog with number of series / num selected photos, num unchecked series etc
+    QMenu* actionMenu = menuBar()->addMenu(tr("&Action"));
+    actionMenu->addAction(tr("Select &best"), [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_BEST); })
+            ->setStatusTip(tr("Select best photos in each series"));
+    actionMenu->addAction(tr("Select &unchecked"), [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_UNCHECKED); })
+            ->setStatusTip(tr("Select all unchecked photos"));
+    actionMenu->addAction(tr("&Discard unchecked"), [this](){ viewStack->bulkSelect(PhotoBulkAction::DISCARD_UNCHECKED); })
+            ->setStatusTip(tr("Select all unchecked photos"));
+    actionMenu->addAction(tr("&Invert selection"), [this](){ viewStack->bulkSelect(PhotoBulkAction::INVERT); })
+            ->setStatusTip(tr("Invert selection"));
+    actionMenu->addAction(tr("&Clear selection"), [this](){ viewStack->bulkSelect(PhotoBulkAction::CLEAR); })
+            ->setStatusTip(tr("Clear selection"));
+
+    QMenu* execMenu = menuBar()->addMenu(tr("&Process"));
+    execMenu->addAction(tr("&Delete"), this, [this]{processAction(processwiz::OperationType::Delete);})->setStatusTip(tr("Delete selected files from hard drive"));
+    execMenu->addAction(tr("&Move"),   this, [this]{processAction(processwiz::OperationType::Move);  })->setStatusTip(tr("Move selected files from hard drive"));
+    execMenu->addAction(tr("&Copy"),   this, [this]{processAction(processwiz::OperationType::Copy);  })->setStatusTip(tr("Copy selected files from hard drive"));
+    execMenu->addAction(tr("&Rename"), this, [this]{processAction(processwiz::OperationType::Rename);})->setStatusTip(tr("Rename selected files from hard drive"));
 }
 
-void MainWindow::removeSelected() const
+void MainWindow::processAction(processwiz::OperationType const operation)
 {
-    auto const selections = viewStack->getSelectionStatus();
-    std::vector<QString> toDelete;
-    for (auto const& seriesStat : selections.status)
-        toDelete.insert(toDelete.end(), seriesStat.discarded.begin(), seriesStat.discarded.end());
+  processwiz::ProcessWizard processWizard(this, seriesSet, operation);
+  if (processWizard.exec())
+  {} // TODO: Finish me
 
-    for (QString const& fileName : toDelete)
-    {
-        LOG(DEBUG) << ":: deleting " << fileName;
+/*  auto const selections = viewStack->getSelectionStatus();
+  std::vector<QString> toDelete;
+  for (auto const& seriesStat : selections.status)
+      toDelete.insert(toDelete.end(), seriesStat.discarded.begin(), seriesStat.discarded.end());
 
-        if (remove(fileName.toStdString().c_str()) != 0)
-            LOG(ERROR) << "Cannot remove file " << fileName;
-    }
+  for (QString const& fileName : toDelete)
+  {
+      LOG(DEBUG) << ":: deleting " << fileName;
 
-    // TODO: use trash (or configurable option in dialog) http://stackoverflow.com/questions/17964439/move-files-to-trash-recycle-bin-in-qt
-    // TODO: after removing photos something must be done with whole application because loading these from hard drive will be impossible
-}
+      if (remove(fileName.toStdString().c_str()) != 0)
+          LOG(ERROR) << "Cannot remove file " << fileName;
+  }*/
 
-void MainWindow::moveSelected() const
-{
-
-}
-
-void MainWindow::copySelected() const
-{
-
+  // TODO: use trash (or configurable option in dialog) http://stackoverflow.com/questions/17964439/move-files-to-trash-recycle-bin-in-qt
+  // TODO: after removing photos something must be done with whole application because loading these from hard drive will be impossible
 }
 
 // TODO: Status bar should display percent and fraction of photos(series) viewed, especially in series view

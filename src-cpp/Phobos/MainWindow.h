@@ -5,28 +5,27 @@
 #include "ViewStack.h"
 #include "PhotoContainers/Set.h"
 #include "ImageCache/Cache.h"
+#include "ProcessWizard/Operation.h"
 
 namespace phobos {
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+  explicit MainWindow(QWidget *parent = nullptr);
 
 private slots:
-    void removeSelected() const;
-    void moveSelected() const;
-    void copySelected() const;
+  void processAction(processwiz::OperationType const operation);
 
 private:
-    void loadPhotos();
-    void createMenus();
+  void loadPhotos();
+  void createMenus();
 
-    pcontainer::Set seriesSet;
-    icache::Cache imageCache;
-    ViewStack* viewStack;
+  pcontainer::Set seriesSet;
+  icache::Cache imageCache;
+  ViewStack* viewStack;
 };
 
 } // namespace phobos

@@ -12,7 +12,7 @@ class QPushButton;
 class QGridLayout;
 
 namespace phobos { namespace widgets {
-class IconLabel;
+class TextIconLabel;
 }}
 
 namespace phobos { namespace importwiz {
@@ -47,11 +47,11 @@ private:
     void initializeInfoLabels(LengthCountMap const& lengthsCount);
 
     void initializeLengthOneWarning(std::size_t const count);
-    widgets::IconLabel *lengthOneWarning;
+    widgets::TextIconLabel *lengthOneWarning;
     QPushButton *selectLengthOneButton;
 
     void initializeMultipleLengthsInfo(std::set<std::size_t> const& lengths);
-    widgets::IconLabel *multipleLengthsInfo;
+    widgets::TextIconLabel *multipleLengthsInfo;
 
     PhotoSeriesVec _dividedSeries;
     PhotoSeriesVec _chosenSeries;

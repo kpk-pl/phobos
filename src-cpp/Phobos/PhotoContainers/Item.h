@@ -6,16 +6,10 @@
 #include <QUuid>
 #include <QMetaObject>
 #include "PhotoContainers/Fwd.h"
+#include "PhotoContainers/ItemState.h"
 #include "PhotoContainers/ItemId.h"
 
 namespace phobos { namespace pcontainer {
-
-enum class ItemState
-{
-    UNKNOWN,
-    SELECTED,
-    DISCARDED
-};
 
 // TODO: Introduce UUID type signature for each Item. This will contain seriesUuid in it. Pass it
 // instead of seriesUuid and filename for item

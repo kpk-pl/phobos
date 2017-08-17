@@ -27,5 +27,23 @@ IconLabel::IconLabel(QPixmap const& icon, QString const& text, QWidget *parent) 
     setLayout(hlayout);
 }
 
+TextIconLabel::TextIconLabel(QString const& text, QWidget *parent) :
+  IconLabel(text, parent)
+{
+  _iconLabel->setFixedSize(16, 16);
+}
+
+TextIconLabel::TextIconLabel(QIcon const& icon, QString const& text, QWidget *parent) :
+  IconLabel(icon, text, parent)
+{
+  _iconLabel->setFixedSize(16, 16);
+}
+
+TextIconLabel::TextIconLabel(QPixmap const& icon, QString const& text, QWidget *parent) :
+  IconLabel(icon, text, parent)
+{
+  _iconLabel->setFixedSize(16, 16);
+}
+
 }} // namespace phobos::widgets
 

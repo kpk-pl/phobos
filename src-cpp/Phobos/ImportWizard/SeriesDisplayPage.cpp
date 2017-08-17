@@ -25,13 +25,11 @@ SeriesDisplayPage::SeriesDisplayPage(QWidget *parent) :
     tree = new QTreeWidget();
     tree->header()->close();
 
+    // TODO: IconLabel and fix TODO below!
     loadedStatusLabel = new QLabel();
 
-    multipleLengthsInfo = new widgets::IconLabel(style()->standardIcon(QStyle::SP_MessageBoxInformation));
-    multipleLengthsInfo->iconLabel()->setFixedSize(16, 16);
-
-    lengthOneWarning = new widgets::IconLabel(style()->standardIcon(QStyle::SP_MessageBoxWarning));
-    lengthOneWarning->iconLabel()->setFixedSize(16, 16);
+    multipleLengthsInfo = new widgets::TextIconLabel(style()->standardIcon(QStyle::SP_MessageBoxInformation));
+    lengthOneWarning = new widgets::TextIconLabel(style()->standardIcon(QStyle::SP_MessageBoxWarning));
 
     selectLengthOneButton = new QPushButton("Select back");
     QObject::connect(selectLengthOneButton, &QPushButton::clicked, this, &SeriesDisplayPage::selectBackSeriesWithOnePhoto);

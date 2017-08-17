@@ -46,9 +46,9 @@ bestBackground = { type = "square", color = "green", opacity = 0.5 }
 
 [photoItemWidget.border]
 width = 3
-colorUnknown = "darkGray"
-colorSelected = "green"
-colorDiscarded = "red"
+unknown = "darkGray"
+selected = "green"
+discarded = "red"
 
 [photoItemWidget.histogram]
 width = 128

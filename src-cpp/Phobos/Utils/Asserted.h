@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <map>
+#include <cassert>
 #include <unordered_map>
 
 namespace phobos { namespace utils { namespace asserted {

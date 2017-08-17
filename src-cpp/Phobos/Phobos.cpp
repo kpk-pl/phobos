@@ -9,6 +9,7 @@
 #include "Config.h"
 #include "PhotoBulkAction.h"
 #include "ImportWizard/Types.h"
+#include "ProcessWizard/Action.h"
 #include "PhotoContainers/ItemId.h"
 
 INITIALIZE_EASYLOGGINGPP
@@ -29,6 +30,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<phobos::iprocess::MetricPtr>();
     qRegisterMetaType<phobos::PhotoBulkAction>();
     qRegisterMetaType<phobos::importwiz::PhotoSeriesVec>();
+    qRegisterMetaType<phobos::processwiz::ConstActionPtr>();
     qRegisterMetaType<phobos::pcontainer::ItemId>();
 
     phobos::MainWindow w;
