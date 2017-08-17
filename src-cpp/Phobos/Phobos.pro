@@ -38,6 +38,7 @@ SOURCES += Phobos.cpp\
     PhotoContainers/ItemState.cpp \
     Utils/LayoutClear.cpp \
     Utils/ItemStateColor.cpp \
+    Utils/Portable.cpp \
     easyloggingpp/src/easylogging++.cc \
     ConfigExtension.cpp \
     SeriesViewBase.cpp \
@@ -54,6 +55,7 @@ SOURCES += Phobos.cpp\
     Widgets/PhotoItem/PhotoItem.cpp \
     Widgets/PhotoItem/Addon.cpp \
     Widgets/HorizontalLine.cpp \
+    Widgets/FilenameEntry.cpp \
     ImportWizard/DivisionOps.cpp \
     ImportWizard/SeriesDisplayPage.cpp \
     ImageCache/Cache.cpp \
@@ -93,6 +95,7 @@ HEADERS  += MainWindow.h \
     Utils/Algorithm.h \
     Utils/Focused.h \
     Utils/Asserted.h \
+    Utils/Portable.h \
     easyloggingpp/src/easylogging++.h \
     SeriesViewBase.h \
     NumSeriesView.h \
@@ -116,6 +119,7 @@ HEADERS  += MainWindow.h \
     Widgets/PhotoItem/Addon.h \
     Widgets/PhotoItem/Capability.h \
     Widgets/HorizontalLine.h \
+    Widgets/FilenameEntry.h \
     ImportWizard/DivisionOps.h \
     ImportWizard/Types.h \
     ImportWizard/SeriesDisplayPage.h \

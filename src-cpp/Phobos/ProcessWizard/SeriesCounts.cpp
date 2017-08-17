@@ -50,15 +50,15 @@ SeriesCounts countPhotos(pcontainer::Set const& seriesSet)
   Counter const counter(counts);
   std::for_each(seriesSet.begin(), seriesSet.end(), std::ref(counter));
 
-  LOG(INFO) << "Found " << counts.all.photos << " photos in " << counts.all.series << " series in total";
+  LOG(INFO) << "[processing] Found " << counts.all.photos << " photos in " << counts.all.series << " series in total";
 
   // Accessing counts with [] creates all possible states
   for (pcontainer::ItemState const state : allStates)
-    LOG(INFO) << "Found " << counts.types[state].photos << " " << state << " photos in "
+    LOG(INFO) << "[processing] Found " << counts.types[state].photos << " " << state << " photos in "
               << counts.types[state].series << " series";
 
-  LOG(INFO) << "Found " << counts.seriesCompletelyDiscarded << " completely discarded series";
-  LOG(INFO) << "Found " << counts.seriesCompletelyUnknown << " completely unchecked series";
+  LOG(INFO) << "[processing] Found " << counts.seriesCompletelyDiscarded << " completely discarded series";
+  LOG(INFO) << "[processing] Found " << counts.seriesCompletelyUnknown << " completely unchecked series";
 
   return counts;
 }

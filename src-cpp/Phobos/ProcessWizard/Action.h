@@ -44,11 +44,14 @@ private:
 class RenameAction : public Action
 {
 public:
-  RenameAction(pcontainer::ItemState const matchedState);
+  RenameAction(pcontainer::ItemState const matchedState, std::string const& pattern);
 
   QString toString() const override;
   std::size_t priority() const override { return 1; }
   bool greedy() const override { return true; }
+
+private:
+  std::string const pattern;
 };
 
 }} // namespace phobos::processwiz

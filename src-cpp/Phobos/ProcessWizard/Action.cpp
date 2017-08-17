@@ -40,14 +40,14 @@ QString DeleteAction::toString() const
   return QString();
 }
 
-RenameAction::RenameAction(const pcontainer::ItemState matchedState) :
-  Action(matchedState)
+RenameAction::RenameAction(const pcontainer::ItemState matchedState, std::string const& pattern) :
+  Action(matchedState), pattern(pattern)
 {
 }
 
 QString RenameAction::toString() const
 {
-  return QObject::tr("Rename");
+  return QObject::tr("Rename each photo to \"%1\"").arg(QString::fromStdString(pattern));
 }
 
 }} // namespace phobos::processwiz

@@ -1,5 +1,6 @@
 #include "ProcessWizard/ActionTab.h"
 #include "Widgets/IconLabel.h"
+#include "Widgets/FilenameEntry.h"
 #include <QPushButton>
 #include <QRadioButton>
 #include <QVBoxLayout>
@@ -7,6 +8,7 @@
 #include <QLineEdit>
 #include <QStyle>
 #include <cassert>
+#include <easylogging++.h>
 
 namespace phobos { namespace processwiz {
 
@@ -64,34 +66,6 @@ private:
   QRadioButton *permanentRadio, *trashRadio;
 };
 
-struct RenameWithSyntaxWidget : public QWidget
-{
-  QLineEdit *fileNameEdit;
-  QPushButton *syntaxButton;
-
-  RenameWithSyntaxWidget()
-  {
-    fileNameEdit = new QLineEdit;
-    syntaxButton = new QPushButton(tr("Syntax"));
-
-    // TODO: connect button to some action
-
-    QHBoxLayout *hl1 = new QHBoxLayout();
-    hl1->addWidget(new QLabel(tr("New filename:")));
-    hl1->addWidget(fileNameEdit);
-
-    QHBoxLayout *hl2 = new QHBoxLayout();
-    hl2->addStretch();
-    hl2->addWidget(syntaxButton);
-
-    QVBoxLayout *vl = new QVBoxLayout();
-    vl->addLayout(hl1);
-    vl->addLayout(hl2);
-
-    setLayout(vl);
-  }
-};
-
 class MoveActionTab : public ActionTab
 {
 public:
@@ -118,7 +92,8 @@ public:
   {
     QVBoxLayout *vlayout = new QVBoxLayout();
 
-    renameWithSyntax = new RenameWithSyntaxWidget();
+    widgets::FilenameEntry *renameWithSyntax = new widgets::FilenameEntry();
+    fileNameEdit = renameWithSyntax->fileNameEdit;
     vlayout->addWidget(renameWithSyntax);
 
     QPushButton *confirmButton = new QPushButton(tr("Create action"));
@@ -135,11 +110,15 @@ public:
 private slots:
   void createAction() const
   {
-    emit newAction(std::make_shared<RenameAction>(matchState));
+    if (fileNameEdit->hasAcceptableInput())
+      emit newAction(std::make_shared<RenameAction>(matchState, fileNameEdit->text().toStdString()));
+    else
+      LOG(INFO) << "Attempted to create Rename action from unacceptable input \""
+                << fileNameEdit->text().toStdString() << '"';
   }
 
 private:
-  RenameWithSyntaxWidget *renameWithSyntax;
+  QLineEdit *fileNameEdit;
 };
 } // unnamed namespace
 

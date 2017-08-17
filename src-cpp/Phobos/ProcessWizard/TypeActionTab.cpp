@@ -80,7 +80,10 @@ void TypeActionTab::acceptNewAction(ConstActionPtr action)
   selectivelyDisableActions();
 
   if(isItemEnabled(newItem))
+  {
     newItem->setCheckState(Qt::Checked);
+    selectivelyDisableActions();
+  }
 
   emit actionsChanged();
 }
