@@ -1,10 +1,10 @@
-#include "Utils/Portable.h"
+#include "Utils/Filesystem/Portable.h"
 
 /*
  * Adopted from Boost https://code.woboq.org/boost/boost/libs/filesystem/src/portability.cpp.html
  */
 
-namespace phobos { namespace utils {
+namespace phobos { namespace utils { namespace fs {
 namespace
 {
   const char invalid_chars[] =
@@ -68,4 +68,4 @@ bool portableFileName(const std::string & name)
 		;
 }
 
-}} // namespace phobos::utils
+}}} // namespace phobos::utils::fs

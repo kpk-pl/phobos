@@ -38,7 +38,8 @@ SOURCES += Phobos.cpp\
     PhotoContainers/ItemState.cpp \
     Utils/LayoutClear.cpp \
     Utils/ItemStateColor.cpp \
-    Utils/Portable.cpp \
+    Utils/Filesystem/Portable.cpp \
+    Utils/Filesystem/Attributes.cpp \
     easyloggingpp/src/easylogging++.cc \
     ConfigExtension.cpp \
     SeriesViewBase.cpp \
@@ -48,7 +49,6 @@ SOURCES += Phobos.cpp\
     ImportWizard/ImageOpenDialog.cpp \
     ImportWizard/ImportWizard.cpp \
     ImportWizard/DivisionMethodPage.cpp \
-    Utils/FileAttributes.cpp \
     Widgets/IconLabel.cpp \
     Widgets/HorizontalScrollArea.cpp \
     Widgets/ImageWidget.cpp \
@@ -95,7 +95,12 @@ HEADERS  += MainWindow.h \
     Utils/Algorithm.h \
     Utils/Focused.h \
     Utils/Asserted.h \
-    Utils/Portable.h \
+    Utils/Comparators.h \
+    Utils/Streaming.h \
+    Utils/LexicalCast.h \
+    Utils/ItemStateColor.h \
+    Utils/Filesystem/Attributes.h \
+    Utils/Filesystem/Portable.h \
     easyloggingpp/src/easylogging++.h \
     SeriesViewBase.h \
     NumSeriesView.h \
@@ -106,11 +111,6 @@ HEADERS  += MainWindow.h \
     ImportWizard/ImageOpenDialog.h \
     ImportWizard/ImportWizard.h \
     ImportWizard/DivisionMethodPage.h \
-    Utils/FileAttributes.h \
-    Utils/Comparators.h \
-    Utils/Streaming.h \
-    Utils/LexicalCast.h \
-    Utils/ItemStateColor.h \
     Widgets/HeightResizeableInterface.h \
     Widgets/IconLabel.h \
     Widgets/HorizontalScrollArea.h \

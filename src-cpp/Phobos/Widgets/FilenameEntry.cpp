@@ -1,6 +1,6 @@
 #include "Widgets/FilenameEntry.h"
 #include "Widgets/IconLabel.h"
-#include "Utils/Portable.h"
+#include "Utils/Filesystem/Portable.h"
 #include <QValidator>
 #include <QLineEdit>
 #include <QHBoxLayout>
@@ -34,7 +34,7 @@ public:
       if (s[pos] == '%')
         s.replace(pos, 2, 2, '_');
 
-    return utils::portableFileName(s) ? good : QValidator::State::Invalid;
+    return utils::fs::portableFileName(s) ? good : QValidator::State::Invalid;
   }
 };
 } // unnamed namespace

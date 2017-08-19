@@ -1,6 +1,6 @@
 #include <easylogging++.h>
 #include "ImportWizard/DivisionOps.h"
-#include "Utils/FileAttributes.h"
+#include "Utils/Filesystem/Attributes.h"
 #include "Utils/Comparators.h"
 #include "Utils/Algorithm.h"
 #include "ConfigExtension.h"
@@ -43,7 +43,7 @@ namespace {
                                    QStringList::const_iterator const& end)
     {
         std::transform(begin, end, destination, [](QString const& str){
-            return Photo{str.toStdString(), utils::lastModificationTime(str.toStdString())};
+            return Photo{str.toStdString(), utils::fs::lastModificationTime(str.toStdString())};
         });
     }
 

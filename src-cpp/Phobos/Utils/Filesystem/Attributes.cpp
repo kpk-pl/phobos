@@ -1,6 +1,6 @@
-#include "Utils/FileAttributes.h"
+#include "Utils/Filesystem/Attributes.h"
 
-namespace phobos { namespace utils {
+namespace phobos { namespace utils { namespace fs {
 
 #ifdef _WIN32
 #include <windows.h>
@@ -63,5 +63,5 @@ unsigned lastModificationTime(std::string const& fileName)
     return detail::detailModTime(fileName);
 }
 
-}} // namespace phobos::utils
+}}} // namespace phobos::utils::fs
 
