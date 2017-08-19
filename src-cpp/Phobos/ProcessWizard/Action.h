@@ -57,5 +57,6 @@ private:
 }} // namespace phobos::processwiz
 
 Q_DECLARE_METATYPE(phobos::processwiz::ConstActionPtr)
+Q_DECLARE_METATYPE(phobos::processwiz::ConstActionPtrVec)
 
 #endif // PROCESSWIZARD_ACTION_H

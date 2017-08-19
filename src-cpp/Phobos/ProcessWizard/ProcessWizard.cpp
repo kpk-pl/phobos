@@ -1,5 +1,6 @@
 #include "ProcessWizard/ProcessWizard.h"
 #include "ProcessWizard/ActionsCreatorPage.h"
+#include "ProcessWizard/SummaryPage.h"
 #include "ProcessWizard/WarningsPage.h"
 #include "ProcessWizard/SeriesCounts.h"
 #include <easylogging++.h>
@@ -15,6 +16,7 @@ ProcessWizard::ProcessWizard(QWidget *parent, pcontainer::Set const& seriesSet, 
 
   addPage(new WarningsPage(counts));
   addPage(new ActionsCreatorPage(counts, defaultOperation));
+  addPage(new SummaryPage());
 
   setWindowTitle(tr("Processing wizard"));
 
@@ -27,7 +29,7 @@ ProcessWizard::ProcessWizard(QWidget *parent, pcontainer::Set const& seriesSet, 
 
 ConstActionPtrVec ProcessWizard::createdActions() const
 {
-  return field("createdActions").value<ConstActionPtrVec>();
+  return field("choosenActions").value<ConstActionPtrVec>();
 }
 
 }} // namespace phobos::processwiz

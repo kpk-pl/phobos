@@ -48,6 +48,8 @@ ActionsCreatorPage::ActionsCreatorPage(SeriesCounts const& counts, OperationType
   currentTab->setCurrentTab(defaultOperation);
 
   selectedActionsChanged();
+
+  registerField("chosenActions", this, "chosenActions", SIGNAL(actionsChanged(ConstActionPtrVec)));
 }
 
 ConstActionPtrVec ActionsCreatorPage::chosenActions() const
@@ -74,8 +76,12 @@ void ActionsCreatorPage::initializePage()
 {
   if (wizard()->button(QWizard::NextButton))
       wizard()->button(QWizard::NextButton)->setFocus();
-  else if (wizard()->button(QWizard::FinishButton))
-      wizard()->button(QWizard::FinishButton)->setFocus();
+}
+
+void ActionsCreatorPage::cleanupPage()
+{
+  // override default cleanupPage impl because 'chosenActions' field is read-only
+  // and cannot be cleared -> suppress warning
 }
 
 namespace {

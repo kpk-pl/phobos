@@ -13,6 +13,7 @@ public:
 
 protected:
   void initializePage() override;
+  bool validatePage() override;
 };
 
 }} // namespace phobos::processwiz

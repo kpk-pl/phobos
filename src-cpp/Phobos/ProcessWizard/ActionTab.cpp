@@ -110,11 +110,15 @@ public:
 private slots:
   void createAction() const
   {
+    std::string pattern = fileNameEdit->text().toStdString();
+
+    if (pattern.find("%N") == std::string::npos)
+      pattern = "%N" + pattern;
+
     if (fileNameEdit->hasAcceptableInput())
-      emit newAction(std::make_shared<RenameAction>(matchState, fileNameEdit->text().toStdString()));
+      emit newAction(std::make_shared<RenameAction>(matchState, pattern));
     else
-      LOG(INFO) << "Attempted to create Rename action from unacceptable input \""
-                << fileNameEdit->text().toStdString() << '"';
+      LOG(INFO) << "Attempted to create Rename action from unacceptable input \"" << pattern << '"';
   }
 
 private:

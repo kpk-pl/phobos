@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<phobos::PhotoBulkAction>();
     qRegisterMetaType<phobos::importwiz::PhotoSeriesVec>();
     qRegisterMetaType<phobos::processwiz::ConstActionPtr>();
+    qRegisterMetaType<phobos::processwiz::ConstActionPtrVec>();
     qRegisterMetaType<phobos::pcontainer::ItemId>();
 
     phobos::MainWindow w;

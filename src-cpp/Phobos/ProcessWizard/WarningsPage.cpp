@@ -6,6 +6,7 @@
 #include <QStyle>
 #include <QVBoxLayout>
 #include <QAbstractButton>
+#include <easylogging++.h>
 
 namespace phobos { namespace processwiz {
 
@@ -48,6 +49,12 @@ void WarningsPage::initializePage()
 {
   if (wizard()->button(QWizard::NextButton))
       wizard()->button(QWizard::NextButton)->setFocus();
+}
+
+bool WarningsPage::validatePage()
+{
+  LOG(INFO) << "Ignored warnings and moved forward";
+  return true;
 }
 
 }} // namespace phobos::processwiz

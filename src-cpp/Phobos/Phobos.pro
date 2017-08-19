@@ -67,7 +67,8 @@ SOURCES += Phobos.cpp\
     ProcessWizard/ActionTab.cpp \
     ProcessWizard/SeriesCounts.cpp \
     ProcessWizard/WarningsPage.cpp \
-    ProcessWizard/TypeActionTab.cpp
+    ProcessWizard/TypeActionTab.cpp \
+    ProcessWizard/SummaryPage.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -134,7 +135,8 @@ HEADERS  += MainWindow.h \
     ProcessWizard/ActionTab.h \
     ProcessWizard/SeriesCounts.h \
     ProcessWizard/WarningsPage.h \
-    ProcessWizard/TypeActionTab.h
+    ProcessWizard/TypeActionTab.h \
+    ProcessWizard/SummaryPage.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

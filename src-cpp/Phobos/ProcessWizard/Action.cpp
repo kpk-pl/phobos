@@ -47,7 +47,9 @@ RenameAction::RenameAction(const pcontainer::ItemState matchedState, std::string
 
 QString RenameAction::toString() const
 {
-  return QObject::tr("Rename each photo to \"%1\"").arg(QString::fromStdString(pattern));
+  return QObject::tr("Rename each %1 photo to \"%2\"")
+      .arg(QString::fromStdString(utils::lexicalCast(matchedState)))
+      .arg(QString::fromStdString(pattern));
 }
 
 }} // namespace phobos::processwiz
