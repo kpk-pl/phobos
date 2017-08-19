@@ -3,11 +3,16 @@
 
 #include "PhotoContainers/ItemState.h"
 #include "ProcessWizard/Action.h"
+#include "ProcessWizard/Operation.h"
 #include <QWidget>
+#include <map>
 
 class QListWidget;
+class QTabWidget;
 
 namespace phobos { namespace processwiz {
+
+class ActionTab;
 
 class TypeActionTab : public QWidget
 {
@@ -17,6 +22,7 @@ public:
   TypeActionTab(pcontainer::ItemState const matchState);
 
   std::size_t activeActions() const;
+  void setCurrentTab(OperationType const& operation) const;
 
 signals:
   void actionsChanged();
@@ -31,6 +37,9 @@ private slots:
 private:
   using ActionWithOrder = std::pair<ConstActionPtr, std::size_t>;
   struct ActionWithOrderComp;
+
+  QTabWidget *operationTabsWidget;
+  std::map<OperationType, ActionTab*> operationTabs;
 
   std::vector<ActionWithOrder> actions;
   QListWidget *listWidget;

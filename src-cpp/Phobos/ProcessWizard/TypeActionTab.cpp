@@ -1,6 +1,7 @@
 #include "ProcessWizard/TypeActionTab.h"
 #include "ProcessWizard/ActionTab.h"
 #include "ProcessWizard/Operation.h"
+#include "Utils/Asserted.h"
 #include <QVBoxLayout>
 #include <QTabWidget>
 #include <QListWidget>
@@ -17,13 +18,14 @@ TypeActionTab::TypeActionTab(pcontainer::ItemState const matchState)
   QObject::connect(listWidget, &QListWidget::itemClicked, this, &TypeActionTab::selectivelyDisableActions);
   layout->addWidget(listWidget);
 
-  QTabWidget *tabs = new QTabWidget();
-  layout->addWidget(tabs);
+  operationTabsWidget = new QTabWidget();
+  layout->addWidget(operationTabsWidget);
 
-  auto const addTab = [tabs, matchState, this](OperationType const operation, QString const& label){
+  auto const addTab = [matchState, this](OperationType const operation, QString const& label){
     auto actionTab = ActionTab::create(operation, matchState);
+    operationTabs.emplace(operation, actionTab.get());
     QObject::connect(actionTab.get(), &ActionTab::newAction, this, &TypeActionTab::acceptNewAction);
-    tabs->addTab(actionTab.release(), label);
+    operationTabsWidget->addTab(actionTab.release(), label);
   };
 
   addTab(OperationType::Delete, tr("Delete"));
@@ -120,6 +122,11 @@ void TypeActionTab::clearActions()
 std::size_t TypeActionTab::activeActions() const
 {
   return actions.size();
+}
+
+void TypeActionTab::setCurrentTab(OperationType const& operation) const
+{
+  operationTabsWidget->setCurrentWidget(utils::asserted::fromMap(operationTabs, operation));
 }
 
 }} // namespace phobos::processwiz

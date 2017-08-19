@@ -1,5 +1,4 @@
 #include "ProcessWizard/ActionsCreatorPage.h"
-#include "ProcessWizard/Operation.h"
 #include "ProcessWizard/TypeActionTab.h"
 #include "PhotoContainers/Set.h"
 #include "Utils/Asserted.h"
@@ -23,7 +22,7 @@ namespace {
   static ItemState const allStates[] = { ItemState::SELECTED, ItemState::DISCARDED, ItemState::UNKNOWN };
 } // unnamed namespace
 
-ActionsCreatorPage::ActionsCreatorPage(pcontainer::Set const& seriesSet, SeriesCounts const& counts) :
+ActionsCreatorPage::ActionsCreatorPage(SeriesCounts const& counts, OperationType const& defaultOperation) :
   seriesCounts(counts)
 {
   LOG(INFO) << "Initializing page to create actions";
@@ -37,13 +36,22 @@ ActionsCreatorPage::ActionsCreatorPage(pcontainer::Set const& seriesSet, SeriesC
   addTypeTabs(mainLayout);
   addStatusRow(mainLayout);
   setLayout(mainLayout);
+
+  TypeActionTab *currentTab;
+  if (defaultOperation == OperationType::Delete)
+    currentTab = utils::asserted::fromMap(actionTabs, ItemState::DISCARDED);
+  else
+    currentTab = utils::asserted::fromMap(actionTabs, ItemState::SELECTED);
+
+  actionTabsWidget->setCurrentWidget(currentTab);
+  currentTab->setCurrentTab(defaultOperation);
 }
 
 void ActionsCreatorPage::updateStatusLabel()
 {
   std::size_t actions = 0;
-  for (TypeActionTab *tab : actionTabs)
-    actions += tab->activeActions();
+  for (auto const& at : actionTabs)
+    actions += at.second->activeActions();
 
   statusLabel->setText(tr("Scheduled %1 actions to be processed.").arg(actions));
 }
@@ -68,21 +76,21 @@ QIcon colorIcon(pcontainer::ItemState const state)
 
 void ActionsCreatorPage::addTypeTabs(QVBoxLayout *layout)
 {
-  QTabWidget *tabs = new QTabWidget();
+  actionTabsWidget = new QTabWidget();
 
   for (auto const state : allStates)
   {
     TypeActionTab *typeActionTab = new TypeActionTab(state);
-    actionTabs.push_back(typeActionTab);
+    actionTabs.emplace(state, typeActionTab);
     QObject::connect(typeActionTab, &TypeActionTab::actionsChanged, this, &ActionsCreatorPage::updateStatusLabel);
     QObject::connect(resetButton, &QPushButton::clicked, typeActionTab, &TypeActionTab::clearActions);
 
     QString label = QString::fromStdString(utils::lexicalCast(state));
     label[0] = QString(label[0]).toUpper()[0];
-    tabs->addTab(typeActionTab, colorIcon(state), label);
+    actionTabsWidget->addTab(typeActionTab, colorIcon(state), label);
   }
 
-  layout->addWidget(tabs);
+  layout->addWidget(actionTabsWidget);
 }
 
 void ActionsCreatorPage::addStatusRow(QVBoxLayout *layout)

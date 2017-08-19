@@ -1,13 +1,14 @@
 #ifndef PROCESSWIZARD_ACTIONS_CREATOR_PAGE_H
 #define PROCESSWIZARD_ACTIONS_CREATOR_PAGE_H
 
-#include "PhotoContainers/Fwd.h"
 #include "ProcessWizard/Action.h"
 #include "ProcessWizard/SeriesCounts.h"
+#include "ProcessWizard/Operation.h"
 #include <QWizardPage>
 
 class QVBoxLayout;
 class QPushButton;
+class QTabWidget;
 class QLabel;
 
 namespace phobos { namespace processwiz {
@@ -19,7 +20,7 @@ class ActionsCreatorPage : public QWizardPage
   Q_OBJECT
 
 public:
-  ActionsCreatorPage(pcontainer::Set const& seriesSet, SeriesCounts const& counts);
+  ActionsCreatorPage(SeriesCounts const& counts, OperationType const& defaultOperation);
 
 protected:
   void initializePage() override;
@@ -29,7 +30,9 @@ private slots:
 
 private:
   SeriesCounts const& seriesCounts;
-  std::vector<TypeActionTab*> actionTabs;
+
+  QTabWidget *actionTabsWidget;
+  std::map<pcontainer::ItemState, TypeActionTab*> actionTabs;
 
   QLabel *statusLabel;
   QPushButton *resetButton;
