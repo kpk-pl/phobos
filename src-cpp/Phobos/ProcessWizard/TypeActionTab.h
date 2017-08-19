@@ -21,7 +21,7 @@ class TypeActionTab : public QWidget
 public:
   TypeActionTab(pcontainer::ItemState const matchState);
 
-  std::size_t activeActions() const;
+  ConstActionPtrVec activeActions() const;
   void setCurrentTab(OperationType const& operation) const;
 
 signals:

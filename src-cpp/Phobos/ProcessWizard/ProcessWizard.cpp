@@ -7,16 +7,14 @@
 namespace phobos { namespace processwiz {
 
 ProcessWizard::ProcessWizard(QWidget *parent, pcontainer::Set const& seriesSet, OperationType const defaultOperation) :
-  QWizard(parent), seriesSet(seriesSet)
+  QWizard(parent)
 {
   LOG(INFO) << "Creating processing wizard with default operation \"" << defaultOperation << '"';
 
   SeriesCounts const counts = countPhotos(seriesSet);
 
   addPage(new WarningsPage(counts));
-
-  actionsPage = new ActionsCreatorPage(counts, defaultOperation);
-  addPage(actionsPage);
+  addPage(new ActionsCreatorPage(counts, defaultOperation));
 
   setWindowTitle(tr("Processing wizard"));
 
@@ -25,6 +23,11 @@ ProcessWizard::ProcessWizard(QWidget *parent, pcontainer::Set const& seriesSet, 
 
   setOptions(QWizard::NoDefaultButton);
   setOption(QWizard::NoDefaultButton, true);
+}
+
+ConstActionPtrVec ProcessWizard::createdActions() const
+{
+  return field("createdActions").value<ConstActionPtrVec>();
 }
 
 }} // namespace phobos::processwiz

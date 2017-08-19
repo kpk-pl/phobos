@@ -29,13 +29,17 @@ WarningsPage::WarningsPage(SeriesCounts const& counts)
                                .arg(counts.all.photos).arg(counts.all.series)));
 
   // TODO: span color tags with colors for discarded, uncheched ?
-  maker(tr("Found %1 completely discarded series"), counts.seriesCompletelyDiscarded);
-  maker(tr("Found %1 completely unchecked series"), counts.seriesCompletelyUnknown);
-  maker(tr("Found %1 series without any selected photo"),
+  bool warningsPresent = false;
+  warningsPresent |= maker(tr("Found %1 completely discarded series"), counts.seriesCompletelyDiscarded);
+  warningsPresent |= maker(tr("Found %1 completely unchecked series"), counts.seriesCompletelyUnknown);
+  warningsPresent |= maker(tr("Found %1 series without any selected photo"),
         counts.all.series - utils::asserted::fromMap(counts.types, pcontainer::ItemState::SELECTED).series);
 
   layout->addStretch();
   layout->addWidget(new QLabel(tr("Continue to next page")));
+
+  if (warningsPresent)
+    setButtonText(QWizard::WizardButton::NextButton, tr("Ignore warnings"));
 
   setLayout(layout);
 }
@@ -44,8 +48,6 @@ void WarningsPage::initializePage()
 {
   if (wizard()->button(QWizard::NextButton))
       wizard()->button(QWizard::NextButton)->setFocus();
-  else if (wizard()->button(QWizard::FinishButton))
-      wizard()->button(QWizard::FinishButton)->setFocus();
 }
 
 }} // namespace phobos::processwiz

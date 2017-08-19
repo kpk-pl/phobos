@@ -34,13 +34,19 @@ bool valueIn(T const& value, Container const& c)
 }
 
 template<typename OutContainer, typename InputIterator>
+OutContainer moveFromRange(OutContainer &output, InputIterator begin, InputIterator end)
+{
+    output.reserve(output.size() + std::distance(begin, end));
+    for (; begin != end; ++begin)
+        output.insert(output.end(), std::move(*begin));
+    return output;
+}
+
+template<typename OutContainer, typename InputIterator>
 OutContainer moveFromRange(InputIterator begin, InputIterator end)
 {
-    OutContainer result;
-    result.reserve(std::distance(begin, end));
-    for (; begin != end; ++begin)
-        result.insert(result.end(), std::move(*begin));
-    return result;
+  OutContainer output;
+  return moveFromRange(output, begin, end);
 }
 
 template<typename OutContainer, typename InputIterator, typename Projection>

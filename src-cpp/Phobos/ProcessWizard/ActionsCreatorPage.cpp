@@ -4,6 +4,7 @@
 #include "Utils/Asserted.h"
 #include "Utils/ItemStateColor.h"
 #include "Utils/LexicalCast.h"
+#include "Utils/Algorithm.h"
 #include <QLabel>
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -45,15 +46,28 @@ ActionsCreatorPage::ActionsCreatorPage(SeriesCounts const& counts, OperationType
 
   actionTabsWidget->setCurrentWidget(currentTab);
   currentTab->setCurrentTab(defaultOperation);
+
+  selectedActionsChanged();
 }
 
-void ActionsCreatorPage::updateStatusLabel()
+ConstActionPtrVec ActionsCreatorPage::chosenActions() const
 {
-  std::size_t actions = 0;
-  for (auto const& at : actionTabs)
-    actions += at.second->activeActions();
+  ConstActionPtrVec result;
 
-  statusLabel->setText(tr("Scheduled %1 actions to be processed.").arg(actions));
+  for (auto const& at : actionTabs)
+  {
+    auto active = at.second->activeActions();
+    utils::moveFromRange(result, active.begin(), active.end());
+  }
+
+  return result;
+}
+
+void ActionsCreatorPage::selectedActionsChanged()
+{
+  auto const actions = chosenActions();
+  statusLabel->setText(tr("Scheduled %1 actions to be processed.").arg(actions.size()));
+  emit actionsChanged(actions);
 }
 
 void ActionsCreatorPage::initializePage()
@@ -82,7 +96,7 @@ void ActionsCreatorPage::addTypeTabs(QVBoxLayout *layout)
   {
     TypeActionTab *typeActionTab = new TypeActionTab(state);
     actionTabs.emplace(state, typeActionTab);
-    QObject::connect(typeActionTab, &TypeActionTab::actionsChanged, this, &ActionsCreatorPage::updateStatusLabel);
+    QObject::connect(typeActionTab, &TypeActionTab::actionsChanged, this, &ActionsCreatorPage::selectedActionsChanged);
     QObject::connect(resetButton, &QPushButton::clicked, typeActionTab, &TypeActionTab::clearActions);
 
     QString label = QString::fromStdString(utils::lexicalCast(state));
@@ -101,8 +115,6 @@ void ActionsCreatorPage::addStatusRow(QVBoxLayout *layout)
   hBox->addWidget(statusLabel);
   hBox->addStretch();
   hBox->addWidget(resetButton);
-
-  updateStatusLabel();
 
   layout->addLayout(hBox);
 }

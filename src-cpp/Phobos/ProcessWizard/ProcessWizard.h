@@ -2,12 +2,11 @@
 #define PROCESSWIZARD_PROCESSWIZARD_H
 
 #include "ProcessWizard/Operation.h"
+#include "ProcessWizard/ActionFwd.h"
 #include "PhotoContainers/Fwd.h"
 #include <QWizard>
 
 namespace phobos { namespace processwiz {
-
-class ActionsCreatorPage;
 
 class ProcessWizard : public QWizard
 {
@@ -15,9 +14,7 @@ class ProcessWizard : public QWizard
 public:
   ProcessWizard(QWidget *parent, pcontainer::Set const& seriesSet, OperationType const defaultOperation);
 
-private:
-  pcontainer::Set const& seriesSet;
-  ActionsCreatorPage *actionsPage;
+  ConstActionPtrVec createdActions() const;
 };
 
 }} // namespace phobos::processwiz

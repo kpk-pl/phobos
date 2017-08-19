@@ -18,15 +18,21 @@ class TypeActionTab;
 class ActionsCreatorPage : public QWizardPage
 {
   Q_OBJECT
+  Q_PROPERTY(phobos::processwiz::ConstActionPtrVec chosenActions READ chosenActions NOTIFY actionsChanged)
 
 public:
   ActionsCreatorPage(SeriesCounts const& counts, OperationType const& defaultOperation);
+
+  ConstActionPtrVec chosenActions() const;
+
+signals:
+  void actionsChanged(ConstActionPtrVec);
 
 protected:
   void initializePage() override;
 
 private slots:
-  void updateStatusLabel();
+  void selectedActionsChanged();
 
 private:
   SeriesCounts const& seriesCounts;

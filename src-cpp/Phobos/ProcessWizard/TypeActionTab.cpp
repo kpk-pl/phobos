@@ -64,13 +64,12 @@ namespace {
 
 void TypeActionTab::acceptNewAction(ConstActionPtr action)
 {
-  actions.emplace_back(action, actions.size());
+  auto actionPair = std::make_pair(action, actions.size());
 
-  std::sort(actions.begin(), actions.end(), ActionWithOrderComp{});
-  auto const newActionIt = std::find_if(actions.begin(), actions.end(),
-                                        [&action](auto const& p){ return p.first == action; });
-  assert(newActionIt != actions.end());
-  auto const newActionPos = std::distance(actions.begin(), newActionIt);
+  auto const newActionUB =
+      std::upper_bound(actions.begin(), actions.end(), actionPair, ActionWithOrderComp{});
+  auto const newActionPos = std::distance(actions.begin(), newActionUB);
+  actions.emplace(newActionUB, std::move(actionPair));
 
   QListWidgetItem *newItem = new QListWidgetItem(action->toString());
   newItem->setFlags(newItem->flags() | Qt::ItemIsUserCheckable);
@@ -119,9 +118,20 @@ void TypeActionTab::clearActions()
   emit actionsChanged();
 }
 
-std::size_t TypeActionTab::activeActions() const
+ConstActionPtrVec TypeActionTab::activeActions() const
 {
-  return actions.size();
+  assert(actions.size() == static_cast<unsigned>(listWidget->count()));
+
+  ConstActionPtrVec result;
+
+  for (std::size_t i = 0; i < actions.size(); ++i)
+  {
+    QListWidgetItem *item = listWidget->item(i);
+    if (item->checkState() == Qt::Checked && isItemEnabled(item))
+      result.push_back(actions[i].first);
+  }
+
+  return result;
 }
 
 void TypeActionTab::setCurrentTab(OperationType const& operation) const
