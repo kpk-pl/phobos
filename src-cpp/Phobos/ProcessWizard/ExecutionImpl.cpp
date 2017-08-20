@@ -1,9 +1,10 @@
 #include "ProcessWizard/ExecutionImpl.h"
+#include <cassert>
 
 namespace phobos { namespace processwiz {
 
-DeleteExecution::DeleteExecution(QString const& file) :
-  file(file)
+DeleteExecution::DeleteExecution(QString const& file, DeleteAction::Method const deleteMethod) :
+  file(file), method(deleteMethod)
 {}
 
 void DeleteExecution::execute() const
@@ -12,7 +13,16 @@ void DeleteExecution::execute() const
 
 QString DeleteExecution::toString() const
 {
-  return QString("Delete \"%1\" permanently").arg(file);
+  switch(method)
+  {
+  case DeleteAction::Method::Permanent:
+    return QString("Delete \"%1\" permanently").arg(file);
+  case DeleteAction::Method::Trash:
+    return QString("Move \"%1\" to trash").arg(file);
+  }
+
+  assert(false);
+  return QString{};
 }
 
 QString DeleteExecution::warning() const

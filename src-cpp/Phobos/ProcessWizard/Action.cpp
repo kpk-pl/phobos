@@ -59,7 +59,7 @@ ConstExecutionPtrVecConstPtr
   for (pcontainer::SeriesPtr const& series : photoSet)
     for (pcontainer::ItemPtr const& photo : *series)
       if (photo->state() == matchedState)
-        result->push_back(std::make_shared<DeleteExecution>(photo->fileName()));
+        result->push_back(std::make_shared<DeleteExecution>(photo->fileName(), method));
 
   return result;
 }

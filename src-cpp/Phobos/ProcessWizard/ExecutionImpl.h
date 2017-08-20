@@ -2,13 +2,14 @@
 #define PROCESSWIZARD_EXECUTIONIMPL_H
 
 #include "ProcessWizard/Execution.h"
+#include "ProcessWizard/Action.h"
 
 namespace phobos { namespace processwiz {
 
 class DeleteExecution : public Execution
 {
 public:
-  DeleteExecution(QString const& filename);
+  DeleteExecution(QString const& filename, DeleteAction::Method const deleteMethod);
 
   void execute() const override;
   QString toString() const override;
@@ -16,6 +17,7 @@ public:
 
 private:
   QString const file;
+  DeleteAction::Method const method;
 };
 
 class RenameExecution : public Execution
