@@ -24,7 +24,7 @@ protected:
   void cleanupPage() override;
 
 private:
-  SeriesCounts const& seriesCounts;
+  SeriesCounts const seriesCounts;
   pcontainer::Set const& photoSet;
 
   QTreeWidget *actionTree;

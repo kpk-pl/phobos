@@ -56,7 +56,7 @@ private:
 class RenameAction : public Action
 {
 public:
-  RenameAction(pcontainer::ItemState const matchedState, std::string const& pattern);
+  RenameAction(pcontainer::ItemState const matchedState, QString const& pattern);
 
   virtual OperationType operation() const { return OperationType::Rename; }
   QString toString() const override;
@@ -67,7 +67,7 @@ public:
                                               SeriesCounts const& counts) const override;
 
 private:
-  std::string const pattern;
+  QString const pattern;
 };
 
 }} // namespace phobos::processwiz

@@ -23,8 +23,7 @@ namespace {
   static ItemState const allStates[] = { ItemState::SELECTED, ItemState::DISCARDED, ItemState::UNKNOWN };
 } // unnamed namespace
 
-ActionsCreatorPage::ActionsCreatorPage(SeriesCounts const& counts, OperationType const& defaultOperation) :
-  seriesCounts(counts)
+ActionsCreatorPage::ActionsCreatorPage(OperationType const& defaultOperation)
 {
   LOG(INFO) << "Initializing page to create actions";
 

@@ -2,7 +2,6 @@
 #define PROCESSWIZARD_ACTIONS_CREATOR_PAGE_H
 
 #include "ProcessWizard/Action.h"
-#include "ProcessWizard/SeriesCounts.h"
 #include "ProcessWizard/Operation.h"
 #include <QWizardPage>
 
@@ -21,7 +20,7 @@ class ActionsCreatorPage : public QWizardPage
   Q_PROPERTY(phobos::processwiz::ConstActionPtrVec chosenActions READ chosenActions NOTIFY actionsChanged STORED false)
 
 public:
-  ActionsCreatorPage(SeriesCounts const& counts, OperationType const& defaultOperation);
+  ActionsCreatorPage(OperationType const& defaultOperation);
 
   ConstActionPtrVec chosenActions() const;
 
@@ -36,8 +35,6 @@ private slots:
   void selectedActionsChanged();
 
 private:
-  SeriesCounts const& seriesCounts;
-
   QTabWidget *actionTabsWidget;
   std::map<pcontainer::ItemState, TypeActionTab*> actionTabs;
 

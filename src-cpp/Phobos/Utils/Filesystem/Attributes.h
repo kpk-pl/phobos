@@ -5,6 +5,7 @@
 
 namespace phobos { namespace utils { namespace fs {
 
+// TODO: verify QFileInfo::lastModified as it supposed to return the same
 unsigned lastModificationTime(std::string const& fileName);
 
 }}} // namespace phobos::utils::fs

@@ -71,7 +71,8 @@ SOURCES += Phobos.cpp\
     ProcessWizard/TypeActionTab.cpp \
     ProcessWizard/SummaryPage.cpp \
     ProcessWizard/OperationIcon.cpp \
-    ProcessWizard/ExecutionImpl.cpp
+    ProcessWizard/ExecutionImpl.cpp \
+    Utils/Filesystem/Path.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -144,7 +145,8 @@ HEADERS  += MainWindow.h \
     ProcessWizard/OperationIcon.h \
     ProcessWizard/Execution.h \
     ProcessWizard/ExecutionFwd.h \
-    ProcessWizard/ExecutionImpl.h
+    ProcessWizard/ExecutionImpl.h \
+    Utils/Filesystem/Path.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

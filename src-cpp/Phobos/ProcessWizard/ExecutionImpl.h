@@ -21,7 +21,7 @@ private:
 class RenameExecution : public Execution
 {
 public:
-  RenameExecution(QString const& file, std::string const& newFilename);
+  RenameExecution(QString const& file, QString const& newFilename);
 
   void execute() const override;
   QString toString() const override;
@@ -29,7 +29,7 @@ public:
 
 private:
   QString const file;
-  std::string const newFilename;
+  QString const newFilename;
 };
 
 }} // namespace phobos::processwiz

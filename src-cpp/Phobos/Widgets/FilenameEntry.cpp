@@ -78,10 +78,32 @@ FilenameEntry::FilenameEntry()
   setLayout(vl);
 }
 
+namespace {
+  QString unequivocalPatterns[] = { "%N", "%n", "%F" };
+
+  bool isAmbiguous(QString const& str)
+  {
+    bool ambiguous = true;
+    for (auto const& pattern : unequivocalPatterns)
+      ambiguous = ambiguous && (str.indexOf(pattern) < 0);
+
+    return ambiguous;
+  }
+} // unnamed namespace
+
+QString FilenameEntry::unequivocalSyntax() const
+{
+  QString str = fileNameEdit->text();
+  if (isAmbiguous(str))
+    str.prepend("%N");
+
+  return str;
+}
+
 void FilenameEntry::updateLabels() const
 {
   incorrectWrn->setVisible(!fileNameEdit->hasAcceptableInput());
-  prependInfo->setVisible(fileNameEdit->text().indexOf("%N") < 0);
+  prependInfo->setVisible(isAmbiguous(fileNameEdit->text()));
 }
 
 }} // namespace phobos::widgets

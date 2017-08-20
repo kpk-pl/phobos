@@ -2,6 +2,7 @@
 #define WIDGETS_FILENAME_ENTRY_H_
 
 #include <QWidget>
+#include <QString>
 
 class QLineEdit;
 
@@ -16,6 +17,7 @@ class FilenameEntry : public QWidget
 public:
   FilenameEntry();
 
+  QString unequivocalSyntax() const;
   QLineEdit *fileNameEdit;
 
 private slots:

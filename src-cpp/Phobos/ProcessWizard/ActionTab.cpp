@@ -92,8 +92,7 @@ public:
   {
     QVBoxLayout *vlayout = new QVBoxLayout();
 
-    widgets::FilenameEntry *renameWithSyntax = new widgets::FilenameEntry();
-    fileNameEdit = renameWithSyntax->fileNameEdit;
+    renameWithSyntax = new widgets::FilenameEntry();
     vlayout->addWidget(renameWithSyntax);
 
     QPushButton *confirmButton = new QPushButton(tr("Create action"));
@@ -110,19 +109,14 @@ public:
 private slots:
   void createAction() const
   {
-    std::string pattern = fileNameEdit->text().toStdString();
-
-    if (pattern.find("%N") == std::string::npos)
-      pattern = "%N" + pattern;
-
-    if (fileNameEdit->hasAcceptableInput())
-      emit newAction(std::make_shared<RenameAction>(matchState, pattern));
+    if (renameWithSyntax->fileNameEdit->hasAcceptableInput())
+      emit newAction(std::make_shared<RenameAction>(matchState, renameWithSyntax->unequivocalSyntax()));
     else
-      LOG(INFO) << "Attempted to create Rename action from unacceptable input \"" << pattern << '"';
+      LOG(INFO) << "Attempted to create Rename action from unacceptable input \"" << renameWithSyntax->fileNameEdit->text() << '"';
   }
 
 private:
-  QLineEdit *fileNameEdit;
+  widgets::FilenameEntry *renameWithSyntax;
 };
 } // unnamed namespace
 

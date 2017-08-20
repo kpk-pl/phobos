@@ -20,7 +20,7 @@ QString DeleteExecution::warning() const
   return QString();
 }
 
-RenameExecution::RenameExecution(QString const& file, std::string const& newFilename) :
+RenameExecution::RenameExecution(QString const& file, QString const& newFilename) :
   file(file), newFilename(newFilename)
 {}
 
@@ -30,7 +30,7 @@ void RenameExecution::execute() const
 
 QString RenameExecution::toString() const
 {
-  return "Rename";
+  return QString("Rename \"%1\" to \"%2\"").arg(file, newFilename);
 }
 
 QString RenameExecution::warning() const
