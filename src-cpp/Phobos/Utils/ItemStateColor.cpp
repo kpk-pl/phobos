@@ -10,11 +10,11 @@ QColor itemStateColor(pcontainer::ItemState const& state)
   switch(state)
   {
   case pcontainer::ItemState::UNKNOWN:
-    return config::qColor("photoItemWidget.border.unknown", Qt::lightGray);
+    return config::qColor("category.unknown.color", Qt::lightGray);
   case pcontainer::ItemState::SELECTED:
-    return config::qColor("photoItemWidget.border.selected", Qt::green);
+    return config::qColor("category.selected.color", Qt::green);
   case pcontainer::ItemState::DISCARDED:
-    return config::qColor("photoItemWidget.border.discarded", Qt::red);
+    return config::qColor("caregory.discarded.color", Qt::red);
   }
 
   assert(false);

@@ -1,5 +1,6 @@
 #include "ProcessWizard/SummaryPage.h"
 #include "ProcessWizard/Action.h"
+#include "ProcessWizard/OperationIcon.h"
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QHeaderView>
@@ -16,6 +17,7 @@ SummaryPage::SummaryPage()
 {
   actionTree = new QTreeWidget();
   actionTree->header()->close();
+  actionTree->setColumnCount(2);
 
   QVBoxLayout *layout = new QVBoxLayout();
   layout->addWidget(new QLabel(tr("Planned actions:")));
@@ -33,19 +35,18 @@ void SummaryPage::initializePage()
     auto const actionStr = action->toString();
     LOG(INFO) << "Enabled: " << actionStr;
 
-    // TODO: Add action label next to item. This should be a combination of labels for
-    // Use item->setIcon(col, Icon);
-    // matched type and operation performed on it
-    // display icon when there are warnings present or some sort of OK icon if not
     QTreeWidgetItem *topItem = new QTreeWidgetItem(actionTree);
-    topItem->setText(0, actionStr);
+    topItem->setIcon(0, operationIcon(action->operation()));
+    topItem->setText(1, actionStr);
     topItem->setFlags(topItem->flags() & ~Qt::ItemIsSelectable);
 
     // TODO: validate each photo from seriesSet agains this action and display warnings
     QTreeWidgetItem *warn = new QTreeWidgetItem(topItem);
-    warn->setText(0, tr("Safe to execute"));
+    warn->setText(1, tr("Safe to execute"));
     warn->setFlags(warn->flags() & ~Qt::ItemIsSelectable);
   }
+
+  actionTree->resizeColumnToContents(0);
 }
 
 void SummaryPage::cleanupPage()

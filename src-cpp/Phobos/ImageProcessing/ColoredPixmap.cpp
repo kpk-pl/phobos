@@ -3,13 +3,15 @@
 
 namespace phobos { namespace iprocess {
 
-QPixmap coloredPixmap(std::string const& fileName, QSize const& size,
-                      QColor const& color, double const opacity)
+QPixmap coloredPixmap(std::string const& fileName, QColor const& color,
+                      QSize const& size, double const opacity)
 {
     QPixmap pixmap(fileName.c_str());
     if (pixmap.isNull())
         pixmap = QPixmap(size);
-    pixmap = pixmap.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    if (size.isValid())
+      pixmap = pixmap.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
     QPainter painter(&pixmap);
     painter.setOpacity(opacity);

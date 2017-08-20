@@ -256,7 +256,7 @@ private:
       double const opacity = config::qualified(configTable("opacity"), 0.5);
       std::string const path = config::qualified(configTable("path"), std::string{});
 
-      return iprocess::coloredPixmap(path, iconSize, color, opacity);
+      return iprocess::coloredPixmap(path, color, iconSize, opacity);
     }
 
     static config::ConfigPath const baseConfig;

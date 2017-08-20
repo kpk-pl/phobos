@@ -1,14 +1,24 @@
 #include "ProcessWizard/TypeActionTab.h"
 #include "ProcessWizard/ActionTab.h"
 #include "ProcessWizard/Operation.h"
+#include "ProcessWizard/OperationIcon.h"
 #include "Utils/Asserted.h"
 #include <QVBoxLayout>
 #include <QTabWidget>
 #include <QListWidget>
+#include <QLabel>
 #include <easylogging++.h>
 #include <cassert>
 
 namespace phobos { namespace processwiz {
+
+namespace {
+QSize defaultTextSize()
+{
+  auto const size = QLabel().sizeHint().height();
+  return QSize(size, size);
+}
+} // unnamed namespace
 
 TypeActionTab::TypeActionTab(pcontainer::ItemState const matchState)
 {
@@ -25,7 +35,7 @@ TypeActionTab::TypeActionTab(pcontainer::ItemState const matchState)
     auto actionTab = ActionTab::create(operation, matchState);
     operationTabs.emplace(operation, actionTab.get());
     QObject::connect(actionTab.get(), &ActionTab::newAction, this, &TypeActionTab::acceptNewAction);
-    operationTabsWidget->addTab(actionTab.release(), label);
+    operationTabsWidget->addTab(actionTab.release(), operationIcon(operation, defaultTextSize()), label);
   };
 
   addTab(OperationType::Delete, tr("Delete"));

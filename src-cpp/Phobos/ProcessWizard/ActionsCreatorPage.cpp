@@ -2,7 +2,7 @@
 #include "ProcessWizard/TypeActionTab.h"
 #include "PhotoContainers/Set.h"
 #include "Utils/Asserted.h"
-#include "Utils/ItemStateColor.h"
+#include "Utils/ItemStateIcon.h"
 #include "Utils/LexicalCast.h"
 #include "Utils/Algorithm.h"
 #include <QLabel>
@@ -85,12 +85,10 @@ void ActionsCreatorPage::cleanupPage()
 }
 
 namespace {
-QIcon colorIcon(pcontainer::ItemState const state)
+QSize defaultTextSize()
 {
   auto const size = QLabel().sizeHint().height();
-  QPixmap colorBox(size, size);
-  colorBox.fill(utils::itemStateColor(state));
-  return QIcon(colorBox);
+  return QSize(size, size);
 }
 } // unnamed namespace
 
@@ -107,7 +105,7 @@ void ActionsCreatorPage::addTypeTabs(QVBoxLayout *layout)
 
     QString label = QString::fromStdString(utils::lexicalCast(state));
     label[0] = QString(label[0]).toUpper()[0];
-    actionTabsWidget->addTab(typeActionTab, colorIcon(state), label);
+    actionTabsWidget->addTab(typeActionTab, utils::itemStateIcon(state, defaultTextSize()), label);
   }
 
   layout->addWidget(actionTabsWidget);

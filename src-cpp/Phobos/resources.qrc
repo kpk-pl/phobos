@@ -1,11 +1,18 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-    <file>icons/focus.png</file>
-    <file>icons/star.png</file>
-    <file>icons/go-next.png</file>
-    <file>icons/go-previous.png</file>
-    <file>icons/num_grid.png</file>
-    <file>icons/scroll_grid.png</file>
-    <file>icons/all_grid.png</file>
-</qresource>
+<RCC>
+    <qresource prefix="/">
+        <file>icons/focus.png</file>
+        <file>icons/star.png</file>
+        <file>icons/go-next.png</file>
+        <file>icons/go-previous.png</file>
+        <file>icons/num_grid.png</file>
+        <file>icons/scroll_grid.png</file>
+        <file>icons/all_grid.png</file>
+        <file>icons/awesome/png/checked-symbol.png</file>
+        <file>icons/awesome/png/cross-mark-on-a-black-circle-background.png</file>
+        <file>icons/awesome/png/question-mark-on-a-circular-black-background.png</file>
+        <file>icons/awesome/png/trash.png</file>
+        <file>icons/awesome/png/pencil.png</file>
+        <file>icons/awesome/png/copy-document.png</file>
+        <file>icons/awesome/png/move-document.png</file>
+    </qresource>
 </RCC>

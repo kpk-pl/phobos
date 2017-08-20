@@ -46,9 +46,6 @@ bestBackground = { type = "square", color = "green", opacity = 0.5 }
 
 [photoItemWidget.border]
 width = 3
-unknown = "darkGray"
-selected = "green"
-discarded = "red"
 
 [photoItemWidget.histogram]
 width = 128
@@ -58,6 +55,18 @@ value = { style = "fill", color = "#CC9900", opacity = 0.8 }
 red = { style = "line", color = "red", opacity = 0.4 }
 green = { style = "line", color = "limegreen", opacity = 0.4 }
 blue = { style = "line", color = "#0939FF", opacity = 0.4 }
+
+[category.unknown]
+color = "darkGray"
+icon = ":icons/awesome/png/question-mark-on-a-circular-black-background.png"
+
+[category.selected]
+color = "green"
+icon = ":icons/awesome/png/checked-symbol.png"
+
+[category.discarded]
+color = "red"
+icon = ":icons/awesome/png/cross-mark-on-a-black-circle-background.png"
 
 [allSeriesView]
 seriesSpacing = 10
@@ -84,4 +93,10 @@ buttonMargin = 4
 preloadSize = { width = 320, height = 240 }
 fullSize = { width = 1920, height = 1080 }
 fullMaxBytes = 1000000000
+
+[operation]
+delete = { color = "red", icon = ":icons/awesome/png/trash.png" }
+move = { color = "darkorange", icon = ":icons/awesome/png/move-document.png" }
+copy = { color = "blue", icon = ":icons/awesome/png/copy-document.png" }
+rename = { color = "green", icon = ":icons/awesome/png/pencil.png" }
 

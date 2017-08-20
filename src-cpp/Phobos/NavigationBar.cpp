@@ -3,6 +3,7 @@
 #include <QSize>
 #include "NavigationBar.h"
 #include "ConfigExtension.h"
+#include "ConfigPath.h"
 #include "ImageProcessing/ColoredPixmap.h"
 
 namespace phobos {
@@ -10,9 +11,10 @@ namespace phobos {
 namespace {
     QIcon makeIcon(std::string const& configName)
     {
-        std::string const path = config::qualified("navigationBar."+configName, std::string{});
-        QColor const color = config::qColor("navigationBar.iconColor", Qt::black);
-        return iprocess::coloredPixmap(path, QSize(64, 64), color, 1.0);
+      config::ConfigPath navBar("navigarionBar");
+      std::string const path = config::qualified(navBar("configName"), std::string{});
+      QColor const color = config::qColor(navBar("iconColor"), Qt::black);
+      return iprocess::coloredPixmap(path, color, QSize(64, 64));
     }
 
     class IconButton : public QPushButton

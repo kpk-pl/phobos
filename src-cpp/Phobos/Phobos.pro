@@ -38,6 +38,7 @@ SOURCES += Phobos.cpp\
     PhotoContainers/ItemState.cpp \
     Utils/LayoutClear.cpp \
     Utils/ItemStateColor.cpp \
+    Utils/ItemStateIcon.cpp \
     Utils/Filesystem/Portable.cpp \
     Utils/Filesystem/Attributes.cpp \
     easyloggingpp/src/easylogging++.cc \
@@ -68,7 +69,8 @@ SOURCES += Phobos.cpp\
     ProcessWizard/SeriesCounts.cpp \
     ProcessWizard/WarningsPage.cpp \
     ProcessWizard/TypeActionTab.cpp \
-    ProcessWizard/SummaryPage.cpp
+    ProcessWizard/SummaryPage.cpp \
+    ProcessWizard/OperationIcon.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -100,6 +102,7 @@ HEADERS  += MainWindow.h \
     Utils/Streaming.h \
     Utils/LexicalCast.h \
     Utils/ItemStateColor.h \
+    Utils/ItemStateIcon.h \
     Utils/Filesystem/Attributes.h \
     Utils/Filesystem/Portable.h \
     easyloggingpp/src/easylogging++.h \
@@ -136,7 +139,8 @@ HEADERS  += MainWindow.h \
     ProcessWizard/SeriesCounts.h \
     ProcessWizard/WarningsPage.h \
     ProcessWizard/TypeActionTab.h \
-    ProcessWizard/SummaryPage.h
+    ProcessWizard/SummaryPage.h \
+    ProcessWizard/OperationIcon.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

@@ -2,6 +2,7 @@
 #define PROCESSWIZARD_ACTION_H
 
 #include "ProcessWizard/ActionFwd.h"
+#include "ProcessWizard/Operation.h"
 #include "PhotoContainers/ItemState.h"
 #include "PhotoContainers/Fwd.h"
 #include <QMetaType>
@@ -16,6 +17,7 @@ public:
 
   pcontainer::ItemState matching() const;
 
+  virtual OperationType operation() const = 0;
   virtual QString toString() const = 0;
   virtual std::size_t priority() const = 0;
   virtual bool greedy() const = 0;
@@ -33,6 +35,7 @@ public:
 
   DeleteAction(pcontainer::ItemState const matchedState, Method const method);
 
+  virtual OperationType operation() const { return OperationType::Delete; }
   QString toString() const override;
   std::size_t priority() const override { return 0; }
   bool greedy() const override { return true; }
@@ -46,6 +49,7 @@ class RenameAction : public Action
 public:
   RenameAction(pcontainer::ItemState const matchedState, std::string const& pattern);
 
+  virtual OperationType operation() const { return OperationType::Rename; }
   QString toString() const override;
   std::size_t priority() const override { return 1; }
   bool greedy() const override { return true; }
