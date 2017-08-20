@@ -3,12 +3,15 @@
 
 #include "ProcessWizard/ActionFwd.h"
 #include "ProcessWizard/Operation.h"
+#include "ProcessWizard/ExecutionFwd.h"
 #include "PhotoContainers/ItemState.h"
 #include "PhotoContainers/Fwd.h"
 #include <QMetaType>
 #include <QString>
 
 namespace phobos { namespace processwiz {
+
+struct SeriesCounts;
 
 class Action
 {
@@ -21,6 +24,9 @@ public:
   virtual QString toString() const = 0;
   virtual std::size_t priority() const = 0;
   virtual bool greedy() const = 0;
+
+  virtual ConstExecutionPtrVecConstPtr makeExecutions(pcontainer::Set const& photoSet,
+                                                      SeriesCounts const& counts) const = 0;
 
   bool operator<(Action const& other) const;
 
@@ -40,6 +46,9 @@ public:
   std::size_t priority() const override { return 0; }
   bool greedy() const override { return true; }
 
+  ConstExecutionPtrVecConstPtr makeExecutions(pcontainer::Set const& photoSet,
+                                              SeriesCounts const& counts) const override;
+
 private:
   Method const method;
 };
@@ -53,6 +62,9 @@ public:
   QString toString() const override;
   std::size_t priority() const override { return 1; }
   bool greedy() const override { return true; }
+
+  ConstExecutionPtrVecConstPtr makeExecutions(pcontainer::Set const& photoSet,
+                                              SeriesCounts const& counts) const override;
 
 private:
   std::string const pattern;

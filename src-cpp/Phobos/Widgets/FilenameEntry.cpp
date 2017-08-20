@@ -71,6 +71,7 @@ FilenameEntry::FilenameEntry()
   updateLabels();
 
   QVBoxLayout *vl = new QVBoxLayout();
+  vl->setContentsMargins(0, 0, 0, 0);
   vl->addLayout(editBox);
   vl->addLayout(labelAndButton);
 

@@ -70,7 +70,8 @@ SOURCES += Phobos.cpp\
     ProcessWizard/WarningsPage.cpp \
     ProcessWizard/TypeActionTab.cpp \
     ProcessWizard/SummaryPage.cpp \
-    ProcessWizard/OperationIcon.cpp
+    ProcessWizard/OperationIcon.cpp \
+    ProcessWizard/ExecutionImpl.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -140,7 +141,10 @@ HEADERS  += MainWindow.h \
     ProcessWizard/WarningsPage.h \
     ProcessWizard/TypeActionTab.h \
     ProcessWizard/SummaryPage.h \
-    ProcessWizard/OperationIcon.h
+    ProcessWizard/OperationIcon.h \
+    ProcessWizard/Execution.h \
+    ProcessWizard/ExecutionFwd.h \
+    ProcessWizard/ExecutionImpl.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

@@ -16,7 +16,7 @@ ProcessWizard::ProcessWizard(QWidget *parent, pcontainer::Set const& seriesSet, 
 
   addPage(new WarningsPage(counts));
   addPage(new ActionsCreatorPage(counts, defaultOperation));
-  addPage(new SummaryPage());
+  addPage(new SummaryPage(counts, seriesSet));
 
   setWindowTitle(tr("Processing wizard"));
 

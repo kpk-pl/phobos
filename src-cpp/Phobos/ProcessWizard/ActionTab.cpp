@@ -33,13 +33,13 @@ public:
     if (trash)
     {
       trashRadio->setChecked(true);
-      trashRadio->setEnabled(false);
-      hlayout->addWidget(new widgets::TextIconLabel(style()->standardIcon(QStyle::SP_MessageBoxInformation),
-                                                    tr("Trash is unavailable on this system.")));
     }
     else
     {
       permanentRadio->setChecked(true);
+      trashRadio->setEnabled(false);
+      hlayout->addWidget(new widgets::TextIconLabel(style()->standardIcon(QStyle::SP_MessageBoxInformation),
+                                                    tr("Trash is unavailable on this system.")));
     }
 
     QPushButton *confirmButton = new QPushButton(tr("Create action"));
