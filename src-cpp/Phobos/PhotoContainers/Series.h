@@ -16,8 +16,7 @@ public:
     explicit Series();
     explicit Series(importwiz::PhotoSeries const& series);
 
-    void addPhotoItems(std::vector<std::string> const& fileNames);
-    void addPhotoItem(std::string const& fileName);
+    void addPhotoItem(QString const& fileName);
 
     std::size_t size() const { return photoItems.size(); }
     bool empty() const { return photoItems.empty(); }
@@ -34,8 +33,6 @@ private:
     ItemPtrVec photoItems;
     QUuid const _uuid;
 };
-
-
 
 }} // namespace phobos::pcontainer
 

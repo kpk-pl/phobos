@@ -3,11 +3,8 @@
 
 namespace phobos { namespace pcontainer {
 
-Item::Item(std::string const& fileName, QUuid const seriesId, unsigned const ordinal) :
-    _id{seriesId, QString::fromStdString(fileName)},
-    _ordinal(ordinal),
-    _exif(this->_id.fileName),
-    _state(ItemState::UNKNOWN)
+Item::Item(QString const& fileName, QUuid const seriesId, unsigned const ordinal) :
+    _id{seriesId, fileName}, _ordinal(ordinal), _exif(this->_id.fileName), _state(ItemState::UNKNOWN)
 {
 }
 

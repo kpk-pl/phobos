@@ -1,9 +1,11 @@
-#include <easylogging++.h>
 #include "ImportWizard/DivisionOps.h"
 #include "Utils/Filesystem/Attributes.h"
 #include "Utils/Comparators.h"
 #include "Utils/Algorithm.h"
 #include "ConfigExtension.h"
+#include <qt_ext/qexifimageheader.h>
+#include <easylogging++.h>
+#include <QDateTime>
 #include <thread>
 #include <future>
 #include <deque>
@@ -17,7 +19,7 @@ PhotoSeriesVec divideToSeriesNoop(QStringList const& photos)
 
     result.back().reserve(photos.size());
     for (auto const& photo : photos)
-        result.back().push_back(Photo{photo.toStdString(), boost::none});
+        result.back().push_back(Photo{photo, boost::none});
     return result;
 }
 
@@ -31,24 +33,31 @@ PhotoSeriesVec divideToSeriesWithEqualSize(QStringList const& photos, std::size_
             result.push_back(PhotoSeries());
             result.back().reserve(photosInSeries);
         }
-        result.back().push_back(Photo{photos[n].toStdString(), boost::none});
+        result.back().push_back(Photo{photos[n], boost::none});
     }
 
     return result;
 }
 
 namespace {
-    void paralellThransformModTime(std::vector<Photo>::iterator destination,
-                                   QStringList::const_iterator const& begin,
-                                   QStringList::const_iterator const& end)
-    {
-        std::transform(begin, end, destination, [](QString const& str){
-            return Photo{str.toStdString(), utils::fs::lastModificationTime(str.toStdString())};
-        });
-    }
+void paralellThransformModTime(std::vector<Photo>::iterator destination,
+                               QStringList::const_iterator const& begin,
+                               QStringList::const_iterator const& end)
+{
+  std::transform(begin, end, destination, [](QString const& str) {
+    QExifImageHeader const header(str);
+    auto const dateTime = header.contains(QExifImageHeader::ImageTag::DateTime)
+        ? header.value(QExifImageHeader::ImageTag::DateTime).toDateTime().toSecsSinceEpoch()
+        : utils::fs::lastModificationTime(str.toStdString());
+
+    return Photo{str, dateTime};
+  });
+}
 
     std::vector<Photo> processPhotosForModTime(QStringList const& photos)
     {
+        TIMED_SCOPE(scopeFunc, "processPhotosForModTime");
+
         std::vector<Photo> result;
         result.resize(photos.size());
 
@@ -97,8 +106,6 @@ namespace {
 
 PhotoSeriesVec divideToSeriesOnMetadata(QStringList const& photos)
 {
-    // TODO: use EXIF creation time when available
-
     std::vector<Photo> photosWithTime = processPhotosForModTime(photos);
     std::stable_sort(photosWithTime.begin(), photosWithTime.end(), utils::less().on([](Photo const& p){ return *p.lastModTime; }));
 

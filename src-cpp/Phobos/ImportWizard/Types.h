@@ -3,13 +3,14 @@
 
 #include <string>
 #include <QList>
+#include <QString>
 #include <boost/optional.hpp>
 
 namespace phobos { namespace importwiz {
 
 struct Photo
 {
-    std::string fileName;
+    QString fileName;
     boost::optional<unsigned> lastModTime;
 
     bool operator==(Photo const& other) const

@@ -20,7 +20,7 @@ class Item : public QObject
     Q_OBJECT
 
 public:
-    explicit Item(std::string const& fileName, QUuid const seriesId, unsigned const ordinal);
+    explicit Item(QString const& fileName, QUuid const seriesId, unsigned const ordinal);
 
     bool isSelected() const;
     ItemState state() const { return _state; }

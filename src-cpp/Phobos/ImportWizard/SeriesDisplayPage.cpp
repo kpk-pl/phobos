@@ -114,7 +114,7 @@ void SeriesDisplayPage::initializePage()
         {
             QTreeWidgetItem* photoItem = new QTreeWidgetItem(seriesItem, TREEITEM_STANDARDPHOTO);
             photoItem->setFlags(photoItem->flags() | Qt::ItemIsUserCheckable);
-            photoItem->setText(0, tr("[%1] %2").arg(i).arg(series[i].fileName.c_str()));
+            photoItem->setText(0, tr("[%1] %2").arg(i).arg(series[i].fileName));
             photoItem->setCheckState(0, (series.size() > 1) ? Qt::Checked : Qt::Unchecked);
         }
     }

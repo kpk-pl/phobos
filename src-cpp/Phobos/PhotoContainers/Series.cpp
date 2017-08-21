@@ -15,14 +15,7 @@ Series::Series(importwiz::PhotoSeries const& series) :
         addPhotoItem(item.fileName);
 }
 
-void Series::addPhotoItems(std::vector<std::string> const& fileNames)
-{
-    photoItems.reserve(photoItems.size() + fileNames.size());
-    for (auto const& fn : fileNames)
-        addPhotoItem(fn);
-}
-
-void Series::addPhotoItem(std::string const& fileName)
+void Series::addPhotoItem(QString const& fileName)
 {
     auto newItem = std::make_shared<Item>(fileName, _uuid, photoItems.size());
     photoItems.emplace_back(std::move(newItem));
