@@ -55,7 +55,6 @@ ConstExecutionPtrVecConstPtr
 {
   auto result = std::make_shared<ConstExecutionPtrVec>();
 
-  // TODO: Handle trash remove
   for (pcontainer::SeriesPtr const& series : photoSet)
     for (pcontainer::ItemPtr const& photo : *series)
       if (photo->state() == matchedState)

@@ -1,6 +1,7 @@
 #include "ProcessWizard/ActionTab.h"
 #include "Widgets/IconLabel.h"
 #include "Widgets/FilenameEntry.h"
+#include "Utils/Filesystem/Trash.h"
 #include <QPushButton>
 #include <QRadioButton>
 #include <QVBoxLayout>
@@ -29,8 +30,7 @@ public:
 
     QHBoxLayout *hlayout = new QHBoxLayout();
 
-    bool trash = false; // no trash available
-    if (trash)
+    if (utils::fs::trashAvailable())
     {
       trashRadio->setChecked(true);
     }

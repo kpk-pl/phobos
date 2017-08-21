@@ -1,4 +1,9 @@
 #include "ProcessWizard/ExecutionImpl.h"
+#include "Config.h"
+#include "ConfigExtension.h"
+#include "Utils/Filesystem/Trash.h"
+#include <easylogging++.h>
+#include <QFile>
 #include <cassert>
 
 namespace phobos { namespace processwiz {
@@ -9,6 +14,21 @@ DeleteExecution::DeleteExecution(QString const& file, DeleteAction::Method const
 
 void DeleteExecution::execute() const
 {
+  bool const debugDisabled = config::qualified("debug.disableExecutionOperations", false);
+
+  switch(method)
+  {
+  case DeleteAction::Method::Permanent:
+    LOG(INFO) << "Removing permanently \"" << file << '"';
+    if (!debugDisabled)
+      QFile(file).remove();
+    break;
+  case DeleteAction::Method::Trash:
+    LOG(INFO) << "Removing to trash \"" << file << '"';
+    if (!debugDisabled)
+      utils::fs::moveToTrash(file);
+    break;
+  }
 }
 
 QString DeleteExecution::toString() const

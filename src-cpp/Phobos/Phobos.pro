@@ -41,6 +41,7 @@ SOURCES += Phobos.cpp\
     Utils/ItemStateIcon.cpp \
     Utils/Filesystem/Portable.cpp \
     Utils/Filesystem/Attributes.cpp \
+    Utils/Filesystem/Trash.cpp \
     easyloggingpp/src/easylogging++.cc \
     ConfigExtension.cpp \
     SeriesViewBase.cpp \
@@ -106,6 +107,7 @@ HEADERS  += MainWindow.h \
     Utils/ItemStateIcon.h \
     Utils/Filesystem/Attributes.h \
     Utils/Filesystem/Portable.h \
+    Utils/Filesystem/Trash.h \
     easyloggingpp/src/easylogging++.h \
     SeriesViewBase.h \
     NumSeriesView.h \
