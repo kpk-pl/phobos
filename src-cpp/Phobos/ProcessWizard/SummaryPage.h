@@ -22,6 +22,7 @@ public:
 protected:
   void initializePage() override;
   void cleanupPage() override;
+  bool validatePage() override;
 
 private:
   SeriesCounts const seriesCounts;

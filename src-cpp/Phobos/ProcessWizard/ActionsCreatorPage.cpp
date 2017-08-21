@@ -25,10 +25,9 @@ namespace {
 
 ActionsCreatorPage::ActionsCreatorPage(OperationType const& defaultOperation)
 {
-  LOG(INFO) << "Initializing page to create actions";
+  LOG(DEBUG) << "Creating page";
 
   setTitle(tr("Processing scheduler"));
-  setButtonText(QWizard::WizardButton::FinishButton, tr("Execute"));
 
   resetButton = new QPushButton(tr("Reset actions"));
 
@@ -73,6 +72,8 @@ void ActionsCreatorPage::selectedActionsChanged()
 
 void ActionsCreatorPage::initializePage()
 {
+  LOG(INFO) << "Initializing page to create actions";
+
   if (wizard()->button(QWizard::NextButton))
       wizard()->button(QWizard::NextButton)->setFocus();
 }

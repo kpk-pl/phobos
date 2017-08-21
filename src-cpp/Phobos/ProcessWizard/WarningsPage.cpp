@@ -12,6 +12,8 @@ namespace phobos { namespace processwiz {
 
 WarningsPage::WarningsPage(SeriesCounts const& counts)
 {
+  LOG(DEBUG) << "Creating page";
+
   setTitle(tr("Summary"));
 
   QVBoxLayout *layout = new QVBoxLayout();
@@ -47,6 +49,8 @@ WarningsPage::WarningsPage(SeriesCounts const& counts)
 
 void WarningsPage::initializePage()
 {
+  LOG(INFO) << "Initializing warnings page";
+
   if (wizard()->button(QWizard::NextButton))
       wizard()->button(QWizard::NextButton)->setFocus();
 }

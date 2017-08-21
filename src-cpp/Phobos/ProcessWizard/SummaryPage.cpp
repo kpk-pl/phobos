@@ -2,7 +2,6 @@
 #include "ProcessWizard/Action.h"
 #include "ProcessWizard/OperationIcon.h"
 #include "ProcessWizard/Execution.h"
-#include "Utils/Asserted.h"
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QHeaderView>
@@ -18,6 +17,11 @@ namespace phobos { namespace processwiz {
 SummaryPage::SummaryPage(SeriesCounts const& seriesCounts, pcontainer::Set const& photoSet) :
   seriesCounts(seriesCounts), photoSet(photoSet)
 {
+  LOG(DEBUG) << "Creating page";
+
+  setTitle(tr("Summary"));
+  setButtonText(QWizard::WizardButton::FinishButton, tr("Execute"));
+
   actionTree = new QTreeWidget();
   actionTree->header()->close();
   actionTree->setColumnCount(2);
@@ -48,22 +52,24 @@ void SummaryPage::updateExecutioners(ConstActionPtrVec const& currentActions)
 
 void SummaryPage::initializePage()
 {
+  LOG(INFO) << "Initializing summary page";
+
   auto const selectedActions = field("chosenActions").value<ConstActionPtrVec>();
   LOG(INFO) << "Displaying summary for " << selectedActions.size() << " selected actions";
 
   updateExecutioners(selectedActions);
 
-  for (auto const& action : selectedActions)
+  for (auto const& action : executioners)
   {
-    auto const actionStr = action->toString();
+    auto const actionStr = action.first->toString();
     LOG(INFO) << "Enabled: " << actionStr;
 
     QTreeWidgetItem *topItem = new QTreeWidgetItem(actionTree);
-    topItem->setIcon(0, operationIcon(action->operation()));
+    topItem->setIcon(0, operationIcon(action.first->operation()));
     topItem->setText(1, actionStr);
     topItem->setFlags(topItem->flags() & ~Qt::ItemIsSelectable);
 
-    for (auto const& exec : *utils::asserted::fromMap(executioners, action))
+    for (auto const& exec : *action.second)
     {
       QTreeWidgetItem *execItem = new QTreeWidgetItem(topItem);
       execItem->setText(1, exec->toString());
@@ -79,6 +85,32 @@ void SummaryPage::cleanupPage()
   QTreeWidgetItem *item;
   while ((item = actionTree->takeTopLevelItem(0)))
       delete item;
+}
+
+bool SummaryPage::validatePage()
+{
+  LOG(INFO) << "Finishing process wizard. Executing " << executioners.size() << " actions";
+
+  std::size_t errors = 0;
+
+  for (auto const& action : executioners)
+  {
+    auto const actionStr = action.first->toString();
+    LOG(INFO) << "Executing action: " << actionStr;
+
+    for (auto const& exec : *action.second)
+    {
+      if (!exec->execute())
+      {
+        LOG(WARNING) << "Failed: " << exec->toString();
+        ++errors;
+      }
+    }
+  }
+
+  LOG(INFO) << "Performed all actions with " << errors << " errors";
+
+  return true;
 }
 
 }} // namespace phobos::processwiz

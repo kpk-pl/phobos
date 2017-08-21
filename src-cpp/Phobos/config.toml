@@ -1,3 +1,6 @@
+[debug]
+disableExecutionOperations = true
+
 [global]
 loggingConfig = "logging.conf"
 

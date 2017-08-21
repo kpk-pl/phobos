@@ -12,7 +12,7 @@ DeleteExecution::DeleteExecution(QString const& file, DeleteAction::Method const
   file(file), method(deleteMethod)
 {}
 
-void DeleteExecution::execute() const
+bool DeleteExecution::execute() const
 {
   bool const debugDisabled = config::qualified("debug.disableExecutionOperations", false);
 
@@ -20,14 +20,10 @@ void DeleteExecution::execute() const
   {
   case DeleteAction::Method::Permanent:
     LOG(INFO) << "Removing permanently \"" << file << '"';
-    if (!debugDisabled)
-      QFile(file).remove();
-    break;
+    return debugDisabled || QFile(file).remove();
   case DeleteAction::Method::Trash:
     LOG(INFO) << "Removing to trash \"" << file << '"';
-    if (!debugDisabled)
-      utils::fs::moveToTrash(file);
-    break;
+    return debugDisabled || utils::fs::moveToTrash(file);
   }
 }
 
@@ -54,8 +50,9 @@ RenameExecution::RenameExecution(QString const& file, QString const& newFilename
   file(file), newFilename(newFilename)
 {}
 
-void RenameExecution::execute() const
+bool RenameExecution::execute() const
 {
+  return false;
 }
 
 QString RenameExecution::toString() const

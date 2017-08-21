@@ -11,7 +11,7 @@ namespace phobos { namespace processwiz {
 class Execution
 {
 public:
-  virtual void execute() const = 0;
+  virtual bool execute() const = 0;
   virtual QString toString() const = 0;
   virtual QString warning() const = 0;
 };

@@ -11,7 +11,7 @@ class DeleteExecution : public Execution
 public:
   DeleteExecution(QString const& filename, DeleteAction::Method const deleteMethod);
 
-  void execute() const override;
+  bool execute() const override;
   QString toString() const override;
   QString warning() const override;
 
@@ -25,7 +25,7 @@ class RenameExecution : public Execution
 public:
   RenameExecution(QString const& file, QString const& newFilename);
 
-  void execute() const override;
+  bool execute() const override;
   QString toString() const override;
   QString warning() const override;
 
