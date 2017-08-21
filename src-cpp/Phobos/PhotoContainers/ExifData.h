@@ -14,7 +14,6 @@ public:
 
   boost::optional<std::size_t> width;
   boost::optional<std::size_t> height;
-  QDateTime dateTime;
 };
 
 }} // namespace phobos::pcontainer

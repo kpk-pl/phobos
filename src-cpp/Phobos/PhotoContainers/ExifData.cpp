@@ -22,9 +22,6 @@ ExifData::ExifData(QString const& fileName)
     width = exif.value(ExtendedTag::PixelXDimension).toLong();
     height = exif.value(ExtendedTag::PixelYDimension).toLong();
   }
-
-  if (exif.contains(ImageTag::DateTime))
-    dateTime = exif.value(ImageTag::DateTime).toDateTime();
 }
 
 }} // namespace phobos::pcontainer
