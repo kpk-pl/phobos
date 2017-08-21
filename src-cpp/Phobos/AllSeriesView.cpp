@@ -194,7 +194,7 @@ void AllSeriesView::addItemToGrid(int row, int col, pcontainer::ItemPtr const& i
   auto const widgetAddons = Addons(config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({}));
 
   auto const& itemId = itemPtr->id();
-  PhotoItem* item = new PhotoItem(itemPtr, imageCache.getPreload(itemId), widgetAddons, CapabilityType::OPEN_SERIES | CapabilityType::REMOVE_PHOTO);
+  PhotoItem* item = new PhotoItem(itemPtr, imageCache.getThumbnail(itemId), widgetAddons, CapabilityType::OPEN_SERIES | CapabilityType::REMOVE_PHOTO);
   item->setMetrics(imageCache.getMetrics(itemId));
 
   QObject::connect(item, &PhotoItem::openInSeries,
@@ -209,7 +209,7 @@ void AllSeriesView::addItemToGrid(int row, int col, pcontainer::ItemPtr const& i
 void AllSeriesView::updateImage(pcontainer::ItemId const& itemId)
 {
   auto& widget = utils::asserted::fromPtr(findItem(itemId));
-  widget.setImage(imageCache.getPreload(itemId));
+  widget.setImage(imageCache.getThumbnail(itemId));
 }
 
 void AllSeriesView::updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics)

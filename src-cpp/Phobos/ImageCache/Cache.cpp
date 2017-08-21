@@ -1,5 +1,3 @@
-#include <easylogging++.h>
-#include <QThreadPool>
 #include "PhotoContainers/Series.h"
 #include "ImageCache/Cache.h"
 #include "Utils/Algorithm.h"
@@ -8,6 +6,9 @@
 #include "ConfigExtension.h"
 #include "ImageProcessing/MetricsAggregate.h"
 #include "ImageProcessing/MetricsIO.h"
+#include <QThreadPool>
+#include "qt_ext/qexifimageheader.h"
+#include <easylogging++.h>
 
 // TODO: Maybe use transaction-like logic and log TRXID
 
@@ -20,13 +21,21 @@ Cache::Cache(pcontainer::Set const& photoSet) :
 }
 
 namespace {
-  QImage getInitialPreload()
+  QImage getInitialThumbnail(pcontainer::ItemId const& itemId)
   {
+    QImage const exifThumb = QExifImageHeader(itemId.fileName).thumbnail();
+    if (!exifThumb.isNull())
+    {
+      LOG(DEBUG) << "[Cache] Returned initial EXIF thumbnail for " << itemId.fileName;
+      return exifThumb;
+    }
+
     // TODO: use thumbnails from OS if available
     // https://stackoverflow.com/questions/19523599/how-to-get-thumbnail-of-file-using-the-windows-api
     static QImage const preloadImage =
       utils::preloadImage(config::qSize("imageCache.preloadSize", QSize(320, 240)));
 
+    LOG(DEBUG) << "[Cache] Returned initial blank thumbnail for " << itemId.fileName;
     return preloadImage;
   }
 } // unnamed namespace
@@ -42,34 +51,28 @@ QImage Cache::getImage(pcontainer::ItemId const& itemId) const
   }
 
   startThreadForItem(itemId);
-
-  auto it = preloadImageCache.find(itemId.fileName);
-  if (it != preloadImageCache.end() && !it->second.isNull())
-  {
-    LOG(DEBUG) << "[Cache] Returned preload image for " << itemId.fileName;
-    return it->second;
-  }
-  else
-  {
-    LOG(DEBUG) << "[Cache] Returned initial placeholder image for " << itemId.fileName;
-    return getInitialPreload();
-  }
+  return getThumbnailWithLoading(itemId, false);
 }
 
-QImage Cache::getPreload(pcontainer::ItemId const& itemId) const
+QImage Cache::getThumbnail(pcontainer::ItemId const& itemId) const
 {
-  LOG(DEBUG) << "[Cache] Requested preload image for " << itemId.fileName;
-  auto it = preloadImageCache.find(itemId.fileName);
-  if (it != preloadImageCache.end() && !it->second.isNull())
+  LOG(DEBUG) << "[Cache] Requested thumbnail for " << itemId.fileName;
+  return getThumbnailWithLoading(itemId, true);
+}
+
+QImage Cache::getThumbnailWithLoading(pcontainer::ItemId const& itemId, bool requestLoad) const
+{
+  auto it = thumbnailCache.find(itemId.fileName);
+  if (it != thumbnailCache.end() && !it->second.isNull())
   {
-    LOG(DEBUG) << "[Cache] Returned preload image for " << itemId.fileName;
+    LOG(DEBUG) << "[Cache] Returned thumbnail for " << itemId.fileName;
     return it->second;
   }
 
-  startThreadForItem(itemId);
+  if (requestLoad)
+    startThreadForItem(itemId);
 
-  LOG(DEBUG) << "[Cache] Returned initial placeholder image for " << itemId.fileName;
-  return getInitialPreload();
+  return getInitialThumbnail(itemId);
 }
 
 std::unique_ptr<iprocess::LoaderThread> Cache::makeLoadingThread(pcontainer::ItemId const& itemId) const
@@ -117,7 +120,7 @@ void Cache::imageReadyFromThread(pcontainer::ItemId itemId, QImage image)
 
   fullImageCache.replace(itemId.fileName, image);
 
-  auto& preload = preloadImageCache[itemId.fileName];
+  auto& preload = thumbnailCache[itemId.fileName];
   if (preload.isNull())
   {
       auto const preloadSize = config::qSize("imageCache.preloadSize", QSize(320, 240));

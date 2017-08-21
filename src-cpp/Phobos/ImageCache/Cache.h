@@ -23,7 +23,7 @@ public:
     explicit Cache(pcontainer::Set const& photoSet);
 
     QImage getImage(pcontainer::ItemId const& itemId) const;
-    QImage getPreload(pcontainer::ItemId const& itemId) const;
+    QImage getThumbnail(pcontainer::ItemId const& itemId) const;
 
     bool hasMetrics(pcontainer::ItemId const& itemId) const;
     iprocess::MetricPtr getMetrics(pcontainer::ItemId const& itemId) const;
@@ -44,6 +44,7 @@ private slots:
 private:
     pcontainer::Set const& photoSet;
 
+    QImage getThumbnailWithLoading(pcontainer::ItemId const& itemId, bool requestLoad) const;
     std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(pcontainer::ItemId const& itemId) const;
     void startThreadForItem(pcontainer::ItemId const& itemId) const;
 
@@ -52,7 +53,7 @@ private:
     // if image is in this map, it is already loading
     std::set<LookupKeyType> mutable alreadyLoading;
 
-    std::map<LookupKeyType, QImage> mutable preloadImageCache;
+    std::map<LookupKeyType, QImage> mutable thumbnailCache;
     LimitedMap mutable fullImageCache;
     std::map<LookupKeyType, iprocess::MetricPtr> mutable metricCache;
 };

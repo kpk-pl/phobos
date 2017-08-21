@@ -43,6 +43,7 @@ SOURCES += Phobos.cpp\
     Utils/Filesystem/Attributes.cpp \
     Utils/Filesystem/Trash.cpp \
     easyloggingpp/src/easylogging++.cc \
+    qt_ext/qexifimageheader.cpp \
     ConfigExtension.cpp \
     SeriesViewBase.cpp \
     NumSeriesView.cpp \
@@ -72,7 +73,8 @@ SOURCES += Phobos.cpp\
     ProcessWizard/TypeActionTab.cpp \
     ProcessWizard/SummaryPage.cpp \
     ProcessWizard/OperationIcon.cpp \
-    ProcessWizard/ExecutionImpl.cpp
+    ProcessWizard/ExecutionImpl.cpp \
+    PhotoContainers/ExifData.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -109,6 +111,7 @@ HEADERS  += MainWindow.h \
     Utils/Filesystem/Portable.h \
     Utils/Filesystem/Trash.h \
     easyloggingpp/src/easylogging++.h \
+    qt_ext/qexifimageheader.h \
     SeriesViewBase.h \
     NumSeriesView.h \
     NavigationBar.h \
@@ -146,7 +149,8 @@ HEADERS  += MainWindow.h \
     ProcessWizard/OperationIcon.h \
     ProcessWizard/Execution.h \
     ProcessWizard/ExecutionFwd.h \
-    ProcessWizard/ExecutionImpl.h
+    ProcessWizard/ExecutionImpl.h \
+    PhotoContainers/ExifData.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost
