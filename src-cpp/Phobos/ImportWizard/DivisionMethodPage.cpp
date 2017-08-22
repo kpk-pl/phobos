@@ -12,7 +12,7 @@
 namespace phobos { namespace importwiz {
 
 DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
-    QWizardPage(parent), currentSelection(Selection::Metadata)
+    QWizardPage(parent), fixedNumParamChanged(false), currentSelection(Selection::Metadata)
 {
     setTitle(tr("Division method"));
 
@@ -22,11 +22,11 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
 
     fixedNumChoice = new QRadioButton(tr("Each series has the same number of photos"));
     fixedNumParam = new QSpinBox();
-    // TODO: Try to guess best value based on number of photos being loaded. Try 13, 11, 7, 5, 3
     fixedNumParam->setValue(5);
     fixedNumParam->setSuffix(tr(" photos", "As in '5 photos'"));
     fixedNumParam->setDisabled(true);
     fixedNumParam->setMinimum(1);
+    QObject::connect(fixedNumParam, &QSpinBox::editingFinished, [this]{ fixedNumParamChanged = true; fixedNumParam->disconnect(); });
     QObject::connect(fixedNumChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::FixedNum); });
 
     metadataAutoChoice = new QRadioButton(tr("Divide to series automatically based on metadata"));
@@ -61,8 +61,6 @@ void DivisionMethodPage::initializePage()
 
     if (wizard()->button(QWizard::NextButton))
         wizard()->button(QWizard::NextButton)->setFocus();
-    else if (wizard()->button(QWizard::FinishButton))
-        wizard()->button(QWizard::FinishButton)->setFocus();
 }
 
 void DivisionMethodPage::cleanupPage()
@@ -94,9 +92,20 @@ bool DivisionMethodPage::validatePage()
     return true;
 }
 
+namespace {
+std::size_t guessBestDivisionValue(QStringList const& paths)
+{
+  for (auto const guess : {13, 11, 7, 5, 3})
+    if (paths.size() % guess == 0)
+      return guess;
+  return 5;
+}
+} // unnamed namespace
+
 void DivisionMethodPage::importMoreFiles()
 {
     LOG(INFO) << "Opening dialog to select additional photos";
+
     QStringList const newFiles = selectImagesInDialog(this);
     LOG(INFO) << "Selected " << newFiles.size() << " files";
 
@@ -104,8 +113,11 @@ void DivisionMethodPage::importMoreFiles()
     // TODO: Sort order must be configurable. Definetely filename is not enough. Need to use date or EXIF date.
     std::sort(_selectedFiles.begin(), _selectedFiles.end());
     _selectedFiles.erase(std::unique(_selectedFiles.begin(), _selectedFiles.end()), _selectedFiles.end());
-    LOG(INFO) << "Processing " << _selectedFiles.size() << " photos in total in current wizard";
 
+    if (!fixedNumParamChanged)
+      fixedNumParam->setValue(guessBestDivisionValue(_selectedFiles));
+
+    LOG(INFO) << "Processing " << _selectedFiles.size() << " photos in total in current wizard";
     numImportedLabel->setText(tr("Selected %1 photos").arg(_selectedFiles.size()));
     update();
 }

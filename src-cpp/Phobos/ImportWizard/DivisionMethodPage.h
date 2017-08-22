@@ -20,7 +20,7 @@ class DivisionMethodPage : public QWizardPage
     Q_PROPERTY(phobos::importwiz::PhotoSeriesVec dividedSeries MEMBER _dividedSeries READ series NOTIFY seriesChanged)
 
 public:
-    DivisionMethodPage(QWidget *parent = nullptr);
+    explicit DivisionMethodPage(QWidget *parent = nullptr);
 
     PhotoSeriesVec series() const { return _dividedSeries; }
 
@@ -47,6 +47,7 @@ private:
 
     QRadioButton *fixedNumChoice;
     QSpinBox *fixedNumParam;
+    bool fixedNumParamChanged;
 
     QRadioButton *metadataAutoChoice;
     QRadioButton *noopChoice;
