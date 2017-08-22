@@ -32,6 +32,7 @@ SOURCES += Phobos.cpp\
     ImageProcessing/MetricsAggregate.cpp \
     ImageProcessing/ColoredPixmap.cpp \
     ImageProcessing/ScalePixmap.cpp \
+    PhotoContainers/ExifData.cpp \
     PhotoContainers/Item.cpp \
     PhotoContainers/Series.cpp \
     PhotoContainers/Set.cpp \
@@ -52,6 +53,9 @@ SOURCES += Phobos.cpp\
     ImportWizard/ImageOpenDialog.cpp \
     ImportWizard/ImportWizard.cpp \
     ImportWizard/DivisionMethodPage.cpp \
+    ImportWizard/DivisionOps.cpp \
+    ImportWizard/SeriesDisplayPage.cpp \
+    ImportWizard/DateTimeProvider.cpp \
     Widgets/IconLabel.cpp \
     Widgets/HorizontalScrollArea.cpp \
     Widgets/ImageWidget.cpp \
@@ -59,8 +63,6 @@ SOURCES += Phobos.cpp\
     Widgets/PhotoItem/Addon.cpp \
     Widgets/HorizontalLine.cpp \
     Widgets/FilenameEntry.cpp \
-    ImportWizard/DivisionOps.cpp \
-    ImportWizard/SeriesDisplayPage.cpp \
     ImageCache/Cache.cpp \
     ImageCache/LimitedMap.cpp \
     ProcessWizard/ProcessWizard.cpp \
@@ -73,8 +75,7 @@ SOURCES += Phobos.cpp\
     ProcessWizard/TypeActionTab.cpp \
     ProcessWizard/SummaryPage.cpp \
     ProcessWizard/OperationIcon.cpp \
-    ProcessWizard/ExecutionImpl.cpp \
-    PhotoContainers/ExifData.cpp
+    ProcessWizard/ExecutionImpl.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -92,6 +93,7 @@ HEADERS  += MainWindow.h \
     ImageProcessing/Histogram.h \
     ImageProcessing/MetricsAggregate.h \
     ImageProcessing/ColoredPixmap.h \
+    PhotoContainers/ExifData.h \
     PhotoContainers/Fwd.h \
     PhotoContainers/Series.h \
     PhotoContainers/Set.h \
@@ -121,6 +123,12 @@ HEADERS  += MainWindow.h \
     ImportWizard/ImageOpenDialog.h \
     ImportWizard/ImportWizard.h \
     ImportWizard/DivisionMethodPage.h \
+    ImportWizard/DateTimeProvider.h \
+    ImportWizard/DivisionOps.h \
+    ImportWizard/Types.h \
+    ImportWizard/SeriesDisplayPage.h \
+    ImportWizard/Types.h \
+    ImportWizard/SeriesDisplayPage.h \
     Widgets/HeightResizeableInterface.h \
     Widgets/IconLabel.h \
     Widgets/HorizontalScrollArea.h \
@@ -130,9 +138,6 @@ HEADERS  += MainWindow.h \
     Widgets/PhotoItem/Capability.h \
     Widgets/HorizontalLine.h \
     Widgets/FilenameEntry.h \
-    ImportWizard/DivisionOps.h \
-    ImportWizard/Types.h \
-    ImportWizard/SeriesDisplayPage.h \
     ImageCache/Cache.h \
     ImageCache/CacheFwd.h \
     ImageCache/LimitedMap.h \
@@ -149,8 +154,7 @@ HEADERS  += MainWindow.h \
     ProcessWizard/OperationIcon.h \
     ProcessWizard/Execution.h \
     ProcessWizard/ExecutionFwd.h \
-    ProcessWizard/ExecutionImpl.h \
-    PhotoContainers/ExifData.h
+    ProcessWizard/ExecutionImpl.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

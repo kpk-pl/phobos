@@ -1,9 +1,9 @@
 #ifndef IMPORTWIZARD_DIVISIONMETHODPAGE_H
 #define IMPORTWIZARD_DIVISIONMETHODPAGE_H
 
-#include <QWizardPage>
-#include <QStringList>
 #include "ImportWizard/Types.h"
+#include <QWizardPage>
+#include <vector>
 
 class QLabel;
 class QPushButton;
@@ -53,7 +53,7 @@ private:
     QRadioButton *noopChoice;
 
     Selection currentSelection;
-    QStringList _selectedFiles;
+    std::vector<Photo> _selectedFiles;
     PhotoSeriesVec _dividedSeries;
 };
 

@@ -7,7 +7,9 @@
 #include "ImportWizard/DivisionMethodPage.h"
 #include "ImportWizard/ImageOpenDialog.h"
 #include "ImportWizard/DivisionOps.h"
+#include "ImportWizard/DateTimeProvider.h"
 #include "Widgets/HorizontalLine.h"
+#include "Utils/Comparators.h"
 
 namespace phobos { namespace importwiz {
 
@@ -71,32 +73,33 @@ void DivisionMethodPage::cleanupPage()
 
 bool DivisionMethodPage::validatePage()
 {
-    switch(currentSelection)
-    {
-    case Selection::DontDivide:
-        LOG(INFO) << "Dividing photos as noop";
-        _dividedSeries = divideToSeriesNoop(_selectedFiles);
-        break;
-    case Selection::FixedNum:
-        LOG(INFO) << "Dividing photos to series with equal size of " << fixedNumParam->value();
-        _dividedSeries = divideToSeriesWithEqualSize(_selectedFiles, fixedNumParam->value());
-        break;
-    case Selection::Metadata:
-        LOG(INFO) << "Dividing photos based on metadata";
-        _dividedSeries = divideToSeriesOnMetadata(_selectedFiles);
-        break;
-    }
+  // TODO: Sort order must be configurable. Definetely filename is not enough. Need to use date or EXIF date.
+  switch(currentSelection)
+  {
+  case Selection::DontDivide:
+    LOG(INFO) << "Dividing photos as noop";
+    _dividedSeries = divideToSeriesNoop(_selectedFiles);
+    break;
+  case Selection::FixedNum:
+    LOG(INFO) << "Dividing photos to series with equal size of " << fixedNumParam->value();
+    _dividedSeries = divideToSeriesWithEqualSize(_selectedFiles, fixedNumParam->value());
+    break;
+  case Selection::Metadata:
+    LOG(INFO) << "Dividing photos based on metadata";
+    _dividedSeries = divideToSeriesOnMetadata(_selectedFiles);
+    break;
+  }
 
-    LOG(INFO) << "Divided into " << _dividedSeries.size() << " series";
-    emit seriesChanged(_dividedSeries);
-    return true;
+  LOG(INFO) << "Divided into " << _dividedSeries.size() << " series";
+  emit seriesChanged(_dividedSeries);
+  return true;
 }
 
 namespace {
-std::size_t guessBestDivisionValue(QStringList const& paths)
+std::size_t guessBestDivisionValue(std::size_t const size)
 {
-  for (auto const guess : {13, 11, 7, 5, 3})
-    if (paths.size() % guess == 0)
+  for (auto const guess : {13, 11, 7, 5, 3, 12, 10, 8, 4})
+    if (size % guess == 0)
       return guess;
   return 5;
 }
@@ -104,40 +107,50 @@ std::size_t guessBestDivisionValue(QStringList const& paths)
 
 void DivisionMethodPage::importMoreFiles()
 {
-    LOG(INFO) << "Opening dialog to select additional photos";
+  LOG(INFO) << "Opening dialog to select additional photos";
 
-    QStringList const newFiles = selectImagesInDialog(this);
-    LOG(INFO) << "Selected " << newFiles.size() << " files";
+  QStringList newFiles = selectImagesInDialog(this);
+  LOG(INFO) << "Selected " << newFiles.size() << " new files";
 
-    _selectedFiles.append(newFiles);
-    // TODO: Sort order must be configurable. Definetely filename is not enough. Need to use date or EXIF date.
-    std::sort(_selectedFiles.begin(), _selectedFiles.end());
-    _selectedFiles.erase(std::unique(_selectedFiles.begin(), _selectedFiles.end()), _selectedFiles.end());
+  auto newPhotos = provideDateTime(newFiles);
+  auto const fileNameProj = [](Photo const& p){ return p.fileName; };
+  auto const lessComp = utils::less().on(fileNameProj);
+  auto const eqComp = utils::equal().on(fileNameProj);
 
-    if (!fixedNumParamChanged)
-      fixedNumParam->setValue(guessBestDivisionValue(_selectedFiles));
+  for (auto & newPhoto : newPhotos)
+  {
+    auto const ub = std::lower_bound(_selectedFiles.begin(), _selectedFiles.end(), newPhoto, lessComp);
+    if (ub == _selectedFiles.end())
+      _selectedFiles.insert(_selectedFiles.end(), std::move(newPhoto));
+    else if (!eqComp(*ub, newPhoto))
+      _selectedFiles.insert(std::next(ub), std::move(newPhoto));
+  }
 
-    LOG(INFO) << "Processing " << _selectedFiles.size() << " photos in total in current wizard";
-    numImportedLabel->setText(tr("Selected %1 photos").arg(_selectedFiles.size()));
-    update();
+  for (auto const& x : _selectedFiles)
+    LOG(DEBUG) << x.fileName;
+
+  if (!fixedNumParamChanged)
+    fixedNumParam->setValue(guessBestDivisionValue(_selectedFiles.size()));
+
+  LOG(INFO) << "Processing " << _selectedFiles.size() << " photos in total in current wizard";
+  numImportedLabel->setText(tr("Selected %1 photos").arg(_selectedFiles.size()));
+  update();
 }
 
 void DivisionMethodPage::updateSelection(Selection selection)
 {
-    currentSelection = selection;
+  currentSelection = selection;
 
-    switch(currentSelection)
-    {
-    case Selection::FixedNum:
-        fixedNumParam->setDisabled(false);
-        break;
-    case Selection::Metadata:
-    case Selection::DontDivide:
-        fixedNumParam->setDisabled(true);
-        break;
-    }
+  switch(currentSelection)
+  {
+  case Selection::FixedNum:
+    fixedNumParam->setDisabled(false);
+    break;
+  case Selection::Metadata:
+  case Selection::DontDivide:
+    fixedNumParam->setDisabled(true);
+    break;
+  }
 }
-
-// TODO: division process should have progress bar
 
 }} // namespace phobos::importwiz

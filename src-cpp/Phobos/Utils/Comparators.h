@@ -35,26 +35,49 @@ inline auto order_on(StrictOrder&& so, Projection&& p)
 namespace detail {
 struct less_t
 {
-    explicit less_t() = default;
-    using result_type = bool;
+  explicit less_t() = default;
+  using result_type = bool;
 
-    template <typename T, typename U>
-    result_type operator()(T const& t, U const& u) const
-    {
-        return t < u;
-    }
+  template <typename T, typename U>
+  result_type operator()(T const& t, U const& u) const
+  {
+    return t < u;
+  }
 
-    template <typename Projection>
-    auto on(Projection&& p) const
-    {
-        return order_on(*this, std::forward<Projection>(p));
-    }
+  template <typename Projection>
+  auto on(Projection&& p) const
+  {
+    return order_on(*this, std::forward<Projection>(p));
+  }
+};
+
+struct equal_t
+{
+  explicit equal_t() = default;
+  using result_type = bool;
+
+  template <typename T, typename U>
+  result_type operator()(T const& t, U const& u) const
+  {
+    return t == u;
+  }
+
+  template <typename Projection>
+  auto on(Projection&& p) const
+  {
+    return order_on(*this, std::forward<Projection>(p));
+  }
 };
 } // namespace detail
 
 inline auto less()
 {
-    return detail::less_t{};
+  return detail::less_t{};
+}
+
+inline auto equal()
+{
+  return detail::equal_t{};
 }
 
 }} // namespace phobos::utils

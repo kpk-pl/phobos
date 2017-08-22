@@ -1,112 +1,63 @@
 #include "ImportWizard/DivisionOps.h"
-#include "Utils/Filesystem/Attributes.h"
 #include "Utils/Comparators.h"
 #include "Utils/Algorithm.h"
 #include "ConfigExtension.h"
-#include <qt_ext/qexifimageheader.h>
 #include <easylogging++.h>
-#include <QDateTime>
-#include <thread>
-#include <future>
 #include <deque>
 
 namespace phobos { namespace importwiz {
 
-PhotoSeriesVec divideToSeriesNoop(QStringList const& photos)
+PhotoSeriesVec divideToSeriesNoop(std::vector<Photo> const& photos)
 {
-    PhotoSeriesVec result;
-    result.push_back(PhotoSeries());
+  PhotoSeries series;
+  series.reserve(photos.size());
+  for (auto const& p : photos)
+    series.append(p);
 
-    result.back().reserve(photos.size());
-    for (auto const& photo : photos)
-        result.back().push_back(Photo{photo, boost::none});
-    return result;
+  PhotoSeriesVec result;
+  result.push_back(series);
+
+  return result;
 }
 
-PhotoSeriesVec divideToSeriesWithEqualSize(QStringList const& photos, std::size_t const photosInSeries)
+PhotoSeriesVec divideToSeriesWithEqualSize(std::vector<Photo> const& photos, std::size_t const photosInSeries)
 {
-    PhotoSeriesVec result;
-    for (int n = 0; n < photos.size(); ++n)
+  PhotoSeriesVec result;
+  for (std::size_t n = 0; n < photos.size(); ++n)
+  {
+    if (n % photosInSeries == 0)
     {
-        if (n % photosInSeries == 0)
-        {
-            result.push_back(PhotoSeries());
-            result.back().reserve(photosInSeries);
-        }
-        result.back().push_back(Photo{photos[n], boost::none});
+      result.push_back(PhotoSeries());
+      result.back().reserve(photosInSeries);
     }
 
-    return result;
+    result.back().append(photos[n]);
+  }
+
+  return result;
 }
 
 namespace {
-void paralellThransformModTime(std::vector<Photo>::iterator destination,
-                               QStringList::const_iterator const& begin,
-                               QStringList::const_iterator const& end)
+double averageTimeDiff(auto beginIt, auto endIt)
 {
-  std::transform(begin, end, destination, [](QString const& str) {
-    QExifImageHeader const header(str);
-    auto const dateTime = header.contains(QExifImageHeader::ImageTag::DateTime)
-        ? header.value(QExifImageHeader::ImageTag::DateTime).toDateTime().toSecsSinceEpoch()
-        : utils::fs::lastModificationTime(str.toStdString());
+  unsigned sum = 0;
+  unsigned count = 0;
+  auto nextIt = beginIt+1;
+  while (nextIt != endIt)
+  {
+    sum += *nextIt->lastModTime - *beginIt->lastModTime;
+    ++count;
+    ++beginIt;
+    ++nextIt;
+  }
 
-    return Photo{str, dateTime};
-  });
+  return double(sum) / count;
 }
-
-    std::vector<Photo> processPhotosForModTime(QStringList const& photos)
-    {
-        TIMED_SCOPE(scopeFunc, "processPhotosForModTime");
-
-        std::vector<Photo> result;
-        result.resize(photos.size());
-
-        unsigned const numThreads = std::max(1u, std::thread::hardware_concurrency());
-        std::vector<std::future<void>> futures;
-        futures.reserve(numThreads-1);
-
-        auto destIt = result.begin();
-        auto sourceIt = photos.begin();
-
-        if (photos.size() > 100)
-        {
-            std::size_t const increment = photos.size()/numThreads;
-            for (unsigned i = 0; i < numThreads-1; ++i)
-            {
-                futures.emplace_back(std::async(std::launch::async, paralellThransformModTime, destIt, sourceIt, std::next(sourceIt, increment)));
-                std::advance(destIt, increment);
-                std::advance(sourceIt, increment);
-            }
-        }
-
-        paralellThransformModTime(destIt, sourceIt, photos.end());
-
-        for (auto const& f : futures)
-            f.wait();
-
-        return result;
-    }
-
-    double averageTimeDiff(auto beginIt, auto endIt)
-    {
-        unsigned sum = 0;
-        unsigned count = 0;
-        auto nextIt = beginIt+1;
-        while (nextIt != endIt)
-        {
-            sum += *nextIt->lastModTime - *beginIt->lastModTime;
-            ++count;
-            ++beginIt;
-            ++nextIt;
-        }
-
-        return double(sum) / count;
-    }
 } // unnamed namespace
 
-PhotoSeriesVec divideToSeriesOnMetadata(QStringList const& photos)
+PhotoSeriesVec divideToSeriesOnMetadata(std::vector<Photo> const& photos)
 {
-    std::vector<Photo> photosWithTime = processPhotosForModTime(photos);
+    std::vector<Photo> photosWithTime = photos;
     std::stable_sort(photosWithTime.begin(), photosWithTime.end(), utils::less().on([](Photo const& p){ return *p.lastModTime; }));
 
     double const timeDrift = config::qualified("photoSet.allowedSecondDriftInSeries", 1.5);
