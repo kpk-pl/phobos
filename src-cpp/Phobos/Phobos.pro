@@ -105,6 +105,7 @@ HEADERS  += MainWindow.h \
     Utils/Focused.h \
     Utils/Asserted.h \
     Utils/Comparators.h \
+    Utils/Invoke.h \
     Utils/Streaming.h \
     Utils/LexicalCast.h \
     Utils/ItemStateColor.h \
@@ -154,8 +155,7 @@ HEADERS  += MainWindow.h \
     ProcessWizard/OperationIcon.h \
     ProcessWizard/Execution.h \
     ProcessWizard/ExecutionFwd.h \
-    ProcessWizard/ExecutionImpl.h \
-    Utils/Invoke.h
+    ProcessWizard/ExecutionImpl.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

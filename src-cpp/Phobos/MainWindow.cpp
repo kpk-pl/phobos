@@ -1,8 +1,3 @@
-#include <cstdio>
-#include <QMenuBar>
-#include <QAction>
-#include <QKeySequence>
-#include <easylogging++.h>
 #include "MainWindow.h"
 #include "Config.h"
 #include "ConfigExtension.h"
@@ -10,6 +5,12 @@
 #include "PhotoBulkAction.h"
 #include "ImportWizard/ImportWizard.h"
 #include "ProcessWizard/ProcessWizard.h"
+#include <easylogging++.h>
+#include <QApplication>
+#include <QMenuBar>
+#include <QAction>
+#include <QKeySequence>
+#include <cstdio>
 
 namespace phobos {
 
@@ -82,6 +83,9 @@ void MainWindow::createMenus()
     execMenu->addAction(tr("&Move"),   this, [this]{processAction(processwiz::OperationType::Move);  })->setStatusTip(tr("Move selected files from hard drive"));
     execMenu->addAction(tr("&Copy"),   this, [this]{processAction(processwiz::OperationType::Copy);  })->setStatusTip(tr("Copy selected files from hard drive"));
     execMenu->addAction(tr("&Rename"), this, [this]{processAction(processwiz::OperationType::Rename);})->setStatusTip(tr("Rename selected files from hard drive"));
+
+    QMenu* helpMenu = menuBar()->addMenu(tr("Help"));
+    helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
 }
 
 void MainWindow::processAction(processwiz::OperationType const operation)
