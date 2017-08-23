@@ -7,12 +7,12 @@
 
 namespace phobos { namespace importwiz {
 
-PhotoSeriesVec divideToSeriesNoop(std::vector<Photo> const& photos)
+PhotoSeriesVec divideToSeriesNoop(std::vector<Photo> && photos)
 {
   PhotoSeries series;
   series.reserve(photos.size());
-  for (auto const& p : photos)
-    series.append(p);
+  for (auto &p : photos)
+    series.append(std::move(p));
 
   PhotoSeriesVec result;
   result.push_back(series);
@@ -20,7 +20,7 @@ PhotoSeriesVec divideToSeriesNoop(std::vector<Photo> const& photos)
   return result;
 }
 
-PhotoSeriesVec divideToSeriesWithEqualSize(std::vector<Photo> const& photos, std::size_t const photosInSeries)
+PhotoSeriesVec divideToSeriesWithEqualSize(std::vector<Photo> && photos, std::size_t const photosInSeries)
 {
   PhotoSeriesVec result;
   for (std::size_t n = 0; n < photos.size(); ++n)
@@ -31,7 +31,7 @@ PhotoSeriesVec divideToSeriesWithEqualSize(std::vector<Photo> const& photos, std
       result.back().reserve(photosInSeries);
     }
 
-    result.back().append(photos[n]);
+    result.back().append(std::move(photos[n]));
   }
 
   return result;
@@ -55,45 +55,44 @@ double averageTimeDiff(auto beginIt, auto endIt)
 }
 } // unnamed namespace
 
-PhotoSeriesVec divideToSeriesOnMetadata(std::vector<Photo> const& photos)
+PhotoSeriesVec divideToSeriesOnMetadata(std::vector<Photo> && photos)
 {
-    std::vector<Photo> photosWithTime = photos;
-    std::stable_sort(photosWithTime.begin(), photosWithTime.end(), utils::less().on([](Photo const& p){ return *p.lastModTime; }));
+  double const timeDrift = config::qualified("photoSet.allowedSecondDriftInSeries", 1.5);
 
-    double const timeDrift = config::qualified("photoSet.allowedSecondDriftInSeries", 1.5);
+  auto const inRange = [timeDrift](double value, double targetPoint){
+    return value <= targetPoint + timeDrift && value >= targetPoint - timeDrift;
+  };
 
-    auto const inRange = [timeDrift](double value, double targetPoint){
-        return value <= targetPoint + timeDrift && value >= targetPoint - timeDrift;
-    };
+  PhotoSeriesVec result;
+  std::deque<Photo> stack;
 
-    PhotoSeriesVec result;
-    std::deque<Photo> stack;
+  std::sort(photos.begin(), photos.end(), utils::less().on(&Photo::lastModTime));
 
-    for (Photo const& photo : photosWithTime)
-    {
-        stack.push_back(photo);
-        if (stack.size() < 3)
-            continue;
-
-        auto const last = stack.begin() + (stack.size()-1);
-        unsigned const lastDiff = *last->lastModTime - *(last-1)->lastModTime;
-
-        if (!inRange(lastDiff, averageTimeDiff(stack.begin(), last)))
-        {
-            /* If only 3 photos on stack and they do not form any series, pop just one photo from the begin */
-            auto const endSeries = (stack.size() == 3 ? stack.begin()+1 : last);
-            result.push_back(utils::moveFromRange<PhotoSeries>(stack.begin(), endSeries));
-            stack.erase(stack.begin(), endSeries);
-        }
-    }
-
+  for (Photo &photo : photos)
+  {
+    stack.push_back(std::move(photo));
     if (stack.size() < 3)
-        for (auto &el : stack)
-            result.push_back(PhotoSeries(1, std::move(el)));
-    else
-        result.push_back(utils::moveFromRange<PhotoSeries>(stack.begin(), stack.end()));
+      continue;
 
-    return result;
+    auto const last = stack.begin() + (stack.size()-1);
+    unsigned const lastDiff = *last->lastModTime - *(last-1)->lastModTime;
+
+    if (!inRange(lastDiff, averageTimeDiff(stack.begin(), last)))
+    {
+      /* If only 3 photos on stack and they do not form any series, pop just one photo from the begin */
+      auto const endSeries = (stack.size() == 3 ? stack.begin()+1 : last);
+      result.push_back(utils::moveFromRange<PhotoSeries>(stack.begin(), endSeries));
+      stack.erase(stack.begin(), endSeries);
+    }
+  }
+
+  if (stack.size() < 3)
+    for (auto &el : stack)
+      result.push_back(PhotoSeries(1, std::move(el)));
+  else
+    result.push_back(utils::moveFromRange<PhotoSeries>(stack.begin(), stack.end()));
+
+  return result;
 }
 
 }} // namespace phobos::importwiz

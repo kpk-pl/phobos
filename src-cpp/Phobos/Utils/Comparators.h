@@ -1,6 +1,8 @@
 #ifndef UTILS_COMPARATORS_H
 #define UTILS_COMPARATORS_H
 
+#include "Utils/Invoke.h"
+
 namespace phobos { namespace utils {
 
 namespace detail {
@@ -8,28 +10,30 @@ namespace detail {
 template <typename StrictOrder, typename Projection>
 struct order_on_t
 {
-    explicit order_on_t() = default;
-    order_on_t(StrictOrder const& so, Projection const& p) :
-        order(so), projection(p)
-    {}
+  explicit order_on_t() = default;
+  order_on_t(StrictOrder const& so, Projection const& p) :
+      order(so), projection(p)
+  {}
 
-    template<typename T, typename U>
-    inline auto operator()(T&& lhs, U&& rhs) const
-    {
-        return order(projection(std::forward<T>(lhs)), projection(std::forward<U>(rhs)));
-    }
+  template<typename T, typename U>
+  inline auto operator()(T&& lhs, U&& rhs) const
+  {
+    return invoke(order,
+                  invoke(projection, std::forward<T>(lhs)),
+                  invoke(projection, std::forward<U>(rhs)));
+  }
 
 private:
-    StrictOrder order;
-    Projection projection;
+  StrictOrder order;
+  Projection projection;
 };
 } // namespace detail
 
 template <typename StrictOrder, typename Projection>
 inline auto order_on(StrictOrder&& so, Projection&& p)
 {
-    using OrderT = detail::order_on_t<std::decay_t<StrictOrder>, std::decay_t<Projection> >;
-    return OrderT(std::forward<StrictOrder>(so), std::forward<Projection>(p));
+  using OrderT = detail::order_on_t<std::decay_t<StrictOrder>, std::decay_t<Projection> >;
+  return OrderT(std::forward<StrictOrder>(so), std::forward<Projection>(p));
 }
 
 namespace detail {

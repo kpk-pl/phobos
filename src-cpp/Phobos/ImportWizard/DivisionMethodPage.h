@@ -9,6 +9,7 @@ class QLabel;
 class QPushButton;
 class QSpinBox;
 class QRadioButton;
+class QCheckBox;
 
 namespace phobos { namespace importwiz {
 
@@ -51,6 +52,8 @@ private:
 
     QRadioButton *metadataAutoChoice;
     QRadioButton *noopChoice;
+
+    QCheckBox *notSortedPhotosBox;
 
     Selection currentSelection;
     std::vector<Photo> _selectedFiles;

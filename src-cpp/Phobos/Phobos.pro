@@ -154,7 +154,8 @@ HEADERS  += MainWindow.h \
     ProcessWizard/OperationIcon.h \
     ProcessWizard/Execution.h \
     ProcessWizard/ExecutionFwd.h \
-    ProcessWizard/ExecutionImpl.h
+    ProcessWizard/ExecutionImpl.h \
+    Utils/Invoke.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

@@ -1,15 +1,16 @@
-#include <QPushButton>
-#include <QLabel>
-#include <QGridLayout>
-#include <QSpinBox>
-#include <QRadioButton>
-#include <easylogging++.h>
 #include "ImportWizard/DivisionMethodPage.h"
 #include "ImportWizard/ImageOpenDialog.h"
 #include "ImportWizard/DivisionOps.h"
 #include "ImportWizard/DateTimeProvider.h"
 #include "Widgets/HorizontalLine.h"
 #include "Utils/Comparators.h"
+#include <easylogging++.h>
+#include <QPushButton>
+#include <QLabel>
+#include <QGridLayout>
+#include <QSpinBox>
+#include <QRadioButton>
+#include <QCheckBox>
 
 namespace phobos { namespace importwiz {
 
@@ -38,15 +39,19 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     noopChoice = new QRadioButton(tr("Don't divide photos - create one series"));
     QObject::connect(noopChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::DontDivide); });
 
+    notSortedPhotosBox = new QCheckBox(tr("My photos cannot be sorted by file names"));
+
     QGridLayout *layout = new QGridLayout();
     layout->setColumnStretch(1, 1);
-    layout->addWidget(numImportedLabel, 0, 0);
+    layout->addWidget(numImportedLabel, 0, 0, 1, 2);
     layout->addWidget(importMoreButton, 0, 2);
     layout->addWidget(new widgets::HorizontalLine(), 1, 0, 1, -1);
     layout->addWidget(fixedNumChoice, 2, 0, 1, 2);
     layout->addWidget(fixedNumParam, 2, 2);
     layout->addWidget(metadataAutoChoice, 3, 0, 1, 2);
     layout->addWidget(noopChoice, 4, 0, 1, 2);
+    layout->setRowStretch(5, 1);
+    layout->addWidget(notSortedPhotosBox, 5, 0, 1, 3, Qt::AlignBottom | Qt::AlignLeft);
     setLayout(layout);
 
     registerField("dividedSeries", this, "dividedSeries", SIGNAL(seriesChanged(PhotoSeriesVec)));
@@ -73,20 +78,27 @@ void DivisionMethodPage::cleanupPage()
 
 bool DivisionMethodPage::validatePage()
 {
-  // TODO: Sort order must be configurable. Definetely filename is not enough. Need to use date or EXIF date.
+  std::vector<Photo> sortedPhotos = _selectedFiles;
+
+  if (notSortedPhotosBox->isChecked())
+  {
+    LOG(INFO) << "Sorting photos based on time before division";
+    std::sort(sortedPhotos.begin(), sortedPhotos.end(), utils::less().on(&Photo::lastModTime));
+  }
+
   switch(currentSelection)
   {
   case Selection::DontDivide:
     LOG(INFO) << "Dividing photos as noop";
-    _dividedSeries = divideToSeriesNoop(_selectedFiles);
+    _dividedSeries = divideToSeriesNoop(std::move(sortedPhotos));
     break;
   case Selection::FixedNum:
     LOG(INFO) << "Dividing photos to series with equal size of " << fixedNumParam->value();
-    _dividedSeries = divideToSeriesWithEqualSize(_selectedFiles, fixedNumParam->value());
+    _dividedSeries = divideToSeriesWithEqualSize(std::move(sortedPhotos), fixedNumParam->value());
     break;
   case Selection::Metadata:
     LOG(INFO) << "Dividing photos based on metadata";
-    _dividedSeries = divideToSeriesOnMetadata(_selectedFiles);
+    _dividedSeries = divideToSeriesOnMetadata(std::move(sortedPhotos));
     break;
   }
 
@@ -113,21 +125,15 @@ void DivisionMethodPage::importMoreFiles()
   LOG(INFO) << "Selected " << newFiles.size() << " new files";
 
   auto newPhotos = provideDateTime(newFiles);
-  auto const fileNameProj = [](Photo const& p){ return p.fileName; };
-  auto const lessComp = utils::less().on(fileNameProj);
-  auto const eqComp = utils::equal().on(fileNameProj);
 
   for (auto & newPhoto : newPhotos)
   {
-    auto const ub = std::lower_bound(_selectedFiles.begin(), _selectedFiles.end(), newPhoto, lessComp);
+    auto const ub = std::lower_bound(_selectedFiles.begin(), _selectedFiles.end(), newPhoto, utils::less().on(&Photo::fileName));
     if (ub == _selectedFiles.end())
       _selectedFiles.insert(_selectedFiles.end(), std::move(newPhoto));
-    else if (!eqComp(*ub, newPhoto))
+    else if (!utils::equal().on(&Photo::fileName)(*ub, newPhoto))
       _selectedFiles.insert(std::next(ub), std::move(newPhoto));
   }
-
-  for (auto const& x : _selectedFiles)
-    LOG(DEBUG) << x.fileName;
 
   if (!fixedNumParamChanged)
     fixedNumParam->setValue(guessBestDivisionValue(_selectedFiles.size()));

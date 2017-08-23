@@ -6,9 +6,9 @@
 
 namespace phobos { namespace importwiz {
 
-PhotoSeriesVec divideToSeriesNoop(std::vector<Photo> const& photos);
-PhotoSeriesVec divideToSeriesWithEqualSize(std::vector<Photo> const& photos, std::size_t const photosInSeries);
-PhotoSeriesVec divideToSeriesOnMetadata(std::vector<Photo> const& photos);
+PhotoSeriesVec divideToSeriesNoop(std::vector<Photo> && photos);
+PhotoSeriesVec divideToSeriesWithEqualSize(std::vector<Photo> && photos, std::size_t const photosInSeries);
+PhotoSeriesVec divideToSeriesOnMetadata(std::vector<Photo> && photos);
 
 }} // namespace phobos::importwiz
 
