@@ -5,6 +5,7 @@
 #include "Config.h"
 #include "ConfigExtension.h"
 #include "ImageCache/Cache.h"
+#include "Utils/Asserted.h"
 
 namespace phobos {
 
@@ -20,25 +21,26 @@ SeriesViewBase::SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache c
 // TODO: This function has a lot in common with AllSeriesView -> derive from common base
 void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
 {
-    using namespace widgets::pitem;
-    clear();
+  using namespace widgets::pitem;
+  assert(series);
+  clear();
 
-    auto const& addons = Addons(config::get()->get_qualified_array_of<std::string>("seriesView.enabledAddons").value_or({}));
+  auto const& addons = Addons(config::get()->get_qualified_array_of<std::string>("seriesView.enabledAddons").value_or({}));
+  auto const thumbs = imageCache.getImages(series->uuid());
 
-    for (pcontainer::ItemPtr const& item : *series)
-    {
-        auto const& itemId = item->id();
-        PhotoItem* widget = new PhotoItem(item, imageCache.getImage(itemId), addons, CapabilityType::REMOVE_PHOTO);
-        widget->setMetrics(imageCache.getMetrics(itemId));
+  for (pcontainer::ItemPtr const& item : *series)
+  {
+    auto const& itemId = item->id();
+    PhotoItem* widget = new PhotoItem(item, utils::asserted::fromMap(thumbs, itemId), addons, CapabilityType::REMOVE_PHOTO);
+    widget->setMetrics(imageCache.getMetrics(itemId));
 
-        QObject::connect(widget, &PhotoItem::changeSeriesState,
-                         this, &SeriesViewBase::changeCurrentSeriesState);
-        QObject::connect(widget, &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
+    QObject::connect(widget, &PhotoItem::changeSeriesState, this, &SeriesViewBase::changeCurrentSeriesState);
+    QObject::connect(widget, &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
 
-        addToLayout(widget);
-    }
+    addToLayout(widget);
+  }
 
-    currentSeriesUuid = series->uuid();
+  currentSeriesUuid = series->uuid();
 }
 
 void SeriesViewBase::updateImage(pcontainer::ItemId const& itemId, QImage image)

@@ -40,9 +40,50 @@ namespace {
   }
 } // unnamed namespace
 
+std::map<pcontainer::ItemId, QImage> Cache::getImages(QUuid const& seriesId) const
+{
+  LOG(DEBUG) << "[Cache] Requested full images for series " << seriesId.toString().toStdString();
+
+  pcontainer::SeriesPtr const series = photoSet.findSeries(seriesId);
+  assert(series);
+
+  std::map<pcontainer::ItemId, QImage> result;
+
+  for (pcontainer::ItemPtr const& photo : *series)
+    result.emplace(photo->id(), getImageWithLoading(photo->id()));
+
+  return result;
+}
+
+std::map<pcontainer::ItemId, QImage> Cache::getThumbnails(QUuid const& seriesId) const
+{
+  LOG(DEBUG) << "[Cache] Requested thumbnails for series " << seriesId.toString().toStdString();
+
+  pcontainer::SeriesPtr const series = photoSet.findSeries(seriesId);
+  assert(series);
+
+  std::map<pcontainer::ItemId, QImage> result;
+
+  for (pcontainer::ItemPtr const& photo : *series)
+    result.emplace(photo->id(), getThumbnailWithLoading(photo->id(), true));
+
+  return result;
+}
+
 QImage Cache::getImage(pcontainer::ItemId const& itemId) const
 {
   LOG(DEBUG) << "[Cache] Requested full image for " << itemId.fileName;
+  return getImageWithLoading(itemId);
+}
+
+QImage Cache::getThumbnail(pcontainer::ItemId const& itemId) const
+{
+  LOG(DEBUG) << "[Cache] Requested thumbnail for " << itemId.fileName;
+  return getThumbnailWithLoading(itemId, true);
+}
+
+QImage Cache::getImageWithLoading(pcontainer::ItemId const& itemId) const
+{
   QImage const fullImage = fullImageCache.find(itemId.fileName);
   if (!fullImage.isNull())
   {
@@ -52,12 +93,6 @@ QImage Cache::getImage(pcontainer::ItemId const& itemId) const
 
   startThreadForItem(itemId);
   return getThumbnailWithLoading(itemId, false);
-}
-
-QImage Cache::getThumbnail(pcontainer::ItemId const& itemId) const
-{
-  LOG(DEBUG) << "[Cache] Requested thumbnail for " << itemId.fileName;
-  return getThumbnailWithLoading(itemId, true);
 }
 
 QImage Cache::getThumbnailWithLoading(pcontainer::ItemId const& itemId, bool requestLoad) const
