@@ -59,6 +59,7 @@ bool moveToTrashImpl(QString const& file)
 #include <QStandardPaths>
 #include <QDir>
 #include <QDateTime>
+#include <QTextStream>
 
 namespace {
 #ifdef QT_GUI_LIB
@@ -135,9 +136,9 @@ bool moveToTrashImpl(QString const& file)
   info += QDateTime::currentDateTime().toString("yyyy-MM-ddThh:mm:ss.zzzZ");
   info += "\n";
 
-  QString const trashname = original.fileName();
-  QString const infopath = TrashPathInfo + "/" + trashname + ".trashinfo";
-  QString const filepath = TrashPathFiles + "/" + trashname;
+  QString trashname = original.fileName();
+  QString infopath = TrashPathInfo + "/" + trashname + ".trashinfo";
+  QString filepath = TrashPathFiles + "/" + trashname;
 
   int nr = 1;
   while(QFileInfo(infopath ).exists() || QFileInfo(filepath).exists())
@@ -160,9 +161,20 @@ bool moveToTrashImpl(QString const& file)
     return false;
   }
 
-  File infofile;
-  infofile.createUtf8(infopath, info);
+  QFile infofile(infopath);
+	if (!infofile.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+    LOG(DEBUG) << "Cannot open infofile " << infopath << " for writing";
+    return true;
+	}
 
+	QTextStream streamFileOut(&infofile);
+  streamFileOut.setGenerateByteOrderMark(true);
+	streamFileOut.setCodec("UTF-8");
+	streamFileOut << info;
+	streamFileOut.flush();
+
+  infofile.close();
   return true;
 }
 
