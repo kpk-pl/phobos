@@ -6,7 +6,6 @@
 #include "ConfigExtension.h"
 #include "ImageProcessing/MetricsAggregate.h"
 #include "ImageProcessing/MetricsIO.h"
-#include <QThreadPool>
 #include "qt_ext/qexifimageheader.h"
 #include <easylogging++.h>
 
@@ -142,9 +141,8 @@ void Cache::startThreadForItem(pcontainer::ItemId const& itemId) const
   alreadyLoading.insert(itemId.fileName);
 
   auto thread = makeLoadingThread(itemId);
-  // TODO: own threadpool is a MUST
+  threadPool.start(std::move(thread), 0);
   // TODO: prioritize loading of full images
-  QThreadPool::globalInstance()->start(thread.release());
 }
 
 void Cache::imageReadyFromThread(pcontainer::ItemId itemId, QImage image)

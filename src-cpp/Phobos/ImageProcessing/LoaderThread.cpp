@@ -1,8 +1,3 @@
-#include <algorithm>
-#include <opencv2/core/core.hpp>
-#include <opencv2/opencv.hpp>
-#include <easylogging++.h>
-#include <QImageReader>
 #include "ImageProcessing/FormatConversion.h"
 #include "ImageProcessing/ScalePixmap.h"
 #include "ImageProcessing/LoaderThread.h"
@@ -10,6 +5,12 @@
 #include "ImageProcessing/Noisiness.h"
 #include "ImageProcessing/Histogram.h"
 #include "ConfigExtension.h"
+#include <opencv2/core/core.hpp>
+#include <opencv2/opencv.hpp>
+#include <easylogging++.h>
+#include <QImageReader>
+#include <algorithm>
+#include <utility>
 
 //#define PHOBOS_TIME_IMAGE_OPS
 
@@ -24,6 +25,11 @@ namespace phobos { namespace iprocess {
 LoaderThread::LoaderThread(pcontainer::ItemId const& itemId, QSize const& requestedSize) :
     itemId(itemId), requestedSize(requestedSize)
 {
+}
+
+icache::Runnable::Id LoaderThread::id() const
+{
+  return std::hash<std::string>{}(itemId.toString());
 }
 
 // TODO: optimize with-metrics flow

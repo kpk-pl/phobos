@@ -3,6 +3,7 @@
 
 #include "ImageCache/CacheFwd.h"
 #include "ImageCache/LimitedMap.h"
+#include "ImageCache/PriorityThreadPool.h"
 #include "PhotoContainers/Set.h"
 #include "ImageProcessing/LoaderThread.h"
 #include "PhotoContainers/ItemId.h"
@@ -60,6 +61,8 @@ private:
   std::map<LookupKeyType, QImage> mutable thumbnailCache;
   LimitedMap mutable fullImageCache;
   std::map<LookupKeyType, iprocess::MetricPtr> mutable metricCache;
+
+  PriorityThreadPool mutable threadPool;
 };
 
 }} // namespace phobos::icache
