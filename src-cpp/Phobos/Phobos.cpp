@@ -1,7 +1,3 @@
-#include <memory>
-#include <QApplication>
-#include <QIcon>
-#include <easylogging++.h>
 #include "MainWindow.h"
 #include "ViewDescription.h"
 #include "ImageProcessing/Metrics.h"
@@ -12,8 +8,14 @@
 #include "ProcessWizard/Action.h"
 #include "ProcessWizard/Execution.h"
 #include "PhotoContainers/ItemId.h"
+#include <easylogging++.h>
+#include <QApplication>
+#include <QMetaType>
+#include <QIcon>
+#include <memory>
 
 INITIALIZE_EASYLOGGINGPP
+
 // TODO: My app has no icon - add one
 int main(int argc, char *argv[])
 {
@@ -27,6 +29,7 @@ int main(int argc, char *argv[])
     LOG(DEBUG) << "Logger configured";
 
     QApplication a(argc, argv);
+    qRegisterMetaType<std::size_t>("std::size_t");
     qRegisterMetaType<phobos::ViewDescriptionPtr>();
     qRegisterMetaType<phobos::iprocess::MetricPtr>();
     qRegisterMetaType<phobos::PhotoBulkAction>();

@@ -2,6 +2,7 @@
 #define IMAGECACHE_RUNNABLE_H_
 
 #include <QRunnable>
+#include <QMetaType>
 #include <QObject>
 #include <memory>
 
@@ -30,5 +31,7 @@ public:
 using RunnablePtr = std::unique_ptr<Runnable>;
 
 }} // namespace phobos::icache
+
+Q_DECLARE_METATYPE(std::size_t)
 
 #endif // IMAGECACHE_RUNNABLE_H_

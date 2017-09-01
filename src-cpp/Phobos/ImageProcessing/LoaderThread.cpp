@@ -36,21 +36,23 @@ icache::Runnable::Id LoaderThread::id() const
 
 void LoaderThread::run()
 {
-    TIMED_FUNC(scopefunc);
-    if (calculateMetrics)
+  TIMED_FUNC(scopefunc);
+  if (calculateMetrics)
+  {
+    cv::Mat cvImage;
     {
-        cv::Mat cvImage;
-        {
-            TIMED("load:imread", cvImage = cv::imread(itemId.fileName.toStdString().c_str()));
-            // if (!cvImage.data) ...
-            emitLoadedSignal(cvImage);
-        }
-        runMetrics(std::move(cvImage));
+      TIMED("load:imread", cvImage = cv::imread(itemId.fileName.toStdString().c_str()));
+      // if (!cvImage.data) ...
+      emitLoadedSignal(cvImage);
     }
-    else
-    {
-        runWithoutMetrics();
-    }
+    runMetrics(std::move(cvImage));
+  }
+  else
+  {
+    runWithoutMetrics();
+  }
+
+  emit signal.finished(id());
 }
 
 // TODO: create managed threadpool

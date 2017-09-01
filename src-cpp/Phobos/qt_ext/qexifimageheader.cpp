@@ -65,6 +65,8 @@
     EXIF headers.  The first integer in the pair is the numerator and the second the denominator.
 */
 
+#define NO_IFD_WARNING
+
 struct ExifIfdHeader
 {
     quint16 tag;
@@ -1549,7 +1551,9 @@ QExifValue QExifImageHeader::readIfdValue(QDataStream &stream, int startPos, con
             return QExifValue(value);
         }
     default:
+#ifndef NO_IFD_WARNING
         qWarning() << "Invalid Ifd Type" << header.type;
+#endif
 
         return QExifValue();
     }
@@ -1760,7 +1764,9 @@ quint32 QExifImageHeader::writeExifHeader(QDataStream &stream, quint16 tag, cons
         }
         break;
     default:
+#ifndef NO_IFD_WARNING
         qWarning() << "Invalid Ifd Type" << value.type();
+#endif
         stream << quint32(0);
     }
 
@@ -1812,7 +1818,9 @@ void QExifImageHeader::writeExifValue(QDataStream &stream, const QExifValue &val
                 stream << rational;
         break;
     default:
+#ifndef NO_IFD_WARNING
         qWarning() << "Invalid Ifd Type" << value.type();
+#endif
         break;
     }
 }
