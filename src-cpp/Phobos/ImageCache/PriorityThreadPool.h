@@ -17,6 +17,7 @@ public:
   explicit PriorityThreadPool();
 
   void start(RunnablePtr && task, std::size_t const priority);
+  void cancel(Runnable::Id const& id);
 
 private slots:
   void taskFinished(Runnable::Id taskId);

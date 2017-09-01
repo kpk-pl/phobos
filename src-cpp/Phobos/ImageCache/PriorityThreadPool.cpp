@@ -95,4 +95,25 @@ void PriorityThreadPool::taskFinished(Runnable::Id id)
   updatePool();
 }
 
+void PriorityThreadPool::cancel(Runnable::Id const& id)
+{
+  LOG(DEBUG) << "Attempt to cancel task " << id;
+
+  if (runningTasks.find(id) != runningTasks.end())
+  {
+    LOG(DEBUG) << "Task already running";
+    return;
+  }
+
+  auto const queueIt = std::find_if(queue.begin(), queue.end(), IdEqual(id));
+  if (queueIt == queue.end())
+  {
+    LOG(DEBUG) << "Task not found in queue";
+    return;
+  }
+
+  LOG(DEBUG) << "Removing task from queue";
+  queue.erase(queueIt);
+}
+
 }} // namespace phobos::icache
