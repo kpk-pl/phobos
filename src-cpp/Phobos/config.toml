@@ -95,7 +95,7 @@ buttonMargin = 4
 [imageCache]
 preloadSize = { width = 320, height = 240 }
 fullSize = { width = 1920, height = 1080 }
-fullMaxBytes = 1000000000
+fullMaxBytes = "100M"
 
 [operation]
 delete = { color = "red", icon = ":icons/awesome/png/trash.png" }

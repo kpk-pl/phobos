@@ -24,13 +24,13 @@ namespace {
 
 void LimitedMap::replace(KeyType const& key, ValueType const& value)
 {
-  auto const maxAllowedSize = config::qualified("imageCache.fullMaxBytes", 0u);
+  auto const maxAllowedSize = config::bytes("imageCache.fullMaxBytes", 0u);
   LOG(DEBUG) << "[Cache] Full cache maximum size is " << megabytes(maxAllowedSize) << "MB";
 
   if (static_cast<std::size_t>(value.byteCount()) > maxAllowedSize)
   {
     LOG(DEBUG) << "[Cache] Skipping full image " << key << " due to unavailable space"
-                  " (" << megabytes(value) << ")";
+                  " (" << megabytes(value) << "MB)";
     return;
   }
 

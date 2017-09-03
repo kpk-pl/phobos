@@ -1,5 +1,6 @@
 #include "ConfigExtension.h"
 #include "Config.h"
+#include <cctype>
 
 namespace phobos { namespace config {
 
@@ -79,6 +80,32 @@ QFont qFont(std::string const& qualifiedPath)
         result.setWeight(*weight);
 
     return result;
+}
+
+cpptoml::option<std::size_t> bytes(std::string const& qualifiedPath)
+{
+  auto const value = get()->get_qualified_as<std::string>(qualifiedPath);
+  if (!value || value->empty())
+    return cpptoml::option<std::size_t>{};
+
+  switch(std::toupper(value->at(value->size()-1)))
+  {
+    case 'K':
+      return static_cast<std::size_t>(std::stod(value->substr(0, value->size()-1)) * 1024.0);
+    case 'M':
+      return static_cast<std::size_t>(std::stod(value->substr(0, value->size()-1)) * 1024.0 * 1024.0);
+    case 'G':
+      return static_cast<std::size_t>(std::stod(value->substr(0, value->size()-1)) * 1024.0 * 1024.0 * 1024.0);
+    case 'T':
+      return static_cast<std::size_t>(std::stod(value->substr(0, value->size()-1)) * 1024.0 * 1024.0 * 1024.0 * 1024.0);
+    default:
+      return std::stoull(*value);
+  }
+}
+
+std::size_t bytes(std::string const& qualifiedPath, std::size_t const def)
+{
+  return bytes(qualifiedPath).value_or(def);
 }
 
 }} // namespace phobos::config

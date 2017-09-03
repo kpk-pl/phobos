@@ -24,6 +24,9 @@ QColor qColor(std::string const& qualifiedPath, QColor const& def);
 
 QFont qFont(std::string const& qualifiedPath);
 
+cpptoml::option<std::size_t> bytes(std::string const& qualifiedPath);
+std::size_t bytes(const std::string &qualifiedPath, std::size_t const def);
+
 }} // namespace phobos::config
 
 #endif // CPPTOML_EXTENSIONS_H
