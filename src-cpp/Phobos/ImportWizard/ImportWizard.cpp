@@ -2,25 +2,28 @@
 #include "ImportWizard/ImageOpenDialog.h"
 #include "ImportWizard/DivisionMethodPage.h"
 #include "ImportWizard/SeriesDisplayPage.h"
+#include <easylogging++.h>
 
 namespace phobos { namespace importwiz {
 
 ImportWizard::ImportWizard(QWidget *parent) :
     QWizard(parent)
 {
-    divisionPage = new DivisionMethodPage();
-    displayPage = new SeriesDisplayPage();
+  LOG(INFO) << "Initializing import wizard";
 
-    addPage(divisionPage);
-    addPage(displayPage);
+  divisionPage = new DivisionMethodPage();
+  displayPage = new SeriesDisplayPage();
 
-    setWindowTitle(tr("Import wizard"));
+  addPage(divisionPage);
+  addPage(displayPage);
 
-    setWindowFlags(windowFlags() | Qt::CustomizeWindowHint);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+  setWindowTitle(tr("Import wizard"));
 
-    setOptions(QWizard::NoDefaultButton);
-    setOption(QWizard::NoDefaultButton, true);
+  setWindowFlags(windowFlags() | Qt::CustomizeWindowHint);
+  setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+  setOptions(QWizard::NoDefaultButton);
+  setOption(QWizard::NoDefaultButton, true);
 }
 
 void ImportWizard::accept()

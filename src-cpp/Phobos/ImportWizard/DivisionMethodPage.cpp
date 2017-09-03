@@ -62,7 +62,7 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
 
 void DivisionMethodPage::initializePage()
 {
-    LOG(DEBUG) << "Initializing wizard";
+    LOG(DEBUG) << "Initializing division method page";
     if (_selectedFiles.empty())
         importMoreFiles();
 
@@ -119,7 +119,7 @@ std::size_t guessBestDivisionValue(std::size_t const size)
 
 void DivisionMethodPage::importMoreFiles()
 {
-  LOG(INFO) << "Opening dialog to select additional photos";
+  LOG(INFO) << "Opening dialog to select additional photos to import";
 
   QStringList newFiles = selectImagesInDialog(this);
   LOG(INFO) << "Selected " << newFiles.size() << " new files";
