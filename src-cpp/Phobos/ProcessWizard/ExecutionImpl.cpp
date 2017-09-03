@@ -25,6 +25,9 @@ bool DeleteExecution::execute() const
     LOG(INFO) << "Removing to trash \"" << file << '"';
     return debugDisabled || utils::fs::moveToTrash(file);
   }
+
+  assert(false);
+  return false;
 }
 
 QString DeleteExecution::toString() const
