@@ -9,7 +9,7 @@
 
 namespace phobos {
 
-ViewStack::ViewStack(pcontainer::Set const& seriesSet, icache::Cache const& cache) :
+ViewStack::ViewStack(pcontainer::Set const& seriesSet, icache::Cache & cache) :
     QStackedWidget(), seriesSet(seriesSet), imageCache(cache)
 {
     setupUI();

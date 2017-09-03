@@ -33,7 +33,7 @@ public:
         std::vector<SeriesSelectionStatus> status;
     };
 
-    explicit ViewStack(pcontainer::Set const& seriesSet, icache::Cache const& cache);
+    explicit ViewStack(pcontainer::Set const& seriesSet, icache::Cache & cache);
     SelectionStatus getSelectionStatus() const;
 
 public slots:
@@ -47,7 +47,7 @@ private:
     void connectSignals();
 
     pcontainer::Set const& seriesSet;
-    icache::Cache const& imageCache;
+    icache::Cache & imageCache;
     boost::optional<QUuid> currentSeriesInView;
 
     AllSeriesView* allSeriesView;

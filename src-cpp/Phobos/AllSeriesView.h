@@ -22,7 +22,7 @@ class AllSeriesView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache const& imageCache);
+    explicit AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
 
     std::size_t numberOfSeries() const { return seriesUuidToRow.size(); }
 
@@ -55,7 +55,7 @@ private:
     void addItemToGrid(int row, int col, pcontainer::ItemPtr const& itemPtr, QImage const& thumbnail);
 
     pcontainer::Set const& seriesSet;
-    icache::Cache const& imageCache;
+    icache::Cache & imageCache;
     std::map<QUuid, std::size_t> seriesUuidToRow;
     QGridLayout* grid;
 };

@@ -64,7 +64,7 @@ struct AllSeriesView::Coords
     int row, col;
 };
 
-AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache const& imageCache) :
+AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
     seriesSet(seriesSet), imageCache(imageCache)
 {
     QObject::connect(&imageCache, &icache::Cache::updateImage, this, &AllSeriesView::updateImage);

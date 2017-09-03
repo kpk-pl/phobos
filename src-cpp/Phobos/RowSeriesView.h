@@ -11,7 +11,7 @@ class RowSeriesView : public SeriesViewBase
 {
     Q_OBJECT
 public:
-    explicit RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache const& imageCache);
+    explicit RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
 
     void showSeries(pcontainer::SeriesPtr const& series) override;
     void clear() override;

@@ -9,7 +9,7 @@
 
 namespace phobos {
 
-SeriesViewBase::SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache const& imageCache) :
+SeriesViewBase::SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
     seriesSet(seriesSet), imageCache(imageCache)
 {
   QObject::connect(&imageCache, &icache::Cache::updateImage, this, &SeriesViewBase::updateImage);

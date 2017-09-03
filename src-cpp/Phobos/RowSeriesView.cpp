@@ -8,7 +8,7 @@
 
 namespace phobos {
 
-RowSeriesView::RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache const& imageCache) :
+RowSeriesView::RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
     SeriesViewBase(seriesSet, imageCache)
 {
     NavigationBar* navigationBar = new NavigationBar(NavigationBar::Capability::ALL_SERIES |

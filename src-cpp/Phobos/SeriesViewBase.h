@@ -22,7 +22,7 @@ class SeriesViewBase : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache const& imageCache);
+    explicit SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
     virtual ~SeriesViewBase() = default;
 
     virtual void showSeries(pcontainer::SeriesPtr const& series);
@@ -40,7 +40,7 @@ protected:
     virtual void updateCurrentSeries() = 0;
 
     pcontainer::Set const& seriesSet;
-    icache::Cache const& imageCache;
+    icache::Cache & imageCache;
     boost::optional<QUuid> currentSeriesUuid;
 
 private slots:

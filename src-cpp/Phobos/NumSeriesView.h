@@ -10,7 +10,7 @@ namespace phobos {
 class NumSeriesView : public SeriesViewBase
 {
 public:
-    explicit NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache const& imageCache);
+    explicit NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
     ~NumSeriesView();
 
     void showSeries(pcontainer::SeriesPtr const& series) override;

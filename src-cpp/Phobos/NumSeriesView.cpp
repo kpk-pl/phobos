@@ -12,7 +12,7 @@ namespace phobos {
 
 // TODO: Runtime configurable selection of items visible
 
-NumSeriesView::NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache const& imageCache) :
+NumSeriesView::NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
     SeriesViewBase(seriesSet, imageCache),
     visibleItems(config::get()->get_qualified_as<unsigned>("seriesView.num.visibleItems").value_or(2)),
     currentItem(0)

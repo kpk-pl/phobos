@@ -39,7 +39,7 @@ namespace {
   }
 } // unnamed namespace
 
-std::map<pcontainer::ItemId, QImage> Cache::getImages(QUuid const& seriesId) const
+std::map<pcontainer::ItemId, QImage> Cache::getImages(QUuid const& seriesId)
 {
   LOG(DEBUG) << "[Cache] Requested full images for series " << seriesId.toString().toStdString();
 
@@ -54,7 +54,7 @@ std::map<pcontainer::ItemId, QImage> Cache::getImages(QUuid const& seriesId) con
   return result;
 }
 
-std::map<pcontainer::ItemId, QImage> Cache::getThumbnails(QUuid const& seriesId) const
+std::map<pcontainer::ItemId, QImage> Cache::getThumbnails(QUuid const& seriesId)
 {
   LOG(DEBUG) << "[Cache] Requested thumbnails for series " << seriesId.toString().toStdString();
 
@@ -69,19 +69,19 @@ std::map<pcontainer::ItemId, QImage> Cache::getThumbnails(QUuid const& seriesId)
   return result;
 }
 
-QImage Cache::getImage(pcontainer::ItemId const& itemId) const
+QImage Cache::getImage(pcontainer::ItemId const& itemId)
 {
   LOG(DEBUG) << "[Cache] Requested full image for " << itemId.fileName;
   return getImageWithLoading(itemId);
 }
 
-QImage Cache::getThumbnail(pcontainer::ItemId const& itemId) const
+QImage Cache::getThumbnail(pcontainer::ItemId const& itemId)
 {
   LOG(DEBUG) << "[Cache] Requested thumbnail for " << itemId.fileName;
   return getThumbnailWithLoading(itemId, true);
 }
 
-QImage Cache::getImageWithLoading(pcontainer::ItemId const& itemId) const
+QImage Cache::getImageWithLoading(pcontainer::ItemId const& itemId)
 {
   QImage const fullImage = fullImageCache.find(itemId.fileName);
   if (!fullImage.isNull())
@@ -94,7 +94,7 @@ QImage Cache::getImageWithLoading(pcontainer::ItemId const& itemId) const
   return getThumbnailWithLoading(itemId, false);
 }
 
-QImage Cache::getThumbnailWithLoading(pcontainer::ItemId const& itemId, bool requestLoad) const
+QImage Cache::getThumbnailWithLoading(pcontainer::ItemId const& itemId, bool requestLoad)
 {
   auto it = thumbnailCache.find(itemId.fileName);
   if (it != thumbnailCache.end() && !it->second.isNull())
@@ -129,7 +129,7 @@ std::unique_ptr<iprocess::LoaderThread> Cache::makeLoadingThread(pcontainer::Ite
   return thread;
 }
 
-void Cache::startThreadForItem(pcontainer::ItemId const& itemId) const
+void Cache::startThreadForItem(pcontainer::ItemId const& itemId)
 {
   LOG(DEBUG) << "[Cache] Requested thread load for " << itemId.fileName;
   if (utils::valueIn(itemId.fileName, alreadyLoading))

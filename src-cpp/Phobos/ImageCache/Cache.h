@@ -23,11 +23,11 @@ class Cache : public QObject
 public:
   explicit Cache(pcontainer::Set const& photoSet);
 
-  std::map<pcontainer::ItemId, QImage> getImages(QUuid const& seriesId) const;
-  std::map<pcontainer::ItemId, QImage> getThumbnails(QUuid const& seriesId) const;
+  std::map<pcontainer::ItemId, QImage> getImages(QUuid const& seriesId);
+  std::map<pcontainer::ItemId, QImage> getThumbnails(QUuid const& seriesId);
 
-  QImage getImage(pcontainer::ItemId const& itemId) const;
-  QImage getThumbnail(pcontainer::ItemId const& itemId) const;
+  QImage getImage(pcontainer::ItemId const& itemId);
+  QImage getThumbnail(pcontainer::ItemId const& itemId);
 
   bool hasMetrics(pcontainer::ItemId const& itemId) const;
   iprocess::MetricPtr getMetrics(pcontainer::ItemId const& itemId) const;
@@ -41,28 +41,24 @@ private slots:
   void metricsReadyFromThread(pcontainer::ItemId itemId, iprocess::MetricPtr image);
   bool updateSeriesMetrics(QUuid const& seriesUuid);
 
-// TODO: get rid of those mutables
-//
 // Split into image cache and metrics cache
 // cache should contain both of them
 private:
-  pcontainer::Set const& photoSet;
-
-  QImage getImageWithLoading(pcontainer::ItemId const& itemId) const;
-  QImage getThumbnailWithLoading(pcontainer::ItemId const& itemId, bool requestLoad) const;
-  std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(pcontainer::ItemId const& itemId) const;
-  void startThreadForItem(pcontainer::ItemId const& itemId) const;
-
   using LookupKeyType = QString;
 
-  // if image is in this map, it is already loading
-  std::set<LookupKeyType> mutable alreadyLoading;
+  QImage getImageWithLoading(pcontainer::ItemId const& itemId);
+  QImage getThumbnailWithLoading(pcontainer::ItemId const& itemId, bool requestLoad);
+  std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(pcontainer::ItemId const& itemId) const;
+  void startThreadForItem(pcontainer::ItemId const& itemId);
 
-  std::map<LookupKeyType, QImage> mutable thumbnailCache;
-  LimitedMap mutable fullImageCache;
-  std::map<LookupKeyType, iprocess::MetricPtr> mutable metricCache;
+  std::set<LookupKeyType> alreadyLoading;
 
-  PriorityThreadPool mutable threadPool;
+  std::map<LookupKeyType, QImage> thumbnailCache;
+  LimitedMap fullImageCache;
+  std::map<LookupKeyType, iprocess::MetricPtr> metricCache;
+
+  pcontainer::Set const& photoSet;
+  PriorityThreadPool threadPool;
 };
 
 }} // namespace phobos::icache
