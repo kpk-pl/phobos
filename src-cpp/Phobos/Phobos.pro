@@ -129,8 +129,6 @@ HEADERS  += MainWindow.h \
     ImportWizard/DivisionOps.h \
     ImportWizard/Types.h \
     ImportWizard/SeriesDisplayPage.h \
-    ImportWizard/Types.h \
-    ImportWizard/SeriesDisplayPage.h \
     Widgets/HeightResizeableInterface.h \
     Widgets/IconLabel.h \
     Widgets/HorizontalScrollArea.h \

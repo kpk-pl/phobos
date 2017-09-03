@@ -9,7 +9,6 @@ namespace phobos { namespace processwiz {
 class Execution;
 using ConstExecutionPtr = std::shared_ptr<const Execution>;
 using ConstExecutionPtrVec = std::vector<ConstExecutionPtr>;
-using ConstExecutionPtrVecConstPtr = std::shared_ptr<const ConstExecutionPtrVec>;
 
 }} // namespace phobos::processwiz
 

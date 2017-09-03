@@ -5,6 +5,7 @@
 #include "PhotoBulkAction.h"
 #include "ImportWizard/ImportWizard.h"
 #include "ProcessWizard/ProcessWizard.h"
+#include "ProcessWizard/Execution.h"
 #include <easylogging++.h>
 #include <QApplication>
 #include <QMenuBar>
@@ -91,23 +92,24 @@ void MainWindow::createMenus()
 void MainWindow::processAction(processwiz::OperationType const operation)
 {
   processwiz::ProcessWizard processWizard(this, seriesSet, operation);
+
   if (processWizard.exec())
-  {} // TODO: Finish me
-
-/*  auto const selections = viewStack->getSelectionStatus();
-  std::vector<QString> toDelete;
-  for (auto const& seriesStat : selections.status)
-      toDelete.insert(toDelete.end(), seriesStat.discarded.begin(), seriesStat.discarded.end());
-
-  for (QString const& fileName : toDelete)
   {
-      LOG(DEBUG) << ":: deleting " << fileName;
+    auto const& executions = processWizard.executions();
+    processwiz::ConstExecutionPtrVec failed;
 
-      if (remove(fileName.toStdString().c_str()) != 0)
-          LOG(ERROR) << "Cannot remove file " << fileName;
-  }*/
+    LOG(INFO) << "Executing " << executions.size() << " operations";
+    for (auto const& exec : executions)
+    {
+      if (!exec->execute())
+      {
+        failed.push_back(exec);
+        LOG(WARNING) << "Failed: " << exec->toString();
+      }
+    }
 
-  // TODO: use trash (or configurable option in dialog) http://stackoverflow.com/questions/17964439/move-files-to-trash-recycle-bin-in-qt
+    // TODO: Display dialog if something failed
+  }
   // TODO: after removing photos something must be done with whole application because loading these from hard drive will be impossible
 }
 

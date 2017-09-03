@@ -3,6 +3,7 @@
 #include "ProcessWizard/SummaryPage.h"
 #include "ProcessWizard/WarningsPage.h"
 #include "ProcessWizard/SeriesCounts.h"
+#include "ProcessWizard/Execution.h"
 #include <easylogging++.h>
 
 namespace phobos { namespace processwiz {
@@ -30,6 +31,11 @@ ProcessWizard::ProcessWizard(QWidget *parent, pcontainer::Set const& seriesSet, 
 ConstActionPtrVec ProcessWizard::createdActions() const
 {
   return field("choosenActions").value<ConstActionPtrVec>();
+}
+
+ConstExecutionPtrVec ProcessWizard::executions() const
+{
+  return field("executions").value<ConstExecutionPtrVec>();
 }
 
 }} // namespace phobos::processwiz

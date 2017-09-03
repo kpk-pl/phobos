@@ -25,8 +25,8 @@ public:
   virtual std::size_t priority() const = 0;
   virtual bool greedy() const = 0;
 
-  virtual ConstExecutionPtrVecConstPtr makeExecutions(pcontainer::Set const& photoSet,
-                                                      SeriesCounts const& counts) const = 0;
+  virtual ConstExecutionPtrVec makeExecutions(pcontainer::Set const& photoSet,
+                                              SeriesCounts const& counts) const = 0;
 
   bool operator<(Action const& other) const;
 
@@ -46,8 +46,8 @@ public:
   std::size_t priority() const override { return 0; }
   bool greedy() const override { return true; }
 
-  ConstExecutionPtrVecConstPtr makeExecutions(pcontainer::Set const& photoSet,
-                                              SeriesCounts const& counts) const override;
+  ConstExecutionPtrVec makeExecutions(pcontainer::Set const& photoSet,
+                                      SeriesCounts const& counts) const override;
 
 private:
   Method const method;
@@ -63,8 +63,8 @@ public:
   std::size_t priority() const override { return 1; }
   bool greedy() const override { return true; }
 
-  ConstExecutionPtrVecConstPtr makeExecutions(pcontainer::Set const& photoSet,
-                                              SeriesCounts const& counts) const override;
+  ConstExecutionPtrVec makeExecutions(pcontainer::Set const& photoSet,
+                                      SeriesCounts const& counts) const override;
 
 private:
   QString const pattern;

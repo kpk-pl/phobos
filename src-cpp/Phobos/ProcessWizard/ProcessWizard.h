@@ -3,6 +3,7 @@
 
 #include "ProcessWizard/Operation.h"
 #include "ProcessWizard/ActionFwd.h"
+#include "ProcessWizard/ExecutionFwd.h"
 #include "PhotoContainers/Fwd.h"
 #include <QWizard>
 
@@ -15,6 +16,7 @@ public:
   ProcessWizard(QWidget *parent, pcontainer::Set const& seriesSet, OperationType const defaultOperation);
 
   ConstActionPtrVec createdActions() const;
+  ConstExecutionPtrVec executions() const;
 };
 
 }} // namespace phobos::processwiz

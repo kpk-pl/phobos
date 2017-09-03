@@ -2,8 +2,8 @@
 #define PROCESSWIZARD_EXECUTION_H
 
 #include "ProcessWizard/ExecutionFwd.h"
-#include <QMetaType>
 #include <boost/optional.hpp>
+#include <QMetaType>
 #include <QString>
 
 namespace phobos { namespace processwiz {
@@ -18,6 +18,6 @@ public:
 
 }} // namespace phobos::executiuon
 
-Q_DECLARE_METATYPE(phobos::processwiz::ConstExecutionPtrVecConstPtr)
+Q_DECLARE_METATYPE(phobos::processwiz::ConstExecutionPtrVec)
 
 #endif // PROCESSWIZARD_EXECUTION_H

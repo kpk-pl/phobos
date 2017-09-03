@@ -15,9 +15,15 @@ namespace phobos { namespace processwiz {
 class SummaryPage : public QWizardPage
 {
   Q_OBJECT
+  Q_PROPERTY(phobos::processwiz::ConstExecutionPtrVec executions READ executions NOTIFY executionsChanged STORED false)
 
 public:
   SummaryPage(SeriesCounts const& seriesCounts, pcontainer::Set const& photoSet);
+
+  ConstExecutionPtrVec executions() const;
+
+signals:
+  void executionsChanged(ConstExecutionPtrVec);
 
 protected:
   void initializePage() override;
@@ -31,7 +37,7 @@ private:
   QTreeWidget *actionTree;
 
   void updateExecutioners(ConstActionPtrVec const& currentActions);
-  std::map<ConstActionPtr, ConstExecutionPtrVecConstPtr> executioners;
+  std::map<ConstActionPtr, ConstExecutionPtrVec> actionExecs;
 };
 
 }} // namespace phobos::processwiz

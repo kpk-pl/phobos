@@ -2,6 +2,7 @@
 #include "ProcessWizard/Action.h"
 #include "ProcessWizard/OperationIcon.h"
 #include "ProcessWizard/Execution.h"
+#include "Utils/Asserted.h"
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QHeaderView>
@@ -30,36 +31,40 @@ SummaryPage::SummaryPage(SeriesCounts const& seriesCounts, pcontainer::Set const
   layout->addWidget(new QLabel(tr("Planned actions:")));
   layout->addWidget(actionTree);
   setLayout(layout);
+
+  registerField("executions", this, "executions", SIGNAL(executionsChanged(ConstExecutionPtrVec)));
 }
 
 void SummaryPage::updateExecutioners(ConstActionPtrVec const& currentActions)
 {
-  for (auto it = executioners.begin(); it != executioners.end(); )
+  for (auto it = actionExecs.begin(); it != actionExecs.end(); )
   {
     if (std::find(currentActions.begin(), currentActions.end(), it->first) != currentActions.end())
       ++it;
     else
-      it = executioners.erase(it);
+      it = actionExecs.erase(it);
   }
 
-  if (executioners.size() == currentActions.size())
+  if (actionExecs.size() == currentActions.size())
     return;
 
   for (auto const& action : currentActions)
-    if (executioners.find(action) == executioners.end())
-      executioners.emplace(action, action->makeExecutions(photoSet, seriesCounts));
+    if (actionExecs.find(action) == actionExecs.end())
+      actionExecs.emplace(action, action->makeExecutions(photoSet, seriesCounts));
+
+  assert(actionExecs.size() == currentActions.size());
 }
 
 void SummaryPage::initializePage()
 {
   LOG(INFO) << "Initializing summary page";
 
-  auto const selectedActions = field("chosenActions").value<ConstActionPtrVec>();
+  auto const& selectedActions = field("chosenActions").value<ConstActionPtrVec>();
   LOG(INFO) << "Displaying summary for " << selectedActions.size() << " selected actions";
 
   updateExecutioners(selectedActions);
 
-  for (auto const& action : executioners)
+  for (auto const& action : actionExecs)
   {
     auto const actionStr = action.first->toString();
     LOG(INFO) << "Enabled: " << actionStr;
@@ -69,7 +74,7 @@ void SummaryPage::initializePage()
     topItem->setText(1, actionStr);
     topItem->setFlags(topItem->flags() & ~Qt::ItemIsSelectable);
 
-    for (auto const& exec : *action.second)
+    for (auto const& exec : action.second)
     {
       QTreeWidgetItem *execItem = new QTreeWidgetItem(topItem);
       execItem->setText(1, exec->toString());
@@ -87,29 +92,28 @@ void SummaryPage::cleanupPage()
       delete item;
 }
 
-bool SummaryPage::validatePage()
+ConstExecutionPtrVec SummaryPage::executions() const
 {
-  LOG(INFO) << "Finishing process wizard. Executing " << executioners.size() << " actions";
+  ConstExecutionPtrVec result;
 
-  std::size_t errors = 0;
-
-  for (auto const& action : executioners)
+  auto const& selectedActions = field("chosenActions").value<ConstActionPtrVec>();
+  for (auto const& action : selectedActions)
   {
-    auto const actionStr = action.first->toString();
-    LOG(INFO) << "Executing action: " << actionStr;
-
-    for (auto const& exec : *action.second)
-    {
-      if (!exec->execute())
-      {
-        LOG(WARNING) << "Failed: " << exec->toString();
-        ++errors;
-      }
-    }
+    auto const& execsForAction = utils::asserted::fromMap(actionExecs, action);
+    result.insert(result.end(), execsForAction.begin(), execsForAction.end());
   }
 
-  LOG(INFO) << "Performed all actions with " << errors << " errors";
+  return result;
+}
 
+bool SummaryPage::validatePage()
+{
+  auto const execs = executions();
+
+  LOG(INFO) << "Finishing process wizard. Returning " << execs.size()
+            << " executions for " << actionExecs.size() << " actions";
+
+  emit executionsChanged(execs);
   return true;
 }
 

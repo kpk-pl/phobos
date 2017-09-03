@@ -49,16 +49,16 @@ QString DeleteAction::toString() const
   return QString();
 }
 
-ConstExecutionPtrVecConstPtr
+ConstExecutionPtrVec
   DeleteAction::makeExecutions(pcontainer::Set const& photoSet,
                                SeriesCounts const&) const
 {
-  auto result = std::make_shared<ConstExecutionPtrVec>();
+  ConstExecutionPtrVec result;
 
   for (pcontainer::SeriesPtr const& series : photoSet)
     for (pcontainer::ItemPtr const& photo : *series)
       if (photo->state() == matchedState)
-        result->push_back(std::make_shared<DeleteExecution>(photo->fileName(), method));
+        result.emplace_back(std::make_shared<DeleteExecution>(photo->fileName(), method));
 
   return result;
 }
@@ -127,11 +127,11 @@ QString RenameAction::toString() const
       .arg(QString::fromStdString(utils::lexicalCast(matchedState)), pattern);
 }
 
-ConstExecutionPtrVecConstPtr
+ConstExecutionPtrVec
   RenameAction::makeExecutions(pcontainer::Set const& photoSet,
                                SeriesCounts const& seriesCounts) const
 {
-  auto result = std::make_shared<ConstExecutionPtrVec>();
+  ConstExecutionPtrVec result;
 
   RenameBits bits = {};
   bits.allAvailablePhotos = seriesCounts.all.photos;
@@ -142,7 +142,7 @@ ConstExecutionPtrVecConstPtr
       if (photo->state() == matchedState)
       {
         QString const newFileName = renameFile(photo->fileName(), pattern, bits);
-        result->push_back(std::make_shared<RenameExecution>(photo->fileName(), newFileName));
+        result.emplace_back(std::make_shared<RenameExecution>(photo->fileName(), newFileName));
         ++bits.affectedPhotos;
       }
       ++bits.processedPhotos;
