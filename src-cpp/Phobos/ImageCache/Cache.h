@@ -45,8 +45,8 @@ private slots:
 // cache should contain both of them
 private:
   using LookupKeyType = QString;
+  class Transaction;
 
-  QImage getImageWithLoading(pcontainer::ItemId const& itemId);
   QImage getThumbnailWithLoading(pcontainer::ItemId const& itemId, bool requestLoad);
   std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(pcontainer::ItemId const& itemId) const;
   void startThreadForItem(pcontainer::ItemId const& itemId);

@@ -19,6 +19,33 @@ Cache::Cache(pcontainer::Set const& photoSet) :
   QObject::connect(&photoSet, &pcontainer::Set::changedSeries, this, &Cache::updateSeriesMetrics);
 }
 
+class Cache::Transaction
+{
+public:
+  struct Factory;
+
+  Transaction(Cache & cache, pcontainer::ItemId const& itemId);
+  QImage operator()();
+
+  QUuid const uuid;
+
+private:
+  enum class Type { Full, Thumbnail };
+  void setType(Type const type) { this->type = type; }
+  void startThread();
+
+  Cache & cache;
+  pcontainer::ItemId const itemId;
+
+  Type type = Type::Full;
+  bool threadStarted = false;
+};
+
+Cache::Transaction::Transaction(Cache & cache, pcontainer::ItemId const& itemId) :
+  uuid(QUuid::createUuid()), cache(cache), itemId(itemId)
+{
+}
+
 namespace {
   QImage getInitialThumbnail(pcontainer::ItemId const& itemId)
   {
@@ -39,6 +66,59 @@ namespace {
   }
 } // unnamed namespace
 
+QImage Cache::Transaction::operator()()
+{
+  if (type == Type::Full)
+  {
+    QImage const fullImage = cache.fullImageCache.find(itemId.fileName);
+    if (!fullImage.isNull())
+    {
+      LOG(DEBUG) << "[Cache] Returned full image for " << itemId.fileName;
+      return fullImage;
+    }
+
+    startThread();
+  }
+
+  auto const thumbImageIt = cache.thumbnailCache.find(itemId.fileName);
+  if (thumbImageIt != cache.thumbnailCache.end() && !thumbImageIt->second.isNull())
+  {
+    LOG(DEBUG) << "[Cache] Returned thumbnail for " << itemId.fileName;
+    return thumbImageIt->second;
+  }
+
+  startThread();
+  return getInitialThumbnail(itemId);
+}
+
+void Cache::Transaction::startThread()
+{
+  if (threadStarted)
+    return;
+
+  cache.startThreadForItem(itemId);
+  threadStarted = true;
+}
+
+struct Cache::Transaction::Factory
+{
+public:
+  static Transaction singlePhoto(Cache & cache, pcontainer::ItemId const& itemId)
+  {
+    LOG(DEBUG) << "[Cache] Requested full image for " << itemId.fileName;
+    Transaction result(cache, itemId);
+    return result;
+  }
+
+  static Transaction singleThumbnail(Cache & cache, pcontainer::ItemId const& itemId)
+  {
+    LOG(DEBUG) << "[Cache] Requested thumbnail for " << itemId.fileName;
+    Transaction result(cache, itemId);
+    result.setType(Transaction::Type::Thumbnail);
+    return result;
+  }
+};
+
 std::map<pcontainer::ItemId, QImage> Cache::getImages(QUuid const& seriesId)
 {
   LOG(DEBUG) << "[Cache] Requested full images for series " << seriesId.toString().toStdString();
@@ -49,7 +129,19 @@ std::map<pcontainer::ItemId, QImage> Cache::getImages(QUuid const& seriesId)
   std::map<pcontainer::ItemId, QImage> result;
 
   for (pcontainer::ItemPtr const& photo : *series)
-    result.emplace(photo->id(), getImageWithLoading(photo->id()));
+  {
+    QImage const fullImage = fullImageCache.find(photo->id().fileName);
+    if (!fullImage.isNull())
+    {
+      LOG(DEBUG) << "[Cache] Returned full image for " << photo->id().fileName;
+      result.emplace(photo->id(), fullImage);
+    }
+    else
+    {
+      startThreadForItem(photo->id());
+      result.emplace(photo->id(), getThumbnailWithLoading(photo->id(), false));
+    }
+  }
 
   return result;
 }
@@ -71,27 +163,12 @@ std::map<pcontainer::ItemId, QImage> Cache::getThumbnails(QUuid const& seriesId)
 
 QImage Cache::getImage(pcontainer::ItemId const& itemId)
 {
-  LOG(DEBUG) << "[Cache] Requested full image for " << itemId.fileName;
-  return getImageWithLoading(itemId);
+  return Transaction::Factory::singlePhoto(*this, itemId)();
 }
 
 QImage Cache::getThumbnail(pcontainer::ItemId const& itemId)
 {
-  LOG(DEBUG) << "[Cache] Requested thumbnail for " << itemId.fileName;
-  return getThumbnailWithLoading(itemId, true);
-}
-
-QImage Cache::getImageWithLoading(pcontainer::ItemId const& itemId)
-{
-  QImage const fullImage = fullImageCache.find(itemId.fileName);
-  if (!fullImage.isNull())
-  {
-    LOG(DEBUG) << "[Cache] Returned full image for " << itemId.fileName;
-    return fullImage;
-  }
-
-  startThreadForItem(itemId);
-  return getThumbnailWithLoading(itemId, false);
+  return Transaction::Factory::singleThumbnail(*this, itemId)();
 }
 
 QImage Cache::getThumbnailWithLoading(pcontainer::ItemId const& itemId, bool requestLoad)
