@@ -23,26 +23,28 @@ class Cache::Transaction
 {
 public:
   struct Factory;
+  struct Group;
 
   Transaction(Cache & cache, pcontainer::ItemId const& itemId);
-  QImage operator()();
+  QImage operator()() const;
 
   QUuid const uuid;
+  pcontainer::ItemId const itemId;
 
 private:
   enum class Type { Full, Thumbnail };
-  void setType(Type const type) { this->type = type; }
-  void startThread();
+  Transaction& setType(Type const type) & { this->type = type; return *this; }
+  Transaction&& setType(Type const type) && { this->type = type; return std::move(*this); }
+
+  void startThread() const;
 
   Cache & cache;
-  pcontainer::ItemId const itemId;
-
   Type type = Type::Full;
-  bool threadStarted = false;
+  bool mutable threadStarted = false;
 };
 
 Cache::Transaction::Transaction(Cache & cache, pcontainer::ItemId const& itemId) :
-  uuid(QUuid::createUuid()), cache(cache), itemId(itemId)
+  uuid(QUuid::createUuid()), itemId(itemId), cache(cache)
 {
 }
 
@@ -66,7 +68,7 @@ namespace {
   }
 } // unnamed namespace
 
-QImage Cache::Transaction::operator()()
+QImage Cache::Transaction::operator()() const
 {
   if (type == Type::Full)
   {
@@ -91,7 +93,7 @@ QImage Cache::Transaction::operator()()
   return getInitialThumbnail(itemId);
 }
 
-void Cache::Transaction::startThread()
+void Cache::Transaction::startThread() const
 {
   if (threadStarted)
     return;
@@ -100,90 +102,81 @@ void Cache::Transaction::startThread()
   threadStarted = true;
 }
 
+struct Cache::Transaction::Group
+{
+  using TransactionVec = std::vector<Transaction>;
+  using Result = std::map<pcontainer::ItemId, QImage>;
+
+  Result operator()() const
+  {
+    Result result;
+    for (auto const& t : transactions)
+      result.emplace(t.itemId, t());
+    return result;
+  }
+
+  Group& operator+=(Transaction && t)
+  {
+    transactions.emplace_back(std::move(t));
+    return *this;
+  }
+
+private:
+  TransactionVec transactions;
+};
+
 struct Cache::Transaction::Factory
 {
 public:
   static Transaction singlePhoto(Cache & cache, pcontainer::ItemId const& itemId)
   {
-    LOG(DEBUG) << "[Cache] Requested full image for " << itemId.fileName;
-    Transaction result(cache, itemId);
-    return result;
+    return Transaction(cache, itemId);
   }
 
   static Transaction singleThumbnail(Cache & cache, pcontainer::ItemId const& itemId)
   {
-    LOG(DEBUG) << "[Cache] Requested thumbnail for " << itemId.fileName;
-    Transaction result(cache, itemId);
-    result.setType(Transaction::Type::Thumbnail);
+    return Transaction(cache, itemId).setType(Transaction::Type::Thumbnail);
+  }
+
+  static Transaction::Group seriesPhotos(Cache & cache, QUuid const& seriesId)
+  {
+    Transaction::Group result;
+    for (pcontainer::ItemPtr const& photo : utils::asserted::fromPtr(cache.photoSet.findSeries(seriesId)))
+      result += Transaction(cache, photo->id());
+    return result;
+  }
+
+  static Transaction::Group seriesThumbnails(Cache & cache, QUuid const& seriesId)
+  {
+    Transaction::Group result;
+    for (pcontainer::ItemPtr const& photo : utils::asserted::fromPtr(cache.photoSet.findSeries(seriesId)))
+      result += Transaction(cache, photo->id()).setType(Transaction::Type::Thumbnail);
     return result;
   }
 };
 
-std::map<pcontainer::ItemId, QImage> Cache::getImages(QUuid const& seriesId)
-{
-  LOG(DEBUG) << "[Cache] Requested full images for series " << seriesId.toString().toStdString();
-
-  pcontainer::SeriesPtr const series = photoSet.findSeries(seriesId);
-  assert(series);
-
-  std::map<pcontainer::ItemId, QImage> result;
-
-  for (pcontainer::ItemPtr const& photo : *series)
-  {
-    QImage const fullImage = fullImageCache.find(photo->id().fileName);
-    if (!fullImage.isNull())
-    {
-      LOG(DEBUG) << "[Cache] Returned full image for " << photo->id().fileName;
-      result.emplace(photo->id(), fullImage);
-    }
-    else
-    {
-      startThreadForItem(photo->id());
-      result.emplace(photo->id(), getThumbnailWithLoading(photo->id(), false));
-    }
-  }
-
-  return result;
-}
-
-std::map<pcontainer::ItemId, QImage> Cache::getThumbnails(QUuid const& seriesId)
-{
-  LOG(DEBUG) << "[Cache] Requested thumbnails for series " << seriesId.toString().toStdString();
-
-  pcontainer::SeriesPtr const series = photoSet.findSeries(seriesId);
-  assert(series);
-
-  std::map<pcontainer::ItemId, QImage> result;
-
-  for (pcontainer::ItemPtr const& photo : *series)
-    result.emplace(photo->id(), getThumbnailWithLoading(photo->id(), true));
-
-  return result;
-}
-
 QImage Cache::getImage(pcontainer::ItemId const& itemId)
 {
+  LOG(DEBUG) << "[Cache] Requested full image for " << itemId.fileName;
   return Transaction::Factory::singlePhoto(*this, itemId)();
 }
 
 QImage Cache::getThumbnail(pcontainer::ItemId const& itemId)
 {
+  LOG(DEBUG) << "[Cache] Requested thumbnail for " << itemId.fileName;
   return Transaction::Factory::singleThumbnail(*this, itemId)();
 }
 
-QImage Cache::getThumbnailWithLoading(pcontainer::ItemId const& itemId, bool requestLoad)
+std::map<pcontainer::ItemId, QImage> Cache::getImages(QUuid const& seriesId)
 {
-  auto it = thumbnailCache.find(itemId.fileName);
-  if (it != thumbnailCache.end() && !it->second.isNull())
-  {
-    LOG(DEBUG) << "[Cache] Returned thumbnail for " << itemId.fileName;
-    return it->second;
-  }
+  LOG(DEBUG) << "[Cache] Requested full images for series " << seriesId.toString();
+  return Transaction::Factory::seriesPhotos(*this, seriesId)();
+}
 
-  if (requestLoad)
-    startThreadForItem(itemId);
-
-  return getInitialThumbnail(itemId);
+std::map<pcontainer::ItemId, QImage> Cache::getThumbnails(QUuid const& seriesId)
+{
+  LOG(DEBUG) << "[Cache] Requested thumbnails for series " << seriesId.toString();
+  return Transaction::Factory::seriesThumbnails(*this, seriesId)();
 }
 
 std::unique_ptr<iprocess::LoaderThread> Cache::makeLoadingThread(pcontainer::ItemId const& itemId) const

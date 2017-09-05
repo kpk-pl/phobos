@@ -27,7 +27,7 @@ auto fromMap(std::unordered_map<U, V> const& m, T const& key)
 }
 
 template<typename T>
-T& fromPtr(T * t)
+auto fromPtr(T const& t) -> decltype(*t)
 {
   assert(t);
   return(*t);

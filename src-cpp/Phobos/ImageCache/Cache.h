@@ -47,7 +47,6 @@ private:
   using LookupKeyType = QString;
   class Transaction;
 
-  QImage getThumbnailWithLoading(pcontainer::ItemId const& itemId, bool requestLoad);
   std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(pcontainer::ItemId const& itemId) const;
   void startThreadForItem(pcontainer::ItemId const& itemId);
 
