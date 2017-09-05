@@ -88,7 +88,7 @@ namespace {
     for (auto const& series : seriesSet)
       for (auto const& item : *series)
       {
-        auto const& itemMetrics = cache.getMetrics(item->id());
+        auto const& itemMetrics = cache.metrics().get(item->id());
         if (itemMetrics && itemMetrics->bestQuality)
         {
           item->select();

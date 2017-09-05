@@ -4,8 +4,6 @@
 #include "Utils/Preload.h"
 #include "Utils/Asserted.h"
 #include "ConfigExtension.h"
-#include "ImageProcessing/MetricsAggregate.h"
-#include "ImageProcessing/MetricsIO.h"
 #include "qt_ext/qexifimageheader.h"
 #include <easylogging++.h>
 
@@ -14,9 +12,9 @@
 namespace phobos { namespace icache {
 
 Cache::Cache(pcontainer::Set const& photoSet) :
-    photoSet(photoSet)
+    photoSet(photoSet), metricCache(photoSet)
 {
-  QObject::connect(&photoSet, &pcontainer::Set::changedSeries, this, &Cache::updateSeriesMetrics);
+  QObject::connect(&metricCache, &MetricCache::updateMetrics, this, &Cache::updateMetrics);
 }
 
 class Cache::Transaction
@@ -186,11 +184,11 @@ std::unique_ptr<iprocess::LoaderThread> Cache::makeLoadingThread(pcontainer::Ite
 
   thread->setAutoDelete(true);
 
-  if (!hasMetrics(itemId))
+  if (!metrics().has(itemId))
   {
     thread->withMetrics(true);
     QObject::connect(&thread->readySignals, &iprocess::LoaderThreadSignals::metricsReady,
-                     this, &Cache::metricsReadyFromThread, Qt::QueuedConnection);
+                     &metricCache, &MetricCache::newLoadedFromThread, Qt::QueuedConnection);
   }
 
   QObject::connect(&thread->readySignals, &iprocess::LoaderThreadSignals::imageReady,
@@ -237,63 +235,6 @@ void Cache::imageReadyFromThread(pcontainer::ItemId itemId, QImage image)
   alreadyLoading.erase(uuidIt);
 
   emit updateImage(itemId, image);
-}
-
-void Cache::metricsReadyFromThread(pcontainer::ItemId itemId, iprocess::MetricPtr metrics)
-{
-  metricCache.emplace(itemId.fileName, metrics);
-  LOG(DEBUG) << "[Cache] Saved new metrics for " << itemId.fileName;
-
-  if (!updateSeriesMetrics(itemId.seriesUuid))
-    emit updateMetrics(itemId, metrics); // if not all metrics are loaded, emit just for the current one
-}
-
-bool Cache::updateSeriesMetrics(QUuid const& seriesUuid)
-{
-  auto const& series = photoSet.findSeries(seriesUuid);
-
-  if (!std::all_of(series->begin(), series->end(),
-        [this](pcontainer::ItemPtr const& item){
-            return utils::valueIn(item->fileName(), metricCache);
-        }))
-  {
-    return false;
-  }
-
-  auto allMetrics = utils::transformToVector<iprocess::MetricPtr>(series->begin(), series->end(),
-      [this](auto const& item){ return metricCache[item->fileName()]; });
-
-  LOG(DEBUG) << "[Cache] Aggregating metrics for series " << seriesUuid.toString();
-  iprocess::aggregateMetrics(allMetrics);
-
-  bool const doLog = config::qualified("logging.metrics", false);
-  for (std::size_t i = 0; i < series->size(); ++i)
-  {
-    auto const& filename = series->item(i)->fileName();
-    auto const& metric = metricCache[filename];
-    emit updateMetrics(pcontainer::ItemId{seriesUuid, filename}, metric);
-
-    LOG_IF(doLog, DEBUG) << "Calculated series metrics" << std::endl
-       << "photoItem: " << filename << std::endl
-       << "metric: " << metric;
-  }
-
-  return true;
-}
-
-bool Cache::hasMetrics(pcontainer::ItemId const& itemId) const
-{
-    return utils::valueIn(itemId.fileName, metricCache);
-}
-
-iprocess::MetricPtr Cache::getMetrics(pcontainer::ItemId const& itemId) const
-{
-    auto const it = metricCache.find(itemId.fileName);
-    if (it == metricCache.end())
-      return nullptr;
-
-    LOG(DEBUG) << "[Cache] Retrieved metrics for " << itemId.fileName;
-    return it->second;
 }
 
 }} // namespace phobos::icache

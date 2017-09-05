@@ -2,10 +2,11 @@
 #define PHOBOS_IMAGECACHE_CACHE_H_
 
 #include "ImageCache/CacheFwd.h"
+#include "ImageCache/MetricCache.h"
 #include "ImageCache/LimitedMap.h"
 #include "ImageCache/PriorityThreadPool.h"
-#include "PhotoContainers/Set.h"
 #include "ImageProcessing/LoaderThread.h"
+#include "PhotoContainers/Set.h"
 #include "PhotoContainers/ItemId.h"
 #include <QObject>
 #include <QImage>
@@ -29,8 +30,7 @@ public:
   QImage getImage(pcontainer::ItemId const& itemId);
   QImage getThumbnail(pcontainer::ItemId const& itemId);
 
-  bool hasMetrics(pcontainer::ItemId const& itemId) const;
-  iprocess::MetricPtr getMetrics(pcontainer::ItemId const& itemId) const;
+  MetricCache const& metrics() const { return metricCache; }
 
 signals:
   void updateImage(pcontainer::ItemId itemId, QImage image);
@@ -38,11 +38,7 @@ signals:
 
 private slots:
   void imageReadyFromThread(pcontainer::ItemId itemId, QImage image);
-  void metricsReadyFromThread(pcontainer::ItemId itemId, iprocess::MetricPtr image);
-  bool updateSeriesMetrics(QUuid const& seriesUuid);
 
-// Split into image cache and metrics cache
-// cache should contain both of them
 private:
   using LookupKeyType = QString;
   class Transaction;
@@ -54,8 +50,8 @@ private:
 
   std::map<LookupKeyType, QImage> thumbnailCache;
   LimitedMap fullImageCache;
-  std::map<LookupKeyType, iprocess::MetricPtr> metricCache;
 
+  MetricCache metricCache;
   pcontainer::Set const& photoSet;
   PriorityThreadPool threadPool;
 };

@@ -32,7 +32,7 @@ void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
   {
     auto const& itemId = item->id();
     PhotoItem* widget = new PhotoItem(item, utils::asserted::fromMap(thumbs, itemId), addons, CapabilityType::REMOVE_PHOTO);
-    widget->setMetrics(imageCache.getMetrics(itemId));
+    widget->setMetrics(imageCache.metrics().get(itemId));
 
     QObject::connect(widget, &PhotoItem::changeSeriesState, this, &SeriesViewBase::changeCurrentSeriesState);
     QObject::connect(widget, &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);

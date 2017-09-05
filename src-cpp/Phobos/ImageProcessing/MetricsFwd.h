@@ -1,6 +1,9 @@
 #ifndef IMAGEPROCESSING_METRICSFWD_H_
 #define IMAGEPROCESSING_METRICSFWD_H_
 
+#include <memory>
+#include <vector>
+
 namespace phobos { namespace iprocess {
 
 struct Metric;
