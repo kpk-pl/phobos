@@ -22,6 +22,11 @@ SOURCES += Phobos.cpp\
     Config.cpp \
     ConfigPath.cpp \
     AllSeriesView.cpp \
+    ConfigExtension.cpp \
+    SeriesViewBase.cpp \
+    NumSeriesView.cpp \
+    NavigationBar.cpp \
+    RowSeriesView.cpp \
     ImageProcessing/Metrics.cpp \
     ImageProcessing/MetricsIO.cpp \
     ImageProcessing/LoaderThread.cpp \
@@ -45,11 +50,6 @@ SOURCES += Phobos.cpp\
     Utils/Filesystem/Trash.cpp \
     easyloggingpp/src/easylogging++.cc \
     qt_ext/qexifimageheader.cpp \
-    ConfigExtension.cpp \
-    SeriesViewBase.cpp \
-    NumSeriesView.cpp \
-    NavigationBar.cpp \
-    RowSeriesView.cpp \
     ImportWizard/ImageOpenDialog.cpp \
     ImportWizard/ImportWizard.cpp \
     ImportWizard/DivisionMethodPage.cpp \
@@ -64,6 +64,7 @@ SOURCES += Phobos.cpp\
     Widgets/HorizontalLine.cpp \
     Widgets/FilenameEntry.cpp \
     ImageCache/Cache.cpp \
+    ImageCache/MetricCache.cpp \
     ImageCache/LimitedMap.cpp \
     ImageCache/PriorityThreadPool.cpp \
     ProcessWizard/ProcessWizard.cpp \
@@ -76,8 +77,7 @@ SOURCES += Phobos.cpp\
     ProcessWizard/TypeActionTab.cpp \
     ProcessWizard/SummaryPage.cpp \
     ProcessWizard/OperationIcon.cpp \
-    ProcessWizard/ExecutionImpl.cpp \
-    ImageCache/MetricCache.cpp
+    ProcessWizard/ExecutionImpl.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -85,6 +85,12 @@ HEADERS  += MainWindow.h \
     ConfigPath.h \
     AllSeriesView.h \
     ConfigExtension.h \
+    SeriesViewBase.h \
+    NumSeriesView.h \
+    NavigationBar.h \
+    RowSeriesView.h \
+    ViewDescription.h \
+    PhotoBulkAction.h \
     ImageProcessing/Metrics.h \
     ImageProcessing/MetricsIO.h \
     ImageProcessing/LoaderThread.h \
@@ -117,12 +123,6 @@ HEADERS  += MainWindow.h \
     Utils/Filesystem/Trash.h \
     easyloggingpp/src/easylogging++.h \
     qt_ext/qexifimageheader.h \
-    SeriesViewBase.h \
-    NumSeriesView.h \
-    NavigationBar.h \
-    RowSeriesView.h \
-    ViewDescription.h \
-    PhotoBulkAction.h \
     ImportWizard/ImageOpenDialog.h \
     ImportWizard/ImportWizard.h \
     ImportWizard/DivisionMethodPage.h \
@@ -140,6 +140,7 @@ HEADERS  += MainWindow.h \
     Widgets/HorizontalLine.h \
     Widgets/FilenameEntry.h \
     ImageCache/Cache.h \
+    ImageCache/MetricCache.h \
     ImageCache/CacheFwd.h \
     ImageCache/LimitedMap.h \
     ImageCache/PriorityThreadPool.h \
@@ -157,8 +158,7 @@ HEADERS  += MainWindow.h \
     ProcessWizard/OperationIcon.h \
     ProcessWizard/Execution.h \
     ProcessWizard/ExecutionFwd.h \
-    ProcessWizard/ExecutionImpl.h \
-    ImageCache/MetricCache.h
+    ProcessWizard/ExecutionImpl.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost
