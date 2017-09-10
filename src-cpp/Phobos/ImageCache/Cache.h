@@ -25,10 +25,12 @@ public:
   explicit Cache(pcontainer::Set const& photoSet);
 
   std::map<pcontainer::ItemId, QImage> getImages(QUuid const& seriesId);
-  std::map<pcontainer::ItemId, QImage> getThumbnails(QUuid const& seriesId);
-
   QImage getImage(pcontainer::ItemId const& itemId);
-  QImage getThumbnail(pcontainer::ItemId const& itemId);
+
+  Transaction transaction() const { return Transaction(*this); }
+
+  QImage execute(Transaction && transaction);
+  std::map<pcontainer::ItemId, QImage> execute(TransactionGroup && group);
 
   MetricCache const& metrics() const { return metricCache; }
 
@@ -42,9 +44,6 @@ private slots:
 private:
   friend class Transaction;
   using LookupKeyType = QString;
-
-  QImage execute(Transaction && transaction);
-  std::map<pcontainer::ItemId, QImage> execute(TransactionGroup && group);
 
   std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(pcontainer::ItemId const& itemId) const;
   void startThreadForItem(Transaction && transaction);

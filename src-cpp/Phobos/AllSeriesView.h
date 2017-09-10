@@ -52,7 +52,7 @@ private:
 
     widgets::pitem::PhotoItem* findItem(pcontainer::ItemId const& itemId) const;
 
-    void addItemToGrid(int row, int col, pcontainer::ItemPtr const& itemPtr, QImage const& thumbnail);
+    void addItemToGrid(int row, int col, pcontainer::ItemPtr const& itemPtr);
 
     pcontainer::Set const& seriesSet;
     icache::Cache & imageCache;

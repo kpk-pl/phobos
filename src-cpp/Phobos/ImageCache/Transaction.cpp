@@ -10,33 +10,33 @@ namespace phobos { namespace icache {
 
 Transaction Transaction::Factory::singlePhoto(Cache & cache, pcontainer::ItemId const& itemId)
 {
-  return Transaction(cache, itemId);
+  return Transaction(cache).item(itemId);
 }
 
-Transaction Transaction::Factory::singleThumbnail(Cache & cache, pcontainer::ItemId const& itemId)
+Transaction Transaction::Factory::singlePhotoStatic(Cache & cache, pcontainer::ItemId const& itemId)
 {
-  return Transaction(cache, itemId).setType(Transaction::Type::Thumbnail);
+  return Transaction(cache).item(itemId).onlyCache();
 }
 
 TransactionGroup Transaction::Factory::seriesPhotos(Cache & cache, QUuid const& seriesId)
 {
   TransactionGroup result;
   for (pcontainer::ItemPtr const& photo : utils::asserted::fromPtr(cache.photoSet.findSeries(seriesId)))
-    result += Transaction(cache, photo->id());
+    result += Transaction(cache).item(photo->id());
   return result;
 }
 
-TransactionGroup Transaction::Factory::seriesThumbnails(Cache & cache, QUuid const& seriesId)
+Transaction::Transaction(Cache const& cache) :
+  uuid(QUuid::createUuid()), cache(cache)
 {
-  TransactionGroup result;
-  for (pcontainer::ItemPtr const& photo : utils::asserted::fromPtr(cache.photoSet.findSeries(seriesId)))
-    result += Transaction(cache, photo->id()).setType(Transaction::Type::Thumbnail);
-  return result;
 }
 
-Transaction::Transaction(Cache const& cache, pcontainer::ItemId const& itemId) :
-  uuid(QUuid::createUuid()), itemId(itemId), cache(cache)
+QString Transaction::toString() const
 {
+  return QString("[CacheTransaction]: Get %1 %2 %3")
+    .arg(onlyThumbnail ? "thumbnail" : "full image")
+    .arg(itemId.fileName)
+    .arg(disableLoading ? "from cache" : "with loading");
 }
 
 namespace {
@@ -61,7 +61,13 @@ namespace {
 
 QImage Transaction::operator()() const
 {
-  if (type == Type::Full)
+  if (!itemId)
+  {
+    LOG(ERROR) << "[Cache] Invalid transaction";
+    return QImage{};
+  }
+
+  if (!onlyThumbnail)
   {
     QImage const fullImage = cache.fullImageCache.find(itemId.fileName);
     if (!fullImage.isNull())
@@ -70,7 +76,7 @@ QImage Transaction::operator()() const
       return fullImage;
     }
 
-    shouldStartThread = true;
+    _shouldStartThread = true;
   }
 
   auto const thumbImageIt = cache.thumbnailCache.find(itemId.fileName);
@@ -80,7 +86,7 @@ QImage Transaction::operator()() const
     return thumbImageIt->second;
   }
 
-  shouldStartThread = true;
+  _shouldStartThread = true;
   return getInitialThumbnail(itemId);
 }
 
@@ -88,13 +94,19 @@ auto TransactionGroup::operator()() const -> Result
 {
   Result result;
   for (auto const& t : transactions)
-    result.emplace(t.itemId, t());
+    result.emplace(t.getItemId(), t());
   return result;
 }
 
 TransactionGroup& TransactionGroup::operator+=(Transaction && t)
 {
   transactions.emplace_back(std::move(t));
+  return *this;
+}
+
+TransactionGroup& TransactionGroup::operator+=(Transaction const& t)
+{
+  transactions.emplace_back(t);
   return *this;
 }
 

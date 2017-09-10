@@ -17,28 +17,32 @@ public:
   struct Factory
   {
     static Transaction singlePhoto(Cache & cache, pcontainer::ItemId const& itemId);
-    static Transaction singleThumbnail(Cache & cache, pcontainer::ItemId const& itemId);
+    static Transaction singlePhotoStatic(Cache & cache, pcontainer::ItemId const& itemId);
     static TransactionGroup seriesPhotos(Cache & cache, QUuid const& seriesId);
-    static TransactionGroup seriesThumbnails(Cache & cache, QUuid const& seriesId);
   };
 
-  Transaction(Cache const& cache, pcontainer::ItemId const& itemId);
+  Transaction(Cache const& cache);
+
+  Transaction&& item(pcontainer::ItemId const& itemId) && { this->itemId = itemId; return std::move(*this); }
+  Transaction&& thumbnail() && { onlyThumbnail = true; return std::move(*this); }
+  Transaction&& onlyCache() && { disableLoading = true; return std::move(*this); }
 
   QImage operator()() const;
-  bool startThread() const { return shouldStartThread; }
+  bool shouldStartThread() const { return _shouldStartThread && !disableLoading; }
+
+  QString toString() const;
 
   QUuid const uuid;
-  pcontainer::ItemId const itemId;
+  pcontainer::ItemId const& getItemId() const { return itemId; }
 
 private:
-  enum class Type { Full, Thumbnail };
-  Transaction& setType(Type const type) & { this->type = type; return *this; }
-  Transaction&& setType(Type const type) && { this->type = type; return std::move(*this); }
-
-
   Cache const& cache;
-  Type type = Type::Full;
-  bool mutable shouldStartThread = false;
+
+  pcontainer::ItemId itemId;
+  bool onlyThumbnail = false;
+  bool disableLoading = false;
+
+  bool mutable _shouldStartThread = false;
 };
 
 struct TransactionGroup
@@ -47,6 +51,7 @@ struct TransactionGroup
 
   Result operator()() const;
   TransactionGroup& operator+=(Transaction && t);
+  TransactionGroup& operator+=(Transaction const& t);
 
   TransactionVec transactions;
 };

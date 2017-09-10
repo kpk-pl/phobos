@@ -12,6 +12,11 @@ struct ItemId
   QUuid seriesUuid;
   QString fileName;
 
+  operator bool() const
+  {
+    return !seriesUuid.isNull() && !fileName.isEmpty();
+  }
+
   bool operator==(ItemId const& rhs) const
   {
     return fileName == rhs.fileName && seriesUuid == rhs.seriesUuid;

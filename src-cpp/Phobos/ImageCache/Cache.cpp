@@ -15,32 +15,19 @@ Cache::Cache(pcontainer::Set const& photoSet) :
 
 QImage Cache::getImage(pcontainer::ItemId const& itemId)
 {
-  LOG(DEBUG) << "[Cache] Requested full image for " << itemId.fileName;
   return execute(Transaction::Factory::singlePhoto(*this, itemId));
-}
-
-QImage Cache::getThumbnail(pcontainer::ItemId const& itemId)
-{
-  LOG(DEBUG) << "[Cache] Requested thumbnail for " << itemId.fileName;
-  return execute(Transaction::Factory::singleThumbnail(*this, itemId));
 }
 
 std::map<pcontainer::ItemId, QImage> Cache::getImages(QUuid const& seriesId)
 {
-  LOG(DEBUG) << "[Cache] Requested full images for series " << seriesId.toString();
   return execute(Transaction::Factory::seriesPhotos(*this, seriesId));
-}
-
-std::map<pcontainer::ItemId, QImage> Cache::getThumbnails(QUuid const& seriesId)
-{
-  LOG(DEBUG) << "[Cache] Requested thumbnails for series " << seriesId.toString();
-  return execute(Transaction::Factory::seriesThumbnails(*this, seriesId));
 }
 
 QImage Cache::execute(Transaction && transaction)
 {
+  LOG(DEBUG) << transaction.toString();
   QImage const result = transaction();
-  if (transaction.startThread())
+  if (transaction.shouldStartThread())
     startThreadForItem(std::move(transaction));
 
   return result;
@@ -52,7 +39,7 @@ std::map<pcontainer::ItemId, QImage> Cache::execute(TransactionGroup && group)
 
   for (auto & tran : group.transactions)
   {
-    pcontainer::ItemId const id = tran.itemId;
+    pcontainer::ItemId const id = tran.getItemId();
     result.emplace(id, execute(std::move(tran)));
   }
 
@@ -81,7 +68,7 @@ std::unique_ptr<iprocess::LoaderThread> Cache::makeLoadingThread(pcontainer::Ite
 
 void Cache::startThreadForItem(Transaction && transaction)
 {
-  pcontainer::ItemId const itemId = transaction.itemId;
+  pcontainer::ItemId const itemId = transaction.getItemId();
 
   LOG(DEBUG) << "[Cache] Requested thread load for " << itemId.fileName;
   transactionsInThread.emplace(itemId, std::move(transaction));

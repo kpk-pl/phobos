@@ -102,14 +102,14 @@ AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
 
 void AllSeriesView::focusSeries()
 {
-    if (numberOfSeries() > 0)
-        grid->itemAtPosition(0, 0)->widget()->setFocus();
+  if (numberOfSeries() > 0)
+    grid->itemAtPosition(0, 0)->widget()->setFocus();
 }
 
 void AllSeriesView::focusSeries(QUuid const seriesUuid)
 {
-    assert(utils::valueIn(seriesUuid, seriesUuidToRow));
-    grid->itemAtPosition(seriesUuidToRow[seriesUuid], 0)->widget()->setFocus();
+  assert(utils::valueIn(seriesUuid, seriesUuidToRow));
+  grid->itemAtPosition(seriesUuidToRow[seriesUuid], 0)->widget()->setFocus();
 }
 
 void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
@@ -117,12 +117,10 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
   std::size_t const row = numberOfSeries();
   seriesUuidToRow.emplace(series->uuid(), row);
 
-  auto const thumbs = imageCache.getThumbnails(series->uuid());
-
   for (std::size_t col = 0; col < series->size(); ++col)
   {
     pcontainer::ItemPtr const photo = series->item(col);
-    addItemToGrid(row, col, photo, utils::asserted::fromMap(thumbs, photo->id()));
+    addItemToGrid(row, col, photo);
   }
 }
 
@@ -179,7 +177,7 @@ void AllSeriesView::updateExistingSeries(QUuid seriesUuid)
     if (it == oldContent.end() || !it->second)
     {
       LOG(DEBUG) << "Adding at col " << col << " newly constructed item " << item->id().toString();
-      addItemToGrid(seriesRow, col, item, imageCache.getThumbnail(item->id()));
+      addItemToGrid(seriesRow, col, item);
     }
     else
     {
@@ -192,13 +190,14 @@ void AllSeriesView::updateExistingSeries(QUuid seriesUuid)
              << " items were left from saved content";
 }
 
-void AllSeriesView::addItemToGrid(int row, int col, pcontainer::ItemPtr const& itemPtr, QImage const& thumbnail)
+void AllSeriesView::addItemToGrid(int row, int col, pcontainer::ItemPtr const& itemPtr)
 {
   using namespace widgets::pitem;
 
   auto const widgetAddons = Addons(config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({}));
 
   auto const& itemId = itemPtr->id();
+  QImage const thumbnail = imageCache.execute(imageCache.transaction().item(itemId).thumbnail());
   PhotoItem* item = new PhotoItem(itemPtr, thumbnail, widgetAddons, CapabilityType::OPEN_SERIES | CapabilityType::REMOVE_PHOTO);
   item->setMetrics(imageCache.metrics().get(itemId));
 
@@ -214,7 +213,7 @@ void AllSeriesView::addItemToGrid(int row, int col, pcontainer::ItemPtr const& i
 void AllSeriesView::updateImage(pcontainer::ItemId const& itemId)
 {
   auto& widget = utils::asserted::fromPtr(findItem(itemId));
-  widget.setImage(imageCache.getThumbnail(itemId));
+  widget.setImage(imageCache.execute(imageCache.transaction().item(itemId).thumbnail()));
 }
 
 void AllSeriesView::updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics)
