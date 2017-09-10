@@ -67,6 +67,7 @@ SOURCES += Phobos.cpp\
     ImageCache/MetricCache.cpp \
     ImageCache/LimitedMap.cpp \
     ImageCache/PriorityThreadPool.cpp \
+    ImageCache/Transaction.cpp \
     ProcessWizard/ProcessWizard.cpp \
     ProcessWizard/Operation.cpp \
     ProcessWizard/ActionsCreatorPage.cpp \
@@ -145,6 +146,8 @@ HEADERS  += MainWindow.h \
     ImageCache/CacheFwd.h \
     ImageCache/LimitedMap.h \
     ImageCache/PriorityThreadPool.h \
+    ImageCache/Transaction.h \
+    ImageCache/TransactionFwd.h \
     ImageCache/Runnable.h \
     ProcessWizard/ProcessWizard.h \
     ProcessWizard/Operation.h \
