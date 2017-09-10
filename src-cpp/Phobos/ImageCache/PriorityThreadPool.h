@@ -17,16 +17,27 @@ public:
   explicit PriorityThreadPool();
 
   void start(RunnablePtr && task, std::size_t const priority);
-  void cancel(Runnable::Id const& id);
 
 private slots:
   void taskFinished(Runnable::Id taskId);
 
 private:
-  bool insertTask(RunnablePtr && task, std::size_t const priority);
+  void insertTask(RunnablePtr && task, std::size_t const priority);
   void updatePool();
 
-  using PriorityTask = std::pair<std::size_t, RunnablePtr>;
+  struct PriorityTask
+  {
+    struct IdEqual;
+
+    PriorityTask(std::size_t const priority, RunnablePtr && task) :
+      priority(priority), task(std::move(task))
+    {}
+
+    std::size_t priority;
+    RunnablePtr task;
+
+    bool operator<(PriorityTask const& rhs) const;
+  };
 
   std::set<std::size_t> runningTasks;
   std::vector<PriorityTask> queue;

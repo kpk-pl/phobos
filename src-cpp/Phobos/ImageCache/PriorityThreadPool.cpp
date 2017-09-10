@@ -9,55 +9,24 @@ PriorityThreadPool::PriorityThreadPool()
 
 void PriorityThreadPool::start(RunnablePtr && task, std::size_t const priority)
 {
-  bool const inserted = insertTask(std::move(task), priority);
-
-  if (inserted)
-    updatePool();
+  insertTask(std::move(task), priority);
+  updatePool();
 }
 
-namespace {
-  struct IdEqual
-  {
-    IdEqual(Runnable::Id const id)
-      : id(id)
-    {}
-
-    bool operator()(std::pair<std::size_t, RunnablePtr> const& p) const
-    {
-      return p.second->id() == id;
-    }
-    Runnable::Id const id;
-  };
-} // unnamed namespace
-
-bool PriorityThreadPool::insertTask(RunnablePtr && task, std::size_t const priority)
+bool PriorityThreadPool::PriorityTask::operator<(PriorityTask const& rhs) const
 {
-  LOG(DEBUG) << "Attempt to insert task " << task->id() << " with priority " << priority;
+  if (priority == rhs.priority)
+    return task < rhs.task;
+  return priority < rhs.priority;
+}
 
-  if (runningTasks.find(task->id()) != runningTasks.end())
-  {
-    LOG(DEBUG) << "Task already running";
-    return false;
-  }
+void PriorityThreadPool::insertTask(RunnablePtr && task, std::size_t const priority)
+{
+  LOG(DEBUG) << "Inserting task " << task->id() << " with priority " << priority;
 
-  auto const scheduledId = std::find_if(queue.begin(), queue.end(), IdEqual(task->id()));
-  if (scheduledId != queue.end())
-  {
-    LOG(DEBUG) << "Task already scheduled with priority " << scheduledId->first;
-    if (scheduledId->first <= priority)
-      return false;
-
-    LOG(DEBUG) << "Raising priority";
-    task = std::move(scheduledId->second);
-    queue.erase(scheduledId);
-  }
-
-  LOG(DEBUG) << "Inserting new task to queue";
   auto const where = std::upper_bound(queue.begin(), queue.end(), priority,
-        [](std::size_t const prio, PriorityTask const& p){ return prio < p.first; });
+        [](std::size_t const prio, PriorityTask const& p){ return prio < p.priority; });
   queue.emplace(where, priority, std::move(task));
-
-  return true;
 }
 
 void PriorityThreadPool::updatePool()
@@ -76,7 +45,7 @@ void PriorityThreadPool::updatePool()
     return;
   }
 
-  auto taskToRun = std::move(queue.front().second);
+  auto taskToRun = std::move(queue.front().task);
   queue.erase(queue.begin());
 
   QObject::connect(&taskToRun->signal, &RunnableSignals::finished, this, &PriorityThreadPool::taskFinished);
@@ -85,35 +54,33 @@ void PriorityThreadPool::updatePool()
   pool.start(taskToRun.release());
 }
 
+struct PriorityThreadPool::PriorityTask::IdEqual
+{
+  IdEqual(Runnable::Id const id)
+    : id(id)
+  {}
+
+  bool operator()(PriorityThreadPool::PriorityTask const& pTask) const
+  {
+    if (pTask.task)
+      return pTask.task->id() == id;
+    return false;
+  }
+
+  Runnable::Id const id;
+};
+
 void PriorityThreadPool::taskFinished(Runnable::Id id)
 {
   LOG(DEBUG) << "Finished task " << id;
+
   auto const it = runningTasks.find(id);
   assert(it != runningTasks.end());
   runningTasks.erase(it);
 
+  queue.erase(std::remove_if(queue.begin(), queue.end(), PriorityTask::IdEqual{id}), queue.end());
+
   updatePool();
-}
-
-void PriorityThreadPool::cancel(Runnable::Id const& id)
-{
-  LOG(DEBUG) << "Attempt to cancel task " << id;
-
-  if (runningTasks.find(id) != runningTasks.end())
-  {
-    LOG(DEBUG) << "Task already running";
-    return;
-  }
-
-  auto const queueIt = std::find_if(queue.begin(), queue.end(), IdEqual(id));
-  if (queueIt == queue.end())
-  {
-    LOG(DEBUG) << "Task not found in queue";
-    return;
-  }
-
-  LOG(DEBUG) << "Removing task from queue";
-  queue.erase(queueIt);
 }
 
 }} // namespace phobos::icache
