@@ -51,15 +51,21 @@ namespace phobos { namespace widgets { namespace pitem {
 // TODO: Tooltil on mouse over to display image filename
 // TODO: Change focus icon color to blueish
 
-PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem, QImage const& preload, Addons const& addons, Capabilities const& capabilities) :
-    ImageWidget(preload), _photoItem(photoItem), addons(addons), capabilities(capabilities)
+PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem,
+                     QImage const& preload,
+                     Addons const& addons,
+                     Capabilities const& capabilities) :
+    ImageWidget(preload),
+    _photoItem(photoItem),
+    addons(addons),
+    capabilities(capabilities)
 {
-    setFocusPolicy(Qt::StrongFocus);
-    installEventFilter(this);
+  setFocusPolicy(Qt::StrongFocus);
+  installEventFilter(this);
 
-    QObject::connect(this, &ImageWidget::clicked, _photoItem.get(), &pcontainer::Item::toggleSelection);
-    QObject::connect(_photoItem.get(), &pcontainer::Item::stateChanged,
-                     this, static_cast<void (QWidget::*)()>(&QWidget::update));
+  QObject::connect(this, &ImageWidget::clicked, _photoItem.get(), &pcontainer::Item::toggleSelection);
+  QObject::connect(_photoItem.get(), &pcontainer::Item::stateChanged,
+                   this, static_cast<void (QWidget::*)()>(&QWidget::update));
 }
 
 class PhotoItem::PixmapRenderer

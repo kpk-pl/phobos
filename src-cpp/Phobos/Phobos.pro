@@ -118,6 +118,7 @@ HEADERS  += MainWindow.h \
     Utils/LexicalCast.h \
     Utils/ItemStateColor.h \
     Utils/ItemStateIcon.h \
+    Utils/Soul.h \
     Utils/Filesystem/Attributes.h \
     Utils/Filesystem/Portable.h \
     Utils/Filesystem/Trash.h \

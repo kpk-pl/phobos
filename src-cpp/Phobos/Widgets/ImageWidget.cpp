@@ -7,10 +7,11 @@
 
 namespace phobos { namespace widgets {
 
-ImageWidget::ImageWidget(QImage const& image)
+ImageWidget::ImageWidget(QImage const& image) :
+  soul(this)
 {
-    setScaledContents(false);
-    setImage(image);
+  setScaledContents(false);
+  setImage(image);
 }
 
 void ImageWidget::setImage(QImage image)
