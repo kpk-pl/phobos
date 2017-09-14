@@ -8,24 +8,6 @@
 
 namespace phobos { namespace icache {
 
-Transaction Transaction::Factory::singlePhoto(Cache & cache, pcontainer::ItemId const& itemId)
-{
-  return Transaction(cache).item(itemId);
-}
-
-Transaction Transaction::Factory::singlePhotoStatic(Cache & cache, pcontainer::ItemId const& itemId)
-{
-  return Transaction(cache).item(itemId).onlyCache();
-}
-
-TransactionGroup Transaction::Factory::seriesPhotos(Cache & cache, QUuid const& seriesId)
-{
-  TransactionGroup result;
-  for (pcontainer::ItemPtr const& photo : utils::asserted::fromPtr(cache.photoSet.findSeries(seriesId)))
-    result += Transaction(cache).item(photo->id());
-  return result;
-}
-
 Transaction::Transaction(Cache& cache) :
   uuid(QUuid::createUuid()), cache(cache)
 {

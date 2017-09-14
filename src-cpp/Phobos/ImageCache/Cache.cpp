@@ -13,16 +13,6 @@ Cache::Cache(pcontainer::Set const& photoSet) :
   QObject::connect(&metricCache, &MetricCache::updateMetrics, this, &Cache::updateMetrics);
 }
 
-QImage Cache::getImage(pcontainer::ItemId const& itemId)
-{
-  return execute(Transaction::Factory::singlePhoto(*this, itemId));
-}
-
-std::map<pcontainer::ItemId, QImage> Cache::getImages(QUuid const& seriesId)
-{
-  return execute(Transaction::Factory::seriesPhotos(*this, seriesId));
-}
-
 QImage Cache::execute(Transaction && transaction)
 {
   LOG(DEBUG) << transaction.toString();

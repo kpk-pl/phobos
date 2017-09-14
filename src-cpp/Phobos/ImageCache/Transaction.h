@@ -14,13 +14,6 @@ struct TransactionGroup;
 class Transaction
 {
 public:
-  struct Factory
-  {
-    static Transaction singlePhoto(Cache & cache, pcontainer::ItemId const& itemId);
-    static Transaction singlePhotoStatic(Cache & cache, pcontainer::ItemId const& itemId);
-    static TransactionGroup seriesPhotos(Cache & cache, QUuid const& seriesId);
-  };
-
   Transaction(Cache& cache);
 
   Transaction&& item(pcontainer::ItemId const& itemId) && { this->itemId = itemId; return std::move(*this); }
@@ -57,7 +50,6 @@ struct TransactionGroup
 
   TransactionVec transactions;
 };
-
 
 }} // namespace phobos::icache
 

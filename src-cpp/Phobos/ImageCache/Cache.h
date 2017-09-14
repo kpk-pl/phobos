@@ -24,7 +24,6 @@ class Cache : public QObject
 public:
   explicit Cache(pcontainer::Set const& photoSet);
 
-  std::map<pcontainer::ItemId, QImage> getImages(QUuid const& seriesId);
   QImage getImage(pcontainer::ItemId const& itemId);
 
   Transaction transaction() { return Transaction(*this); }

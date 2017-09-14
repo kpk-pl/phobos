@@ -26,12 +26,12 @@ void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
   clear();
 
   auto const& addons = Addons(config::get()->get_qualified_array_of<std::string>("seriesView.enabledAddons").value_or({}));
-  auto const thumbs = imageCache.getImages(series->uuid());
 
   for (pcontainer::ItemPtr const& item : *series)
   {
     auto const& itemId = item->id();
-    PhotoItem* widget = new PhotoItem(item, utils::asserted::fromMap(thumbs, itemId), addons, CapabilityType::REMOVE_PHOTO);
+    QImage image = imageCache.transaction().item(itemId).execute();
+    PhotoItem* widget = new PhotoItem(item, image, addons, CapabilityType::REMOVE_PHOTO);
     widget->setMetrics(imageCache.metrics().get(itemId));
 
     QObject::connect(widget, &PhotoItem::changeSeriesState, this, &SeriesViewBase::changeCurrentSeriesState);
