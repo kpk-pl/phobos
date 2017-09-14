@@ -21,13 +21,15 @@ public:
     static TransactionGroup seriesPhotos(Cache & cache, QUuid const& seriesId);
   };
 
-  Transaction(Cache const& cache);
+  Transaction(Cache& cache);
 
   Transaction&& item(pcontainer::ItemId const& itemId) && { this->itemId = itemId; return std::move(*this); }
   Transaction&& thumbnail() && { onlyThumbnail = true; return std::move(*this); }
   Transaction&& onlyCache() && { disableLoading = true; return std::move(*this); }
 
+  QImage execute() &&;
   QImage operator()() const;
+
   bool shouldStartThread() const { return _shouldStartThread && !disableLoading; }
 
   QString toString() const;
@@ -36,7 +38,7 @@ public:
   pcontainer::ItemId const& getItemId() const { return itemId; }
 
 private:
-  Cache const& cache;
+  Cache& cache;
 
   pcontainer::ItemId itemId;
   bool onlyThumbnail = false;

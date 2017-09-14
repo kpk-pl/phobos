@@ -27,7 +27,7 @@ public:
   std::map<pcontainer::ItemId, QImage> getImages(QUuid const& seriesId);
   QImage getImage(pcontainer::ItemId const& itemId);
 
-  Transaction transaction() const { return Transaction(*this); }
+  Transaction transaction() { return Transaction(*this); }
 
   QImage execute(Transaction && transaction);
   std::map<pcontainer::ItemId, QImage> execute(TransactionGroup && group);

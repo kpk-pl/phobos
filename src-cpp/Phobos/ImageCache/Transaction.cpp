@@ -26,7 +26,7 @@ TransactionGroup Transaction::Factory::seriesPhotos(Cache & cache, QUuid const& 
   return result;
 }
 
-Transaction::Transaction(Cache const& cache) :
+Transaction::Transaction(Cache& cache) :
   uuid(QUuid::createUuid()), cache(cache)
 {
 }
@@ -58,6 +58,11 @@ namespace {
     return preloadImage;
   }
 } // unnamed namespace
+
+QImage Transaction::execute() &&
+{
+  return cache.execute(std::move(*this));
+}
 
 QImage Transaction::operator()() const
 {
