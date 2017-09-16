@@ -7,18 +7,23 @@
 
 namespace phobos { namespace widgets {
 
-ImageWidget::ImageWidget(QImage const& image) :
+ImageWidget::ImageWidget() :
   soul(this)
 {
   setScaledContents(false);
+}
+
+ImageWidget::ImageWidget(QImage const& image) :
+  ImageWidget()
+{
   setImage(image);
 }
 
 void ImageWidget::setImage(QImage image)
 {
-    _image = image;
-    updateGeometry();
-    update();
+  _image = image;
+  updateGeometry();
+  update();
 }
 
 void ImageWidget::setMetrics(iprocess::MetricPtr metrics)

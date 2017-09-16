@@ -40,7 +40,6 @@ public slots:
 
 private slots:
     void changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state);
-    void updateImage(pcontainer::ItemId const& itemId);
     void updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics);
 
 private:

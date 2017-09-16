@@ -16,6 +16,7 @@ class ImageWidget : public QLabel, public HeightResizeableInterface
   Q_OBJECT
 
 public:
+  explicit ImageWidget();
   explicit ImageWidget(QImage const& image);
 
   QImage image() const { return _image; }
@@ -30,7 +31,7 @@ public:
   void mousePressEvent(QMouseEvent* event) override;
   void paintEvent(QPaintEvent* event) override;
 
-  utils::Soul<ImageWidget> const soul;
+  utils::Soul<ImageWidget>::Lifetime lifetime() const { return soul.lifetime(); }
 
 public slots:
   void setImage(QImage image);
@@ -42,6 +43,7 @@ signals:
 private:
   QImage _image;
   iprocess::MetricPtr _metrics;
+  utils::Soul<ImageWidget> const soul;
 };
 
 }} // namespace phobos::widgets

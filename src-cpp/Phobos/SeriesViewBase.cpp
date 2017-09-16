@@ -12,7 +12,6 @@ namespace phobos {
 SeriesViewBase::SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
     seriesSet(seriesSet), imageCache(imageCache)
 {
-  QObject::connect(&imageCache, &icache::Cache::updateImage, this, &SeriesViewBase::updateImage);
   QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &SeriesViewBase::updateMetrics);
   QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &SeriesViewBase::updateSeries);
 }
@@ -30,24 +29,23 @@ void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
   for (pcontainer::ItemPtr const& item : *series)
   {
     auto const& itemId = item->id();
-    QImage image = imageCache.transaction().item(itemId).execute();
-    PhotoItem* widget = new PhotoItem(item, image, addons, CapabilityType::REMOVE_PHOTO);
+    auto widget = std::make_unique<PhotoItem>(item, addons, CapabilityType::REMOVE_PHOTO);
+
+    auto result = imageCache.transaction().item(itemId).callback([lt=widget->lifetime()](auto && res){
+      auto item = lt.lock();
+      if (item) item->setImage(res.image);
+    }).execute();
+
+    widget->setImage(result.image);
     widget->setMetrics(imageCache.metrics().get(itemId));
 
-    QObject::connect(widget, &PhotoItem::changeSeriesState, this, &SeriesViewBase::changeCurrentSeriesState);
-    QObject::connect(widget, &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
+    QObject::connect(widget.get(), &PhotoItem::changeSeriesState, this, &SeriesViewBase::changeCurrentSeriesState);
+    QObject::connect(widget.get(), &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
 
-    addToLayout(widget);
+    addToLayout(widget.release());
   }
 
   currentSeriesUuid = series->uuid();
-}
-
-void SeriesViewBase::updateImage(pcontainer::ItemId const& itemId, QImage image)
-{
-  widgets::pitem::PhotoItem* item = findItemWidget(itemId);
-  if (item)
-    item->setImage(image);
 }
 
 void SeriesViewBase::updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics)

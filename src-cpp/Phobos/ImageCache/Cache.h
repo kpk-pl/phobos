@@ -27,14 +27,11 @@ public:
   QImage getImage(pcontainer::ItemId const& itemId);
 
   Transaction transaction() { return Transaction(*this); }
-
-  QImage execute(Transaction && transaction);
-  std::map<pcontainer::ItemId, QImage> execute(TransactionGroup && group);
+  Transaction::Result execute(Transaction && transaction);
 
   MetricCache const& metrics() const { return metricCache; }
 
 signals:
-  void updateImage(pcontainer::ItemId itemId, QImage image);
   void updateMetrics(pcontainer::ItemId itemId, iprocess::MetricPtr);
 
 private slots:

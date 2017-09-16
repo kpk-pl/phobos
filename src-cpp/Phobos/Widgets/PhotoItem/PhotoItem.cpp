@@ -52,10 +52,9 @@ namespace phobos { namespace widgets { namespace pitem {
 // TODO: Change focus icon color to blueish
 
 PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem,
-                     QImage const& preload,
                      Addons const& addons,
                      Capabilities const& capabilities) :
-    ImageWidget(preload),
+    ImageWidget(),
     _photoItem(photoItem),
     addons(addons),
     capabilities(capabilities)

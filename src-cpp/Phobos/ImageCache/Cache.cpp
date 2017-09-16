@@ -13,25 +13,12 @@ Cache::Cache(pcontainer::Set const& photoSet) :
   QObject::connect(&metricCache, &MetricCache::updateMetrics, this, &Cache::updateMetrics);
 }
 
-QImage Cache::execute(Transaction && transaction)
+Transaction::Result Cache::execute(Transaction && transaction)
 {
   LOG(DEBUG) << transaction.toString();
-  QImage const result = transaction();
+  auto const result = transaction();
   if (transaction.shouldStartThread())
     startThreadForItem(std::move(transaction));
-
-  return result;
-}
-
-std::map<pcontainer::ItemId, QImage> Cache::execute(TransactionGroup && group)
-{
-  std::map<pcontainer::ItemId, QImage> result;
-
-  for (auto & tran : group.transactions)
-  {
-    pcontainer::ItemId const id = tran.getItemId();
-    result.emplace(id, execute(std::move(tran)));
-  }
 
   return result;
 }
@@ -73,21 +60,30 @@ void Cache::imageReadyFromThread(pcontainer::ItemId itemId, QImage image)
   // Currently the code goes into infinite loop requesting new preload and failing to deliver one from cache
   // because preload is in fact null
 
-  fullImageCache.replace(itemId.fileName, image);
-
-  auto& preload = thumbnailCache[itemId.fileName];
-  if (preload.isNull())
+  auto& thumb = thumbnailCache[itemId.fileName];
+  if (thumb.isNull())
   {
     auto const preloadSize = config::qSize("imageCache.preloadSize", QSize(320, 240));
-    preload = image.scaled(preloadSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    thumb = image.scaled(preloadSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     LOG(DEBUG) << "[Cache] Saved new preload image " << itemId.fileName;
   }
 
-  emit updateImage(itemId, image);
-
+  bool updateFullCache = false;
   auto const allTrans = transactionsInThread.equal_range(itemId);
+
   for (auto it = allTrans.first; it != allTrans.second; ++it)
-    ; // do transaction callbacks
+  {
+    if (it->second.isThumbnail())
+      it->second.getCallback()(Transaction::Result{thumb, Transaction::ImageQuality::Thumb});
+    else
+    {
+      updateFullCache = true;
+      it->second.getCallback()(Transaction::Result{image, Transaction::ImageQuality::Full});
+    }
+  }
+
+  if (updateFullCache)
+    fullImageCache.replace(itemId.fileName, image);
 
   transactionsInThread.erase(allTrans.first, allTrans.second);
 }

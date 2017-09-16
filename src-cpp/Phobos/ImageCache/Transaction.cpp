@@ -13,6 +13,24 @@ Transaction::Transaction(Cache& cache) :
 {
 }
 
+Transaction&& Transaction::callback(CallbackType && newCallback) &&
+{
+  loadCallback = OptCallback{std::move(newCallback)};
+  return std::move(*this);
+}
+
+void Transaction::OptCallback::operator()(Result && result) const
+{
+  if (func)
+    func(std::move(result));
+}
+
+void Transaction::OptCallback::operator()(QImage && im, ImageQuality qual) const
+{
+  if (func)
+    func(Result{std::move(im), qual});
+}
+
 QString Transaction::toString() const
 {
   return QString("[CacheTransaction]: Get %1 %2 %3")
@@ -22,13 +40,13 @@ QString Transaction::toString() const
 }
 
 namespace {
-  QImage getInitialThumbnail(pcontainer::ItemId const& itemId)
+  Transaction::Result getInitialThumbnail(pcontainer::ItemId const& itemId)
   {
     QImage const exifThumb = QExifImageHeader(itemId.fileName).thumbnail();
     if (!exifThumb.isNull())
     {
       LOG(DEBUG) << "[Cache] Returned initial EXIF thumbnail for " << itemId.fileName;
-      return exifThumb;
+      return {exifThumb, Transaction::ImageQuality::ExifThumb};
     }
 
     // TODO: use thumbnails from OS if available
@@ -37,21 +55,21 @@ namespace {
       utils::preloadImage(config::qSize("imageCache.preloadSize", QSize(320, 240)));
 
     LOG(DEBUG) << "[Cache] Returned initial blank thumbnail for " << itemId.fileName;
-    return preloadImage;
+    return {preloadImage, Transaction::ImageQuality::Blank};
   }
 } // unnamed namespace
 
-QImage Transaction::execute() &&
+Transaction::Result Transaction::execute() &&
 {
   return cache.execute(std::move(*this));
 }
 
-QImage Transaction::operator()() const
+Transaction::Result Transaction::operator()() const
 {
   if (!itemId)
   {
     LOG(ERROR) << "[Cache] Invalid transaction";
-    return QImage{};
+    return {QImage{}, ImageQuality::None};
   }
 
   if (!onlyThumbnail)
@@ -60,7 +78,7 @@ QImage Transaction::operator()() const
     if (!fullImage.isNull())
     {
       LOG(DEBUG) << "[Cache] Returned full image for " << itemId.fileName;
-      return fullImage;
+      return {fullImage, ImageQuality::Full};
     }
 
     _shouldStartThread = true;
@@ -70,7 +88,7 @@ QImage Transaction::operator()() const
   if (thumbImageIt != cache.thumbnailCache.end() && !thumbImageIt->second.isNull())
   {
     LOG(DEBUG) << "[Cache] Returned thumbnail for " << itemId.fileName;
-    return thumbImageIt->second;
+    return {thumbImageIt->second, ImageQuality::Thumb};
   }
 
   _shouldStartThread = true;

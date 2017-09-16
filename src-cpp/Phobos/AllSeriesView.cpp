@@ -67,7 +67,6 @@ struct AllSeriesView::Coords
 AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
     seriesSet(seriesSet), imageCache(imageCache)
 {
-    QObject::connect(&imageCache, &icache::Cache::updateImage, this, &AllSeriesView::updateImage);
     QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &AllSeriesView::updateMetrics);
     QObject::connect(&seriesSet, &pcontainer::Set::newSeries, this, &AllSeriesView::addNewSeries);
     QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &AllSeriesView::updateExistingSeries);
@@ -190,30 +189,33 @@ void AllSeriesView::updateExistingSeries(QUuid seriesUuid)
              << " items were left from saved content";
 }
 
+template<typename T>
+void test(T &&) = delete;
+
 void AllSeriesView::addItemToGrid(int row, int col, pcontainer::ItemPtr const& itemPtr)
 {
   using namespace widgets::pitem;
 
   auto const widgetAddons = Addons(config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({}));
-
   auto const& itemId = itemPtr->id();
-  QImage const thumbnail = imageCache.transaction().item(itemId).thumbnail().execute();
-  PhotoItem* item = new PhotoItem(itemPtr, thumbnail, widgetAddons, CapabilityType::OPEN_SERIES | CapabilityType::REMOVE_PHOTO);
+
+  auto item = std::make_unique<PhotoItem>(itemPtr, widgetAddons, CapabilityType::OPEN_SERIES | CapabilityType::REMOVE_PHOTO);
+
+  auto const thumbnail = imageCache.transaction().item(itemId).thumbnail().callback([lt=item->lifetime()](auto && result){
+      auto item = lt.lock();
+      if (item) item->setImage(result.image);
+    }).execute();
+
+  item->setImage(thumbnail.image);
   item->setMetrics(imageCache.metrics().get(itemId));
 
-  QObject::connect(item, &PhotoItem::openInSeries,
+  QObject::connect(item.get(), &PhotoItem::openInSeries,
     [this](QUuid const& uuid){ switchView(ViewDescription::make(ViewType::ANY_SINGLE_SERIES, uuid)); });
 
-  QObject::connect(item, &PhotoItem::changeSeriesState, this, &AllSeriesView::changeSeriesState);
-  QObject::connect(item, &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
+  QObject::connect(item.get(), &PhotoItem::changeSeriesState, this, &AllSeriesView::changeSeriesState);
+  QObject::connect(item.get(), &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
 
-  grid->addWidget(item, row, col);
-}
-
-void AllSeriesView::updateImage(pcontainer::ItemId const& itemId)
-{
-  auto& widget = utils::asserted::fromPtr(findItem(itemId));
-  widget.setImage(imageCache.transaction().item(itemId).thumbnail().execute());
+  grid->addWidget(item.release(), row, col);
 }
 
 void AllSeriesView::updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics)

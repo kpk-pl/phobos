@@ -15,7 +15,6 @@ class PhotoItem : public ImageWidget
     Q_OBJECT
 public:
     explicit PhotoItem(pcontainer::ItemPtr const& photoItem,
-                       QImage const& preload,
                        Addons const& addons,
                        Capabilities const& capabilities);
 
