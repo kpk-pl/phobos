@@ -130,10 +130,20 @@ void NumSeriesView::addToLayout(widgets::pitem::PhotoItem* itemWidget)
 
 void NumSeriesView::updateCurrentSeries()
 {
-  clear();
+  utils::clearLayout(layoutForItems, false);
+  for (auto widgetPtr : photoItems)
+      delete widgetPtr;
+
+  photoItems.clear();
   // TODO: Optimize this so that no clear is performed.
   pcontainer::SeriesPtr const& series = seriesSet.findSeries(*currentSeriesUuid);
-  showSeries(series);
+  if (series->size() > 0)
+  {
+    currentItem = std::min(currentItem, series->size()-1);
+    showSeries(series);
+  }
+  else
+    currentItem = 0;
 }
 
 void NumSeriesView::changeSeriesState(pcontainer::ItemState const state) const

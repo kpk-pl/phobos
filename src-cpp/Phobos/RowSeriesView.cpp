@@ -80,7 +80,7 @@ widgets::pitem::PhotoItem* RowSeriesView::findItemWidget(pcontainer::ItemId cons
 
 void RowSeriesView::updateCurrentSeries()
 {
-  clear();
+  utils::clearLayout(scroll->boxLayout());
   // TODO: Optimize so no clear is done when not necessary.
   pcontainer::SeriesPtr const& series = seriesSet.findSeries(*currentSeriesUuid);
   showSeries(series);
