@@ -19,6 +19,7 @@ public:
 
   ValueType find(KeyType const& key) const;
   void replace(KeyType const& key, ValueType const& value);
+  void erase(KeyType const& key);
 
 private:
   using IteratorType = typename UnderlyingType::iterator;
@@ -30,6 +31,7 @@ private:
 
   void insertNew(KeyType const& key, ValueType const& value);
   void overrideExisting(IteratorType const& iterator, ValueType const& value);
+  void erase(UnderlyingType::iterator const it);
   void release(std::size_t const maxAllowedSize);
 };
 

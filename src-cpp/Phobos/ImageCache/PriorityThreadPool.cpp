@@ -4,6 +4,38 @@
 
 namespace phobos { namespace icache {
 
+struct PriorityThreadPool::PriorityTask::IdEqual
+{
+  IdEqual(Runnable::Id const id)
+    : id(id)
+  {}
+
+  bool operator()(PriorityThreadPool::PriorityTask const& pTask) const
+  {
+    if (pTask.task)
+      return pTask.task->id() == id;
+    return false;
+  }
+
+  Runnable::Id const id;
+};
+
+struct PriorityThreadPool::PriorityTask::UniqueIdEqual
+{
+  UniqueIdEqual(Runnable::UniqueId const id)
+    : id(id)
+  {}
+
+  bool operator()(PriorityThreadPool::PriorityTask const& pTask) const
+  {
+    if (pTask.task)
+      return pTask.task->uuid() == id;
+    return false;
+  }
+
+  Runnable::UniqueId const id;
+};
+
 PriorityThreadPool::PriorityThreadPool()
 {}
 
@@ -11,6 +43,13 @@ void PriorityThreadPool::start(RunnablePtr && task, std::size_t const priority)
 {
   insertTask(std::move(task), priority);
   updatePool();
+}
+
+void PriorityThreadPool::cancel(Runnable::UniqueId const& uniqueTaskId)
+{
+  auto const queueIt = std::find_if(queue.begin(), queue.end(), PriorityTask::UniqueIdEqual{uniqueTaskId});
+  if (queueIt != queue.end())
+    queue.erase(queueIt);
 }
 
 bool PriorityThreadPool::PriorityTask::operator<(PriorityTask const& rhs) const
@@ -53,22 +92,6 @@ void PriorityThreadPool::updatePool()
   LOG(DEBUG) << "Starting task " << taskToRun->id();
   pool.start(taskToRun.release());
 }
-
-struct PriorityThreadPool::PriorityTask::IdEqual
-{
-  IdEqual(Runnable::Id const id)
-    : id(id)
-  {}
-
-  bool operator()(PriorityThreadPool::PriorityTask const& pTask) const
-  {
-    if (pTask.task)
-      return pTask.task->id() == id;
-    return false;
-  }
-
-  Runnable::Id const id;
-};
 
 void PriorityThreadPool::taskFinished(Runnable::Id id)
 {

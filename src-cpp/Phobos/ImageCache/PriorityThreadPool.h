@@ -17,6 +17,7 @@ public:
   explicit PriorityThreadPool();
 
   void start(RunnablePtr && task, std::size_t const priority);
+  void cancel(Runnable::UniqueId const& taskUniqueId);
 
 private slots:
   void taskFinished(Runnable::Id taskId);
@@ -28,6 +29,7 @@ private:
   struct PriorityTask
   {
     struct IdEqual;
+    struct UniqueIdEqual;
 
     PriorityTask(std::size_t const priority, RunnablePtr && task) :
       priority(priority), task(std::move(task))

@@ -36,6 +36,7 @@ signals:
 
 private slots:
   void imageReadyFromThread(pcontainer::ItemId itemId, QImage image);
+  void changedSeries(QUuid const& seriesUuid);
 
 private:
   friend class Transaction;
@@ -44,7 +45,7 @@ private:
   std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(pcontainer::ItemId const& itemId) const;
   void startThreadForItem(Transaction && transaction);
 
-  std::multimap<pcontainer::ItemId, Transaction> transactionsInThread;
+  std::multimap<pcontainer::ItemId, std::pair<Runnable::UniqueId, Transaction>> transactionsInThread;
 
   std::map<LookupKeyType, QImage> thumbnailCache;
   LimitedMap fullImageCache;

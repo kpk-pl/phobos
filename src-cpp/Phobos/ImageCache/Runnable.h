@@ -4,6 +4,7 @@
 #include <QRunnable>
 #include <QMetaType>
 #include <QObject>
+#include <QUuid>
 #include <memory>
 
 namespace phobos { namespace icache {
@@ -19,13 +20,21 @@ signals:
 class Runnable : public QRunnable
 {
 public:
-  using QRunnable::QRunnable;
+  using UniqueId = QUuid;
+
+  explicit Runnable() : _uuid(QUuid::createUuid())
+  {}
+
   virtual ~Runnable() = default;
 
   using Id = std::size_t;
   virtual Id id() const = 0;
+  UniqueId const& uuid() const { return _uuid; }
 
   RunnableSignals signal;
+
+private:
+  UniqueId const _uuid;
 };
 
 using RunnablePtr = std::unique_ptr<Runnable>;

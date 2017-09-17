@@ -44,6 +44,13 @@ void LimitedMap::replace(KeyType const& key, ValueType const& value)
   release(maxAllowedSize);
 }
 
+void LimitedMap::erase(KeyType const& key)
+{
+  auto const it = map.find(key);
+  if (it != map.end())
+    erase(it);
+}
+
 void LimitedMap::insertNew(KeyType const& key, ValueType const& value)
 {
   contentSize += value.byteCount();
@@ -65,6 +72,15 @@ void LimitedMap::overrideExisting(IteratorType const& iterator, ValueType const&
   LOG(DEBUG) << "[Cache] Replaced full image " << key << " (" << megabytes(value) << "MB)";
 }
 
+void LimitedMap::erase(UnderlyingType::iterator const it)
+{
+  assert(it != map.end());
+  LOG(DEBUG) << "[Cache] Removed full image " << it->first << " (" << megabytes(it->second) << "MB)";
+
+  contentSize -= it->second.byteCount();
+  map.erase(it);
+}
+
 void LimitedMap::release(std::size_t const maxAllowedSize)
 {
   LOG(DEBUG) << "[Cache] Total full size: " << megabytes(contentSize) << "MB";
@@ -72,12 +88,7 @@ void LimitedMap::release(std::size_t const maxAllowedSize)
   while (!insertOrder.empty() && contentSize > maxAllowedSize)
   {
     auto const it = map.find(insertOrder.front());
-
-    assert(it != map.end());
-    LOG(DEBUG) << "[Cache] Removed full image " << it->first << " (" << megabytes(it->second) << "MB)";
-
-    contentSize -= it->second.byteCount();
-    map.erase(it);
+    erase(it);
     insertOrder.pop_front();
   }
 }

@@ -24,6 +24,8 @@ signals:
 
 public slots:
   void newLoadedFromThread(pcontainer::ItemId itemId, iprocess::MetricPtr image);
+
+private slots:
   bool changedSeries(QUuid const& seriesUuid);
 
 private:
