@@ -25,10 +25,10 @@ void Transaction::OptCallback::operator()(Result && result) const
     func(std::move(result));
 }
 
-void Transaction::OptCallback::operator()(QImage && im, ImageQuality qual) const
+void Transaction::OptCallback::operator()(QImage const& im, ImageQuality qual) const
 {
   if (func)
-    func(Result{std::move(im), qual});
+    func(Result{im, qual});
 }
 
 QString Transaction::toString() const

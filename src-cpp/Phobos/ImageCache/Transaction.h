@@ -34,7 +34,7 @@ public:
   struct OptCallback
   {
     void operator()(Result && result) const;
-    void operator()(QImage && im, ImageQuality qual) const;
+    void operator()(QImage const& im, ImageQuality qual) const;
     CallbackType func;
   };
 

@@ -14,11 +14,12 @@ struct PtrToPtr
   {}
   auto operator*() const noexcept(noexcept(**std::declval<T>()))
   {
+    // maybe nullptr dereference
     return **_ptr;
   }
   auto operator->() const noexcept(noexcept(*std::declval<T>()))
   {
-    return *_ptr;
+    return bool(*this) ? *_ptr : nullptr;
   }
   operator bool() const noexcept(noexcept(bool(std::declval<T>())) && noexcept(bool(*std::declval<T>())))
   {

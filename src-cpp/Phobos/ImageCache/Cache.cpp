@@ -74,11 +74,11 @@ void Cache::imageReadyFromThread(pcontainer::ItemId itemId, QImage image)
   for (auto it = allTrans.first; it != allTrans.second; ++it)
   {
     if (it->second.isThumbnail())
-      it->second.getCallback()(Transaction::Result{thumb, Transaction::ImageQuality::Thumb});
+      it->second.getCallback()(thumb, Transaction::ImageQuality::Thumb);
     else
     {
       updateFullCache = true;
-      it->second.getCallback()(Transaction::Result{image, Transaction::ImageQuality::Full});
+      it->second.getCallback()(image, Transaction::ImageQuality::Full);
     }
   }
 
