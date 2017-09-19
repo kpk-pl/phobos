@@ -135,7 +135,7 @@ namespace {
 
     auto oldContent = widgets::pitem::utils::recoverFromLayout(grid, myRow);
 
-    LOG(DEBUG) << "Returned " << oldContent.size() << " items";
+    LOG(DEBUG) << "Returned " << oldContent.size() << " old items";
     return oldContent;
   }
 } // unnamed namespace

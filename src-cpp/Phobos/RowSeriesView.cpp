@@ -1,10 +1,12 @@
-#include <QVBoxLayout>
-#include <QScrollBar>
 #include "RowSeriesView.h"
 #include "NavigationBar.h"
-#include "Utils/LayoutClear.h"
 #include "Widgets/PhotoItem/PhotoItem.h"
+#include "Widgets/PhotoItem/Recovery.h"
+#include "Utils/LayoutClear.h"
 #include "ImageCache/Cache.h"
+#include <easylogging++.h>
+#include <QVBoxLayout>
+#include <QScrollBar>
 
 namespace phobos {
 
@@ -80,15 +82,21 @@ widgets::pitem::PhotoItem* RowSeriesView::findItemWidget(pcontainer::ItemId cons
 
 void RowSeriesView::updateCurrentSeries()
 {
-  utils::clearLayout(scroll->boxLayout());
-  // TODO: Optimize so no clear is done when not necessary.
+  if (!currentSeriesUuid)
+    return;
+
+  LOG(DEBUG) << "Updating current series " << currentSeriesUuid->toString();
+  auto oldContent = widgets::pitem::utils::recoverFromLayout(scroll->boxLayout(), [](int){return true;});
   pcontainer::SeriesPtr const& series = seriesSet.findSeries(*currentSeriesUuid);
+
+
+
   showSeries(series);
 }
 
-void RowSeriesView::addToLayout(widgets::pitem::PhotoItem* itemWidget)
+void RowSeriesView::addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemWidget)
 {
-    scroll->boxLayout()->addWidget(itemWidget);
+  scroll->boxLayout()->addWidget(itemWidget.release());
 }
 
 void RowSeriesView::changeSeriesState(pcontainer::ItemState const state) const

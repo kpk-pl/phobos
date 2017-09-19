@@ -32,10 +32,12 @@ signals:
     void switchView(ViewDescriptionPtr viewDesc);
 
 protected:
-    virtual void addToLayout(widgets::pitem::PhotoItem* itemWidget) = 0;
+    virtual void addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemWidget) = 0;
     virtual void changeSeriesState(pcontainer::ItemState const state) const = 0;
     virtual widgets::pitem::PhotoItem*
         findItemWidget(pcontainer::ItemId const& itemId) const = 0;
+
+    std::unique_ptr<widgets::pitem::PhotoItem> createConnectedItem(pcontainer::ItemPtr const& item);
 
     virtual void updateCurrentSeries() = 0;
 

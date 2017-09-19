@@ -43,98 +43,93 @@ NumSeriesView::NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
 
 NumSeriesView::~NumSeriesView()
 {
-    utils::clearLayout(layoutForItems, false);
-    for (QWidget* widget : photoItems)
-        delete widget;
+  utils::clearLayout(layoutForItems, false);
 }
 
 void NumSeriesView::showSeries(pcontainer::SeriesPtr const& series)
 {
-    SeriesViewBase::showSeries(series);
-    currentItem = 0;
-    layoutForItems->itemAt(0)->widget()->setFocus();
+  SeriesViewBase::showSeries(series);
+  currentItem = 0;
+  layoutForItems->itemAt(0)->widget()->setFocus();
 }
 
 widgets::pitem::PhotoItem* NumSeriesView::findItemWidget(pcontainer::ItemId const& itemId) const
 {
   if (currentSeriesUuid != itemId.seriesUuid)
-      return nullptr;
+    return nullptr;
 
   auto const widgetIt = std::find_if(photoItems.begin(), photoItems.end(),
-      [&itemId](widgets::pitem::PhotoItem* const p){ return p->photoItem().id() == itemId; });
+      [&itemId](auto const& p){ return p->photoItem().id() == itemId; });
 
   assert(widgetIt != photoItems.end());
-  return *widgetIt;
+  return widgetIt->get();
 }
 
 void NumSeriesView::clear()
 {
-    SeriesViewBase::clear();
-    utils::clearLayout(layoutForItems, false);
-    currentItem = 0;
-    for (auto widgetPtr : photoItems)
-        delete widgetPtr;
-
-    photoItems.clear();
-    update();
+  SeriesViewBase::clear();
+  utils::clearLayout(layoutForItems, false);
+  photoItems.clear();
+  currentItem = 0;
+  update();
 }
 
 void NumSeriesView::keyPressEvent(QKeyEvent* keyEvent)
 {
-    if (keyEvent->key() == Qt::Key_Left)
-        showPrevItem();
-    else if (keyEvent->key() == Qt::Key_Right)
-        showNextItem();
-    SeriesViewBase::keyPressEvent(keyEvent);
+  if (keyEvent->key() == Qt::Key_Left)
+    showPrevItem();
+  else if (keyEvent->key() == Qt::Key_Right)
+    showNextItem();
+
+  SeriesViewBase::keyPressEvent(keyEvent);
 }
 
 void NumSeriesView::showPrevItem()
 {
-    if (currentItem > 0)
-    {
-        --currentItem;
-        setCurrentView();
-    }
+  if (currentItem > 0)
+  {
+    --currentItem;
+    setCurrentView();
+  }
 }
 
 void NumSeriesView::showNextItem()
 {
-    if (currentItem < photoItems.size()-1)
-    {
-        ++currentItem;
-        setCurrentView();
-    }
+  if (currentItem < photoItems.size()-1)
+  {
+    ++currentItem;
+    setCurrentView();
+  }
 }
 
 void NumSeriesView::setCurrentView()
 {
-    utils::clearLayout(layoutForItems, false);
+  utils::clearLayout(layoutForItems, false);
 
-    int startShow = std::max(int(currentItem) - int((visibleItems-1)/2), 0);
-    int endShow = std::min(startShow + int(visibleItems), int(photoItems.size()));
-    if (endShow - startShow < int(visibleItems))
-        startShow = std::max(endShow - int(visibleItems), 0);
+  int startShow = std::max(int(currentItem) - int((visibleItems-1)/2), 0);
+  int endShow = std::min(startShow + int(visibleItems), int(photoItems.size()));
+  if (endShow - startShow < int(visibleItems))
+      startShow = std::max(endShow - int(visibleItems), 0);
 
-    for (int i = startShow; i < endShow; ++i)
-        layoutForItems->addWidget(photoItems[i]);
+  for (int i = startShow; i < endShow; ++i)
+    layoutForItems->addWidget(photoItems[i].get());
 
-    layoutForItems->itemAt(currentItem - startShow)->widget()->setFocus();
+  layoutForItems->itemAt(currentItem - startShow)->widget()->setFocus();
 }
 
-void NumSeriesView::addToLayout(widgets::pitem::PhotoItem* itemWidget)
+void NumSeriesView::addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemWidget)
 {
-    photoItems.push_back(itemWidget);
-    if (layoutForItems->count() < int(visibleItems))
-        layoutForItems->addWidget(itemWidget);
+  if (layoutForItems->count() < int(visibleItems))
+    layoutForItems->addWidget(itemWidget.get());
+
+  photoItems.push_back(std::move(itemWidget));
 }
 
 void NumSeriesView::updateCurrentSeries()
 {
   utils::clearLayout(layoutForItems, false);
-  for (auto widgetPtr : photoItems)
-      delete widgetPtr;
-
   photoItems.clear();
+
   // TODO: Optimize this so that no clear is performed.
   pcontainer::SeriesPtr const& series = seriesSet.findSeries(*currentSeriesUuid);
   if (series->size() > 0)
@@ -148,8 +143,8 @@ void NumSeriesView::updateCurrentSeries()
 
 void NumSeriesView::changeSeriesState(pcontainer::ItemState const state) const
 {
-    for (widgets::pitem::PhotoItem *photoWidget : photoItems)
-        photoWidget->photoItem().setState(state);
+  for (auto const& photoWidget : photoItems)
+    photoWidget->photoItem().setState(state);
 }
 
 } // namespace phobos

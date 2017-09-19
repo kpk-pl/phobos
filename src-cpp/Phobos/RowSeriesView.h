@@ -20,7 +20,7 @@ private slots:
     void resizeImages(int percent);
 
 protected:
-    void addToLayout(widgets::pitem::PhotoItem* itemWidget) override;
+    void addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemWidget) override;
     void changeSeriesState(pcontainer::ItemState const state) const override;
     widgets::pitem::PhotoItem*
         findItemWidget(pcontainer::ItemId const& itemId) const override;

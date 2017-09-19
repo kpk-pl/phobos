@@ -18,32 +18,37 @@ SeriesViewBase::SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache &
 
 // TODO: maybe if at all possible. Ctrl+Arrow jump focus to best photo in series
 // TODO: This function has a lot in common with AllSeriesView -> derive from common base
+
+std::unique_ptr<widgets::pitem::PhotoItem> SeriesViewBase::createConnectedItem(pcontainer::ItemPtr const& item)
+{
+  using namespace widgets::pitem;
+
+  auto const& addons = Addons(config::get()->get_qualified_array_of<std::string>("seriesView.enabledAddons").value_or({}));
+  auto const& itemId = item->id();
+  auto widget = std::make_unique<PhotoItem>(item, addons, CapabilityType::REMOVE_PHOTO);
+
+  auto result = imageCache.transaction().item(itemId).callback([lt=widget->lifetime()](auto && res){
+    auto item = lt.lock();
+    if (item) item->setImage(res.image);
+  }).execute();
+
+  widget->setImage(result.image);
+  widget->setMetrics(imageCache.metrics().get(itemId));
+
+  QObject::connect(widget.get(), &PhotoItem::changeSeriesState, this, &SeriesViewBase::changeCurrentSeriesState);
+  QObject::connect(widget.get(), &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
+
+  return widget;
+}
+
 void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
 {
   using namespace widgets::pitem;
   assert(series);
   clear();
 
-  auto const& addons = Addons(config::get()->get_qualified_array_of<std::string>("seriesView.enabledAddons").value_or({}));
-
   for (pcontainer::ItemPtr const& item : *series)
-  {
-    auto const& itemId = item->id();
-    auto widget = std::make_unique<PhotoItem>(item, addons, CapabilityType::REMOVE_PHOTO);
-
-    auto result = imageCache.transaction().item(itemId).callback([lt=widget->lifetime()](auto && res){
-      auto item = lt.lock();
-      if (item) item->setImage(res.image);
-    }).execute();
-
-    widget->setImage(result.image);
-    widget->setMetrics(imageCache.metrics().get(itemId));
-
-    QObject::connect(widget.get(), &PhotoItem::changeSeriesState, this, &SeriesViewBase::changeCurrentSeriesState);
-    QObject::connect(widget.get(), &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
-
-    addToLayout(widget.release());
-  }
+    addToLayout(createConnectedItem(item));
 
   currentSeriesUuid = series->uuid();
 }
