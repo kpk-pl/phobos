@@ -1,4 +1,15 @@
-#include <functional>
+#include "AllSeriesView.h"
+#include "Config.h"
+#include "ConfigExtension.h"
+#include "Widgets/PhotoItem/PhotoItem.h"
+#include "Widgets/PhotoItem/Addon.h"
+#include "Widgets/PhotoItem/Capability.h"
+#include "Widgets/PhotoItem/Recovery.h"
+#include "Utils/Algorithm.h"
+#include "Utils/Focused.h"
+#include "Utils/Asserted.h"
+#include "ImageCache/Cache.h"
+#include <easylogging++.h>
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QScrollArea>
@@ -6,18 +17,6 @@
 #include <QEvent>
 #include <QKeyEvent>
 #include <QPixmap>
-#include "AllSeriesView.h"
-#include "Config.h"
-#include "ConfigExtension.h"
-#include "Widgets/PhotoItem/PhotoItem.h"
-#include "Widgets/PhotoItem/Addon.h"
-#include "Widgets/PhotoItem/Capability.h"
-#include "Utils/Algorithm.h"
-#include "Utils/Focused.h"
-#include "Utils/Asserted.h"
-#include "Utils/LayoutClear.h"
-#include "ImageCache/Cache.h"
-#include <easylogging++.h>
 
 namespace phobos {
 
@@ -124,37 +123,17 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
 }
 
 namespace {
-  using PhotoItemsContentMap = std::map<pcontainer::ItemId, std::unique_ptr<widgets::pitem::PhotoItem> >;
-
-  PhotoItemsContentMap clearRowInGrid(QGridLayout *grid, std::size_t const row)
+  widgets::pitem::utils::PhotoItemsContentMap clearRowInGrid(QGridLayout *grid, std::size_t const row)
   {
     LOG(DEBUG) << "Clearing row " << row;
-    PhotoItemsContentMap oldContent;
 
-    for (int idx = 0; idx < grid->count(); /* none */)
-    {
+    auto const myRow = [&](int const idx){
       int r, c, rSpan, cSpan;
       grid->getItemPosition(idx, &r, &c, &rSpan, &cSpan);
-      if (static_cast<long>(row) != r)
-      {
-        ++idx;
-        continue;
-      }
+      return static_cast<long>(row) == r;
+    };
 
-      QLayoutItem *layoutItem = grid->takeAt(idx);
-      assert(layoutItem);
-
-      std::unique_ptr<widgets::pitem::PhotoItem> photoItem(dynamic_cast<widgets::pitem::PhotoItem*>(layoutItem->widget()));
-      if (!photoItem)
-      {
-        utils::clearLayoutItem(layoutItem);
-        continue;
-      }
-
-      LOG(DEBUG) << "Saving item at column " << c << ": " << photoItem->photoItem().id().toString();
-      oldContent.emplace(photoItem->photoItem().id(), std::move(photoItem));
-      utils::clearLayoutItem(layoutItem, false);
-    }
+    auto oldContent = widgets::pitem::utils::recoverFromLayout(grid, myRow);
 
     LOG(DEBUG) << "Returned " << oldContent.size() << " items";
     return oldContent;

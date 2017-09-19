@@ -61,6 +61,7 @@ SOURCES += Phobos.cpp\
     Widgets/ImageWidget.cpp \
     Widgets/PhotoItem/PhotoItem.cpp \
     Widgets/PhotoItem/Addon.cpp \
+    Widgets/PhotoItem/Recovery.cpp \
     Widgets/HorizontalLine.cpp \
     Widgets/FilenameEntry.cpp \
     ImageCache/Cache.cpp \
@@ -139,6 +140,7 @@ HEADERS  += MainWindow.h \
     Widgets/PhotoItem/PhotoItem.h \
     Widgets/PhotoItem/Addon.h \
     Widgets/PhotoItem/Capability.h \
+    Widgets/PhotoItem/Recovery.h \
     Widgets/HorizontalLine.h \
     Widgets/FilenameEntry.h \
     ImageCache/Cache.h \
