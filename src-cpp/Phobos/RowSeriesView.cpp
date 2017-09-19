@@ -86,12 +86,27 @@ void RowSeriesView::updateCurrentSeries()
     return;
 
   LOG(DEBUG) << "Updating current series " << currentSeriesUuid->toString();
+  int const prevScrollValue = scroll->horizontalScrollBar()->value();
   auto oldContent = widgets::pitem::utils::recoverFromLayout(scroll->boxLayout(), [](int){return true;});
   pcontainer::SeriesPtr const& series = seriesSet.findSeries(*currentSeriesUuid);
 
+  for (auto const& item : *series)
+  {
+    auto const oldIt = oldContent.find(item->id());
+    if (oldIt != oldContent.end())
+    {
+      LOG(DEBUG) << "Adding item from saved content " << item->id().toString();
+      addToLayout(std::move(oldIt->second));
+      oldContent.erase(oldIt);
+    }
+    else
+    {
+      LOG(DEBUG) << "Adding newly constructed item " << item->id().toString();
+      addToLayout(createConnectedItem(item));
+    }
+  }
 
-
-  showSeries(series);
+  scroll->horizontalScrollBar()->setValue(prevScrollValue);
 }
 
 void RowSeriesView::addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemWidget)
@@ -101,12 +116,12 @@ void RowSeriesView::addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemW
 
 void RowSeriesView::changeSeriesState(pcontainer::ItemState const state) const
 {
-    for (int i = 0; i < scroll->boxLayout()->count(); ++i)
-    {
-        widgets::pitem::PhotoItem *photoWidget = dynamic_cast<widgets::pitem::PhotoItem*>(scroll->boxLayout()->itemAt(i)->widget());
-        assert(photoWidget);
-        photoWidget->photoItem().setState(state);
-    }
+  for (int i = 0; i < scroll->boxLayout()->count(); ++i)
+  {
+    widgets::pitem::PhotoItem *photoWidget = dynamic_cast<widgets::pitem::PhotoItem*>(scroll->boxLayout()->itemAt(i)->widget());
+    assert(photoWidget);
+    photoWidget->photoItem().setState(state);
+  }
 }
 
 } // namespace phobos

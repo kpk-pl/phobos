@@ -84,6 +84,8 @@ void PriorityThreadPool::updatePool()
     return;
   }
 
+  // TODO: BUG!!! need to check running tasks if already running task does not do the same
+  // thing! if so then need to skip!
   auto taskToRun = std::move(queue.front().task);
   queue.erase(queue.begin());
 
@@ -97,6 +99,8 @@ void PriorityThreadPool::taskFinished(Runnable::Id id)
 {
   LOG(DEBUG) << "Finished task " << id;
 
+  // TODO: BUG!!! running task is a set of simple id's. not unique. if two tasks with the same id run at
+  // at the same time, then first one clears set and second one fails to do so because of assertion
   auto const it = runningTasks.find(id);
   assert(it != runningTasks.end());
   runningTasks.erase(it);
