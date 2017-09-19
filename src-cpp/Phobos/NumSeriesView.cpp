@@ -1,12 +1,13 @@
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QKeyEvent>
 #include "NumSeriesView.h"
 #include "NavigationBar.h"
 #include "Widgets/PhotoItem/PhotoItem.h"
 #include "Config.h"
 #include "Utils/LayoutClear.h"
 #include "ImageCache/Cache.h"
+#include <easylogging++.h>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QKeyEvent>
 
 namespace phobos {
 
@@ -46,11 +47,15 @@ NumSeriesView::~NumSeriesView()
   utils::clearLayout(layoutForItems, false);
 }
 
+QLayout* NumSeriesView::getLayoutForItems() const
+{
+  return layoutForItems;
+}
+
 void NumSeriesView::showSeries(pcontainer::SeriesPtr const& series)
 {
   SeriesViewBase::showSeries(series);
   currentItem = 0;
-  layoutForItems->itemAt(0)->widget()->setFocus();
 }
 
 widgets::pitem::PhotoItem* NumSeriesView::findItemWidget(pcontainer::ItemId const& itemId) const
@@ -128,15 +133,20 @@ void NumSeriesView::addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemW
 void NumSeriesView::updateCurrentSeries()
 {
   utils::clearLayout(layoutForItems, false);
+
+  std::map<pcontainer::ItemId, std::unique_ptr<widgets::pitem::PhotoItem>> oldContent;
+  for (auto &item : photoItems)
+  {
+    auto const id = item->photoItem().id();
+    oldContent.emplace(id, std::move(item));
+  }
   photoItems.clear();
 
-  // TODO: Optimize this so that no clear is performed.
-  pcontainer::SeriesPtr const& series = seriesSet.findSeries(*currentSeriesUuid);
-  if (series->size() > 0)
-  {
-    currentItem = std::min(currentItem, series->size()-1);
-    showSeries(series);
-  }
+  updateCurrentSeriesFromContent(oldContent);
+  LOG(DEBUG) << "Updated current series " << currentSeriesUuid->toString();
+
+  if (layoutForItems->count() > 0)
+    currentItem = std::min(currentItem, static_cast<std::size_t>(layoutForItems->count()-1));
   else
     currentItem = 0;
 }

@@ -1,4 +1,3 @@
-#include <functional>
 #include "SeriesViewBase.h"
 #include "Widgets/PhotoItem/PhotoItem.h"
 #include "Widgets/PhotoItem/Addon.h"
@@ -6,6 +5,9 @@
 #include "ConfigExtension.h"
 #include "ImageCache/Cache.h"
 #include "Utils/Asserted.h"
+#include <easylogging++.h>
+#include <functional>
+#include <QLayout>
 
 namespace phobos {
 
@@ -41,6 +43,11 @@ std::unique_ptr<widgets::pitem::PhotoItem> SeriesViewBase::createConnectedItem(p
   return widget;
 }
 
+void SeriesViewBase::addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemWidget)
+{
+  getLayoutForItems()->addWidget(itemWidget.release());
+}
+
 void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
 {
   using namespace widgets::pitem;
@@ -51,6 +58,34 @@ void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
     addToLayout(createConnectedItem(item));
 
   currentSeriesUuid = series->uuid();
+
+  if (!series->empty())
+    getLayoutForItems()->itemAt(0)->widget()->setFocus();
+}
+
+void SeriesViewBase::updateCurrentSeriesFromContent(
+    std::map<pcontainer::ItemId, std::unique_ptr<widgets::pitem::PhotoItem>> &content)
+{
+  if (!currentSeriesUuid)
+    return;
+
+  pcontainer::SeriesPtr const& series = seriesSet.findSeries(*currentSeriesUuid);
+
+  for (auto const& item : *series)
+  {
+    auto const oldIt = content.find(item->id());
+    if (oldIt != content.end())
+    {
+      LOG(DEBUG) << "Adding item from saved content " << item->id().toString();
+      addToLayout(std::move(oldIt->second));
+      content.erase(oldIt);
+    }
+    else
+    {
+      LOG(DEBUG) << "Adding newly constructed item " << item->id().toString();
+      addToLayout(createConnectedItem(item));
+    }
+  }
 }
 
 void SeriesViewBase::updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics)
@@ -70,15 +105,15 @@ void SeriesViewBase::updateSeries(QUuid seriesUuid)
 
 void SeriesViewBase::clear()
 {
-    currentSeriesUuid.reset();
+  currentSeriesUuid.reset();
 }
 
 void SeriesViewBase::changeCurrentSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state)
 {
-    assert(currentSeriesUuid);
-    assert(*currentSeriesUuid == seriesUuid);
+  assert(currentSeriesUuid);
+  assert(*currentSeriesUuid == seriesUuid);
 
-    changeSeriesState(state);
+  changeSeriesState(state);
 }
 
 } // namespace phobos

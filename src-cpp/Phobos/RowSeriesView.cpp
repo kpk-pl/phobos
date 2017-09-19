@@ -40,78 +40,54 @@ RowSeriesView::RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
                      this, [this](){ switchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES, currentSeriesUuid, +1)); });
 }
 
-void RowSeriesView::showSeries(pcontainer::SeriesPtr const& series)
+QLayout* RowSeriesView::getLayoutForItems() const
 {
-    SeriesViewBase::showSeries(series);
-    scroll->boxLayout()->itemAt(0)->widget()->setFocus();
+  return scroll->boxLayout();
 }
 
 void RowSeriesView::resizeImages(int percent)
 {
-    assert(percent >= 0 && percent <= 100);
-    QVBoxLayout* vl = dynamic_cast<QVBoxLayout*>(layout());
-    vl->setStretch(1, percent);
-    vl->setStretch(2, 100-percent);
+  assert(percent >= 0 && percent <= 100);
+  QVBoxLayout* vl = dynamic_cast<QVBoxLayout*>(layout());
+  vl->setStretch(1, percent);
+  vl->setStretch(2, 100-percent);
 }
 
 void RowSeriesView::clear()
 {
-    SeriesViewBase::clear();
-    utils::clearLayout(scroll->boxLayout());
-    scroll->horizontalScrollBar()->setValue(0);
-    update();
+  SeriesViewBase::clear();
+  utils::clearLayout(scroll->boxLayout());
+  scroll->horizontalScrollBar()->setValue(0);
+  update();
 }
 
 widgets::pitem::PhotoItem* RowSeriesView::findItemWidget(pcontainer::ItemId const& itemId) const
 {
-    if (currentSeriesUuid != itemId.seriesUuid)
-        return nullptr;
-
-    for (int i = 0; i < scroll->boxLayout()->count(); ++i)
-    {
-        auto const photoWidget = dynamic_cast<widgets::pitem::PhotoItem*>(scroll->boxLayout()->itemAt(i)->widget());
-        assert(photoWidget);
-
-        if (photoWidget->photoItem().id() == itemId)
-          return photoWidget;
-    }
-
-    assert(false); // impossible
+  if (currentSeriesUuid != itemId.seriesUuid)
     return nullptr;
+
+  for (int i = 0; i < scroll->boxLayout()->count(); ++i)
+  {
+    auto const photoWidget = dynamic_cast<widgets::pitem::PhotoItem*>(scroll->boxLayout()->itemAt(i)->widget());
+    assert(photoWidget);
+
+    if (photoWidget->photoItem().id() == itemId)
+      return photoWidget;
+  }
+
+  assert(false); // impossible
+  return nullptr;
 }
 
 void RowSeriesView::updateCurrentSeries()
 {
-  if (!currentSeriesUuid)
-    return;
-
-  LOG(DEBUG) << "Updating current series " << currentSeriesUuid->toString();
   int const prevScrollValue = scroll->horizontalScrollBar()->value();
-  auto oldContent = widgets::pitem::utils::recoverFromLayout(scroll->boxLayout(), [](int){return true;});
-  pcontainer::SeriesPtr const& series = seriesSet.findSeries(*currentSeriesUuid);
 
-  for (auto const& item : *series)
-  {
-    auto const oldIt = oldContent.find(item->id());
-    if (oldIt != oldContent.end())
-    {
-      LOG(DEBUG) << "Adding item from saved content " << item->id().toString();
-      addToLayout(std::move(oldIt->second));
-      oldContent.erase(oldIt);
-    }
-    else
-    {
-      LOG(DEBUG) << "Adding newly constructed item " << item->id().toString();
-      addToLayout(createConnectedItem(item));
-    }
-  }
+  auto oldContent = widgets::pitem::utils::recoverFromLayout(getLayoutForItems(), [](int){return true;});
+  updateCurrentSeriesFromContent(oldContent);
+  LOG(DEBUG) << "Updated current series " << currentSeriesUuid->toString();
 
   scroll->horizontalScrollBar()->setValue(prevScrollValue);
-}
-
-void RowSeriesView::addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemWidget)
-{
-  scroll->boxLayout()->addWidget(itemWidget.release());
 }
 
 void RowSeriesView::changeSeriesState(pcontainer::ItemState const state) const

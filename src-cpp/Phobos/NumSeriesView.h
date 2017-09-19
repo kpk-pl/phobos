@@ -25,6 +25,7 @@ protected:
       findItemWidget(pcontainer::ItemId const& itemId) const override;
 
   void updateCurrentSeries() override;
+  QLayout* getLayoutForItems() const override;
 
 private:
   void showNextItem();
