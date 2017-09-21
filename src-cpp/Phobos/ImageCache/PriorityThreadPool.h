@@ -41,8 +41,12 @@ private:
     bool operator<(PriorityTask const& rhs) const;
   };
 
+  using QueueType = std::vector<PriorityTask>;
+
+  QueueType::iterator findNextTask();
+
   std::set<std::size_t> runningTasks;
-  std::vector<PriorityTask> queue;
+  QueueType queue;
 
   QThreadPool pool;
 };

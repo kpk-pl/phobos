@@ -78,16 +78,15 @@ void PriorityThreadPool::updatePool()
     return;
   }
 
-  if (queue.empty())
+  auto taskToRunIt = findNextTask();
+  if (taskToRunIt == queue.end())
   {
     LOG(DEBUG) << "No more tasks to run in queue";
     return;
   }
 
-  // TODO: BUG!!! need to check running tasks if already running task does not do the same
-  // thing! if so then need to skip!
-  auto taskToRun = std::move(queue.front().task);
-  queue.erase(queue.begin());
+  auto taskToRun = std::move(taskToRunIt->task);
+  queue.erase(taskToRunIt);
 
   QObject::connect(&taskToRun->signal, &RunnableSignals::finished, this, &PriorityThreadPool::taskFinished);
   runningTasks.insert(taskToRun->id());
@@ -95,12 +94,19 @@ void PriorityThreadPool::updatePool()
   pool.start(taskToRun.release());
 }
 
+PriorityThreadPool::QueueType::iterator PriorityThreadPool::findNextTask()
+{
+  for (auto it = queue.begin(); it != queue.end(); ++it)
+    if (runningTasks.find(it->task->id()) == runningTasks.end())
+      return it;
+
+  return queue.end();
+}
+
 void PriorityThreadPool::taskFinished(Runnable::Id id)
 {
   LOG(DEBUG) << "Finished task " << id;
 
-  // TODO: BUG!!! running task is a set of simple id's. not unique. if two tasks with the same id run at
-  // at the same time, then first one clears set and second one fails to do so because of assertion
   auto const it = runningTasks.find(id);
   assert(it != runningTasks.end());
   runningTasks.erase(it);
