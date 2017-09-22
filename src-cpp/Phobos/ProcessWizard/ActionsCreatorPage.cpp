@@ -32,7 +32,7 @@ ActionsCreatorPage::ActionsCreatorPage(OperationType const& defaultOperation)
   resetButton = new QPushButton(tr("Reset actions"));
 
   QVBoxLayout *mainLayout = new QVBoxLayout();
-  addTypeTabs(mainLayout);
+  addTypeTabs(mainLayout, defaultOperation);
   addStatusRow(mainLayout);
   setLayout(mainLayout);
 
@@ -43,7 +43,6 @@ ActionsCreatorPage::ActionsCreatorPage(OperationType const& defaultOperation)
     currentTab = utils::asserted::fromMap(actionTabs, ItemState::SELECTED);
 
   actionTabsWidget->setCurrentWidget(currentTab);
-  currentTab->setCurrentTab(defaultOperation);
 
   selectedActionsChanged();
 
@@ -92,13 +91,14 @@ QSize defaultTextSize()
 }
 } // unnamed namespace
 
-void ActionsCreatorPage::addTypeTabs(QVBoxLayout *layout)
+void ActionsCreatorPage::addTypeTabs(QVBoxLayout *layout, OperationType const& defaultOperation)
 {
   actionTabsWidget = new QTabWidget();
 
   for (auto const state : allStates)
   {
     TypeActionTab *typeActionTab = new TypeActionTab(state);
+    typeActionTab->setCurrentTab(defaultOperation);
     actionTabs.emplace(state, typeActionTab);
     QObject::connect(typeActionTab, &TypeActionTab::actionsChanged, this, &ActionsCreatorPage::selectedActionsChanged);
     QObject::connect(resetButton, &QPushButton::clicked, typeActionTab, &TypeActionTab::clearActions);

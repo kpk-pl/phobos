@@ -6,6 +6,7 @@
 #include "ImportWizard/ImportWizard.h"
 #include "ProcessWizard/ProcessWizard.h"
 #include "ProcessWizard/Execution.h"
+#include "ProcessWizard/Execution/Execute.h"
 #include <easylogging++.h>
 #include <QApplication>
 #include <QMenuBar>
@@ -94,23 +95,7 @@ void MainWindow::processAction(processwiz::OperationType const operation)
   processwiz::ProcessWizard processWizard(this, seriesSet, operation);
 
   if (processWizard.exec())
-  {
-    auto const& executions = processWizard.executions();
-    processwiz::ConstExecutionPtrVec failed;
-
-    LOG(INFO) << "Executing " << executions.size() << " operations";
-    for (auto const& exec : executions)
-    {
-      if (!exec->execute())
-      {
-        failed.push_back(exec);
-        LOG(WARNING) << "Failed: " << exec->toString();
-      }
-    }
-
-    // TODO: Display dialog if something failed
-  }
-  // TODO: after removing photos something must be done with whole application because loading these from hard drive will be impossible
+    processwiz::exec::execute(processWizard.executions());
 }
 
 // TODO: Status bar should display percent and fraction of photos(series) viewed, especially in series view

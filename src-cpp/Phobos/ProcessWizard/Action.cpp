@@ -58,7 +58,7 @@ ConstExecutionPtrVec
   for (pcontainer::SeriesPtr const& series : photoSet)
     for (pcontainer::ItemPtr const& photo : *series)
       if (photo->state() == matchedState)
-        result.emplace_back(std::make_shared<DeleteExecution>(photo->fileName(), method));
+        result.emplace_back(std::make_shared<DeleteExecution>(photo->id(), method));
 
   return result;
 }
@@ -142,7 +142,7 @@ ConstExecutionPtrVec
       if (photo->state() == matchedState)
       {
         QString const newFileName = renameFile(photo->fileName(), pattern, bits);
-        result.emplace_back(std::make_shared<RenameExecution>(photo->fileName(), newFileName));
+        result.emplace_back(std::make_shared<RenameExecution>(photo->id(), newFileName));
         ++bits.affectedPhotos;
       }
       ++bits.processedPhotos;

@@ -3,34 +3,35 @@
 
 #include "ProcessWizard/Execution.h"
 #include "ProcessWizard/Action.h"
+#include "PhotoContainers/ItemId.h"
 
 namespace phobos { namespace processwiz {
 
 class DeleteExecution : public Execution
 {
 public:
-  DeleteExecution(QString const& filename, DeleteAction::Method const deleteMethod);
+  DeleteExecution(pcontainer::ItemId const& itemId, DeleteAction::Method const deleteMethod);
 
   bool execute() const override;
   QString toString() const override;
   QString warning() const override;
+  bool destructive() const override { return true; }
 
 private:
-  QString const file;
   DeleteAction::Method const method;
 };
 
 class RenameExecution : public Execution
 {
 public:
-  RenameExecution(QString const& file, QString const& newFilename);
+  RenameExecution(pcontainer::ItemId const& itemId, QString const& newFilename);
 
   bool execute() const override;
   QString toString() const override;
   QString warning() const override;
+  bool destructive() const override { return true; }
 
 private:
-  QString const file;
   QString const newFilename;
 };
 

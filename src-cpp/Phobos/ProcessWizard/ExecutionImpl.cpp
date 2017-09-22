@@ -8,8 +8,8 @@
 
 namespace phobos { namespace processwiz {
 
-DeleteExecution::DeleteExecution(QString const& file, DeleteAction::Method const deleteMethod) :
-  file(file), method(deleteMethod)
+DeleteExecution::DeleteExecution(pcontainer::ItemId const& itemId, DeleteAction::Method const deleteMethod) :
+  Execution(itemId), method(deleteMethod)
 {}
 
 bool DeleteExecution::execute() const
@@ -19,11 +19,11 @@ bool DeleteExecution::execute() const
   switch(method)
   {
   case DeleteAction::Method::Permanent:
-    LOG(INFO) << "Removing permanently \"" << file << '"';
-    return debugDisabled || QFile(file).remove();
+    LOG(INFO) << "Removing permanently \"" << file() << '"';
+    return debugDisabled || QFile(file()).remove();
   case DeleteAction::Method::Trash:
-    LOG(INFO) << "Removing to trash \"" << file << '"';
-    return debugDisabled || utils::fs::moveToTrash(file);
+    LOG(INFO) << "Removing to trash \"" << file() << '"';
+    return debugDisabled || utils::fs::moveToTrash(file());
   }
 
   assert(false);
@@ -35,9 +35,9 @@ QString DeleteExecution::toString() const
   switch(method)
   {
   case DeleteAction::Method::Permanent:
-    return QString("Delete \"%1\" permanently").arg(file);
+    return QString("Delete \"%1\" permanently").arg(file());
   case DeleteAction::Method::Trash:
-    return QString("Move \"%1\" to trash").arg(file);
+    return QString("Move \"%1\" to trash").arg(file());
   }
 
   assert(false);
@@ -49,8 +49,8 @@ QString DeleteExecution::warning() const
   return QString();
 }
 
-RenameExecution::RenameExecution(QString const& file, QString const& newFilename) :
-  file(file), newFilename(newFilename)
+RenameExecution::RenameExecution(pcontainer::ItemId const& itemId, QString const& newFilename) :
+  Execution(itemId), newFilename(newFilename)
 {}
 
 bool RenameExecution::execute() const
@@ -60,7 +60,7 @@ bool RenameExecution::execute() const
 
 QString RenameExecution::toString() const
 {
-  return QString("Rename \"%1\" to \"%2\"").arg(file, newFilename);
+  return QString("Rename \"%1\" to \"%2\"").arg(file(), newFilename);
 }
 
 QString RenameExecution::warning() const

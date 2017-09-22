@@ -42,7 +42,7 @@ private:
   QPushButton *resetButton;
 
   void addStatusRow(QVBoxLayout *layout);
-  void addTypeTabs(QVBoxLayout *layout);
+  void addTypeTabs(QVBoxLayout *layout, OperationType const& defaultOperation);
 };
 
 }} // namespace phobos::processwiz
