@@ -1,5 +1,7 @@
 #include "ProcessWizard/Execution/Execute.h"
 #include "ProcessWizard/Execution.h"
+#include "PhotoContainers/Set.h"
+#include "Utils/Comparators.h"
 #include <easylogging++.h>
 #include <QMessageBox>
 #include <QString>
@@ -22,7 +24,7 @@ void displayFailures(ConstExecutionPtrVec const& failures)
 }
 }
 
-void execute(ConstExecutionPtrVec const& executions)
+void execute(pcontainer::Set &photoSet, ConstExecutionPtrVec const& executions)
 {
   ConstExecutionPtrVec failed;
   std::vector<pcontainer::ItemId> destroyed;
@@ -43,6 +45,8 @@ void execute(ConstExecutionPtrVec const& executions)
 
   if (!failed.empty())
     displayFailures(failed);
+
+  photoSet.removeImages(destroyed);
 }
 
 // TODO: after removing photos something must be done with whole application because loading these from hard drive will be impossible

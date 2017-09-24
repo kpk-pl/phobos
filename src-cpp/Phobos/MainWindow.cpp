@@ -95,7 +95,7 @@ void MainWindow::processAction(processwiz::OperationType const operation)
   processwiz::ProcessWizard processWizard(this, seriesSet, operation);
 
   if (processWizard.exec())
-    processwiz::exec::execute(processWizard.executions());
+    processwiz::exec::execute(seriesSet, processWizard.executions());
 }
 
 // TODO: Status bar should display percent and fraction of photos(series) viewed, especially in series view

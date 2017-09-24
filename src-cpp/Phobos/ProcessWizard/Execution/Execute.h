@@ -2,10 +2,11 @@
 #define PROCESSWIZARD_EXECUTION_EXECUTE_H
 
 #include "ProcessWizard/ExecutionFwd.h"
+#include "PhotoContainers/Fwd.h"
 
 namespace phobos { namespace processwiz { namespace exec {
 
-void execute(ConstExecutionPtrVec const& executions);
+void execute(pcontainer::Set &photoSet, ConstExecutionPtrVec const& executions);
 
 }}} // namespace phobos::processwiz::exec
 

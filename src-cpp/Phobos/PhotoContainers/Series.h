@@ -31,7 +31,7 @@ public:
   ItemPtrVec::const_iterator begin() const { return _photoItems.begin(); }
   ItemPtrVec::const_iterator end() const { return _photoItems.end(); }
 
-  void remove(QString const& fileName);
+  void remove(std::vector<pcontainer::ItemId> const& itemIds);
   std::vector<ItemId> const& removedItems() const { return _removedItems; }
 
 private:

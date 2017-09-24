@@ -40,8 +40,31 @@ SeriesPtr const& Set::findSeries(QUuid const& seriesUuid,
 
 void Set::removeImage(pcontainer::ItemId const& itemId)
 {
-  SeriesPtr const& series = findSeries(itemId.seriesUuid);
-  series->remove(itemId.fileName);
+  removeImagesImpl({itemId});
+}
+
+void Set::removeImages(std::vector<pcontainer::ItemId> itemIds)
+{
+  std::sort(itemIds.begin(), itemIds.end(), utils::less().on(&ItemId::seriesUuid));
+
+  for (auto it = itemIds.begin(); it != itemIds.end(); /* noop */)
+  {
+    auto const lookedUuid = it->seriesUuid;
+    auto partIt = std::find_if_not(it, itemIds.end(), [lookedUuid](auto const& id){return id.seriesUuid == lookedUuid;});
+    std::vector<pcontainer::ItemId> fromSeries(it, partIt);
+
+    removeImagesImpl(fromSeries);
+    it = partIt;
+  }
+}
+
+void Set::removeImagesImpl(std::vector<pcontainer::ItemId> const& itemIds)
+{
+  if (itemIds.empty())
+    return;
+
+  SeriesPtr const& series = findSeries(itemIds.front().seriesUuid);
+  series->remove(itemIds);
   // possible that this series remains empty forever
 
   emit changedSeries(series->uuid());

@@ -34,8 +34,11 @@ signals:
 
 public slots:
     void removeImage(pcontainer::ItemId const& itemId);
+    void removeImages(std::vector<pcontainer::ItemId> itemIds);
 
 private:
+    void removeImagesImpl(std::vector<pcontainer::ItemId> const& itemIds);
+
     SeriesPtrVec _photoSeries;
 };
 

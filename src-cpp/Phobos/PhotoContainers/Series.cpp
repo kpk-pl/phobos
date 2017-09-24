@@ -20,16 +20,20 @@ void Series::addPhotoItem(QString const& fileName)
   _photoItems.emplace_back(std::move(newItem));
 }
 
-void Series::remove(QString const& fileName)
+void Series::remove(std::vector<pcontainer::ItemId> const& itemIds)
 {
-  auto const fileNameEqual = [&](ItemPtr const& item){ return item->fileName() == fileName; };
-  auto const it = std::find_if(_photoItems.begin(), _photoItems.end(), fileNameEqual);
-  assert(it != _photoItems.end());
-
-  auto const& itemId = (*it)->id();
-  LOG(INFO) << "Removing from series: " << itemId.toString();
-  _removedItems.push_back(itemId);
-  _photoItems.erase(it);
+  for (auto itemIt = _photoItems.begin(); itemIt != _photoItems.end(); /* noop */)
+  {
+    auto const& itemId = (*itemIt)->id();
+    if (std::find(itemIds.begin(), itemIds.end(), itemId) != itemIds.end())
+    {
+      LOG(INFO) << "Removing from series: " << itemId.toString();
+      _removedItems.push_back(itemId);
+      itemIt = _photoItems.erase(itemIt);
+    }
+    else
+      ++itemIt;
+  }
 }
 
 }} // namespace phobos::pcontainer
