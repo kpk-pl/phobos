@@ -3,7 +3,6 @@
 #include "Utils/Asserted.h"
 #include "PhotoContainers/ItemState.h"
 #include <QString>
-#include <QStyle>
 #include <QVBoxLayout>
 #include <QAbstractButton>
 #include <easylogging++.h>
@@ -23,7 +22,7 @@ WarningsPage::WarningsPage(SeriesCounts const& counts)
       return false;
 
     widgets::TextIconLabel *ilabel =
-        new widgets::TextIconLabel(style()->standardIcon(QStyle::SP_MessageBoxWarning), textPattern.arg(num));
+        new widgets::TextIconLabel(widgets::IconLabel::Icon::Warning, textPattern.arg(num));
     layout->addWidget(ilabel);
     return true;
   };

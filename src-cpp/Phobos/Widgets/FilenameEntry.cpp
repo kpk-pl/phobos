@@ -45,10 +45,12 @@ FilenameEntry::FilenameEntry(std::string const& unequivocalFlags, char const def
   unequivocalFlags(sortCharacters(unequivocalFlags)),
   defaultFlag(defaultFlag)
 {
+  using namespace widgets;
+
   fileNameEdit = new QLineEdit;
   fileNameEdit->setValidator(new FileNameValidator(fileNameEdit));
 
-  widgets::ClickableLabel *helpButton = new widgets::ClickableLabel();
+  ClickableLabel *helpButton = new ClickableLabel();
   helpButton->setPixmap(style()->standardIcon(QStyle::SP_MessageBoxQuestion).pixmap(fileNameEdit->sizeHint()));
 
   QHBoxLayout *editBox = new QHBoxLayout();
@@ -56,11 +58,9 @@ FilenameEntry::FilenameEntry(std::string const& unequivocalFlags, char const def
   editBox->addWidget(fileNameEdit);
   editBox->addWidget(helpButton);
 
-  prependInfo = new widgets::TextIconLabel(style()->standardIcon(QStyle::SP_MessageBoxInformation),
-                                           tr("Filename will be appended with %") + defaultFlag);
+  prependInfo = new TextIconLabel(IconLabel::Icon::Information, tr("Filename will be appended with %") + defaultFlag);
+  incorrectWrn = new TextIconLabel(IconLabel::Icon::Warning, tr("Filename is invalid"));
 
-  incorrectWrn = new widgets::TextIconLabel(style()->standardIcon(QStyle::SP_MessageBoxWarning),
-                                            tr("Filename is invalid"));
   QVBoxLayout *labels = new QVBoxLayout();
   labels->addWidget(prependInfo);
   labels->addWidget(incorrectWrn);

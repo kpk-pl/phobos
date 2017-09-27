@@ -28,8 +28,8 @@ SeriesDisplayPage::SeriesDisplayPage(QWidget *parent) :
     // TODO: IconLabel and fix TODO below!
     loadedStatusLabel = new QLabel();
 
-    multipleLengthsInfo = new widgets::TextIconLabel(style()->standardIcon(QStyle::SP_MessageBoxInformation));
-    lengthOneWarning = new widgets::TextIconLabel(style()->standardIcon(QStyle::SP_MessageBoxWarning));
+    multipleLengthsInfo = new widgets::TextIconLabel(widgets::IconLabel::Icon::Information);
+    lengthOneWarning = new widgets::TextIconLabel(widgets::IconLabel::Icon::Warning);
 
     selectLengthOneButton = new QPushButton("Select back");
     QObject::connect(selectLengthOneButton, &QPushButton::clicked, this, &SeriesDisplayPage::selectBackSeriesWithOnePhoto);

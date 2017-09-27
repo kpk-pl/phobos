@@ -7,7 +7,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLineEdit>
-#include <QStyle>
 #include <cassert>
 #include <easylogging++.h>
 
@@ -38,7 +37,7 @@ public:
     {
       permanentRadio->setChecked(true);
       trashRadio->setEnabled(false);
-      hlayout->addWidget(new widgets::TextIconLabel(style()->standardIcon(QStyle::SP_MessageBoxInformation),
+      hlayout->addWidget(new widgets::TextIconLabel(widgets::IconLabel::Icon::Information,
                                                     tr("Trash is unavailable on this system.")));
     }
 
