@@ -2,16 +2,16 @@
 #define WIDGETS_IMAGEWIDGET_H
 
 #include "Widgets/HeightResizeableInterface.h"
+#include "Widgets/ClickableLabel.h"
 #include "ImageProcessing/MetricsFwd.h"
 #include "Utils/Soul.h"
 #include <QImage>
-#include <QLabel>
 #include <QSize>
 #include <memory>
 
 namespace phobos { namespace widgets {
 
-class ImageWidget : public QLabel, public HeightResizeableInterface
+class ImageWidget : public ClickableLabel, public HeightResizeableInterface
 {
   Q_OBJECT
 
@@ -28,7 +28,6 @@ public:
   bool hasHeightForWidth() const override;
   bool hasWidthForHeight() const override;
 
-  void mousePressEvent(QMouseEvent* event) override;
   void paintEvent(QPaintEvent* event) override;
 
   utils::Soul<ImageWidget>::Lifetime lifetime() const { return soul.lifetime(); }
@@ -36,9 +35,6 @@ public:
 public slots:
   void setImage(QImage image);
   void setMetrics(iprocess::MetricPtr metrics);
-
-signals:
-  void clicked();
 
 private:
   QImage _image;

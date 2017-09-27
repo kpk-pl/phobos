@@ -64,6 +64,7 @@ SOURCES += Phobos.cpp\
     Widgets/PhotoItem/Recovery.cpp \
     Widgets/HorizontalLine.cpp \
     Widgets/FilenameEntry.cpp \
+    Widgets/ClickableLabel.cpp \
     ImageCache/Cache.cpp \
     ImageCache/MetricCache.cpp \
     ImageCache/LimitedMap.cpp \
@@ -144,6 +145,7 @@ HEADERS  += MainWindow.h \
     Widgets/PhotoItem/Recovery.h \
     Widgets/HorizontalLine.h \
     Widgets/FilenameEntry.h \
+    Widgets/ClickableLabel.h \
     ImageCache/Cache.h \
     ImageCache/MetricCache.h \
     ImageCache/CacheFwd.h \

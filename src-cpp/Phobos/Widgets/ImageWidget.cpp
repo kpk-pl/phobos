@@ -1,4 +1,3 @@
-#include <QMouseEvent>
 #include <QPaintEvent>
 #include <QPoint>
 #include <QPainter>
@@ -33,12 +32,6 @@ void ImageWidget::setMetrics(iprocess::MetricPtr metrics)
 
   _metrics = metrics;
   update();
-}
-
-void ImageWidget::mousePressEvent(QMouseEvent* event)
-{
-    if (event->button() == Qt::LeftButton)
-        emit clicked();
 }
 
 void ImageWidget::paintEvent(QPaintEvent*)

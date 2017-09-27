@@ -90,20 +90,15 @@ public:
   RenameActionTab(pcontainer::ItemState const matchState) :
     ActionTab(matchState)
   {
-    QVBoxLayout *vlayout = new QVBoxLayout();
-
     renameWithSyntax = new widgets::FilenameEntry("NnF", 'N');
-    vlayout->addWidget(renameWithSyntax);
 
     QPushButton *confirmButton = new QPushButton(tr("Create action"));
     QObject::connect(confirmButton, &QPushButton::clicked, this, &RenameActionTab::createAction);
+    renameWithSyntax->setSideWidget(confirmButton);
 
-    QHBoxLayout *hlayout = new QHBoxLayout();
-    hlayout->addStretch();
-    hlayout->addWidget(confirmButton);
-    vlayout->addLayout(hlayout);
-
-    setLayout(vlayout);
+    QHBoxLayout *layout = new QHBoxLayout();
+    layout->addWidget(renameWithSyntax);
+    setLayout(layout);
   }
 
 private slots:

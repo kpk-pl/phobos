@@ -5,6 +5,7 @@
 #include <QString>
 
 class QLineEdit;
+class QHBoxLayout;
 
 namespace phobos { namespace widgets {
 
@@ -16,6 +17,8 @@ class FilenameEntry : public QWidget
 
 public:
   FilenameEntry(std::string const& unequivocalFlags, char const defaultFlag);
+
+  void setSideWidget(QWidget *widget);
 
   QString unequivocalSyntax() const;
   QLineEdit *fileNameEdit;
@@ -29,6 +32,7 @@ private:
 
   bool isAmbiguous() const;
 
+  QHBoxLayout *labelAndSideWgtLayout;
   widgets::TextIconLabel *prependInfo, *incorrectWrn;
 };
 

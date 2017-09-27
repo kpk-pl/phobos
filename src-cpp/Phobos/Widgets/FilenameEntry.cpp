@@ -1,12 +1,12 @@
 #include "Widgets/FilenameEntry.h"
 #include "Widgets/IconLabel.h"
+#include "Widgets/ClickableLabel.h"
 #include "Utils/Filesystem/Portable.h"
 #include <QValidator>
 #include <QLineEdit>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QStyle>
-#include <QPushButton>
 
 namespace phobos { namespace widgets {
 
@@ -46,12 +46,15 @@ FilenameEntry::FilenameEntry(std::string const& unequivocalFlags, char const def
   defaultFlag(defaultFlag)
 {
   fileNameEdit = new QLineEdit;
-  FileNameValidator *validator = new FileNameValidator(fileNameEdit);
-  fileNameEdit->setValidator(validator);
+  fileNameEdit->setValidator(new FileNameValidator(fileNameEdit));
+
+  widgets::ClickableLabel *helpButton = new widgets::ClickableLabel();
+  helpButton->setPixmap(style()->standardIcon(QStyle::SP_MessageBoxQuestion).pixmap(fileNameEdit->sizeHint()));
 
   QHBoxLayout *editBox = new QHBoxLayout();
   editBox->addWidget(new QLabel(tr("New filename:")));
   editBox->addWidget(fileNameEdit);
+  editBox->addWidget(helpButton);
 
   prependInfo = new widgets::TextIconLabel(style()->standardIcon(QStyle::SP_MessageBoxInformation),
                                            tr("Filename will be appended with %") + defaultFlag);
@@ -61,15 +64,10 @@ FilenameEntry::FilenameEntry(std::string const& unequivocalFlags, char const def
   QVBoxLayout *labels = new QVBoxLayout();
   labels->addWidget(prependInfo);
   labels->addWidget(incorrectWrn);
+  labels->addStretch();
 
-  QPushButton *helpButton = new QPushButton(tr("Help"));
-  helpButton->setEnabled(false);
-  // TODO: add syntax help to button
-
-  QHBoxLayout *labelAndButton = new QHBoxLayout();
-  labelAndButton->addLayout(labels);
-  labelAndButton->addStretch();
-  labelAndButton->addWidget(helpButton, 0, Qt::AlignTop);
+  labelAndSideWgtLayout = new QHBoxLayout();
+  labelAndSideWgtLayout->addLayout(labels);
 
   QObject::connect(fileNameEdit, &QLineEdit::textChanged, this, &FilenameEntry::updateLabels);
   updateLabels();
@@ -77,9 +75,15 @@ FilenameEntry::FilenameEntry(std::string const& unequivocalFlags, char const def
   QVBoxLayout *vl = new QVBoxLayout();
   vl->setContentsMargins(0, 0, 0, 0);
   vl->addLayout(editBox);
-  vl->addLayout(labelAndButton);
+  vl->addLayout(labelAndSideWgtLayout);
 
   setLayout(vl);
+}
+
+void FilenameEntry::setSideWidget(QWidget *widget)
+{
+  labelAndSideWgtLayout->addStretch();
+  labelAndSideWgtLayout->addWidget(widget, 0, Qt::AlignTop);
 }
 
 bool FilenameEntry::isAmbiguous() const
