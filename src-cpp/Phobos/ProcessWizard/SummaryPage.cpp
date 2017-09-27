@@ -89,7 +89,7 @@ void SummaryPage::cleanupPage()
 {
   QTreeWidgetItem *item;
   while ((item = actionTree->takeTopLevelItem(0)))
-      delete item;
+    delete item;
 }
 
 ConstExecutionPtrVec SummaryPage::executions() const

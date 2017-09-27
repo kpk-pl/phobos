@@ -92,7 +92,7 @@ public:
   {
     QVBoxLayout *vlayout = new QVBoxLayout();
 
-    renameWithSyntax = new widgets::FilenameEntry();
+    renameWithSyntax = new widgets::FilenameEntry("NnF", 'N');
     vlayout->addWidget(renameWithSyntax);
 
     QPushButton *confirmButton = new QPushButton(tr("Create action"));

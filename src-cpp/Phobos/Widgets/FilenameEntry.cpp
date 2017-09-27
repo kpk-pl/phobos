@@ -18,28 +18,32 @@ public:
 
   QValidator::State validate(QString &input, int&) const override
   {
-    QValidator::State good = QValidator::State::Acceptable;
-    std::string s = input.toStdString();
+    if (input.isEmpty())
+      return QValidator::State::Acceptable;
 
-    if (s.empty())
-      return QValidator::State::Intermediate;
-    else if (!s.empty() && *(s.end()-1) == '.')
-    {
-      s.erase(s.end()-1);
-      good = QValidator::State::Intermediate;
-    }
+    std::string s = input.toStdString();
 
     // Replace '%.' sequences with acceptable input characters
     for (std::size_t pos = 0; pos < s.length(); ++pos)
       if (s[pos] == '%')
         s.replace(pos, 2, 2, '_');
 
-    return utils::fs::portableFileName(s) ? good : QValidator::State::Invalid;
+    return utils::fs::portableFileName(s) ? QValidator::State::Acceptable : QValidator::State::Invalid;
   }
 };
+
+std::string sortCharacters(std::string str)
+{
+  std::sort(str.begin(), str.end());
+  str.erase(std::unique(str.begin(), str.end()), str.end());
+  return str;
+}
+
 } // unnamed namespace
 
-FilenameEntry::FilenameEntry()
+FilenameEntry::FilenameEntry(std::string const& unequivocalFlags, char const defaultFlag) :
+  unequivocalFlags(sortCharacters(unequivocalFlags)),
+  defaultFlag(defaultFlag)
 {
   fileNameEdit = new QLineEdit;
   FileNameValidator *validator = new FileNameValidator(fileNameEdit);
@@ -50,7 +54,7 @@ FilenameEntry::FilenameEntry()
   editBox->addWidget(fileNameEdit);
 
   prependInfo = new widgets::TextIconLabel(style()->standardIcon(QStyle::SP_MessageBoxInformation),
-                                           tr("Filename will be prepended with %N"));
+                                           tr("Filename will be appended with %") + defaultFlag);
 
   incorrectWrn = new widgets::TextIconLabel(style()->standardIcon(QStyle::SP_MessageBoxWarning),
                                             tr("Filename is invalid"));
@@ -78,32 +82,39 @@ FilenameEntry::FilenameEntry()
   setLayout(vl);
 }
 
-namespace {
-  QString unequivocalPatterns[] = { "%N", "%n", "%F" };
+bool FilenameEntry::isAmbiguous() const
+{
+  auto const& str = fileNameEdit->text();
+  bool inPattern = false;
 
-  bool isAmbiguous(QString const& str)
+  for (auto it = str.begin(); it != str.end(); ++it)
   {
-    bool ambiguous = true;
-    for (auto const& pattern : unequivocalPatterns)
-      ambiguous = ambiguous && (str.indexOf(pattern) < 0);
+    if (*it == '%')
+      inPattern = true;
+    else if (inPattern)
+    {
+      if (std::binary_search(unequivocalFlags.begin(), unequivocalFlags.end(), it->toLatin1()))
+        return false;
 
-    return ambiguous;
+      inPattern = false;
+    }
   }
-} // unnamed namespace
+
+  return true;
+}
 
 QString FilenameEntry::unequivocalSyntax() const
 {
-  QString str = fileNameEdit->text();
-  if (isAmbiguous(str))
-    str.prepend("%N");
+  if (!isAmbiguous())
+    return fileNameEdit->text();
 
-  return str;
+  return fileNameEdit->text().append('%').append(defaultFlag);
 }
 
 void FilenameEntry::updateLabels() const
 {
   incorrectWrn->setVisible(!fileNameEdit->hasAcceptableInput());
-  prependInfo->setVisible(isAmbiguous(fileNameEdit->text()));
+  prependInfo->setVisible(isAmbiguous());
 }
 
 }} // namespace phobos::widgets

@@ -15,7 +15,7 @@ class FilenameEntry : public QWidget
   Q_OBJECT
 
 public:
-  FilenameEntry();
+  FilenameEntry(std::string const& unequivocalFlags, char const defaultFlag);
 
   QString unequivocalSyntax() const;
   QLineEdit *fileNameEdit;
@@ -24,6 +24,11 @@ private slots:
   void updateLabels() const;
 
 private:
+  std::string const unequivocalFlags;
+  char const defaultFlag;
+
+  bool isAmbiguous() const;
+
   widgets::TextIconLabel *prependInfo, *incorrectWrn;
 };
 
