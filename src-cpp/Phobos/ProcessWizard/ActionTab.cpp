@@ -84,7 +84,7 @@ public:
     renameWithSyntax->setEnabled(false);
 
     QPushButton *dirButton = new QPushButton(tr("Select"));
-    dirButton->setIcon(style()->standardIcon(QStyle::SP_DirIcon));
+    //dirButton->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
     QObject::connect(dirButton, &QPushButton::clicked, this, &CopyMoveActionTab::selectDirectory);
 
     selectedDirLabel = new QLabel(tr("Select directory..."));
