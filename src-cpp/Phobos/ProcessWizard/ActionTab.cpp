@@ -7,7 +7,10 @@
 #include <QRadioButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QFileDialog>
 #include <QLineEdit>
+#include <QCheckBox>
+#include <QStyle>
 #include <cassert>
 #include <easylogging++.h>
 
@@ -66,22 +69,61 @@ private:
   QRadioButton *permanentRadio, *trashRadio;
 };
 
-class MoveActionTab : public ActionTab
+class CopyMoveActionTab : public ActionTab
 {
 public:
-  MoveActionTab(pcontainer::ItemState const matchState) :
+  CopyMoveActionTab(pcontainer::ItemState const matchState, ActionsCreatorResources &resources) :
     ActionTab(matchState)
   {
-  }
-};
+    renameWithSyntax = new widgets::FilenameEntry("NnF", 'N');
+    QObject::connect(renameWithSyntax, &widgets::FilenameEntry::helpRequested, &resources, &ActionsCreatorResources::showRenameSyntaxHelp);
 
-class CopyActionTab : public ActionTab
-{
-public:
-  CopyActionTab(pcontainer::ItemState const matchState) :
-    ActionTab(matchState)
-  {
+    QPushButton *confirmButton = new QPushButton(tr("Create action"));
+    QObject::connect(confirmButton, &QPushButton::clicked, this, &CopyMoveActionTab::createAction);
+    renameWithSyntax->setSideWidget(confirmButton);
+    renameWithSyntax->setEnabled(false);
+
+    QPushButton *dirButton = new QPushButton(tr("Select"));
+    dirButton->setIcon(style()->standardIcon(QStyle::SP_DirIcon));
+    QObject::connect(dirButton, &QPushButton::clicked, this, &CopyMoveActionTab::selectDirectory);
+
+    selectedDirLabel = new QLabel(tr("Select directory..."));
+    QHBoxLayout *dirLayout = new QHBoxLayout();
+    dirLayout->addWidget(selectedDirLabel);
+    dirLayout->addStretch();
+    dirLayout->addWidget(dirButton);
+
+    renameToggle = new QCheckBox(tr("Rename filename at destination"));
+    QObject::connect(renameToggle, &QCheckBox::toggled, renameWithSyntax, &widgets::FilenameEntry::setEnabled);
+
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addLayout(dirLayout);
+    layout->addWidget(renameToggle);
+    layout->addWidget(renameWithSyntax);
+    setLayout(layout);
   }
+
+private slots:
+  void createAction() const
+  {}
+
+  void selectDirectory()
+  {
+    LOG(INFO) << "Displaying dialog to choose copy/move directory";
+    QString const dir = QFileDialog::getExistingDirectory(this, tr("Select destination directory"));
+    LOG(INFO) << "Selected directory: " << dir;
+
+    // TODO: If text is longer than 50 characters, shorten it like C:/Selected/...bug/etc/dir
+    // Try to leave at least first parent dir (Selected) if possible
+    // And as meny dirs from tail as possible
+    // Maybe even part of last dir that does not fit
+    selectedDirLabel->setText(dir);
+  }
+
+private:
+  widgets::FilenameEntry *renameWithSyntax;
+  QLabel *selectedDirLabel;
+  QCheckBox *renameToggle;
 };
 
 class RenameActionTab : public ActionTab
@@ -98,7 +140,7 @@ public:
     QObject::connect(confirmButton, &QPushButton::clicked, this, &RenameActionTab::createAction);
     renameWithSyntax->setSideWidget(confirmButton);
 
-    QHBoxLayout *layout = new QHBoxLayout();
+    QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(renameWithSyntax);
     setLayout(layout);
   }
@@ -126,11 +168,11 @@ std::unique_ptr<ActionTab> ActionTab::create(OperationType const operation,
   case OperationType::Delete:
     return std::make_unique<DeleteActionTab>(matchState);
   case OperationType::Move:
-    return std::make_unique<MoveActionTab>(matchState);
+    return std::make_unique<CopyMoveActionTab>(matchState, resources);
   case OperationType::Rename:
     return std::make_unique<RenameActionTab>(matchState, resources);
   case OperationType::Copy:
-    return std::make_unique<CopyActionTab>(matchState);
+    return std::make_unique<CopyMoveActionTab>(matchState, resources);
   }
 
   assert(false);

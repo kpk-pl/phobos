@@ -1,7 +1,7 @@
 #include "ProcessWizard/SummaryPage.h"
 #include "ProcessWizard/Action.h"
 #include "ProcessWizard/OperationIcon.h"
-#include "ProcessWizard/Execution.h"
+#include "ProcessWizard/Execution/Execution.h"
 #include "Utils/Asserted.h"
 #include <QTreeWidget>
 #include <QTreeWidgetItem>

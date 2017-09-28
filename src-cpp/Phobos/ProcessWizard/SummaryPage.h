@@ -1,7 +1,7 @@
 #ifndef PROCESSWIZARD_SUMMARYPAGE_H
 #define PROCESSWIZARD_SUMMARYPAGE_H
 
-#include "ProcessWizard/ExecutionFwd.h"
+#include "ProcessWizard/Execution/ExecutionFwd.h"
 #include "ProcessWizard/ActionFwd.h"
 #include "ProcessWizard/SeriesCounts.h"
 #include "PhotoContainers/Fwd.h"

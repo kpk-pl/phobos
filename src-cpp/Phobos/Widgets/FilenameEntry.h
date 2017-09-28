@@ -23,6 +23,8 @@ public:
   QString unequivocalSyntax() const;
   QLineEdit *fileNameEdit;
 
+  void setEnabled(bool enable);
+
 signals:
   void helpRequested();
 
@@ -37,6 +39,8 @@ private:
 
   QHBoxLayout *labelAndSideWgtLayout;
   widgets::TextIconLabel *prependInfo, *incorrectWrn;
+  QWidget *helpButton;
+  QWidget *customWidget = nullptr;
 };
 
 }} // namespace phobos::widgets

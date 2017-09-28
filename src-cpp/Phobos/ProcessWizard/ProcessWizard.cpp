@@ -3,7 +3,7 @@
 #include "ProcessWizard/SummaryPage.h"
 #include "ProcessWizard/WarningsPage.h"
 #include "ProcessWizard/SeriesCounts.h"
-#include "ProcessWizard/Execution.h"
+#include "ProcessWizard/Execution/Execution.h"
 #include <easylogging++.h>
 
 namespace phobos { namespace processwiz {

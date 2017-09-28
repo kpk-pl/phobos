@@ -50,13 +50,14 @@ FilenameEntry::FilenameEntry(std::string const& unequivocalFlags, char const def
   fileNameEdit = new QLineEdit;
   fileNameEdit->setValidator(new FileNameValidator(fileNameEdit));
 
-  ClickableLabel *helpButton = new ClickableLabel();
-  helpButton->setPixmap(style()->standardIcon(QStyle::SP_MessageBoxQuestion).pixmap(fileNameEdit->sizeHint()));
+  ClickableLabel *clHelpButton = new ClickableLabel();
+  clHelpButton->setPixmap(style()->standardIcon(QStyle::SP_MessageBoxQuestion).pixmap(fileNameEdit->sizeHint()));
+  helpButton = clHelpButton;
 
   QHBoxLayout *editBox = new QHBoxLayout();
   editBox->addWidget(new QLabel(tr("New filename:")));
   editBox->addWidget(fileNameEdit);
-  editBox->addWidget(helpButton);
+  editBox->addWidget(clHelpButton);
 
   prependInfo = new TextIconLabel(IconLabel::Icon::Information, tr("Filename will be appended with %") + defaultFlag);
   incorrectWrn = new TextIconLabel(IconLabel::Icon::Warning, tr("Filename is invalid"));
@@ -70,7 +71,7 @@ FilenameEntry::FilenameEntry(std::string const& unequivocalFlags, char const def
   labelAndSideWgtLayout->addLayout(labels);
 
   QObject::connect(fileNameEdit, &QLineEdit::textChanged, this, &FilenameEntry::updateLabels);
-  QObject::connect(helpButton, &ClickableLabel::clicked, this, &FilenameEntry::helpRequested);
+  QObject::connect(clHelpButton, &ClickableLabel::clicked, this, &FilenameEntry::helpRequested);
   updateLabels();
 
   QVBoxLayout *vl = new QVBoxLayout();
@@ -85,6 +86,15 @@ void FilenameEntry::setSideWidget(QWidget *widget)
 {
   labelAndSideWgtLayout->addStretch();
   labelAndSideWgtLayout->addWidget(widget, 0, Qt::AlignTop);
+  customWidget = widget;
+}
+
+void FilenameEntry::setEnabled(bool enable)
+{
+  prependInfo->setEnabled(enable);
+  incorrectWrn->setEnabled(enable);
+  fileNameEdit->setEnabled(enable);
+  helpButton->setEnabled(enable);
 }
 
 bool FilenameEntry::isAmbiguous() const
