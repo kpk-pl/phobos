@@ -23,7 +23,8 @@ namespace {
   static ItemState const allStates[] = { ItemState::SELECTED, ItemState::DISCARDED, ItemState::UNKNOWN };
 } // unnamed namespace
 
-ActionsCreatorPage::ActionsCreatorPage(OperationType const& defaultOperation)
+ActionsCreatorPage::ActionsCreatorPage(OperationType const& defaultOperation) :
+  resources(this)
 {
   LOG(DEBUG) << "Creating page";
 
@@ -97,7 +98,7 @@ void ActionsCreatorPage::addTypeTabs(QVBoxLayout *layout, OperationType const& d
 
   for (auto const state : allStates)
   {
-    TypeActionTab *typeActionTab = new TypeActionTab(state);
+    TypeActionTab *typeActionTab = new TypeActionTab(state, resources);
     typeActionTab->setCurrentTab(defaultOperation);
     actionTabs.emplace(state, typeActionTab);
     QObject::connect(typeActionTab, &TypeActionTab::actionsChanged, this, &ActionsCreatorPage::selectedActionsChanged);

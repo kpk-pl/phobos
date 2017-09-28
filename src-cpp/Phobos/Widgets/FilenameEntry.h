@@ -23,6 +23,9 @@ public:
   QString unequivocalSyntax() const;
   QLineEdit *fileNameEdit;
 
+signals:
+  void helpRequested();
+
 private slots:
   void updateLabels() const;
 

@@ -3,6 +3,7 @@
 
 #include "ProcessWizard/Action.h"
 #include "ProcessWizard/Operation.h"
+#include "ProcessWizard/ActionsCreatorResources.h"
 #include <QWizardPage>
 
 class QVBoxLayout;
@@ -35,6 +36,8 @@ private slots:
   void selectedActionsChanged();
 
 private:
+  ActionsCreatorResources resources;
+
   QTabWidget *actionTabsWidget;
   std::map<pcontainer::ItemState, TypeActionTab*> actionTabs;
 

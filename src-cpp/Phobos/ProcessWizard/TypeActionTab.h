@@ -13,13 +13,14 @@ class QTabWidget;
 namespace phobos { namespace processwiz {
 
 class ActionTab;
+class ActionsCreatorResources;
 
 class TypeActionTab : public QWidget
 {
   Q_OBJECT
 
 public:
-  TypeActionTab(pcontainer::ItemState const matchState);
+  TypeActionTab(pcontainer::ItemState const matchState, ActionsCreatorResources &resources);
 
   ConstActionPtrVec activeActions() const;
   void setCurrentTab(OperationType const& operation) const;

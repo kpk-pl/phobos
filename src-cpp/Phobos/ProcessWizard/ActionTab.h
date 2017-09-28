@@ -9,12 +9,16 @@
 
 namespace phobos { namespace processwiz {
 
+class ActionsCreatorResources;
+
 class ActionTab : public QWidget
 {
   Q_OBJECT
 
 public:
-  static std::unique_ptr<ActionTab> create(OperationType const operation, pcontainer::ItemState const matchState);
+  static std::unique_ptr<ActionTab> create(OperationType const operation,
+                                           pcontainer::ItemState const matchState,
+                                           ActionsCreatorResources &resources);
 
   ActionTab(pcontainer::ItemState const matchState);
 

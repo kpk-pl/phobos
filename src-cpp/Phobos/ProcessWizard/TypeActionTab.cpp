@@ -20,7 +20,7 @@ QSize defaultTextSize()
 }
 } // unnamed namespace
 
-TypeActionTab::TypeActionTab(pcontainer::ItemState const matchState)
+TypeActionTab::TypeActionTab(pcontainer::ItemState const matchState, ActionsCreatorResources &resources)
 {
   QVBoxLayout *layout = new QVBoxLayout();
 
@@ -31,8 +31,8 @@ TypeActionTab::TypeActionTab(pcontainer::ItemState const matchState)
   operationTabsWidget = new QTabWidget();
   layout->addWidget(operationTabsWidget);
 
-  auto const addTab = [matchState, this](OperationType const operation, QString const& label){
-    auto actionTab = ActionTab::create(operation, matchState);
+  auto const addTab = [matchState, &resources, this](OperationType const operation, QString const& label){
+    auto actionTab = ActionTab::create(operation, matchState, resources);
     operationTabs.emplace(operation, actionTab.get());
     QObject::connect(actionTab.get(), &ActionTab::newAction, this, &TypeActionTab::acceptNewAction);
     operationTabsWidget->addTab(actionTab.release(), operationIcon(operation, defaultTextSize()), label);

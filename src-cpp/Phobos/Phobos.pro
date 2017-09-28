@@ -81,7 +81,8 @@ SOURCES += Phobos.cpp\
     ProcessWizard/SummaryPage.cpp \
     ProcessWizard/OperationIcon.cpp \
     ProcessWizard/ExecutionImpl.cpp \
-    ProcessWizard/Execution/Execute.cpp
+    ProcessWizard/Execution/Execute.cpp \
+    ProcessWizard/ActionsCreatorResources.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -168,7 +169,8 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution.h \
     ProcessWizard/ExecutionFwd.h \
     ProcessWizard/ExecutionImpl.h \
-    ProcessWizard/Execution/Execute.h
+    ProcessWizard/Execution/Execute.h \
+    ProcessWizard/ActionsCreatorResources.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

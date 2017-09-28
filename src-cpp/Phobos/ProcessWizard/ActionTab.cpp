@@ -1,4 +1,5 @@
 #include "ProcessWizard/ActionTab.h"
+#include "ProcessWizard/ActionsCreatorResources.h"
 #include "Widgets/IconLabel.h"
 #include "Widgets/FilenameEntry.h"
 #include "Utils/Filesystem/Trash.h"
@@ -86,10 +87,12 @@ public:
 class RenameActionTab : public ActionTab
 {
 public:
-  RenameActionTab(pcontainer::ItemState const matchState) :
+  RenameActionTab(pcontainer::ItemState const matchState,
+                  ActionsCreatorResources &resources) :
     ActionTab(matchState)
   {
     renameWithSyntax = new widgets::FilenameEntry("NnF", 'N');
+    QObject::connect(renameWithSyntax, &widgets::FilenameEntry::helpRequested, &resources, &ActionsCreatorResources::showRenameSyntaxHelp);
 
     QPushButton *confirmButton = new QPushButton(tr("Create action"));
     QObject::connect(confirmButton, &QPushButton::clicked, this, &RenameActionTab::createAction);
@@ -115,7 +118,8 @@ private:
 } // unnamed namespace
 
 std::unique_ptr<ActionTab> ActionTab::create(OperationType const operation,
-                                             pcontainer::ItemState const matchState)
+                                             pcontainer::ItemState const matchState,
+                                             ActionsCreatorResources &resources)
 {
   switch(operation)
   {
@@ -124,7 +128,7 @@ std::unique_ptr<ActionTab> ActionTab::create(OperationType const operation,
   case OperationType::Move:
     return std::make_unique<MoveActionTab>(matchState);
   case OperationType::Rename:
-    return std::make_unique<RenameActionTab>(matchState);
+    return std::make_unique<RenameActionTab>(matchState, resources);
   case OperationType::Copy:
     return std::make_unique<CopyActionTab>(matchState);
   }

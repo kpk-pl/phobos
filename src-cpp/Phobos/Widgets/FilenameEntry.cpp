@@ -70,6 +70,7 @@ FilenameEntry::FilenameEntry(std::string const& unequivocalFlags, char const def
   labelAndSideWgtLayout->addLayout(labels);
 
   QObject::connect(fileNameEdit, &QLineEdit::textChanged, this, &FilenameEntry::updateLabels);
+  QObject::connect(helpButton, &ClickableLabel::clicked, this, &FilenameEntry::helpRequested);
   updateLabels();
 
   QVBoxLayout *vl = new QVBoxLayout();
