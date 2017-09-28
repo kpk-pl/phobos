@@ -1,7 +1,7 @@
 #ifndef PROCESSWIZARD_EXECUTIONIMPL_H
 #define PROCESSWIZARD_EXECUTIONIMPL_H
 
-#include "ProcessWizard/Execution.h"
+#include "ProcessWizard/Execution/Execution.h"
 #include "ProcessWizard/Action.h"
 #include "PhotoContainers/ItemId.h"
 

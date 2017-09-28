@@ -6,7 +6,7 @@
 #include "PhotoBulkAction.h"
 #include "ImportWizard/Types.h"
 #include "ProcessWizard/Action.h"
-#include "ProcessWizard/Execution.h"
+#include "ProcessWizard/Execution/Execution.h"
 #include "PhotoContainers/ItemId.h"
 #include <easylogging++.h>
 #include <QApplication>

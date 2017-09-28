@@ -3,7 +3,7 @@
 
 #include "ProcessWizard/ActionFwd.h"
 #include "ProcessWizard/Operation.h"
-#include "ProcessWizard/ExecutionFwd.h"
+#include "ProcessWizard/Execution/ExecutionFwd.h"
 #include "PhotoContainers/ItemState.h"
 #include "PhotoContainers/Fwd.h"
 #include <QMetaType>

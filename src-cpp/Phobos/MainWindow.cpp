@@ -5,7 +5,7 @@
 #include "PhotoBulkAction.h"
 #include "ImportWizard/ImportWizard.h"
 #include "ProcessWizard/ProcessWizard.h"
-#include "ProcessWizard/Execution.h"
+#include "ProcessWizard/Execution/Execution.h"
 #include "ProcessWizard/Execution/Execute.h"
 #include <easylogging++.h>
 #include <QApplication>

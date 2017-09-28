@@ -1,7 +1,7 @@
 #ifndef PROCESSWIZARD_EXECUTION_H
 #define PROCESSWIZARD_EXECUTION_H
 
-#include "ProcessWizard/ExecutionFwd.h"
+#include "ProcessWizard/Execution/ExecutionFwd.h"
 #include "PhotoContainers/ItemId.h"
 #include <boost/optional.hpp>
 #include <QMetaType>
