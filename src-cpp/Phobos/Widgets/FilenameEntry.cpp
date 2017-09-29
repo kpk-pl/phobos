@@ -105,9 +105,6 @@ void FilenameEntry::setEnabled(bool enable)
   {
     updateLabels();
   }
-
-  updateGeometry();
-  update();
 }
 
 bool FilenameEntry::isAmbiguous() const

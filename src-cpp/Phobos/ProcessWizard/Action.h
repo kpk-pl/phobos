@@ -8,6 +8,7 @@
 #include "PhotoContainers/Fwd.h"
 #include <QMetaType>
 #include <QString>
+#include <QDir>
 
 namespace phobos { namespace processwiz {
 
@@ -41,9 +42,9 @@ public:
 
   DeleteAction(pcontainer::ItemState const matchedState, Method const method);
 
-  virtual OperationType operation() const { return OperationType::Delete; }
+  OperationType operation() const override { return OperationType::Delete; }
   QString toString() const override;
-  std::size_t priority() const override { return 0; }
+  std::size_t priority() const override { return 3; }
   bool greedy() const override { return true; }
 
   ConstExecutionPtrVec makeExecutions(pcontainer::Set const& photoSet,
@@ -58,7 +59,24 @@ class RenameAction : public Action
 public:
   RenameAction(pcontainer::ItemState const matchedState, QString const& pattern);
 
-  virtual OperationType operation() const { return OperationType::Rename; }
+  OperationType operation() const override { return OperationType::Rename; }
+  QString toString() const override;
+  std::size_t priority() const override { return 2; }
+  bool greedy() const override { return true; }
+
+  ConstExecutionPtrVec makeExecutions(pcontainer::Set const& photoSet,
+                                      SeriesCounts const& counts) const override;
+
+private:
+  QString const pattern;
+};
+
+class MoveAction : public Action
+{
+public:
+  MoveAction(pcontainer::ItemState const matchedState, QDir const& destination, QString const& optRenamePattern);
+
+  OperationType operation() const override { return OperationType::Move; }
   QString toString() const override;
   std::size_t priority() const override { return 1; }
   bool greedy() const override { return true; }
@@ -67,7 +85,26 @@ public:
                                       SeriesCounts const& counts) const override;
 
 private:
-  QString const pattern;
+  QDir const destination;
+  QString const optPattern;
+};
+
+class CopyAction : public Action
+{
+public:
+  CopyAction(pcontainer::ItemState const matchedState, QDir const& destination, QString const& optRenamePattern);
+
+  OperationType operation() const override { return OperationType::Copy; }
+  QString toString() const override;
+  std::size_t priority() const override { return 0; }
+  bool greedy() const override { return false; }
+
+  ConstExecutionPtrVec makeExecutions(pcontainer::Set const& photoSet,
+                                      SeriesCounts const& counts) const override;
+
+private:
+  QDir const destination;
+  QString const optPattern;
 };
 
 }} // namespace phobos::processwiz

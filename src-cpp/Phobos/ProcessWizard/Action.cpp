@@ -118,8 +118,7 @@ namespace {
 
 RenameAction::RenameAction(const pcontainer::ItemState matchedState, QString const& pattern) :
   Action(matchedState), pattern(pattern)
-{
-}
+{}
 
 QString RenameAction::toString() const
 {
@@ -149,6 +148,54 @@ ConstExecutionPtrVec
     }
 
   return result;
+}
+
+MoveAction::MoveAction(pcontainer::ItemState const matchedState,
+                       QDir const& destination,
+                       QString const& optRenamePattern) :
+  Action(matchedState), destination(destination), optPattern(optRenamePattern)
+{}
+
+QString MoveAction::toString() const
+{
+  QString result = QObject::tr("Move each %1 photo to %2")
+      .arg(QString::fromStdString(utils::lexicalCast(matchedState)), destination.path());
+
+  if (!optPattern.isEmpty())
+    result.append(QObject::tr(" and rename to \"%1\"").arg(optPattern));
+
+  return result;
+}
+
+ConstExecutionPtrVec
+  MoveAction::makeExecutions(pcontainer::Set const& photoSet,
+                             SeriesCounts const& counts) const
+{
+  return {};
+}
+
+CopyAction::CopyAction(pcontainer::ItemState const matchedState,
+                       QDir const& destination,
+                       QString const& optRenamePattern) :
+  Action(matchedState), destination(destination), optPattern(optRenamePattern)
+{}
+
+QString CopyAction::toString() const
+{
+  QString result = QObject::tr("Copy each %1 photo to %2")
+      .arg(QString::fromStdString(utils::lexicalCast(matchedState)), destination.path());
+
+  if (!optPattern.isEmpty())
+    result.append(QObject::tr(" and rename copy to \"%1\"").arg(optPattern));
+
+  return result;
+}
+
+ConstExecutionPtrVec
+  CopyAction::makeExecutions(pcontainer::Set const& photoSet,
+                             SeriesCounts const& counts) const
+{
+  return {};
 }
 
 }} // namespace phobos::processwiz
