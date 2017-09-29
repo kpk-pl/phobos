@@ -1,5 +1,5 @@
 #include "ProcessWizard/TypeActionTab.h"
-#include "ProcessWizard/ActionTab.h"
+#include "ProcessWizard/ActionTab/ActionTab.h"
 #include "ProcessWizard/Operation.h"
 #include "ProcessWizard/OperationIcon.h"
 #include "Utils/Asserted.h"

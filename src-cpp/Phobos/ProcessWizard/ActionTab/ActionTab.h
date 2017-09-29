@@ -1,8 +1,8 @@
-#ifndef PROCESSWIZARD_ACTIONTAB_H
-#define PROCESSWIZARD_ACTIONTAB_H
+#ifndef PROCESSWIZARD_ACTIONTAB_ACTIONTAB_H
+#define PROCESSWIZARD_ACTIONTAB_ACTIONTAB_H
 
 #include "ProcessWizard/Operation.h"
-#include "ProcessWizard/Action.h"
+#include "ProcessWizard/ActionFwd.h"
 #include "PhotoContainers/ItemState.h"
 #include <QWidget>
 #include <memory>
@@ -31,4 +31,4 @@ protected:
 
 }} // namespace phobos::processwiz
 
-#endif // PROCESSWIZARD_ACTIONTAB_H
+#endif // PROCESSWIZARD_ACTIONTAB_ACTIONTAB_H

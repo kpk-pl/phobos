@@ -74,13 +74,16 @@ SOURCES += Phobos.cpp\
     ProcessWizard/Operation.cpp \
     ProcessWizard/ActionsCreatorPage.cpp \
     ProcessWizard/Action.cpp \
-    ProcessWizard/ActionTab.cpp \
     ProcessWizard/SeriesCounts.cpp \
     ProcessWizard/WarningsPage.cpp \
     ProcessWizard/TypeActionTab.cpp \
     ProcessWizard/SummaryPage.cpp \
     ProcessWizard/OperationIcon.cpp \
     ProcessWizard/ActionsCreatorResources.cpp \
+    ProcessWizard/ActionTab/ActionTab.cpp \
+    ProcessWizard/ActionTab/DeleteActionTab.cpp \
+    ProcessWizard/ActionTab/RenameActionTab.cpp \
+    ProcessWizard/ActionTab/CopyMoveActionTab.cpp \
     ProcessWizard/Execution/ExecutionImpl.cpp \
     ProcessWizard/Execution/Execute.cpp
 
@@ -160,13 +163,16 @@ HEADERS  += MainWindow.h \
     ProcessWizard/ActionsCreatorPage.h \
     ProcessWizard/Action.h \
     ProcessWizard/ActionFwd.h \
-    ProcessWizard/ActionTab.h \
     ProcessWizard/SeriesCounts.h \
     ProcessWizard/WarningsPage.h \
     ProcessWizard/TypeActionTab.h \
     ProcessWizard/SummaryPage.h \
     ProcessWizard/OperationIcon.h \
     ProcessWizard/ActionsCreatorResources.h \
+    ProcessWizard/ActionTab/ActionTab.h \
+    ProcessWizard/ActionTab/DeleteActionTab.h \
+    ProcessWizard/ActionTab/RenameActionTab.h \
+    ProcessWizard/ActionTab/CopyMoveActionTab.h \
     ProcessWizard/Execution/Execution.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
