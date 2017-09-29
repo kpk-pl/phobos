@@ -6,6 +6,7 @@
 
 class QLineEdit;
 class QHBoxLayout;
+class QLabel;
 
 namespace phobos { namespace widgets {
 
@@ -23,6 +24,7 @@ public:
   QString unequivocalSyntax() const;
   QLineEdit *fileNameEdit;
 
+public slots:
   void setEnabled(bool enable);
 
 signals:
@@ -40,6 +42,7 @@ private:
   QHBoxLayout *labelAndSideWgtLayout;
   widgets::TextIconLabel *prependInfo, *incorrectWrn;
   QWidget *helpButton;
+  QLabel *infoLabel;
   QWidget *customWidget = nullptr;
 };
 

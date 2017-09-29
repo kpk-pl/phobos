@@ -54,8 +54,9 @@ FilenameEntry::FilenameEntry(std::string const& unequivocalFlags, char const def
   clHelpButton->setPixmap(style()->standardIcon(QStyle::SP_MessageBoxQuestion).pixmap(fileNameEdit->sizeHint()));
   helpButton = clHelpButton;
 
+  infoLabel = new QLabel(tr("New filename:"));
   QHBoxLayout *editBox = new QHBoxLayout();
-  editBox->addWidget(new QLabel(tr("New filename:")));
+  editBox->addWidget(infoLabel);
   editBox->addWidget(fileNameEdit);
   editBox->addWidget(clHelpButton);
 
@@ -91,10 +92,22 @@ void FilenameEntry::setSideWidget(QWidget *widget)
 
 void FilenameEntry::setEnabled(bool enable)
 {
-  prependInfo->setEnabled(enable);
-  incorrectWrn->setEnabled(enable);
   fileNameEdit->setEnabled(enable);
   helpButton->setEnabled(enable);
+  infoLabel->setEnabled(enable);
+
+  if (!enable)
+  {
+    prependInfo->hide();
+    incorrectWrn->hide();
+  }
+  else
+  {
+    updateLabels();
+  }
+
+  updateGeometry();
+  update();
 }
 
 bool FilenameEntry::isAmbiguous() const
