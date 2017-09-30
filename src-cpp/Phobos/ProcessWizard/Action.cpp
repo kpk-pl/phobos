@@ -11,6 +11,7 @@
 #include <QDir>
 #include <cassert>
 #include <cmath>
+#include <functional>
 
 namespace phobos { namespace processwiz {
 
@@ -31,8 +32,7 @@ bool Action::operator<(Action const& other) const
 
 DeleteAction::DeleteAction(pcontainer::ItemState const matchedState, Method const method) :
   Action(matchedState), method(method)
-{
-}
+{}
 
 QString DeleteAction::toString() const
 {
@@ -63,59 +63,6 @@ ConstExecutionPtrVec
   return result;
 }
 
-namespace {
-  struct RenameBits
-  {
-    std::size_t allAvailablePhotos = 0;
-    std::size_t processedPhotos = 0;
-    std::size_t affectedPhotos = 0;
-  };
-
-  int numDigits(std::size_t const val)
-  {
-    if (val < 10) return 1;
-    if (val < 100) return 2;
-    if (val < 1000) return 3;
-    if (val < 10000) return 4;
-    return static_cast<int>(std::log10(val))+1;
-  }
-
-  QString replacementPattern(char const signature, RenameBits const& bits, QString const& origFilename)
-  {
-    switch(signature)
-    {
-    case 'N':
-      return QString("%1").arg(bits.processedPhotos, numDigits(bits.allAvailablePhotos), 10, QChar('0'));
-    case 'n':
-      return QString("%1").arg(bits.affectedPhotos, numDigits(bits.allAvailablePhotos), 10, QChar('0'));
-    case 'F':
-      return origFilename;
-    default:
-      return QString{};
-    }
-  }
-
-  QString renameFile(QString const& file, QString pattern, RenameBits const& bits)
-  {
-    QFileInfo const fInfo(file);
-    QString const originalFilename = fInfo.baseName();
-
-    while(true)
-    {
-      int const replSeq = pattern.indexOf('%');
-      if (replSeq < 0 || replSeq > pattern.length()-2)
-        break;
-
-      pattern.replace(replSeq, 2, replacementPattern(pattern.at(replSeq+1).toLatin1(), bits, originalFilename));
-    }
-
-    if (pattern.endsWith('%'))
-      pattern = pattern.left(pattern.length()-1);
-
-    return pattern+'.'+fInfo.completeSuffix();
-  }
-} // unnamed namespace
-
 RenameAction::RenameAction(const pcontainer::ItemState matchedState, QString const& pattern) :
   Action(matchedState), pattern(pattern)
 {}
@@ -126,28 +73,109 @@ QString RenameAction::toString() const
       .arg(QString::fromStdString(utils::lexicalCast(matchedState)), pattern);
 }
 
+namespace {
+int numDigits(std::size_t const val)
+{
+  if (val < 10) return 1;
+  if (val < 100) return 2;
+  if (val < 1000) return 3;
+  if (val < 10000) return 4;
+  return static_cast<int>(std::log10(val))+1;
+}
+
+class RenameProcessor
+{
+public:
+  RenameProcessor(pcontainer::ItemState const matchedState, SeriesCounts const& seriesCounts) :
+    matchedState(matchedState), allAvailablePhotos(seriesCounts.all.photos)
+  {}
+
+  void setRenamePattern(QString const& pattern)
+  {
+    renamePattern = pattern;
+  }
+
+  ConstExecutionPtrVec operator()(pcontainer::Set const& photoSet,
+                                  std::function<ConstExecutionPtr(pcontainer::ItemId const&, QString)> const& executionMaker)
+  {
+    ConstExecutionPtrVec result;
+
+    for (pcontainer::SeriesPtr const& series : photoSet)
+      for (pcontainer::ItemPtr const& photo : *series)
+      {
+        if (photo->state() == matchedState)
+        {
+          result.emplace_back(executionMaker(photo->id(), processPattern(photo->fileName())));
+          ++affectedPhotos;
+        }
+        ++processedPhotos;
+      }
+
+    return result;
+  }
+
+private:
+  QString processPattern(QString const& fileName)
+  {
+    QFileInfo const fInfo(fileName);
+    QString const originalFilename = fInfo.fileName();
+
+    if (renamePattern.isEmpty())
+      return originalFilename;
+
+    QString const originalBasename = fInfo.baseName();
+    QString pattern = renamePattern;
+
+    while(true)
+    {
+      int const replSeq = pattern.indexOf('%');
+      if (replSeq < 0 || replSeq > pattern.length()-2)
+        break;
+
+      pattern.replace(replSeq, 2, expandPattern(pattern.at(replSeq+1).toLatin1(), originalBasename));
+    }
+
+    if (pattern.endsWith('%'))
+      pattern = pattern.left(pattern.length()-1);
+
+    return pattern+'.'+fInfo.completeSuffix();
+  }
+
+  QString expandPattern(char const signature, QString const& originalBasename)
+  {
+    switch(signature)
+    {
+    case 'N':
+      return QString("%1").arg(processedPhotos, numDigits(allAvailablePhotos), 10, QChar('0'));
+    case 'n':
+      return QString("%1").arg(affectedPhotos, numDigits(allAvailablePhotos), 10, QChar('0'));
+    case 'F':
+      return originalBasename;
+    default:
+      return QString{};
+    }
+  }
+
+  pcontainer::ItemState const matchedState;
+
+  std::size_t const allAvailablePhotos;
+  std::size_t processedPhotos = 0;
+  std::size_t affectedPhotos = 0;
+
+  QString renamePattern;
+};
+} // unnamed namespace
+
 ConstExecutionPtrVec
   RenameAction::makeExecutions(pcontainer::Set const& photoSet,
                                SeriesCounts const& seriesCounts) const
 {
-  ConstExecutionPtrVec result;
+  RenameProcessor processor(matchedState, seriesCounts);
+  processor.setRenamePattern(pattern);
 
-  RenameBits bits = {};
-  bits.allAvailablePhotos = seriesCounts.all.photos;
-
-  for (pcontainer::SeriesPtr const& series : photoSet)
-    for (pcontainer::ItemPtr const& photo : *series)
-    {
-      if (photo->state() == matchedState)
-      {
-        QString const newFileName = renameFile(photo->fileName(), pattern, bits);
-        result.emplace_back(std::make_shared<RenameExecution>(photo->id(), newFileName));
-        ++bits.affectedPhotos;
-      }
-      ++bits.processedPhotos;
-    }
-
-  return result;
+  return processor(photoSet, [](auto const& id, QString fn){
+    return std::make_shared<RenameExecution>(id, std::move(fn));
+  });
 }
 
 MoveAction::MoveAction(pcontainer::ItemState const matchedState,
@@ -158,7 +186,7 @@ MoveAction::MoveAction(pcontainer::ItemState const matchedState,
 
 QString MoveAction::toString() const
 {
-  QString result = QObject::tr("Move each %1 photo to %2")
+  QString result = QObject::tr("Move each %1 photo to \"%2\"")
       .arg(QString::fromStdString(utils::lexicalCast(matchedState)), destination.path());
 
   if (!optPattern.isEmpty())
@@ -171,7 +199,14 @@ ConstExecutionPtrVec
   MoveAction::makeExecutions(pcontainer::Set const& photoSet,
                              SeriesCounts const& counts) const
 {
-  return {};
+  RenameProcessor processor(matchedState, counts);
+
+  if (!optPattern.isEmpty())
+    processor.setRenamePattern(optPattern);
+
+  return processor(photoSet, [dest=destination](auto const& id, QString fn){
+    return std::make_shared<MoveExecution>(id, dest, std::move(fn));
+  });
 }
 
 CopyAction::CopyAction(pcontainer::ItemState const matchedState,
@@ -182,7 +217,7 @@ CopyAction::CopyAction(pcontainer::ItemState const matchedState,
 
 QString CopyAction::toString() const
 {
-  QString result = QObject::tr("Copy each %1 photo to %2")
+  QString result = QObject::tr("Copy each %1 photo to \"%2\"")
       .arg(QString::fromStdString(utils::lexicalCast(matchedState)), destination.path());
 
   if (!optPattern.isEmpty())
@@ -195,7 +230,14 @@ ConstExecutionPtrVec
   CopyAction::makeExecutions(pcontainer::Set const& photoSet,
                              SeriesCounts const& counts) const
 {
-  return {};
+  RenameProcessor processor(matchedState, counts);
+
+  if (!optPattern.isEmpty())
+    processor.setRenamePattern(optPattern);
+
+  return processor(photoSet, [dest=destination](auto const& id, QString fn){
+    return std::make_shared<CopyExecution>(id, dest, std::move(fn));
+  });
 }
 
 }} // namespace phobos::processwiz

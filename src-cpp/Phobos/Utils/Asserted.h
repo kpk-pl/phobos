@@ -33,6 +33,20 @@ auto fromPtr(T const& t) -> decltype(*t)
   return(*t);
 }
 
+namespace detail {
+struct AlwaysAsserted
+{
+  template<typename T>
+  operator T() const
+  {
+    assert(false);
+    __builtin_unreachable();
+  }
+};
+} // namespace detail
+
+extern const detail::AlwaysAsserted always;
+
 }}} // namespace phobos::utils::asserted
 
 #endif // _UTILS_ASSERTED_H_

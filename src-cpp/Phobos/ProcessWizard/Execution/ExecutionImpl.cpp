@@ -2,6 +2,7 @@
 #include "Config.h"
 #include "ConfigExtension.h"
 #include "Utils/Filesystem/Trash.h"
+#include "Utils/Asserted.h"
 #include <easylogging++.h>
 #include <QFile>
 #include <cassert>
@@ -26,8 +27,7 @@ bool DeleteExecution::execute() const
     return debugDisabled || utils::fs::moveToTrash(file());
   }
 
-  assert(false);
-  return false;
+  return utils::asserted::always;
 }
 
 QString DeleteExecution::toString() const
@@ -40,8 +40,7 @@ QString DeleteExecution::toString() const
     return QString("Move \"%1\" to trash").arg(file());
   }
 
-  assert(false);
-  return QString{};
+  return utils::asserted::always;
 }
 
 QString DeleteExecution::warning() const
@@ -66,6 +65,48 @@ QString RenameExecution::toString() const
 QString RenameExecution::warning() const
 {
   return QString();
+}
+
+MoveExecution::MoveExecution(pcontainer::ItemId const& itemId,
+                             QDir const& destination,
+                             QString const& newFilename) :
+  Execution(itemId), destination(destination), newFilename(newFilename)
+{}
+
+bool MoveExecution::execute() const
+{
+  return false;
+}
+
+QString MoveExecution::toString() const
+{
+  return QString("Move \"%1\" to \"%2\"").arg(file(), destination.filePath(newFilename));
+}
+
+QString MoveExecution::warning() const
+{
+  return QString{};
+}
+
+CopyExecution::CopyExecution(pcontainer::ItemId const& itemId,
+                             QDir const& destination,
+                             QString const& newFilename) :
+  Execution(itemId), destination(destination), newFilename(newFilename)
+{}
+
+bool CopyExecution::execute() const
+{
+  return false;
+}
+
+QString CopyExecution::toString() const
+{
+  return QString("Copy \"%1\" to \"%2\"").arg(file(), destination.filePath(newFilename));
+}
+
+QString CopyExecution::warning() const
+{
+  return QString{};
 }
 
 }} // namespace phobos::processwiz

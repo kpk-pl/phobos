@@ -60,9 +60,9 @@ void CopyMoveActionTab::createAction() const
     return;
   }
 
-  QString fPath = fInfo.canonicalPath();
+  QString fPath = fInfo.canonicalFilePath();
   if (fPath.isEmpty())
-    fPath = fInfo.absolutePath();
+    fPath = fInfo.absoluteFilePath();
 
   QDir const destination(fPath);
   QString optRename;

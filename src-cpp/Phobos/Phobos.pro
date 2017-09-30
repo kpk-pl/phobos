@@ -43,6 +43,7 @@ SOURCES += Phobos.cpp\
     PhotoContainers/Set.cpp \
     PhotoContainers/ItemState.cpp \
     Utils/LayoutClear.cpp \
+    Utils/Asserted.cpp \
     Utils/ItemStateColor.cpp \
     Utils/ItemStateIcon.cpp \
     Utils/Filesystem/Portable.cpp \
