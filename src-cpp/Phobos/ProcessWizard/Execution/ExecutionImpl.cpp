@@ -54,7 +54,11 @@ RenameExecution::RenameExecution(pcontainer::ItemId const& itemId, QString const
 
 bool RenameExecution::execute() const
 {
-  return false;
+  bool const debugDisabled = config::qualified("debug.disableExecutionOperations", false);
+
+  QString const newPath = QFileInfo(itemId().fileName).dir().filePath(newFilename);
+  LOG(INFO) << "Renaming " << itemId().fileName << " to " << newPath;
+  return debugDisabled || QFile::rename(itemId().fileName, newPath);
 }
 
 QString RenameExecution::toString() const
@@ -75,7 +79,11 @@ MoveExecution::MoveExecution(pcontainer::ItemId const& itemId,
 
 bool MoveExecution::execute() const
 {
-  return false;
+  bool const debugDisabled = config::qualified("debug.disableExecutionOperations", false);
+
+  QString const newPath = destination.filePath(newFilename);
+  LOG(INFO) << "Moving " << itemId().fileName << " to " << newPath;
+  return debugDisabled || QFile::rename(itemId().fileName, newPath);
 }
 
 QString MoveExecution::toString() const
@@ -96,7 +104,11 @@ CopyExecution::CopyExecution(pcontainer::ItemId const& itemId,
 
 bool CopyExecution::execute() const
 {
-  return false;
+  bool const debugDisabled = config::qualified("debug.disableExecutionOperations", false);
+
+  QString const newPath = destination.filePath(newFilename);
+  LOG(INFO) << "Copying " << itemId().fileName << " to " << newPath;
+  return debugDisabled || QFile::copy(itemId().fileName, newPath);
 }
 
 QString CopyExecution::toString() const
