@@ -14,7 +14,6 @@ public:
 
   bool execute() const override;
   QString toString() const override;
-  QString warning() const override;
   bool destructive() const override { return true; }
 
 private:
@@ -28,41 +27,23 @@ public:
 
   bool execute() const override;
   QString toString() const override;
-  QString warning() const override;
   bool destructive() const override { return true; }
 
 private:
-  QString const newFilename;
-};
-
-class MoveExecution : public Execution
-{
-public:
-  MoveExecution(pcontainer::ItemId const& itemId, QDir const& destination, QString const& newFilename);
-
-  bool execute() const override;
-  QString toString() const override;
-  QString warning() const override;
-  bool destructive() const override { return true; }
-
-private:
-  QDir const destination;
   QString const newFilename;
 };
 
 class CopyExecution : public Execution
 {
 public:
-  CopyExecution(pcontainer::ItemId const& itemId, QDir const& destination, QString const& newFilename);
+  CopyExecution(pcontainer::ItemId const& itemId, QString const& destFilename);
 
   bool execute() const override;
   QString toString() const override;
-  QString warning() const override;
   bool destructive() const override { return false; }
 
 private:
-  QDir const destination;
-  QString const newFilename;
+  QString const destFilename;
 };
 
 }} // namespace phobos::processwiz

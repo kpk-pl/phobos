@@ -43,11 +43,6 @@ QString DeleteExecution::toString() const
   return utils::asserted::always;
 }
 
-QString DeleteExecution::warning() const
-{
-  return QString();
-}
-
 RenameExecution::RenameExecution(pcontainer::ItemId const& itemId, QString const& newFilename) :
   Execution(itemId), newFilename(newFilename)
 {}
@@ -56,9 +51,8 @@ bool RenameExecution::execute() const
 {
   bool const debugDisabled = config::qualified("debug.disableExecutionOperations", false);
 
-  QString const newPath = QFileInfo(itemId().fileName).dir().filePath(newFilename);
-  LOG(INFO) << "Renaming " << itemId().fileName << " to " << newPath;
-  return debugDisabled || QFile::rename(itemId().fileName, newPath);
+  LOG(INFO) << "Renaming " << itemId().fileName << " to " << newFilename;
+  return debugDisabled || QFile::rename(itemId().fileName, newFilename);
 }
 
 QString RenameExecution::toString() const
@@ -66,59 +60,22 @@ QString RenameExecution::toString() const
   return QString("Rename \"%1\" to \"%2\"").arg(file(), newFilename);
 }
 
-QString RenameExecution::warning() const
-{
-  return QString();
-}
-
-MoveExecution::MoveExecution(pcontainer::ItemId const& itemId,
-                             QDir const& destination,
-                             QString const& newFilename) :
-  Execution(itemId), destination(destination), newFilename(newFilename)
-{}
-
-bool MoveExecution::execute() const
-{
-  bool const debugDisabled = config::qualified("debug.disableExecutionOperations", false);
-
-  QString const newPath = destination.filePath(newFilename);
-  LOG(INFO) << "Moving " << itemId().fileName << " to " << newPath;
-  return debugDisabled || QFile::rename(itemId().fileName, newPath);
-}
-
-QString MoveExecution::toString() const
-{
-  return QString("Move \"%1\" to \"%2\"").arg(file(), destination.filePath(newFilename));
-}
-
-QString MoveExecution::warning() const
-{
-  return QString{};
-}
-
 CopyExecution::CopyExecution(pcontainer::ItemId const& itemId,
-                             QDir const& destination,
-                             QString const& newFilename) :
-  Execution(itemId), destination(destination), newFilename(newFilename)
+                             QString const& destFilename) :
+  Execution(itemId), destFilename(destFilename)
 {}
 
 bool CopyExecution::execute() const
 {
   bool const debugDisabled = config::qualified("debug.disableExecutionOperations", false);
 
-  QString const newPath = destination.filePath(newFilename);
-  LOG(INFO) << "Copying " << itemId().fileName << " to " << newPath;
-  return debugDisabled || QFile::copy(itemId().fileName, newPath);
+  LOG(INFO) << "Copying " << itemId().fileName << " to " << destFilename;
+  return debugDisabled || QFile::copy(itemId().fileName, destFilename);
 }
 
 QString CopyExecution::toString() const
 {
-  return QString("Copy \"%1\" to \"%2\"").arg(file(), destination.filePath(newFilename));
-}
-
-QString CopyExecution::warning() const
-{
-  return QString{};
+  return QString("Copy \"%1\" to \"%2\"").arg(file(), destFilename);
 }
 
 }} // namespace phobos::processwiz

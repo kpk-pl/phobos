@@ -96,7 +96,7 @@ public:
   }
 
   ConstExecutionPtrVec operator()(pcontainer::Set const& photoSet,
-                                  std::function<ConstExecutionPtr(pcontainer::ItemId const&, QString)> const& executionMaker)
+                                  std::function<ConstExecutionPtr(pcontainer::ItemId const&, QString const&)> const& executionMaker)
   {
     ConstExecutionPtrVec result;
 
@@ -173,8 +173,8 @@ ConstExecutionPtrVec
   RenameProcessor processor(matchedState, seriesCounts);
   processor.setRenamePattern(pattern);
 
-  return processor(photoSet, [](auto const& id, QString fn){
-    return std::make_shared<RenameExecution>(id, std::move(fn));
+  return processor(photoSet, [](auto const& id, QString const& fn){
+    return std::make_shared<RenameExecution>(id, QFileInfo(id.fileName).dir().filePath(fn));
   });
 }
 
@@ -204,8 +204,8 @@ ConstExecutionPtrVec
   if (!optPattern.isEmpty())
     processor.setRenamePattern(optPattern);
 
-  return processor(photoSet, [dest=destination](auto const& id, QString fn){
-    return std::make_shared<MoveExecution>(id, dest, std::move(fn));
+  return processor(photoSet, [dest=destination](auto const& id, QString const& fn){
+    return std::make_shared<RenameExecution>(id, dest.filePath(fn));
   });
 }
 
@@ -235,8 +235,8 @@ ConstExecutionPtrVec
   if (!optPattern.isEmpty())
     processor.setRenamePattern(optPattern);
 
-  return processor(photoSet, [dest=destination](auto const& id, QString fn){
-    return std::make_shared<CopyExecution>(id, dest, std::move(fn));
+  return processor(photoSet, [dest=destination](auto const& id, QString const& fn){
+    return std::make_shared<CopyExecution>(id, dest.filePath(fn));
   });
 }
 

@@ -14,7 +14,6 @@ class Execution
 public:
   virtual bool execute() const = 0;
   virtual QString toString() const = 0;
-  virtual QString warning() const = 0;
   virtual bool destructive() const = 0;
 
   QString const& file() const { return _itemId.fileName; }
