@@ -19,11 +19,21 @@ void Set::addSeries(importwiz::PhotoSeriesVec const& newPhotoSeries)
   }
 }
 
+namespace {
+  std::size_t posModulo(int val, int mod)
+  {
+    val %= mod;
+    if (val < 0)
+      val += mod;
+    return val;
+  }
+}
+
 SeriesPtr const& Set::findSeriesImpl(QUuid const& seriesUuid, int offset) const
 {
   for (std::size_t i = 0; i<_photoSeries.size(); ++i)
     if (_photoSeries[i]->uuid() == seriesUuid)
-      return _photoSeries[(int(i)+offset) % _photoSeries.size()];
+      return _photoSeries[posModulo(int(i)+offset, _photoSeries.size())];
 
   return utils::asserted::always;
 }

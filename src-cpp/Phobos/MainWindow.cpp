@@ -59,7 +59,6 @@ void MainWindow::createMenus()
                         [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES)); },
                         QKeySequence("Alt+3"))->setStatusTip(tr("Show separate photos from one series on a single page"));
     viewMenu->addSeparator();
-    // TODO: Check this. Probably jumping left from first series does not jump to the last one.
     viewMenu->addAction(tr("&Next series"),
                         [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::CURRENT, boost::none, +1)); },
                         QKeySequence("Shift+Right"))->setStatusTip(tr("Jump to next series"));
