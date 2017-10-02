@@ -1,13 +1,3 @@
-#include <QMenu>
-#include <QAction>
-#include <QPoint>
-#include <QContextMenuEvent>
-#include <QFocusEvent>
-#include <QKeyEvent>
-#include <QPixmap>
-#include <QPainter>
-#include <QTransform>
-#include <sstream>
 #include "Widgets/PhotoItem/PhotoItem.h"
 #include "Config.h"
 #include "ConfigExtension.h"
@@ -18,12 +8,19 @@
 #include "Utils/Asserted.h"
 #include "Utils/ItemStateColor.h"
 #include <easylogging++.h>
+#include <QMenu>
+#include <QAction>
+#include <QPoint>
+#include <QContextMenuEvent>
+#include <QFocusEvent>
+#include <QKeyEvent>
+#include <QPixmap>
+#include <QPainter>
+#include <QTransform>
+#include <QPixmapCache>
 
 namespace phobos { namespace widgets { namespace pitem {
 
-// TODO: bestmark, focus pixmaps -> CACHE IT by size!!! Those are calculated hundreds of times and the result is always the same!
-// Time it before to make sure it has some impact
-//
 // TODO: histogram -> maybe assume it will never change
 // maybe assume histogram size will never change
 // then cache histograms scaled to buckets inside photoitemwidget
@@ -242,14 +239,22 @@ private:
 // pixmap, scale down
     QPixmap coloredIcon(config::ConfigPath const& configTable)
     {
-      double const sizePercent = config::qualified(configTable("sizePercent"), 0.2);
-      QSize const iconSize(withBorderSize.width() * sizePercent,
-                           withBorderSize.height() * sizePercent);
+      QSize const iconSize = withBorderSize * config::qualified(configTable("sizePercent"), 0.2);
       QColor const color = config::qColor(configTable("color"), Qt::black);
       double const opacity = config::qualified(configTable("opacity"), 0.5);
       std::string const path = config::qualified(configTable("path"), std::string{});
 
-      return iprocess::coloredPixmap(path, color, iconSize, opacity);
+      QString const cacheKey = QString("%1-%2-%3-%4x%5")
+          .arg(path.c_str()).arg(color.name()).arg(opacity)
+          .arg(iconSize.width()).arg(iconSize.height());
+
+      QPixmap result;
+      if (!QPixmapCache::find(cacheKey, &result) || result.isNull())
+      {
+        result = iprocess::coloredPixmap(path, color, iconSize, opacity);
+        QPixmapCache::insert(cacheKey, result);
+      }
+      return result;
     }
 
     static config::ConfigPath const baseConfig;
