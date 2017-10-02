@@ -48,7 +48,6 @@ namespace phobos { namespace widgets { namespace pitem {
 //
 // TODO: Right-click menu to open a dialog displaying all metrics for photo or whole series
 //
-// TODO: Tooltil on mouse over to display image filename
 // TODO: Change focus icon color to blueish
 
 PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem,
@@ -60,6 +59,7 @@ PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem,
     capabilities(capabilities)
 {
   setFocusPolicy(Qt::StrongFocus);
+  setToolTip(photoItem->fileName());
   installEventFilter(this);
 
   QObject::connect(this, &ImageWidget::clicked, _photoItem.get(), &pcontainer::Item::toggleSelection);
