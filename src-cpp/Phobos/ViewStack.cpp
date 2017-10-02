@@ -6,6 +6,7 @@
 #include "ConfigExtension.h"
 #include "PhotoContainers/Set.h"
 #include "ImageCache/Cache.h"
+#include "Utils/Asserted.h"
 
 namespace phobos {
 
@@ -23,20 +24,20 @@ ViewStack::ViewStack(pcontainer::Set const& seriesSet, icache::Cache & cache) :
         currentSeriesWidget = numSeriesView;
 }
 
-pcontainer::SeriesPtr const& ViewStack::findRequestedSeries(ViewDescriptionPtr const& viewDesc) const
+pcontainer::Series const& ViewStack::findRequestedSeries(ViewDescriptionPtr const& viewDesc) const
 {
-    if (!viewDesc->seriesUuid)
-    {
-        auto const focused = utils::focusedPhotoItemWidget();
-        if (focused)
-            return seriesSet.findSeries(focused->photoItem().seriesUuid(), viewDesc->seriesOffset.value_or(0));
-        else if (!seriesSet.empty())
-            return seriesSet.front();
-        else
-            assert(false);
-    }
+  if (!viewDesc->seriesUuid)
+  {
+    auto const focused = utils::focusedPhotoItemWidget();
+    if (focused)
+      return seriesSet.findSeries(focused->photoItem().seriesUuid(), viewDesc->seriesOffset.value_or(0));
+    else if (!seriesSet.empty())
+      return seriesSet.front();
+    else
+      return utils::asserted::always;
+  }
 
-    return seriesSet.findSeries(*viewDesc->seriesUuid, viewDesc->seriesOffset.value_or(0));
+  return seriesSet.findSeries(*viewDesc->seriesUuid, viewDesc->seriesOffset.value_or(0));
 }
 
 void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
@@ -44,17 +45,17 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
     if (seriesSet.empty())
         return; // NO-OP
 
-    pcontainer::SeriesPtr const& targetSeries = findRequestedSeries(viewDesc);
+    pcontainer::Series const& targetSeries = findRequestedSeries(viewDesc);
 
     if ((viewDesc->type == ViewType::ALL_SERIES) ||
         ((viewDesc->type == ViewType::CURRENT) && currentWidget() == allSeriesView))
     {
         setCurrentWidget(allSeriesView);
-        allSeriesView->focusSeries(targetSeries->uuid());
+        allSeriesView->focusSeries(targetSeries.uuid());
         return;
     }
 
-    if (currentSeriesInView == targetSeries->uuid())
+    if (currentSeriesInView == targetSeries.uuid())
     {
         if (viewDesc->type == ViewType::NUM_SINGLE_SERIES && currentSeriesWidget == rowSeriesView)
         {
@@ -75,7 +76,7 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
         else if (viewDesc->type == ViewType::NUM_SINGLE_SERIES)
             currentSeriesWidget = numSeriesView;
 
-        currentSeriesInView = targetSeries->uuid();
+        currentSeriesInView = targetSeries.uuid();
         currentSeriesWidget->showSeries(targetSeries);
     }
 

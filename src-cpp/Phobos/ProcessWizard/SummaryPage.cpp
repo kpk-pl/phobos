@@ -15,6 +15,17 @@
 
 namespace phobos { namespace processwiz {
 
+// TODO: It is possible that %F flag will not be unique in result (when source images are from different directories)
+// 1. Implement action simulation. Eack execution should return input and output file path.
+//    Results from all execution simulations should be aggregated and displayed on summary page (or create a page after summary page
+//    that will be displayed only in case of any errors.
+//    Enable user to select conflict resolutions
+//    a) ignore and skip failing actions
+//    b) append something to filepath (like _n suffix)
+// 2. %F flag should stop be handled as a unique resolution
+// 3. When some executions fail, files are removed from application. Trying to execute similar actions will mess up numbering of output files
+//    figure out a way to use ord() numbers and use absolute number of photos in series (photos existing + removed) to fix up numbering
+
 SummaryPage::SummaryPage(SeriesCounts const& seriesCounts, pcontainer::Set const& photoSet) :
   seriesCounts(seriesCounts), photoSet(photoSet)
 {

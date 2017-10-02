@@ -58,7 +58,7 @@ void Cache::startThreadForItem(Transaction && transaction)
 
 void Cache::changedSeries(QUuid const& seriesUuid)
 {
-  auto const& series = utils::asserted::fromPtr(photoSet.findSeries(seriesUuid));
+  auto const& series = photoSet.findSeries(seriesUuid);
   for (auto const& itemId : series.removedItems())
   {
     auto const allTrans = transactionsInThread.equal_range(itemId);

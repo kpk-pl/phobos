@@ -48,18 +48,17 @@ void SeriesViewBase::addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> item
   getLayoutForItems()->addWidget(itemWidget.release());
 }
 
-void SeriesViewBase::showSeries(pcontainer::SeriesPtr const& series)
+void SeriesViewBase::showSeries(pcontainer::Series const& series)
 {
   using namespace widgets::pitem;
-  assert(series);
   clear();
 
-  for (pcontainer::ItemPtr const& item : *series)
+  for (pcontainer::ItemPtr const& item : series)
     addToLayout(createConnectedItem(item));
 
-  currentSeriesUuid = series->uuid();
+  currentSeriesUuid = series.uuid();
 
-  if (!series->empty())
+  if (!series.empty())
     getLayoutForItems()->itemAt(0)->widget()->setFocus();
 }
 
@@ -69,9 +68,7 @@ void SeriesViewBase::updateCurrentSeriesFromContent(
   if (!currentSeriesUuid)
     return;
 
-  pcontainer::SeriesPtr const& series = seriesSet.findSeries(*currentSeriesUuid);
-
-  for (auto const& item : *series)
+  for (auto const& item : seriesSet.findSeries(*currentSeriesUuid))
   {
     auto const oldIt = content.find(item->id());
     if (oldIt != content.end())

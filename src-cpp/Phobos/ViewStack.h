@@ -41,7 +41,7 @@ public slots:
     void bulkSelect(PhotoBulkAction const action);
 
 private:
-    pcontainer::SeriesPtr const& findRequestedSeries(ViewDescriptionPtr const& viewDesc) const;
+    pcontainer::Series const& findRequestedSeries(ViewDescriptionPtr const& viewDesc) const;
 
     void setupUI();
     void connectSignals();

@@ -25,7 +25,6 @@ SeriesDisplayPage::SeriesDisplayPage(QWidget *parent) :
     tree = new QTreeWidget();
     tree->header()->close();
 
-    // TODO: IconLabel and fix TODO below!
     loadedStatusLabel = new QLabel();
 
     multipleLengthsInfo = new widgets::TextIconLabel(widgets::IconLabel::Icon::Information);
@@ -119,8 +118,6 @@ void SeriesDisplayPage::initializePage()
         }
     }
 
-    // TODO add info / warning / error icons to project and to those labels! maybe use system icons???
-    // http://stackoverflow.com/questions/4453945/show-standard-warning-icon-in-qt4
     loadedStatusLabel->setText(tr("Loaded %1 photos into %2 series").arg(photoCount).arg(_dividedSeries.size()));
     LOG(INFO) << "Displayed " << photoCount  << " photos in " << _dividedSeries.size() << " series";
 

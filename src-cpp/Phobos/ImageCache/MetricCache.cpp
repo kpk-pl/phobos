@@ -42,7 +42,7 @@ bool MetricCache::changedSeries(QUuid const& seriesUuid)
 {
   auto const& series = photoSet.findSeries(seriesUuid);
 
-  if (!std::all_of(series->begin(), series->end(),
+  if (!std::all_of(series.begin(), series.end(),
         [this](pcontainer::ItemPtr const& item){
             return utils::valueIn(item->fileName(), metricCache);
         }))
@@ -50,16 +50,16 @@ bool MetricCache::changedSeries(QUuid const& seriesUuid)
     return false;
   }
 
-  auto allMetrics = utils::transformToVector<iprocess::MetricPtr>(series->begin(), series->end(),
+  auto allMetrics = utils::transformToVector<iprocess::MetricPtr>(series.begin(), series.end(),
       [this](auto const& item){ return metricCache[item->fileName()]; });
 
   LOG(DEBUG) << "[Cache] Aggregating metrics for series " << seriesUuid.toString();
   iprocess::aggregateMetrics(allMetrics);
 
   bool const doLog = config::qualified("logging.metrics", false);
-  for (std::size_t i = 0; i < series->size(); ++i)
+  for (std::size_t i = 0; i < series.size(); ++i)
   {
-    auto const& filename = series->item(i)->fileName();
+    auto const& filename = series.item(i)->fileName();
     auto const& metric = metricCache[filename];
     emit updateMetrics(pcontainer::ItemId{seriesUuid, filename}, metric);
 

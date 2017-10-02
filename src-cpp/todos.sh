@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ag --ignore '*easyloggingpp*' --ignore '*opencv*' --ignore '*boost*' 'TODO' Phobos/
+grep -rn --exclude-dir={boost,opencv,easyloggingpp,cpptoml,qt_ext,icons} TODO Phobos/

@@ -52,7 +52,7 @@ QLayout* NumSeriesView::getLayoutForItems() const
   return layoutForItems;
 }
 
-void NumSeriesView::showSeries(pcontainer::SeriesPtr const& series)
+void NumSeriesView::showSeries(pcontainer::Series const& series)
 {
   SeriesViewBase::showSeries(series);
   currentItem = 0;

@@ -13,7 +13,7 @@ public:
   explicit NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
   ~NumSeriesView();
 
-  void showSeries(pcontainer::SeriesPtr const& series) override;
+  void showSeries(pcontainer::Series const& series) override;
   void clear() override;
 
   void keyPressEvent(QKeyEvent* keyEvent) override;

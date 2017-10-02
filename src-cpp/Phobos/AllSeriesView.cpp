@@ -145,12 +145,11 @@ void AllSeriesView::updateExistingSeries(QUuid seriesUuid)
   auto const seriesRow = utils::asserted::fromMap(seriesUuidToRow, seriesUuid);
   auto oldContent = clearRowInGrid(grid, seriesRow);
 
-  pcontainer::SeriesPtr const& series = seriesSet.findSeries(seriesUuid);
-  assert(series);
+  pcontainer::Series const& series = seriesSet.findSeries(seriesUuid);
 
-  for (std::size_t col = 0; col < series->size(); ++col)
+  for (std::size_t col = 0; col < series.size(); ++col)
   {
-    pcontainer::ItemPtr const item = series->item(col);
+    pcontainer::ItemPtr const item = series.item(col);
     auto const it = oldContent.find(item->id());
     if (it == oldContent.end() || !it->second)
     {

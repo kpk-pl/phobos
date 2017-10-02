@@ -28,7 +28,7 @@ public:
     explicit SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
     virtual ~SeriesViewBase() = default;
 
-    virtual void showSeries(pcontainer::SeriesPtr const& series);
+    virtual void showSeries(pcontainer::Series const& series);
     virtual void clear();
 
 signals:
