@@ -10,16 +10,15 @@ class SeriesDisplayPage;
 
 class ImportWizard : public QWizard
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    ImportWizard(QWidget *parent = nullptr);
+  ImportWizard(QWidget *parent = nullptr);
 
-    PhotoSeriesVec selectedSeries() const;
-    void accept() override;
+  PhotoSeriesVec selectedSeries() const;
 
 private:
-    DivisionMethodPage *divisionPage;
-    SeriesDisplayPage *displayPage;
+  DivisionMethodPage *divisionPage;
+  SeriesDisplayPage *displayPage;
 };
 
 }} // namespace phobos::importwiz

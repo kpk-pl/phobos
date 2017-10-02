@@ -26,15 +26,9 @@ ImportWizard::ImportWizard(QWidget *parent) :
   setOption(QWizard::NoDefaultButton, true);
 }
 
-void ImportWizard::accept()
-{
-    // TODO:
-    QDialog::accept();
-}
-
 PhotoSeriesVec ImportWizard::selectedSeries() const
 {
-    return field("chosenSeries").value<PhotoSeriesVec>();
+  return field("chosenSeries").value<PhotoSeriesVec>();
 }
 
 }} // namespace phobos::importwiz
