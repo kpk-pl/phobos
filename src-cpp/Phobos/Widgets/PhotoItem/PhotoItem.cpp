@@ -70,14 +70,6 @@ PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem,
 class PhotoItem::PixmapRenderer
 {
 public:
-    static std::string percentString(double const val, unsigned const decimalPlaces)
-    {
-        // TODO: use sprintf from QString
-        std::ostringstream oss;
-        oss << std::setprecision(decimalPlaces) << std::fixed << (val*100) << "%";
-        return oss.str();
-    }
-
     static QSize histogramSize(config::ConfigPath const& histConfig, iprocess::Histogram const& histogram)
     {
       static std::vector<unsigned> const POW2 = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
@@ -151,10 +143,10 @@ public:
       painter.setFont(config::qFont(textConfig("font")));
 
       unsigned decimalPlaces = config::qualified(textConfig("decimalPlaces"), 0u);
-      std::string const text = percentString(scorePercent, decimalPlaces);
+      QString const text = QString("%1%").arg(scorePercent*100.0, 0, 'f', decimalPlaces);
 
       unsigned const padding = config::qualified(textConfig("padding"), 7u);
-      painter.drawText(drawStartPoint(Qt::AlignLeft | Qt::AlignBottom, padding), text.c_str());
+      painter.drawText(drawStartPoint(Qt::AlignLeft | Qt::AlignBottom, padding), text);
 
       painter.restore();
     }
