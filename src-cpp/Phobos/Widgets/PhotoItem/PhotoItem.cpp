@@ -44,11 +44,7 @@ namespace phobos { namespace widgets { namespace pitem {
 //
 // TODO: show "Quality" text in quality label
 //
-// TODO: Display image filename in tooltip or on the bar on the bottom of the app
-//
 // TODO: Right-click menu to open a dialog displaying all metrics for photo or whole series
-//
-// TODO: Change focus icon color to blueish
 
 PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem,
                      Addons const& addons,
