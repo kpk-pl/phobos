@@ -3,12 +3,12 @@
 
 namespace phobos { namespace pcontainer {
 
-Series::Series() :
-  _uuid(QUuid::createUuid())
+Series::Series(std::size_t const pOrd) :
+  _uuid(QUuid::createUuid()), _ord(pOrd)
 {}
 
-Series::Series(importwiz::PhotoSeries const& series) :
-    Series()
+Series::Series(std::size_t const pOrd, importwiz::PhotoSeries const& series) :
+  Series(pOrd)
 {
   for (auto const& item : series)
     addPhotoItem(item.fileName);

@@ -13,7 +13,7 @@ void Set::addSeries(importwiz::PhotoSeriesVec const& newPhotoSeries)
 {
   for (auto const& series : newPhotoSeries)
   {
-    SeriesPtr seriesPtr = std::make_shared<Series>(series);
+    SeriesPtr seriesPtr = std::make_shared<Series>(_photoSeries.size(), series);
     _photoSeries.push_back(seriesPtr);
     emit newSeries(seriesPtr);
   }

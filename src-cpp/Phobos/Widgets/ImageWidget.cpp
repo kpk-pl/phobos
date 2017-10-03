@@ -9,6 +9,7 @@ namespace phobos { namespace widgets {
 ImageWidget::ImageWidget() :
   soul(this)
 {
+  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
   setScaledContents(false);
 }
 

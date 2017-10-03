@@ -51,7 +51,12 @@ private:
 
     widgets::pitem::PhotoItem* findItem(pcontainer::ItemId const& itemId) const;
 
-    void addItemToGrid(int row, int col, pcontainer::ItemPtr const& itemPtr);
+    std::size_t maxNumberOfPhotosInRow() const;
+    QWidget* photoInGridAt(std::size_t const row, std::size_t const col) const;
+    void addPhotoToGridAt(QWidget *widget, std::size_t const row, std::size_t const col);
+
+    void addItemToGrid(int const row, int const col, pcontainer::ItemPtr const& itemPtr);
+    void addNumberingToGrid(int const row);
 
     pcontainer::Set const& seriesSet;
     icache::Cache & imageCache;
