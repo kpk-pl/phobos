@@ -231,19 +231,23 @@ void AllSeriesView::updateMetrics(pcontainer::ItemId const& itemId, iprocess::Me
   widget.setMetrics(metrics);
 }
 
-// TODO: lookup with itemAtPosition is probably not that good
 widgets::pitem::PhotoItem* AllSeriesView::findItem(pcontainer::ItemId const& itemId) const
 {
   auto const seriesRow = utils::asserted::fromMap(seriesUuidToRow, itemId.seriesUuid);
 
-  for (std::size_t i = 0; i < maxNumberOfPhotosInRow(); ++i)
+  for (int idx = 0; idx < grid->count(); ++idx)
   {
-    QWidget* widgetItem = photoInGridAt(seriesRow, i);
-    if (!widgetItem)
+    int r, c, rSpan, cSpan;
+    grid->getItemPosition(idx, &r, &c, &rSpan, &cSpan);
+    if (r != static_cast<int>(seriesRow))
       continue;
 
+    QLayoutItem *lwgt = grid->itemAt(idx);
+    QWidget *widgetItem = lwgt ? lwgt->widget() : nullptr;
+
     auto const photoItemWgt = dynamic_cast<widgets::pitem::PhotoItem*>(widgetItem);
-    assert(photoItemWgt);
+    if (!photoItemWgt)
+      continue;
 
     if (photoItemWgt->photoItem().id() == itemId)
       return photoItemWgt;
@@ -325,9 +329,11 @@ AllSeriesView::Coords AllSeriesView::findValidProposal(std::vector<Coords> const
     {
       for (std::size_t i = 0; i <= maxNumberOfPhotosInRow(); ++i)
         if (!photoInGridAt(c.row, i))
+        {
           if (i != 0)
             return {c.row, i-1};
           break;
+        }
     }
     else
     {
@@ -344,20 +350,23 @@ AllSeriesView::Coords AllSeriesView::findValidProposal(std::vector<Coords> const
   return utils::asserted::always;
 }
 
-// TODO: Presumably using itemAtPosition is not that quick especially when done in loops
-// Try to iterate to grid->count(), use getItemPosition to get row and column
 void AllSeriesView::changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state)
 {
   unsigned const seriesRow = utils::asserted::fromMap(seriesUuidToRow, seriesUuid);
 
-  for (std::size_t i = 0; i < maxNumberOfPhotosInRow(); ++i)
+  for (int idx = 0; idx < grid->count(); ++idx)
   {
-    auto const& widgetItem = photoInGridAt(seriesRow, i);
-    if (!widgetItem)
-        continue;
+    int r, c, rSpan, cSpan;
+    grid->getItemPosition(idx, &r, &c, &rSpan, &cSpan);
+    if (r != static_cast<int>(seriesRow))
+      continue;
+
+    QLayoutItem *lItem = grid->itemAt(idx);
+    QWidget *widgetItem = lItem ? lItem->widget() : nullptr;
 
     widgets::pitem::PhotoItem* photoWidget = dynamic_cast<widgets::pitem::PhotoItem*>(widgetItem);
-    assert(photoWidget);
+    if (!photoWidget)
+      continue;
 
     photoWidget->photoItem().setState(state);
   }
