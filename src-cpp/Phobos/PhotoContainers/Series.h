@@ -33,6 +33,7 @@ public:
   ItemPtrVec::const_iterator end() const { return _photoItems.end(); }
 
   void remove(std::vector<pcontainer::ItemId> const& itemIds);
+  void removeAll();
   std::vector<ItemId> const& removedItems() const { return _removedItems; }
 
 private:

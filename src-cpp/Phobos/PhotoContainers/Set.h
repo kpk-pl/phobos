@@ -34,6 +34,7 @@ signals:
 public slots:
   void removeImage(pcontainer::ItemId const& itemId);
   void removeImages(std::vector<pcontainer::ItemId> itemIds);
+  void removeSeries(QUuid const seriesUuid);
 
 private:
   SeriesPtr const& findSeriesImpl(QUuid const& seriesUuid, int offset = 0) const;

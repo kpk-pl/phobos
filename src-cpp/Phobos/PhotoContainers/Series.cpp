@@ -36,4 +36,17 @@ void Series::remove(std::vector<pcontainer::ItemId> const& itemIds)
   }
 }
 
+void Series::removeAll()
+{
+  LOG(INFO) << "Removing all series: " << _uuid.toString();
+
+  for (auto const& item : _photoItems)
+  {
+    _removedItems.push_back(item->id());
+    LOG(INFO) << "Removing from series: " << item->id().toString();
+  }
+
+  _photoItems.clear();
+}
+
 }} // namespace phobos::pcontainer

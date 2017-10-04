@@ -37,7 +37,7 @@ namespace detail {
 struct AlwaysAsserted
 {
   template<typename T>
-  operator T() const
+  operator T& () const
   {
     assert(false);
     __builtin_unreachable();

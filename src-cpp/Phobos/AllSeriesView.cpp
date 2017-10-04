@@ -20,10 +20,6 @@
 
 namespace phobos {
 
-// TODO: Rightclick menu option to remove series entirely
-// think how this can be done, maybe removing objects from grid is enough to leave empty row ?
-// But this will mess up with numbering
-
 namespace {
 class ArrowFilter : public QObject
 {
@@ -202,11 +198,12 @@ void AllSeriesView::updateExistingSeries(QUuid seriesUuid)
 void AllSeriesView::addItemToGrid(int const row, int const col, pcontainer::ItemPtr const& itemPtr)
 {
   using namespace widgets::pitem;
+  static auto const capabilities = CapabilityType::OPEN_SERIES | CapabilityType::REMOVE_PHOTO | CapabilityType::REMOVE_SERIES;
 
   auto const widgetAddons = Addons(config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({}));
   auto const& itemId = itemPtr->id();
 
-  auto item = std::make_unique<PhotoItem>(itemPtr, widgetAddons, CapabilityType::OPEN_SERIES | CapabilityType::REMOVE_PHOTO);
+  auto item = std::make_unique<PhotoItem>(itemPtr, widgetAddons, capabilities);
 
   auto const thumbnail = imageCache.transaction().item(itemId).thumbnail().callback([lt=item->lifetime()](auto && result){
       auto item = lt.lock();
@@ -221,6 +218,7 @@ void AllSeriesView::addItemToGrid(int const row, int const col, pcontainer::Item
 
   QObject::connect(item.get(), &PhotoItem::changeSeriesState, this, &AllSeriesView::changeSeriesState);
   QObject::connect(item.get(), &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
+  QObject::connect(item.get(), &PhotoItem::removeAllSeries, &seriesSet, &pcontainer::Set::removeSeries);
 
   addPhotoToGridAt(item.release(), row, col);
 }

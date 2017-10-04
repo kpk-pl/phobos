@@ -63,6 +63,13 @@ void Set::removeImages(std::vector<pcontainer::ItemId> itemIds)
   }
 }
 
+void Set::removeSeries(QUuid const seriesUuid)
+{
+  auto& series = utils::asserted::fromPtr(findSeriesImpl(seriesUuid));
+  series.removeAll();
+  emit changedSeries(seriesUuid);
+}
+
 void Set::removeImagesImpl(std::vector<pcontainer::ItemId> const& itemIds)
 {
   if (itemIds.empty())

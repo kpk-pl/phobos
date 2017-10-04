@@ -31,6 +31,7 @@ signals:
     void openInSeries(QUuid const seriesUuid);
     void changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState);
     void removeFromSeries(pcontainer::ItemId itemId);
+    void removeAllSeries(QUuid const seriesUuid);
 
 private:
     class PixmapRenderer;

@@ -318,6 +318,12 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
     QObject::connect(seriesMenu->addAction("Discard all"), &QAction::triggered, [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::DISCARDED); });
     QObject::connect(seriesMenu->addAction("Deselect all"), &QAction::triggered, [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::UNKNOWN); });
 
+    if (capabilities.has(CapabilityType::REMOVE_SERIES))\
+    {
+      seriesMenu->addSeparator();
+      QObject::connect(seriesMenu->addAction("Remove all"), &QAction::triggered, this, [this](){ emit removeAllSeries(_photoItem->seriesUuid()) ;});
+    }
+
     menu.addSeparator();
 
     if (capabilities.has(CapabilityType::OPEN_SERIES))

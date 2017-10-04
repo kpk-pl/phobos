@@ -8,7 +8,8 @@ namespace phobos { namespace widgets { namespace pitem {
 enum class CapabilityType
 {
   OPEN_SERIES,
-  REMOVE_PHOTO
+  REMOVE_PHOTO,
+  REMOVE_SERIES
 };
 
 struct Capabilities
