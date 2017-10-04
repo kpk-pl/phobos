@@ -49,6 +49,4 @@ void execute(pcontainer::Set &photoSet, ConstExecutionPtrVec const& executions)
   photoSet.removeImages(destroyed);
 }
 
-// TODO: after removing photos something must be done with whole application because loading these from hard drive will be impossible
-
 }}} // namespace phobos::processwiz::exec
