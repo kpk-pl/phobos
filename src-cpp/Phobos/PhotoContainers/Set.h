@@ -18,10 +18,12 @@ public:
 
   void addSeries(importwiz::PhotoSeriesVec const& newPhotoSeries);
 
-  Series const& findSeries(QUuid const& seriesUuid, int offset = 0) const;
+  Series const& findSeries(QUuid const& seriesUuid, int const offset = 0) const;
+  Series const& findNonEmptySeries(QUuid const& seriesUuid, int const offset = 0) const;
 
   std::size_t size() const { return _photoSeries.size(); }
   bool empty() const { return _photoSeries.empty(); }
+  bool hasPhotos() const;
   Series const& front() const;
 
   SeriesPtrVec::const_iterator begin() const { return _photoSeries.begin(); }
@@ -37,7 +39,7 @@ public slots:
   void removeSeries(QUuid const seriesUuid);
 
 private:
-  SeriesPtr const& findSeriesImpl(QUuid const& seriesUuid, int offset = 0) const;
+  SeriesPtr const& findSeriesImpl(QUuid const& seriesUuid, int const offset = 0) const;
   void removeImagesImpl(std::vector<pcontainer::ItemId> const& itemIds);
 
   SeriesPtrVec _photoSeries;

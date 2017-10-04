@@ -26,61 +26,60 @@ ViewStack::ViewStack(pcontainer::Set const& seriesSet, icache::Cache & cache) :
 
 pcontainer::Series const& ViewStack::findRequestedSeries(ViewDescriptionPtr const& viewDesc) const
 {
-  if (!viewDesc->seriesUuid)
-  {
-    auto const focused = utils::focusedPhotoItemWidget();
-    if (focused)
-      return seriesSet.findSeries(focused->photoItem().seriesUuid(), viewDesc->seriesOffset.value_or(0));
-    else if (!seriesSet.empty())
-      return seriesSet.front();
-    else
-      return utils::asserted::always;
-  }
+  if (viewDesc->seriesUuid)
+    return seriesSet.findNonEmptySeries(*viewDesc->seriesUuid, viewDesc->seriesOffset.value_or(0));
 
-  return seriesSet.findSeries(*viewDesc->seriesUuid, viewDesc->seriesOffset.value_or(0));
+  auto const focused = utils::focusedPhotoItemWidget();
+  if (focused)
+    return seriesSet.findNonEmptySeries(focused->photoItem().seriesUuid(), viewDesc->seriesOffset.value_or(0));
+  else if (!seriesSet.empty())
+    return seriesSet.front();
+  else
+    return utils::asserted::always;
 }
 
 void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
 {
-    if (seriesSet.empty())
-        return; // NO-OP
+  if (!seriesSet.hasPhotos())
+    return; // NO-OP
 
-    pcontainer::Series const& targetSeries = findRequestedSeries(viewDesc);
+  pcontainer::Series const& targetSeries = findRequestedSeries(viewDesc);
 
-    if ((viewDesc->type == ViewType::ALL_SERIES) ||
-        ((viewDesc->type == ViewType::CURRENT) && currentWidget() == allSeriesView))
+  if ((viewDesc->type == ViewType::ALL_SERIES) ||
+      ((viewDesc->type == ViewType::CURRENT) && currentWidget() == allSeriesView))
+  {
+    setCurrentWidget(allSeriesView);
+    allSeriesView->focusSeries(targetSeries.uuid());
+    return;
+  }
+
+  if (currentSeriesInView == targetSeries.uuid())
+  {
+    if (viewDesc->type == ViewType::NUM_SINGLE_SERIES && currentSeriesWidget == rowSeriesView)
     {
-        setCurrentWidget(allSeriesView);
-        allSeriesView->focusSeries(targetSeries.uuid());
-        return;
+      rowSeriesView->clear();
+      numSeriesView->showSeries(targetSeries);
+      currentSeriesWidget = numSeriesView;
     }
-
-    if (currentSeriesInView == targetSeries.uuid())
+    else if (viewDesc->type == ViewType::ROW_SINGLE_SERIES && currentSeriesWidget == numSeriesView)
     {
-        if (viewDesc->type == ViewType::NUM_SINGLE_SERIES && currentSeriesWidget == rowSeriesView)
-        {
-            rowSeriesView->clear();
-            numSeriesView->showSeries(targetSeries);
-            currentSeriesWidget = numSeriesView;
-        }
-        else if (viewDesc->type == ViewType::ROW_SINGLE_SERIES && currentSeriesWidget == numSeriesView)
-        {
-            numSeriesView->clear();
-            rowSeriesView->showSeries(targetSeries);
-            currentSeriesWidget = rowSeriesView;
-        }
+      numSeriesView->clear();
+      rowSeriesView->showSeries(targetSeries);
+      currentSeriesWidget = rowSeriesView;
     }
-    else {
-        if (viewDesc->type == ViewType::ROW_SINGLE_SERIES)
-            currentSeriesWidget = rowSeriesView;
-        else if (viewDesc->type == ViewType::NUM_SINGLE_SERIES)
-            currentSeriesWidget = numSeriesView;
+  }
+  else
+  {
+    if (viewDesc->type == ViewType::ROW_SINGLE_SERIES)
+      currentSeriesWidget = rowSeriesView;
+    else if (viewDesc->type == ViewType::NUM_SINGLE_SERIES)
+      currentSeriesWidget = numSeriesView;
 
-        currentSeriesInView = targetSeries.uuid();
-        currentSeriesWidget->showSeries(targetSeries);
-    }
+    currentSeriesInView = targetSeries.uuid();
+    currentSeriesWidget->showSeries(targetSeries);
+  }
 
-    setCurrentWidget(currentSeriesWidget);
+  setCurrentWidget(currentSeriesWidget);
 }
 
 namespace {

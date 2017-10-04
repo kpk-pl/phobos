@@ -19,6 +19,11 @@ void Set::addSeries(importwiz::PhotoSeriesVec const& newPhotoSeries)
   }
 }
 
+bool Set::hasPhotos() const
+{
+  return std::any_of(_photoSeries.begin(), _photoSeries.end(), [](SeriesPtr const& s){ return !s->empty(); });
+}
+
 namespace {
   std::size_t posModulo(int val, int mod)
   {
@@ -29,7 +34,7 @@ namespace {
   }
 }
 
-SeriesPtr const& Set::findSeriesImpl(QUuid const& seriesUuid, int offset) const
+SeriesPtr const& Set::findSeriesImpl(QUuid const& seriesUuid, int const offset) const
 {
   for (std::size_t i = 0; i<_photoSeries.size(); ++i)
     if (_photoSeries[i]->uuid() == seriesUuid)
@@ -38,9 +43,29 @@ SeriesPtr const& Set::findSeriesImpl(QUuid const& seriesUuid, int offset) const
   return utils::asserted::always;
 }
 
-Series const& Set::findSeries(QUuid const& seriesUuid, int offset) const
+Series const& Set::findSeries(QUuid const& seriesUuid, int const offset) const
 {
   return utils::asserted::fromPtr(findSeriesImpl(seriesUuid, offset));
+}
+
+Series const& Set::findNonEmptySeries(QUuid const& seriesUuid, int const offset) const
+{
+  for (std::size_t i = 0; i<_photoSeries.size(); ++i)
+    if (_photoSeries[i]->uuid() == seriesUuid)
+    {
+      std::size_t const startIdx = posModulo(int(i)+offset, _photoSeries.size());
+      std::size_t searchIdx = startIdx;
+      do
+      {
+        SeriesPtr const& series = _photoSeries[searchIdx];
+        if (!series->empty())
+          return *series;
+        searchIdx = (searchIdx + 1) % _photoSeries.size();
+      } while (searchIdx != startIdx);
+      break;
+    }
+
+  return utils::asserted::always;
 }
 
 void Set::removeImage(pcontainer::ItemId const& itemId)
