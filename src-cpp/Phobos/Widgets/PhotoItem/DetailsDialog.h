@@ -1,0 +1,17 @@
+#ifndef WIDGETS_PHOTOITEM_DETAILS_DIALOG_H
+#define WIDGETS_PHOTOITEM_DETAILS_DIALOG_H
+
+#include "PhotoContainers/Fwd.h"
+#include "ImageProcessing/MetricsFwd.h"
+
+class QImage;
+
+namespace phobos { namespace widgets { namespace pitem {
+
+void showDetailsDialog(pcontainer::Item const& photoItem,
+                       QImage const& image,
+                       iprocess::MetricPtr const& metrics);
+
+}}} // namespace phobos::widgets::pitem
+
+#endif // WIDGETS_PHOTOITEM_DETAILS_DIALOG_H

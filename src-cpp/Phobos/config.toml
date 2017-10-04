@@ -59,6 +59,9 @@ red = { style = "line", color = "red", opacity = 0.4 }
 green = { style = "line", color = "limegreen", opacity = 0.4 }
 blue = { style = "line", color = "#0939FF", opacity = 0.4 }
 
+[photoItemWidget.detailsDialog]
+imageSize = [100, 75]
+
 [category.unknown]
 color = "darkGray"
 icon = ":icons/awesome/png/question-mark-on-a-circular-black-background.png"

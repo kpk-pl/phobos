@@ -86,7 +86,8 @@ SOURCES += Phobos.cpp\
     ProcessWizard/ActionTab/RenameActionTab.cpp \
     ProcessWizard/ActionTab/CopyMoveActionTab.cpp \
     ProcessWizard/Execution/ExecutionImpl.cpp \
-    ProcessWizard/Execution/Execute.cpp
+    ProcessWizard/Execution/Execute.cpp \
+    Widgets/PhotoItem/DetailsDialog.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -177,7 +178,8 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution/Execution.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
-    ProcessWizard/Execution/Execute.h
+    ProcessWizard/Execution/Execute.h \
+    Widgets/PhotoItem/DetailsDialog.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost
