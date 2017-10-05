@@ -1,5 +1,6 @@
 #include "Widgets/PhotoItem/PhotoItem.h"
 #include "Widgets/PhotoItem/DetailsDialog.h"
+#include "Widgets/PhotoItem/AddonRenderer.h"
 #include "Config.h"
 #include "ConfigExtension.h"
 #include "ConfigPath.h"
@@ -63,44 +64,6 @@ PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem,
 class PhotoItem::PixmapRenderer
 {
 public:
-    static QSize histogramSize(config::ConfigPath const& histConfig, iprocess::Histogram const& histogram)
-    {
-      static std::vector<unsigned> const POW2 = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
-
-      std::size_t maxHistSize = 0;
-      for (auto const& data : histogram.data)
-      {
-        assert(utils::valueIn(data.second.size(), POW2));
-        maxHistSize = std::max(maxHistSize, data.second.size());
-      }
-
-      unsigned width = config::qualified(histConfig("width"), 32);
-      unsigned height = config::qualified(histConfig("height"), 32);
-      if (!utils::valueIn(width, POW2)) width = 32;
-      if (width > maxHistSize) width = maxHistSize;
-      if (!utils::valueIn(height, POW2) || height > maxHistSize) height = width;
-
-      return QSize(width, height);
-    }
-
-    static std::vector<float> scaleHistogram(std::vector<float> const& data, std::size_t const width)
-    {
-        if (data.empty()) return data;
-
-        unsigned const mult = data.size()/width;
-        std::vector<float> accumulated;
-        accumulated.reserve(width);
-
-        for (std::size_t i = 0; i < width; ++i)
-            accumulated.push_back(std::accumulate(data.begin()+i*mult, data.begin()+(i+1)*mult, 0.0));
-
-        double const maxBin = *std::max_element(accumulated.begin(), accumulated.end());
-        std::transform(accumulated.begin(), accumulated.end(), accumulated.begin(),
-                [maxBin](double const v){ return v/maxBin; });
-
-        return accumulated;
-    }
-
     PixmapRenderer(PhotoItem &widget) :
       borderWidth(config::qualified(baseConfig("border")("width"), 2u)),
       painter(&widget)
@@ -178,37 +141,13 @@ public:
 
     void histogram(iprocess::Histogram const& histogram)
     {
-      auto const histConfig = baseConfig + "histogram";
-
-      painter.save();
-
-      QSize const histSize = histogramSize(histConfig, histogram);
+      auto const histConfig = baseConfig("histogram");
+      auto const prefferedSize = config::qSize(histConfig("size"), QSize(32, 32));
       unsigned const padding = config::qualified(histConfig("padding"), 7u);
-      double const H = histSize.height();
-      QPoint const origin = drawStartPoint(Qt::AlignRight | Qt::AlignBottom, padding, histSize);
 
-      auto const drawData = [&](iprocess::Histogram::DataType const& data, config::ConfigPath const& binConfig){
-        painter.setPen(config::qColor(binConfig("color"), Qt::black));
-        painter.setOpacity(config::qualified(binConfig("opacity"), 1.0));
-        auto const scaledHist = scaleHistogram(data, histSize.width());
-        std::string const& type = config::qualified<std::string>(binConfig("style"), "none");
-
-        if (type == "fill")
-          for (std::size_t i = 0; i < scaledHist.size(); ++i)
-            painter.drawLine(origin.x() + i, origin.y() + H,
-                             origin.x() + i, origin.y() + (1.0-scaledHist[i])*H);
-        else if (type == "line")
-          for (std::size_t i = 1; i < scaledHist.size(); ++i)
-            painter.drawLine(origin.x() + (i-1), origin.y() + (1.0-scaledHist[i-1])*H,
-                             origin.x() + i,     origin.y() + (1.0-scaledHist[i])*H);
-      };
-
-      drawData(utils::asserted::fromMap(histogram.data, iprocess::Histogram::Channel::Value), histConfig("value"));
-      drawData(utils::asserted::fromMap(histogram.data, iprocess::Histogram::Channel::Blue), histConfig("blue"));
-      drawData(utils::asserted::fromMap(histogram.data, iprocess::Histogram::Channel::Green), histConfig("green"));
-      drawData(utils::asserted::fromMap(histogram.data, iprocess::Histogram::Channel::Red), histConfig("red"));
-
-      painter.restore();
+      QPoint const origin = drawStartPoint(Qt::AlignRight | Qt::AlignBottom, padding, prefferedSize);
+      AddonRenderer renderer(painter);
+      renderer.histogram(histogram, prefferedSize, origin);
     }
 
 private:

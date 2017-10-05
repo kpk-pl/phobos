@@ -1,4 +1,5 @@
 #include "Widgets/PhotoItem/DetailsDialog.h"
+#include "Widgets/PhotoItem/AddonRenderer.h"
 #include "Widgets/ImageWidget.h"
 #include "PhotoContainers/Item.h"
 #include "PhotoContainers/ItemId.h"
@@ -11,6 +12,8 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QGroupBox>
+#include <QPainter>
+#include <QPixmap>
 
 namespace phobos { namespace widgets { namespace pitem {
 
@@ -31,6 +34,7 @@ public:
     QVBoxLayout *mainLayout = new QVBoxLayout();
     buildFileinfoUi(mainLayout);
     buildMetricUi(mainLayout);
+    mainLayout->addStretch();
     dialog->setLayout(mainLayout);
   }
 
@@ -41,15 +45,14 @@ private:
 
     ImageWidget *imageWgt = new ImageWidget(image);
     imageWgt->setFixedSize(config::qSize(confPath, QSize(100, 75)));
-    lt->addWidget(imageWgt);
 
     QVBoxLayout *labelsLt = new QVBoxLayout();
-
     labelsLt->addWidget(new QLabel("File: " + photoItem.fileName()));
     labelsLt->addWidget(new QLabel("Resolution: "));
     labelsLt->addWidget(new QLabel("Date: "));
     labelsLt->addStretch();
 
+    lt->addWidget(imageWgt);
     lt->addLayout(labelsLt);
     parent->addLayout(lt);
   }
@@ -58,6 +61,7 @@ private:
   {
     QHBoxLayout *lt = new QHBoxLayout();
     buildQualityUi(lt);
+    lt->addStretch();
     buildGraphicsUi(lt);
     parent->addLayout(lt);
   }
@@ -76,7 +80,19 @@ private:
 
   void buildGraphicsUi(QBoxLayout *parent)
   {
+    QPixmap histPixmap(config::qSize(confPath("histogramSize"), QSize(32, 32)));
+    histPixmap.fill(config::qColor(confPath("histogramFill"), Qt::transparent));
 
+    QPainter histPainter(&histPixmap);
+    AddonRenderer(histPainter).histogram(metrics->histogram, histPixmap.size());
+
+    QLabel *histWgt = new QLabel();
+    histWgt->setPixmap(histPixmap);
+    histWgt->setToolTip(QObject::tr("Histogram"));
+
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(histWgt);
+    parent->addLayout(layout);
   }
 
   pcontainer::Item const& photoItem;

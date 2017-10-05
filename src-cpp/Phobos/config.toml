@@ -51,8 +51,7 @@ bestBackground = { type = "square", color = "green", opacity = 0.5 }
 width = 3
 
 [photoItemWidget.histogram]
-width = 128
-height = 64
+size = [128, 64]
 fillColor = "transparent"
 value = { style = "fill", color = "#CC9900", opacity = 0.8 }
 red = { style = "line", color = "red", opacity = 0.4 }
@@ -61,6 +60,8 @@ blue = { style = "line", color = "#0939FF", opacity = 0.4 }
 
 [photoItemWidget.detailsDialog]
 imageSize = [100, 75]
+histogramSize = [128, 64]
+histogramFill = "transparent"
 
 [category.unknown]
 color = "darkGray"
