@@ -6,32 +6,33 @@ namespace phobos { namespace config {
 
 cpptoml::option<QSize> qSize(std::string const& qualifiedPath)
 {
-    cpptoml::option<QSize> result;
+  cpptoml::option<QSize> result;
 
-    auto const table = get()->get_table_qualified(qualifiedPath);
-    if (!table)
-        return result;
-
-    if (table->is_array())
-    {
-        auto const& arr = table->as_array()->get();
-        if (arr.size() == 2)
-        {
-            auto const width = arr[0]->as<int64_t>();
-            auto const height = arr[1]->as<int64_t>();
-            if (width && width->get() >= 0 && height && height->get() >= 0)
-                result = QSize(width->get(), height->get());
-        }
-    }
-    else
-    {
-        auto const width = table->get_as<std::size_t>("width");
-        auto const height = table->get_as<std::size_t>("height");
-        if (width && height)
-            result = QSize(*width, *height);
-    }
-
+  auto const table = get()->get_qualified(qualifiedPath);
+  if (!table)
     return result;
+
+  if (table->is_array())
+  {
+    auto const& arr = table->as_array()->get();
+    if (arr.size() == 2)
+    {
+      auto const width = arr[0]->as<int64_t>();
+      auto const height = arr[1]->as<int64_t>();
+      if (width && width->get() >= 0 && height && height->get() >= 0)
+        result = QSize(width->get(), height->get());
+    }
+  }
+  else
+  {
+    auto const dict = table->as_table();
+    auto const width = dict->get_as<std::size_t>("width");
+    auto const height = dict->get_as<std::size_t>("height");
+    if (width && height)
+      result = QSize(*width, *height);
+  }
+
+  return result;
 }
 
 QSize qSize(std::string const& qualifiedPath, QSize const& def)
