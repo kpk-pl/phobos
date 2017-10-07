@@ -53,15 +53,30 @@ width = 3
 [photoItemWidget.histogram]
 size = [128, 64]
 fillColor = "transparent"
+padding = 7
 value = { style = "fill", color = "#CC9900", opacity = 0.8 }
 red = { style = "line", color = "red", opacity = 0.4 }
 green = { style = "line", color = "limegreen", opacity = 0.4 }
 blue = { style = "line", color = "#0939FF", opacity = 0.4 }
 
-[photoItemWidget.detailsDialog]
-imageSize = [100, 75]
-histogramSize = [128, 64]
-histogramFill = "transparent"
+[detailsDialog.image]
+size = [100, 75]
+
+[detailsDialog.histogram]
+size = [128, 64]
+fillColor = "transparent"
+value = { style = "fill", color = "#CC9900", opacity = 1 }
+red = { style = "line", color = "red", opacity = 0.8 }
+green = { style = "line", color = "limegreen", opacity = 0.8 }
+blue = { style = "line", color = "#0939FF", opacity = 0.8 }
+
+[detailsDialog.cumulativeHistogram]
+size = [128, 64]
+fillColor = "transparent"
+value = { style = "fill", color = "#CC9900", opacity = 1 }
+red = { style = "line", color = "red", opacity = 0.8 }
+green = { style = "line", color = "limegreen", opacity = 0.8 }
+blue = { style = "line", color = "#0939FF", opacity = 0.8 }
 
 [category.unknown]
 color = "darkGray"

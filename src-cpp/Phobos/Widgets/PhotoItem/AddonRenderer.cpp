@@ -1,7 +1,6 @@
 #include "Widgets/PhotoItem/AddonRenderer.h"
 #include "ImageProcessing/Metrics.h"
 #include "PhotoContainers/Item.h"
-#include "ConfigPath.h"
 #include "ConfigExtension.h"
 #include "Utils/Asserted.h"
 #include "Utils/Algorithm.h"
@@ -12,11 +11,8 @@
 
 namespace phobos { namespace widgets { namespace pitem {
 
-namespace {
-static config::ConfigPath const baseConfig("photoItemWidget");
-} // unnamed namespace
-
-AddonRenderer::AddonRenderer(QPainter &painter) : painter(painter)
+AddonRenderer::AddonRenderer(QPainter &painter, config::ConfigPath const& baseConfigPath) :
+  painter(painter), baseConfigPath(baseConfigPath)
 {}
 
 namespace {
@@ -55,9 +51,6 @@ QSize histogramSize(iprocess::Histogram const& hist, QSize size)
   if (size.width() > static_cast<int>(maxHistSize))
     size.setWidth(maxHistSize);
 
-  if (!utils::valueIn(size.height(), POW2) || size.height() > static_cast<int>(maxHistSize))
-    size.setHeight(size.width());
-
   return size;
 }
 
@@ -83,32 +76,56 @@ std::vector<float> scaleHistogram(std::vector<float> const& data, std::size_t co
 
 void AddonRenderer::histogram(iprocess::Histogram const& hist, QSize const& prefferedSize, QPoint const& origin)
 {
-  auto const histConfig = baseConfig("histogram");
+  auto const histConfig = baseConfigPath("histogram");
   QSize const histSize = histogramSize(hist, prefferedSize);
-  double const H = histSize.height();
 
-  PainterCtx ctx(painter);
+  drawHistLike(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Value), histConfig("value"), origin, histSize);
+  drawHistLike(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Blue), histConfig("blue"), origin, histSize);
+  drawHistLike(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Green), histConfig("green"), origin, histSize);
+  drawHistLike(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Red), histConfig("red"), origin, histSize);
+}
 
-  auto const drawData = [&](iprocess::Histogram::DataType const& data, config::ConfigPath const& binConfig){
-    painter.setPen(config::qColor(binConfig("color"), Qt::black));
-    painter.setOpacity(config::qualified(binConfig("opacity"), 1.0));
-    auto const scaledHist = scaleHistogram(data, histSize.width());
-    std::string const& type = config::qualified<std::string>(binConfig("style"), "none");
+void AddonRenderer::cumulativeHistogram(iprocess::Histogram const& hist, QSize const& prefferedSize, QPoint const& origin)
+{
+  auto const histConfig = baseConfigPath("cumulativeHistogram");
+  QSize const histSize = histogramSize(hist, prefferedSize);
 
-    if (type == "fill")
-      for (std::size_t i = 0; i < scaledHist.size(); ++i)
-        painter.drawLine(origin.x() + i, origin.y() + H,
-                         origin.x() + i, origin.y() + (1.0-scaledHist[i])*H);
-    else if (type == "line")
-      for (std::size_t i = 1; i < scaledHist.size(); ++i)
-        painter.drawLine(origin.x() + (i-1), origin.y() + (1.0-scaledHist[i-1])*H,
-                         origin.x() + i,     origin.y() + (1.0-scaledHist[i])*H);
+  auto const cumulate = [](std::vector<float> const& data){
+    std::vector<float> result;
+    result.reserve(data.size());
+    std::partial_sum(data.begin(), data.end(), std::back_inserter(result));
+    return result;
   };
 
-  drawData(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Value), histConfig("value"));
-  drawData(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Blue), histConfig("blue"));
-  drawData(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Green), histConfig("green"));
-  drawData(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Red), histConfig("red"));
+  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Value)), histConfig("value"), origin, histSize);
+  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Blue)), histConfig("blue"), origin, histSize);
+  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Green)), histConfig("green"), origin, histSize);
+  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Red)), histConfig("red"), origin, histSize);
+}
+
+void AddonRenderer::drawHistLike(std::vector<float> const& data,
+                                 config::ConfigPath const& configPath,
+                                 QPoint const& origin,
+                                 QSize const& size)
+{
+  PainterCtx ctx(painter);
+
+  painter.setPen(config::qColor(configPath("color"), Qt::black));
+  painter.setOpacity(config::qualified(configPath("opacity"), 1.0));
+
+  auto const scaledHist = scaleHistogram(data, size.width());
+  std::string const& type = config::qualified<std::string>(configPath("style"), "none");
+  double const H = size.height();
+
+  if (type == "fill")
+    for (std::size_t i = 0; i < scaledHist.size(); ++i)
+      painter.drawLine(origin.x() + i, origin.y() + H,
+                       origin.x() + i, origin.y() + (1.0-scaledHist[i])*H);
+  else if (type == "line")
+    for (std::size_t i = 1; i < scaledHist.size(); ++i)
+      painter.drawLine(origin.x() + (i-1), origin.y() + (1.0-scaledHist[i-1])*H,
+                       origin.x() + i,     origin.y() + (1.0-scaledHist[i])*H);
+
 }
 
 }}} // namespace phobos::widgets::pitem

@@ -146,7 +146,7 @@ public:
       unsigned const padding = config::qualified(histConfig("padding"), 7u);
 
       QPoint const origin = drawStartPoint(Qt::AlignRight | Qt::AlignBottom, padding, prefferedSize);
-      AddonRenderer renderer(painter);
+      AddonRenderer renderer(painter, baseConfig);
       renderer.histogram(histogram, prefferedSize, origin);
     }
 

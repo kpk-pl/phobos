@@ -8,6 +8,8 @@
 #include "ConfigPath.h"
 #include <easylogging++.h>
 #include <QDialog>
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -26,7 +28,7 @@ public:
                       QImage const& image,
                       iprocess::MetricPtr const& metrics) :
     photoItem(photoItem), image(image), metrics(metrics),
-    confPath("photoItemWidget.detailsDialog")
+    confPath("detailsDialog")
   {}
 
   void operator()(QWidget *dialog)
@@ -80,19 +82,40 @@ private:
 
   void buildGraphicsUi(QBoxLayout *parent)
   {
-    QPixmap histPixmap(config::qSize(confPath("histogramSize"), QSize(32, 32)));
-    histPixmap.fill(config::qColor(confPath("histogramFill"), Qt::transparent));
-
-    QPainter histPainter(&histPixmap);
-    AddonRenderer(histPainter).histogram(metrics->histogram, histPixmap.size());
-
     QLabel *histWgt = new QLabel();
-    histWgt->setPixmap(histPixmap);
+    histWgt->setPixmap(buildHistogramPixmap());
     histWgt->setToolTip(QObject::tr("Histogram"));
+
+    QLabel *cummWgt = new QLabel();
+    cummWgt->setPixmap(buildCumulativeHistogramPixmap());
+    cummWgt->setToolTip(QObject::tr("Cumulative histogram"));
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(histWgt);
+    layout->addWidget(cummWgt);
     parent->addLayout(layout);
+  }
+
+  QPixmap buildHistogramPixmap()
+  {
+    auto const histConfig = confPath("histogram");
+    QPixmap histPixmap(config::qSize(histConfig("size"), QSize(32, 32)));
+    histPixmap.fill(config::qColor(histConfig("fillColor"), Qt::transparent));
+
+    QPainter histPainter(&histPixmap);
+    AddonRenderer(histPainter, confPath).histogram(metrics->histogram, histPixmap.size());
+    return histPixmap;
+  }
+
+  QPixmap buildCumulativeHistogramPixmap()
+  {
+    auto const histConfig = confPath("cumulativeHistogram");
+    QPixmap histPixmap(config::qSize(histConfig("size"), QSize(32, 32)));
+    histPixmap.fill(config::qColor(histConfig("fillColor"), Qt::transparent));
+
+    QPainter histPainter(&histPixmap);
+    AddonRenderer(histPainter, confPath).cumulativeHistogram(metrics->histogram, histPixmap.size());
+    return histPixmap;
   }
 
   pcontainer::Item const& photoItem;
