@@ -5,10 +5,12 @@
 #include "ImageProcessing/MetricsFwd.h"
 
 class QImage;
+class QWidget;
 
 namespace phobos { namespace widgets { namespace pitem {
 
-void showDetailsDialog(pcontainer::Item const& photoItem,
+void showDetailsDialog(QWidget *parent,
+                       pcontainer::Item const& photoItem,
                        QImage const& image,
                        iprocess::MetricPtr const& metrics);
 

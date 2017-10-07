@@ -8,8 +8,6 @@
 #include "ConfigPath.h"
 #include <easylogging++.h>
 #include <QDialog>
-#include <QApplication>
-#include <QDesktopWidget>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -127,13 +125,14 @@ private:
 class DetailsDialog : public QDialog
 {
 public:
-  DetailsDialog(pcontainer::Item const& photoItem,
+  DetailsDialog(QWidget *parent,
+                pcontainer::Item const& photoItem,
                 QImage const& image,
                 iprocess::MetricPtr const& metrics) :
+    QDialog(parent, Qt::WindowTitleHint | Qt::WindowCloseButtonHint),
     itemId(photoItem.id())
   {
     setAttribute(Qt::WA_DeleteOnClose);
-    setWindowFlags(Qt::WindowStaysOnTopHint);
     setWindowTitle(itemId.fileName);
     DetailLayoutBuilder{photoItem, image, metrics}(this);
   }
@@ -148,11 +147,12 @@ private:
 };
 } // unnamed namespace
 
-void showDetailsDialog(pcontainer::Item const& photoItem,
+void showDetailsDialog(QWidget *parent,
+                       pcontainer::Item const& photoItem,
                        QImage const& image,
                        iprocess::MetricPtr const& metrics)
 {
-  DetailsDialog *dialog = new DetailsDialog(photoItem, image, metrics);
+  DetailsDialog *dialog = new DetailsDialog(parent, photoItem, image, metrics);
 
   dialog->show();
   dialog->raise();

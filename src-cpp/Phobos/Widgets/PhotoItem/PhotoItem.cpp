@@ -257,7 +257,7 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
   menu.addSeparator();
 
   QObject::connect(menu.addAction("Show details"), &QAction::triggered, [this]{
-    showDetailsDialog(*_photoItem, image(), metrics());
+    showDetailsDialog(window(), *_photoItem, image(), metrics());
   });
 
   if (capabilities.has(CapabilityType::OPEN_SERIES))
