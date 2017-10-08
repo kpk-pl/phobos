@@ -5,13 +5,9 @@
 #include "PhotoContainers/ItemId.h"
 #include "ImageCache/Runnable.h"
 #include <opencv2/core/core.hpp>
-#include <QRunnable>
 #include <QObject>
 #include <QSize>
 #include <QImage>
-#include <string>
-#include <vector>
-#include <memory>
 
 namespace phobos { namespace iprocess {
 

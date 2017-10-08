@@ -85,9 +85,7 @@ private:
   {
     QVBoxLayout *labelsLayout = new QVBoxLayout();
 
-    labelsLayout->addWidget(new QLabel(QObject::tr("Blur Sobel: ") + valueOrNull(metrics->blur.sobel)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Blur Laplace: ") + valueOrNull(metrics->blur.laplace)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Blur LaplaceMod: ") + valueOrNull(metrics->blur.laplaceMod)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Blur: ") + valueOrNull(metrics->blur)));
     labelsLayout->addWidget(new QLabel(QObject::tr("Noise: ") + valueOrNull(metrics->noise)));
     labelsLayout->addWidget(new QLabel(QObject::tr("Contrast: ") + valueOrNull(metrics->contrast)));
     labelsLayout->addStretch();

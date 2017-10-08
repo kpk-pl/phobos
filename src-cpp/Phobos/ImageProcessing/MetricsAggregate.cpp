@@ -29,20 +29,18 @@ namespace {
 
 void aggregateMetrics(MetricPtrVec const& metrics)
 {
-    if (metrics.empty())
-        return;
+  if (metrics.empty())
+    return;
 
-    aggregateMetric(metrics, [](auto& m)->auto&{ return m.blur.sobel; });
-    aggregateMetric(metrics, [](auto& m)->auto&{ return m.blur.laplace; });
-    aggregateMetric(metrics, [](auto& m)->auto&{ return m.blur.laplaceMod; });
-    aggregateMetric(metrics, [](auto& m)->auto&{ return m.noise; });
-    aggregateMetric(metrics, [](auto& m)->auto&{ return m.contrast; });
+  aggregateMetric(metrics, [](auto& m)->auto&{ return m.blur; });
+  aggregateMetric(metrics, [](auto& m)->auto&{ return m.noise; });
+  aggregateMetric(metrics, [](auto& m)->auto&{ return m.contrast; });
 
-    auto& bestEl = *std::max_element(metrics.begin(), metrics.end(),
-            [](MetricPtr const& l, MetricPtr const& r){ return l->score() < r->score(); });
+  auto& bestEl = *std::max_element(metrics.begin(), metrics.end(),
+      [](MetricPtr const& l, MetricPtr const& r){ return l->score() < r->score(); });
 
-    for (auto & metric : metrics)
-      metric->bestQuality = (metric == bestEl);
+  for (auto & metric : metrics)
+    metric->bestQuality = (metric == bestEl);
 }
 
 }} // namespace phobos::iprocess

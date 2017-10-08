@@ -8,12 +8,6 @@
 
 namespace phobos { namespace iprocess {
 
-struct Blur {
-    boost::optional<double> sobel;
-    boost::optional<double> laplace;
-    boost::optional<double> laplaceMod;
-};
-
 struct Histogram {
   using DataType = std::vector<float>;
   enum Channel { Value, Red, Green, Blue };
@@ -24,7 +18,7 @@ struct Histogram {
 
 struct MetricValues
 {
-  Blur blur;
+  boost::optional<double> blur;
   boost::optional<double> noise;
   boost::optional<double> contrast;
 };

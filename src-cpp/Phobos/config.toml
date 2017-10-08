@@ -17,7 +17,8 @@ minimumPhotosInSeries = 3
 allowedSecondDriftInSeries = 1.1
 
 [imageLoaderThread]
-processingSize = [1920, 1080]
+blurAlgorithm = "laplace" # laplace/laplaceMod/sobel
+processingSize = [800, 800]
 noiseMedianSize = 3
 
 [photoItemWidget.focusIcon]

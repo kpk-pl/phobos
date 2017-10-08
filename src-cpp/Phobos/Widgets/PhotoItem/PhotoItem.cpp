@@ -209,6 +209,7 @@ void PhotoItem::paintEvent(QPaintEvent*)
     if (addons.has(AddonType::FOCUS_IND) && hasFocus())
         renderer.focusMark();
 
+    // TODO: If metrics are not aggregated, this gives always 100%. Need to return optional with score and set it to null if metrics are not aggregated
     auto const metric = metrics();
     if (addons.has(AddonType::SCORE_NUM) && metric)
         renderer.scoreNum(metric->score());
