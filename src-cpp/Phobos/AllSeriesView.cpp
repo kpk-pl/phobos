@@ -73,7 +73,7 @@ AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
     QVBoxLayout* scrollLayout = new QVBoxLayout();
     scrollLayout->setContentsMargins(0, 0, 0, 0);
     scrollLayout->addLayout(grid);
-    scrollLayout->addStretch();
+    scrollLayout->addStretch(1);
 
     QWidget* scrollWidget = new QWidget();
     scrollWidget->setLayout(scrollLayout);
