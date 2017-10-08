@@ -1,10 +1,10 @@
 #ifndef IMPORTWIZARD_SERIESDISPLAYPAGE_H
 #define IMPORTWIZARD_SERIESDISPLAYPAGE_H
 
-#include <set>
-#include <map>
-#include <QWizardPage>
 #include "ImportWizard/Types.h"
+#include <QWizardPage>
+#include <QPoint>
+#include <map>
 
 class QTreeWidget;
 class QLabel;
@@ -19,42 +19,42 @@ namespace phobos { namespace importwiz {
 
 class SeriesDisplayPage : public QWizardPage
 {
-    Q_OBJECT
-    Q_PROPERTY(phobos::importwiz::PhotoSeriesVec chosenSeries MEMBER _chosenSeries READ series NOTIFY seriesChanged)
+  Q_OBJECT
+  Q_PROPERTY(phobos::importwiz::PhotoSeriesVec chosenSeries MEMBER _chosenSeries READ series NOTIFY seriesChanged)
 
 public:
-    SeriesDisplayPage(QWidget* parent = nullptr);
+  explicit SeriesDisplayPage(QWidget* parent = nullptr);
 
-    PhotoSeriesVec series() const { return _chosenSeries; }
+  PhotoSeriesVec series() const { return _chosenSeries; }
 
 signals:
-   void seriesChanged(PhotoSeriesVec);
+ void seriesChanged(PhotoSeriesVec);
 
 protected:
-    void initializePage() override;
-    bool validatePage() override;
-    void cleanupPage() override;
+  void initializePage() override;
+  bool validatePage() override;
+  void cleanupPage() override;
 
 private slots:
-    void selectBackSeriesWithOnePhoto();
+  void selectBackSeriesWithOnePhoto();
+  void treeContextMenu(QPoint const& point);
 
 private:
-    QGridLayout* grid;
-    QTreeWidget *tree;
-    QLabel *loadedStatusLabel;
+  QGridLayout* grid;
+  QTreeWidget *tree;
+  QLabel *loadedStatusLabel;
 
-    using LengthCountMap = std::map<std::size_t, unsigned>;
-    void initializeInfoLabels(LengthCountMap const& lengthsCount);
+  void initializeInfoLabels();
+  void initializeLengthOneWarning(std::size_t const count);
+  widgets::TextIconLabel *lengthOneWarning;
+  QPushButton *selectLengthOneButton;
 
-    void initializeLengthOneWarning(std::size_t const count);
-    widgets::TextIconLabel *lengthOneWarning;
-    QPushButton *selectLengthOneButton;
+  void initializeMultipleLengthsInfo();
+  void initializeMultipleLengthsInfo(std::map<std::size_t, unsigned> const& lengthsCount);
+  widgets::TextIconLabel *multipleLengthsInfo;
 
-    void initializeMultipleLengthsInfo(std::set<std::size_t> const& lengths);
-    widgets::TextIconLabel *multipleLengthsInfo;
-
-    PhotoSeriesVec _dividedSeries;
-    PhotoSeriesVec _chosenSeries;
+  PhotoSeriesVec _dividedSeries;
+  PhotoSeriesVec _chosenSeries;
 };
 
 }} // namespace phobos::importwiz
