@@ -27,6 +27,7 @@ namespace {
     }
 } // unnamed namespace
 
+// TODO: Need to examine if scoring by values linearily is the best approach
 void aggregateMetrics(MetricPtrVec const& metrics)
 {
   if (metrics.empty())
@@ -35,6 +36,7 @@ void aggregateMetrics(MetricPtrVec const& metrics)
   aggregateMetric(metrics, [](auto& m)->auto&{ return m.blur; });
   aggregateMetric(metrics, [](auto& m)->auto&{ return m.noise; });
   aggregateMetric(metrics, [](auto& m)->auto&{ return m.contrast; });
+  aggregateMetric(metrics, [](auto& m)->auto&{ return m.sharpness; });
 
   auto& bestEl = *std::max_element(metrics.begin(), metrics.end(),
       [](MetricPtr const& l, MetricPtr const& r){ return l->score() < r->score(); });

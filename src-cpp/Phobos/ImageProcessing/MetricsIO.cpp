@@ -18,6 +18,7 @@ std::ostream& operator<<(std::ostream& os, MetricValues const& metric)
      << "blur: " << metric.blur << std::endl
      << "noise: " << metric.noise << std::endl
      << "contrast: " << metric.contrast << std::endl
+     << "sharpness: " << metric.sharpness << std::endl
      << "}";
   return os;
 }

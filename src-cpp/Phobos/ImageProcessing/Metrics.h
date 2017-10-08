@@ -21,6 +21,7 @@ struct MetricValues
   boost::optional<double> blur;
   boost::optional<double> noise;
   boost::optional<double> contrast;
+  boost::optional<double> sharpness;
 };
 
 struct Metric : public MetricValues

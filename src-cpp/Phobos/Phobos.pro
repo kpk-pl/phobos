@@ -37,6 +37,7 @@ SOURCES += Phobos.cpp\
     ImageProcessing/MetricsAggregate.cpp \
     ImageProcessing/ColoredPixmap.cpp \
     ImageProcessing/ScalePixmap.cpp \
+    ImageProcessing/Sharpness.cpp \
     PhotoContainers/ExifData.cpp \
     PhotoContainers/Item.cpp \
     PhotoContainers/Series.cpp \
@@ -63,6 +64,8 @@ SOURCES += Phobos.cpp\
     Widgets/PhotoItem/PhotoItem.cpp \
     Widgets/PhotoItem/Addon.cpp \
     Widgets/PhotoItem/Recovery.cpp \
+    Widgets/PhotoItem/DetailsDialog.cpp \
+    Widgets/PhotoItem/AddonRenderer.cpp \
     Widgets/HorizontalLine.cpp \
     Widgets/FilenameEntry.cpp \
     Widgets/ClickableLabel.cpp \
@@ -86,9 +89,7 @@ SOURCES += Phobos.cpp\
     ProcessWizard/ActionTab/RenameActionTab.cpp \
     ProcessWizard/ActionTab/CopyMoveActionTab.cpp \
     ProcessWizard/Execution/ExecutionImpl.cpp \
-    ProcessWizard/Execution/Execute.cpp \
-    Widgets/PhotoItem/DetailsDialog.cpp \
-    Widgets/PhotoItem/AddonRenderer.cpp
+    ProcessWizard/Execution/Execute.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -112,6 +113,7 @@ HEADERS  += MainWindow.h \
     ImageProcessing/Histogram.h \
     ImageProcessing/MetricsAggregate.h \
     ImageProcessing/ColoredPixmap.h \
+    ImageProcessing/Sharpness.h \
     PhotoContainers/ExifData.h \
     PhotoContainers/Fwd.h \
     PhotoContainers/Series.h \
@@ -150,6 +152,8 @@ HEADERS  += MainWindow.h \
     Widgets/PhotoItem/Addon.h \
     Widgets/PhotoItem/Capability.h \
     Widgets/PhotoItem/Recovery.h \
+    Widgets/PhotoItem/DetailsDialog.h \
+    Widgets/PhotoItem/AddonRenderer.h \
     Widgets/HorizontalLine.h \
     Widgets/FilenameEntry.h \
     Widgets/ClickableLabel.h \
@@ -179,9 +183,7 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution/Execution.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
-    ProcessWizard/Execution/Execute.h \
-    Widgets/PhotoItem/DetailsDialog.h \
-    Widgets/PhotoItem/AddonRenderer.h
+    ProcessWizard/Execution/Execute.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

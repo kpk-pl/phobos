@@ -88,6 +88,7 @@ private:
     labelsLayout->addWidget(new QLabel(QObject::tr("Blur: ") + valueOrNull(metrics->blur)));
     labelsLayout->addWidget(new QLabel(QObject::tr("Noise: ") + valueOrNull(metrics->noise)));
     labelsLayout->addWidget(new QLabel(QObject::tr("Contrast: ") + valueOrNull(metrics->contrast)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Sharpness: ") + valueOrNull(metrics->sharpness)));
     labelsLayout->addStretch();
 
     QGroupBox *group = new QGroupBox(QObject::tr("Quality"));

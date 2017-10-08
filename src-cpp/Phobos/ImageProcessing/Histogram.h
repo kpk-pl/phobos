@@ -5,6 +5,7 @@
 
 namespace phobos { namespace iprocess {
 
+cv::Mat histogram(cv::Mat const& cvImage, int const histSize);
 std::vector<float> normalizedHistogram(cv::Mat const& cvImage, double *outContrast);
 
 }} // namespace phobos::iprocess

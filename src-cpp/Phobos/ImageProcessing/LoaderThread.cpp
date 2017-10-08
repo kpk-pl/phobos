@@ -4,6 +4,7 @@
 #include "ImageProcessing/Bluriness.h"
 #include "ImageProcessing/Noisiness.h"
 #include "ImageProcessing/Histogram.h"
+#include "ImageProcessing/Sharpness.h"
 #include "ConfigExtension.h"
 #include "ConfigPath.h"
 #include <opencv2/core/core.hpp>
@@ -149,6 +150,7 @@ void calculateGrayscaleFeatures(cv::Mat const& cvImage, Metric &metrics)
   TIMED("runMetrics: contrast", metrics.histogram.data.emplace(Histogram::Channel::Value, normalizedHistogram(cvImage, &*metrics.contrast)));
 
   TIMED("runMetrics: noise", metrics.noise = noiseMeasure(cvImage, config::qualified(configPath("noiseMedianSize"), 3)));
+  TIMED("tunMetrics: sharpness", metrics.sharpness = sharpness::homogeneous(cvImage, 5));
 
   std::string const blurAlgo = config::qualified(configPath("blurAlgorithm"), std::string("laplace"));
   if (blurAlgo == "sobel")

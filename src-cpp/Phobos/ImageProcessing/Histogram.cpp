@@ -3,28 +3,36 @@
 
 namespace phobos { namespace iprocess {
 
+cv::Mat histogram(cv::Mat const& cvImage, int const histSize)
+{
+  float range[] = {0, histSize};
+  const float* ranges[] = {range};
+
+  cv::Mat hist;
+  cv::calcHist(&cvImage, 1, 0, cv::Mat(), hist, 1, &histSize, ranges, true, false);
+
+  return hist;
+}
+
 std::vector<float> normalizedHistogram(cv::Mat const& cvImage, double *outContrast)
 {
-    int histSize = 256;
-    float range[] = {0, 256};
-    const float* ranges[] = {range};
-    cv::Mat hist;
+  int const histSize = 256;
+  cv::Mat hist = histogram(cvImage, histSize);
 
-    cv::calcHist(&cvImage, 1, 0, cv::Mat(), hist, 1, &histSize, ranges, true, false);
-    cv::normalize(hist, hist, 0, 1, cv::NORM_MINMAX, -1, cv::Mat());
+  cv::normalize(hist, hist, 0, 1, cv::NORM_MINMAX, -1, cv::Mat());
 
-    if (outContrast)
-    {
-      cv::Scalar mean, stddev;
-      cv::meanStdDev(hist, mean, stddev);
-      *outContrast = stddev[0];
-    }
+  if (outContrast)
+  {
+    cv::Scalar mean, stddev;
+    cv::meanStdDev(hist, mean, stddev);
+    *outContrast = stddev[0];
+  }
 
-    std::vector<float> result(histSize, 0);
-    for (int i = 0; i<histSize; ++i)
-        result[i] = hist.at<float>(i);
+  std::vector<float> result(histSize, 0);
+  for (int i = 0; i<histSize; ++i)
+    result[i] = hist.at<float>(i);
 
-    return result;
+  return result;
 }
 
 }} // namespace phobos::iprocess
