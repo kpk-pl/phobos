@@ -26,10 +26,10 @@ struct MetricValues
 
 struct Metric : public MetricValues
 {
-  MetricValues seriesMetric;
+  boost::optional<MetricValues> seriesMetric;
   Histogram histogram;
   bool bestQuality = false;
-  double score() const;
+  boost::optional<double> score() const;
 };
 
 }} // namespace phobos::iprocess

@@ -88,8 +88,11 @@ public:
       alignedIcon(baseConfig("bestMarkIcon"), Qt::AlignTop | Qt::AlignLeft);
     }
 
-    void scoreNum(double const scorePercent)
+    void scoreNum(boost::optional<double> const scorePercent)
     {
+      if (!scorePercent)
+        return;
+
       auto const textConfig = baseConfig + "qualityText";
       painter.save();
       painter.setOpacity(config::qualified(textConfig("opacity"), 1u));
@@ -97,7 +100,7 @@ public:
       painter.setFont(config::qFont(textConfig("font")));
 
       unsigned decimalPlaces = config::qualified(textConfig("decimalPlaces"), 0u);
-      QString const text = QString("%1%").arg(scorePercent*100.0, 0, 'f', decimalPlaces);
+      QString const text = QString("%1%").arg(scorePercent.get()*100.0, 0, 'f', decimalPlaces);
 
       unsigned const padding = config::qualified(textConfig("padding"), 7u);
       painter.drawText(drawStartPoint(Qt::AlignLeft | Qt::AlignBottom, padding), text);
@@ -209,7 +212,6 @@ void PhotoItem::paintEvent(QPaintEvent*)
     if (addons.has(AddonType::FOCUS_IND) && hasFocus())
         renderer.focusMark();
 
-    // TODO: If metrics are not aggregated, this gives always 100%. Need to return optional with score and set it to null if metrics are not aggregated
     auto const metric = metrics();
     if (addons.has(AddonType::SCORE_NUM) && metric)
         renderer.scoreNum(metric->score());
