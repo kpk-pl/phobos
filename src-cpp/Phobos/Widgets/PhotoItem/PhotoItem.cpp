@@ -41,8 +41,6 @@ namespace phobos { namespace widgets { namespace pitem {
 // TODO: addon: Display selected metrics in text form on single series views.
 //
 // TODO: show "Quality" text in quality label
-//
-// TODO: Right-click menu to open a dialog displaying all metrics for photo or whole series
 
 PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem,
                      Addons const& addons,

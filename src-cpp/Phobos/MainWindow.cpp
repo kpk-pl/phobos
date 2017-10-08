@@ -32,9 +32,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::loadPhotos()
 {
-    importwiz::ImportWizard importWizard(this);
-    if (importWizard.exec())
-        seriesSet.addSeries(importWizard.selectedSeries());
+  importwiz::ImportWizard importWizard(this);
+  if (importWizard.exec())
+    seriesSet.addSeries(importWizard.selectedSeries());
 }
 
 void MainWindow::createMenus()

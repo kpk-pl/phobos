@@ -1,10 +1,12 @@
 #include "PhotoContainers/ExifData.h"
 #include "qt_ext/qexifimageheader.h"
 #include <QImage>
+#include <QImageReader>
 
 namespace phobos { namespace pcontainer {
 
-ExifData::ExifData(QString const& fileName)
+namespace {
+QSize getImageSize(QString const& fileName)
 {
   QExifImageHeader const exif(fileName);
 
@@ -12,16 +14,24 @@ ExifData::ExifData(QString const& fileName)
   using ExtendedTag = QExifImageHeader::ExifExtendedTag;
 
   if (exif.contains(ImageTag::ImageWidth) && exif.contains(ImageTag::ImageLength))
-  {
-    width = exif.value(ImageTag::ImageWidth).toLong();
-    height = exif.value(ImageTag::ImageLength).toLong();
-  }
-  else if (exif.contains(ExtendedTag::PixelXDimension) &&
-           exif.contains(ExtendedTag::PixelYDimension))
-  {
-    width = exif.value(ExtendedTag::PixelXDimension).toLong();
-    height = exif.value(ExtendedTag::PixelYDimension).toLong();
-  }
+    return QSize(exif.value(ImageTag::ImageWidth).toLong(), exif.value(ImageTag::ImageLength).toLong());
+  else if (exif.contains(ExtendedTag::PixelXDimension) && exif.contains(ExtendedTag::PixelYDimension))
+    return QSize(exif.value(ExtendedTag::PixelXDimension).toLong(), exif.value(ExtendedTag::PixelYDimension).toLong());
+  else
+    return QImageReader{fileName}.size();
 }
+
+QDateTime getImageTimestamp(boost::optional<unsigned> secsSinceEpoch)
+{
+  if (!secsSinceEpoch)
+    return QDateTime{};
+  return QDateTime::fromSecsSinceEpoch(*secsSinceEpoch);
+}
+} // unnamed namespace
+
+ExifData::ExifData(importwiz::Photo const& photoDesc) :
+  size(getImageSize(photoDesc.fileName)),
+  timestamp(getImageTimestamp(photoDesc.lastModTime))
+{}
 
 }} // namespace phobos::pcontainer

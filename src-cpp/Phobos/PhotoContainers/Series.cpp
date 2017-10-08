@@ -11,12 +11,12 @@ Series::Series(std::size_t const pOrd, importwiz::PhotoSeries const& series) :
   Series(pOrd)
 {
   for (auto const& item : series)
-    addPhotoItem(item.fileName);
+    addPhotoItem(item);
 }
 
-void Series::addPhotoItem(QString const& fileName)
+void Series::addPhotoItem(importwiz::Photo const& importPhoto)
 {
-  auto newItem = std::make_shared<Item>(fileName, _uuid, _photoItems.size());
+  auto newItem = std::make_shared<Item>(importPhoto, _uuid, _photoItems.size());
   _photoItems.emplace_back(std::move(newItem));
 }
 

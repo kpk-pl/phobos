@@ -1,19 +1,19 @@
 #ifndef PHOTOCONTAINERS_EXIFDATA_H
 #define PHOTOCONTAINERS_EXIFDATA_H
 
-#include <QString>
+#include <ImportWizard/Types.h>
+#include <QSize>
 #include <QDateTime>
-#include <boost/optional.hpp>
 
 namespace phobos { namespace pcontainer {
 
 struct ExifData
 {
 public:
-  explicit ExifData(QString const& fileName);
+  explicit ExifData(importwiz::Photo const& photoDesc);
 
-  boost::optional<std::size_t> width;
-  boost::optional<std::size_t> height;
+  QSize size;
+  QDateTime timestamp;
 };
 
 }} // namespace phobos::pcontainer

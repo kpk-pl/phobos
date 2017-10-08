@@ -4,6 +4,7 @@
 #include "PhotoContainers/Item.h"
 #include "PhotoContainers/ItemId.h"
 #include "ImageProcessing/Metrics.h"
+#include "Utils/LexicalCast.h"
 #include "ConfigExtension.h"
 #include "ConfigPath.h"
 #include <easylogging++.h>
@@ -19,6 +20,15 @@ namespace phobos { namespace widgets { namespace pitem {
 
 namespace {
 
+template<typename T>
+QString valueOrNull(boost::optional<T> const& val)
+{
+  if (!val)
+    return "null";
+
+  return QString::number(*val);
+}
+
 class DetailLayoutBuilder
 {
 public:
@@ -32,9 +42,11 @@ public:
   void operator()(QWidget *dialog)
   {
     QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainLayout->setSizeConstraint(QLayout::SetFixedSize);
+
     buildFileinfoUi(mainLayout);
     buildMetricUi(mainLayout);
-    mainLayout->addStretch();
+
     dialog->setLayout(mainLayout);
   }
 
@@ -47,9 +59,12 @@ private:
     imageWgt->setFixedSize(config::qSize(confPath, QSize(100, 75)));
 
     QVBoxLayout *labelsLt = new QVBoxLayout();
-    labelsLt->addWidget(new QLabel("File: " + photoItem.fileName()));
-    labelsLt->addWidget(new QLabel("Resolution: "));
-    labelsLt->addWidget(new QLabel("Date: "));
+    labelsLt->addWidget(new QLabel(QObject::tr("File: ") + photoItem.fileName()));
+    labelsLt->addWidget(new QLabel(QObject::tr("Resolution: %1x%2")
+                                               .arg(photoItem.exif().size.width())
+                                               .arg(photoItem.exif().size.height())));
+    labelsLt->addWidget(new QLabel(QObject::tr("Date: ")
+                                   + photoItem.exif().timestamp.toString("ddd d MMMM yyyy, HH:mm:ss")));
     labelsLt->addStretch();
 
     lt->addWidget(imageWgt);
@@ -70,9 +85,14 @@ private:
   {
     QVBoxLayout *labelsLayout = new QVBoxLayout();
 
-    labelsLayout->addWidget(new QLabel("Sharpness: "));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Blur Sobel: ") + valueOrNull(metrics->blur.sobel)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Blur Laplace: ") + valueOrNull(metrics->blur.laplace)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Blur LaplaceMod: ") + valueOrNull(metrics->blur.laplaceMod)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Noise: ") + valueOrNull(metrics->noise)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Contrast: ") + valueOrNull(metrics->contrast)));
+    labelsLayout->addStretch();
 
-    QGroupBox *group = new QGroupBox("Quality");
+    QGroupBox *group = new QGroupBox(QObject::tr("Quality"));
     group->setLayout(labelsLayout);
 
     parent->addWidget(group);

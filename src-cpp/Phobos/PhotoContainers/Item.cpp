@@ -3,14 +3,13 @@
 
 namespace phobos { namespace pcontainer {
 
-Item::Item(QString const& fileName, QUuid const seriesId, unsigned const ordinal) :
-    _id{seriesId, fileName}, _ordinal(ordinal), _exif(this->_id.fileName), _state(ItemState::UNKNOWN)
-{
-}
+Item::Item(importwiz::Photo const& importedPhoto, QUuid const seriesId, unsigned const ordinal) :
+  _id{seriesId, importedPhoto.fileName}, _ordinal(ordinal), _exif(importedPhoto), _state(ItemState::UNKNOWN)
+{}
 
 bool Item::isSelected() const
 {
-    return _state == ItemState::SELECTED;
+  return _state == ItemState::SELECTED;
 }
 
 void Item::select() const
@@ -53,33 +52,33 @@ void Item::setState(ItemState state) const
 
 void Item::invert() const
 {
-    switch(_state)
-    {
-    case ItemState::SELECTED:
-        discard();
-        break;
-    case ItemState::DISCARDED:
-        select();
-        break;
-    default:
-        break;
-    }
+  switch(_state)
+  {
+  case ItemState::SELECTED:
+    discard();
+    break;
+  case ItemState::DISCARDED:
+    select();
+    break;
+  default:
+    break;
+  }
 }
 
 void Item::toggleSelection() const
 {
-    switch(_state)
-    {
-    case ItemState::UNKNOWN:
-        select();
-        break;
-    case ItemState::SELECTED:
-        discard();
-        break;
-    case ItemState::DISCARDED:
-        deselect();
-        break;
-    }
+  switch(_state)
+  {
+  case ItemState::UNKNOWN:
+    select();
+    break;
+  case ItemState::SELECTED:
+    discard();
+    break;
+  case ItemState::DISCARDED:
+    deselect();
+    break;
+  }
 }
 
 }} // namespace phobos::pcontainer

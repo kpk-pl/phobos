@@ -24,17 +24,17 @@ struct Histogram {
 
 struct MetricValues
 {
-    Blur blur;
-    boost::optional<double> noise;
-    boost::optional<double> contrast;
+  Blur blur;
+  boost::optional<double> noise;
+  boost::optional<double> contrast;
 };
 
 struct Metric : public MetricValues
 {
-    MetricValues seriesMetric;
-    Histogram histogram;
-    bool bestQuality = false;
-    double score() const;
+  MetricValues seriesMetric;
+  Histogram histogram;
+  bool bestQuality = false;
+  double score() const;
 };
 
 }} // namespace phobos::iprocess

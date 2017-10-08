@@ -20,7 +20,7 @@ public:
   explicit Series(std::size_t const pOrd);
   explicit Series(std::size_t const pOrd, importwiz::PhotoSeries const& series);
 
-  void addPhotoItem(QString const& fileName);
+  void addPhotoItem(importwiz::Photo const& importedPhoto);
 
   std::size_t size() const { return _photoItems.size(); }
   bool empty() const { return _photoItems.empty(); }
