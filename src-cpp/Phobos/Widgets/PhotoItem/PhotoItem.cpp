@@ -34,8 +34,6 @@ namespace phobos { namespace widgets { namespace pitem {
 // TODO: from config, enable setBackground(color) for text, enable opacity
 //
 // TODO: display max scores as in "Quality: 80%/94%". 100% is not always maximum
-// TODO: another addon: show file name
-// TODO: addon: cumulative histogram
 // TODO: addon: diff from previous photo as a heat map like something?
 // TODO: addon: vector flow from previous photo
 // TODO: addon: Display selected metrics in text form on single series views.
