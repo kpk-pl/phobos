@@ -82,6 +82,7 @@ AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
     scroll->installEventFilter(new ArrowFilter(scroll));
     scroll->setWidgetResizable(true);
     scroll->setFrameShape(QFrame::NoFrame);
+    scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     scroll->setWidget(scrollWidget);
 
     QVBoxLayout* vlayout = new QVBoxLayout();
