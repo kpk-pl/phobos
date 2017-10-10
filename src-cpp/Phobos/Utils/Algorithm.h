@@ -36,10 +36,9 @@ bool valueIn(T const& value, Container const& c)
 template<typename OutContainer, typename InputIterator>
 OutContainer moveFromRange(OutContainer &output, InputIterator begin, InputIterator end)
 {
-    output.reserve(output.size() + std::distance(begin, end));
-    for (; begin != end; ++begin)
-        output.insert(output.end(), std::move(*begin));
-    return output;
+  output.reserve(output.size() + std::distance(begin, end));
+  std::move(begin, end, std::back_inserter(output));
+  return output;
 }
 
 template<typename OutContainer, typename InputIterator>
