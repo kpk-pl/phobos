@@ -24,18 +24,12 @@ namespace detail {
         std::wstring wStr(fileName.begin(), fileName.end());
         HANDLE hFile = CreateFile(wStr.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (hFile == INVALID_HANDLE_VALUE)
-        {
-            // TODO: maybe throw?
-            return 0;
-        }
+          return 0;
 
         FILETIME creation, lastAccess, lastWrite;
         BOOL result = GetFileTime(hFile, &creation, &lastAccess, &lastWrite);
         if (!result)
-        {
-            // TODO: maybe throw error?
-            return 0;
-        }
+          return 0;
 
         CloseHandle(hFile);
 
