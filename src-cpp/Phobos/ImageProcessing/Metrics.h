@@ -1,10 +1,11 @@
 #ifndef IMAGE_PROCESSING_METRICS_H
 #define IMAGE_PROCESSING_METRICS_H
 
-#include <QMetaType>
-#include <memory>
-#include <boost/optional.hpp>
 #include "ImageProcessing/MetricsFwd.h"
+#include <QMetaType>
+#include <boost/optional.hpp>
+#include <memory>
+#include <tuple>
 
 namespace phobos { namespace iprocess {
 
@@ -16,18 +17,32 @@ struct Histogram {
   operator bool() const { return !data.empty(); }
 };
 
+struct DepthOfField {
+  DepthOfField() = default;
+  DepthOfField(std::tuple<double, double, double> const& init)
+  {
+    std::tie(low, median, high) = init;
+  }
+
+  double low, median, high;
+};
+
 struct MetricValues
 {
   boost::optional<double> blur;
   boost::optional<double> noise;
   boost::optional<double> contrast;
   boost::optional<double> sharpness;
+  boost::optional<double> depthOfField;
 };
 
 struct Metric : public MetricValues
 {
   boost::optional<MetricValues> seriesMetric;
+
   Histogram histogram;
+  boost::optional<DepthOfField> depthOfFieldRaw;
+
   bool bestQuality = false;
   boost::optional<double> score() const;
 };

@@ -148,9 +148,7 @@ void calculateGrayscaleFeatures(cv::Mat const& cvImage, Metric &metrics)
 {
   metrics.contrast = 0;
   TIMED("runMetrics: contrast", metrics.histogram.data.emplace(Histogram::Channel::Value, normalizedHistogram(cvImage, &*metrics.contrast)));
-
   TIMED("runMetrics: noise", metrics.noise = noiseMeasure(cvImage, config::qualified(configPath("noiseMedianSize"), 3)));
-  TIMED("tunMetrics: sharpness", metrics.sharpness = sharpness::homogeneous(cvImage, 5));
 
   std::string const blurAlgo = config::qualified(configPath("blurAlgorithm"), std::string("laplace"));
   if (blurAlgo == "sobel")
@@ -159,6 +157,12 @@ void calculateGrayscaleFeatures(cv::Mat const& cvImage, Metric &metrics)
     TIMED("runMetrics: laplaceMod", metrics.blur = blur::laplaceMod(cvImage));
   else
     TIMED("runMetrics: laplace", metrics.blur = blur::laplace(cvImage));
+
+  sharpness::Result sharpnessResult;
+  TIMED("tunMetrics: sharpness", sharpnessResult = sharpness::gaussian(cvImage, 5));
+  metrics.sharpness = sharpnessResult.sharpness;
+  metrics.depthOfFieldRaw = sharpnessResult.breakout;
+  metrics.depthOfField = metrics.depthOfFieldRaw->median / metrics.depthOfFieldRaw->low;
 }
 } // unnamed namespace
 

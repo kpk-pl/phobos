@@ -40,6 +40,7 @@ void aggregateMetrics(MetricPtrVec const& metrics)
   aggregateMetric(metrics, [](auto& m)->auto&{ return m.noise; });
   aggregateMetric(metrics, [](auto& m)->auto&{ return m.contrast; });
   aggregateMetric(metrics, [](auto& m)->auto&{ return m.sharpness; });
+  aggregateMetric(metrics, [](auto& m)->auto&{ return m.depthOfField; });
 
   auto& bestEl = *std::max_element(metrics.begin(), metrics.end(),
       [](MetricPtr const& l, MetricPtr const& r){ return l->score() < r->score(); });

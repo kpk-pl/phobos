@@ -2,11 +2,17 @@
 #define IMAGE_PROCESSING_SHARPNESS_H
 
 #include <opencv2/core/core.hpp>
+#include <tuple>
 
 namespace phobos { namespace iprocess { namespace sharpness {
 
-double homogeneous(cv::Mat const& cvImage, int const kernel);
-double gaussian(cv::Mat const& cvImage, int const kernel);
+struct Result {
+  double sharpness;
+  std::tuple<double, double, double> breakout;
+};
+
+Result homogeneous(cv::Mat const& cvImage, int const kernel);
+Result gaussian(cv::Mat const& cvImage, int const kernel);
 
 }}} // namespace phobos::iprocess::sharpness
 

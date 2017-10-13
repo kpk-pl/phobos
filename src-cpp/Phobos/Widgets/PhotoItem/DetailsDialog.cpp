@@ -20,13 +20,25 @@ namespace phobos { namespace widgets { namespace pitem {
 
 namespace {
 
-template<typename T>
-QString valueOrNull(boost::optional<T> const& val)
+QString valueOrNull(boost::optional<double> const& val, int const precision = 6)
 {
   if (!val)
     return "null";
 
-  return QString::number(*val);
+  return QString::number(*val, 'f', precision);
+}
+
+QString depthOfFieldFormat(iprocess::Metric const& metric)
+{
+  QString result = valueOrNull(metric.depthOfField, 2);
+  auto const& raw = metric.depthOfFieldRaw;
+
+  if (metric.depthOfFieldRaw)
+    result += QString(" (%1/%2/%3)").arg(raw->low, 0, 'f', 1)
+                                    .arg(raw->median, 0, 'f', 1)
+                                    .arg(raw->high, 0, 'f', 1);
+
+  return result;
 }
 
 class DetailLayoutBuilder
@@ -89,6 +101,7 @@ private:
     labelsLayout->addWidget(new QLabel(QObject::tr("Noise: ") + valueOrNull(metrics->noise)));
     labelsLayout->addWidget(new QLabel(QObject::tr("Contrast: ") + valueOrNull(metrics->contrast)));
     labelsLayout->addWidget(new QLabel(QObject::tr("Sharpness: ") + valueOrNull(metrics->sharpness)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Depth of field: ") + depthOfFieldFormat(*metrics)));
     labelsLayout->addStretch();
 
     QGroupBox *group = new QGroupBox(QObject::tr("Quality"));

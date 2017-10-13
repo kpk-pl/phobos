@@ -12,25 +12,38 @@ std::ostream& operator<<(std::ostream& os, boost::optional<T> const& el)
 }
 } // unnamed namespace
 
+std::ostream& operator<<(std::ostream& os, DepthOfField const& dof)
+{
+  os << "{ "
+     << "low: " << dof.low << ' '
+     << "median: " << dof.median << ' '
+     << "high: " << dof.high
+     << " }";
+  return os;
+}
+
 std::ostream& operator<<(std::ostream& os, MetricValues const& metric)
 {
-  os << "{" << std::endl
-     << "blur: " << metric.blur << std::endl
-     << "noise: " << metric.noise << std::endl
-     << "contrast: " << metric.contrast << std::endl
-     << "sharpness: " << metric.sharpness << std::endl
-     << "}";
+  os << "{ "
+     << "blur: " << metric.blur << ' '
+     << "noise: " << metric.noise << ' '
+     << "contrast: " << metric.contrast << ' '
+     << "sharpness: " << metric.sharpness << ' '
+     << "depthOfField: " << metric.depthOfField
+     << " }";
   return os;
 }
 
 std::ostream& operator<<(std::ostream& os, Metric const& scored)
 {
-  os << "{" << std::endl
-     << "itemMetric: " << dynamic_cast<MetricValues const&>(scored) << std::endl
-     << "seriesMetric: " << scored.seriesMetric << std::endl
-     << "best: " << (scored.bestQuality ? "true" : "false") << std::endl
-     << "score: " << scored.score() << std::endl
-     << "}";
+  os << "{ "
+     << "itemMetric: " << dynamic_cast<MetricValues const&>(scored) << ' '
+     << "seriesMetric: " << scored.seriesMetric << ' '
+     << "depthOfFieldRaw: " << scored.depthOfFieldRaw << ' '
+     << "best: " << (scored.bestQuality ? "true" : "false") << ' '
+     << "score: " << scored.score()
+     << " }";
+
   return os;
 }
 

@@ -12,6 +12,7 @@ boost::optional<double> Metric::score() const
   result *= seriesMetric->noise.value_or(1);
   result *= seriesMetric->contrast.value_or(1);
   result *= seriesMetric->sharpness.value_or(1);
+  result *= seriesMetric->depthOfField.value_or(1);
   return result;
 }
 

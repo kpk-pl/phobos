@@ -9,6 +9,7 @@ namespace phobos { namespace iprocess {
 std::ostream& operator<<(std::ostream& os, MetricValues const& blur);
 std::ostream& operator<<(std::ostream& os, Metric const& metric);
 std::ostream& operator<<(std::ostream& os, MetricPtr metric);
+std::ostream& operator<<(std::ostream& os, DepthOfField const& dof);
 
 }} // phobos::iprocess
 
