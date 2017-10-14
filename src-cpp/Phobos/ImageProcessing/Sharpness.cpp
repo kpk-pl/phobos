@@ -81,4 +81,9 @@ Result gaussian(cv::Mat const& cvImage, int const kernel)
   return calculateAll(temp);
 }
 
+double depthOfField(Result const& res)
+{
+  return std::get<1>(res.breakout) / std::get<0>(res.breakout);
+}
+
 }}} // namespace phobos::iprocess::sharpness

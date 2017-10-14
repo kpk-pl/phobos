@@ -161,8 +161,8 @@ void calculateGrayscaleFeatures(cv::Mat const& cvImage, Metric &metrics)
   sharpness::Result sharpnessResult;
   TIMED("tunMetrics: sharpness", sharpnessResult = sharpness::gaussian(cvImage, 5));
   metrics.sharpness = sharpnessResult.sharpness;
+  metrics.depthOfField = sharpness::depthOfField(sharpnessResult);
   metrics.depthOfFieldRaw = sharpnessResult.breakout;
-  metrics.depthOfField = metrics.depthOfFieldRaw->median / metrics.depthOfFieldRaw->low;
 }
 } // unnamed namespace
 

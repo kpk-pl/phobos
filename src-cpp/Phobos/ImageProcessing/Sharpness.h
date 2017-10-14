@@ -14,6 +14,8 @@ struct Result {
 Result homogeneous(cv::Mat const& cvImage, int const kernel);
 Result gaussian(cv::Mat const& cvImage, int const kernel);
 
+double depthOfField(Result const& res);
+
 }}} // namespace phobos::iprocess::sharpness
 
 #endif // IMAGE_PROCESSING_SHARPNESS_H
