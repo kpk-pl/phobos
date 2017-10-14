@@ -5,7 +5,7 @@ namespace phobos { namespace iprocess {
 
 cv::Mat histogram(cv::Mat const& cvImage, int const histSize)
 {
-  float range[] = {0, histSize};
+  float range[] = {0, float(histSize)};
   const float* ranges[] = {range};
 
   cv::Mat hist;

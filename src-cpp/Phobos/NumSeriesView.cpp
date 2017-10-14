@@ -146,7 +146,7 @@ void NumSeriesView::updateCurrentSeries()
   LOG(DEBUG) << "Updated current series " << currentSeriesUuid->toString();
 
   if (layoutForItems->count() > 0)
-    currentItem = std::min(currentItem, static_cast<std::size_t>(layoutForItems->count()-1));
+    currentItem = std::min(currentItem, static_cast<unsigned>(layoutForItems->count()-1));
   else
     currentItem = 0;
 }
