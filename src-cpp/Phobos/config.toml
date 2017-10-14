@@ -21,6 +21,13 @@ processingSize = [800, 800]
 blurAlgorithm = "laplace" # laplace/laplaceMod/sobel
 noiseMedianSize = 3
 
+[metricWeights]
+blur = 1
+noise = 0
+contrast = 1
+sharpness = 1
+depthOfField = 1
+
 [photoItemWidget.focusIcon]
 padding = 7
 opacity = 0.5
