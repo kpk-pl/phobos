@@ -1,17 +1,11 @@
 #include "ImageProcessing/FormatConversion.h"
 #include "ImageProcessing/ScalePixmap.h"
 #include "ImageProcessing/LoaderThread.h"
-#include "ImageProcessing/Bluriness.h"
-#include "ImageProcessing/Noisiness.h"
-#include "ImageProcessing/Histogram.h"
-#include "ImageProcessing/Sharpness.h"
-#include "ConfigExtension.h"
-#include "ConfigPath.h"
+#include "ImageProcessing/MetricCalculator.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
 #include <easylogging++.h>
 #include <QImageReader>
-#include <algorithm>
 #include <utility>
 
 //#define PHOBOS_TIME_IMAGE_OPS
@@ -23,10 +17,6 @@
 #endif
 
 namespace phobos { namespace iprocess {
-
-namespace {
-config::ConfigPath const configPath("imageLoaderThread");
-} // unnamed namespace
 
 LoaderThread::LoaderThread(pcontainer::ItemId const& itemId, QSize const& requestedSize) :
     itemId(itemId), requestedSize(requestedSize)
@@ -76,7 +66,7 @@ namespace {
       return size;
     return dummyScale;
   }
-}
+} // unnamed namespace
 
 void LoaderThread::runWithoutMetrics() const
 {
@@ -114,70 +104,10 @@ void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
   emit readySignals.imageReady(itemId, image);
 }
 
-namespace {
-cv::Mat prepareForProcessing(cv::Mat && cvImage)
-{
-  QSize const maxSize = config::qSize(configPath("processingSize"), QSize(1920, 1080));
-  QSize const scaledSize = QSize(cvImage.cols, cvImage.rows).scaled(maxSize, Qt::KeepAspectRatio);
-  LOG(DEBUG) << "Scaling image for metrics from " << cvImage.cols << "x" << cvImage.rows
-             << " to " << scaledSize.width() << "x" << scaledSize.height();
-
-  cv::Mat resized;
-  cv::resize(cvImage, resized, cv::Size(scaledSize.width(), scaledSize.height()), 0, 0, cv::INTER_CUBIC);
-
-  return resized;
-}
-
-void calculateColorHistograms(cv::Mat const& cvImage, Metric &metrics)
-{
-  std::vector<cv::Mat> bgrPlanes;
-  cv::split(cvImage, bgrPlanes);
-  assert(bgrPlanes.size() == 3);
-
-  TIMED("runMetrics: blueHistogram", metrics.histogram.data.emplace(Histogram::Channel::Blue, normalizedHistogram(bgrPlanes[0], nullptr)));
-  TIMED("runMetrics: greenHistogram", metrics.histogram.data.emplace(Histogram::Channel::Green, normalizedHistogram(bgrPlanes[1], nullptr)));
-  TIMED("runMetrics: redHistogram", metrics.histogram.data.emplace(Histogram::Channel::Red, normalizedHistogram(bgrPlanes[2], nullptr)));
-}
-
-void calculateColorfullFeatures(cv::Mat const& cvImage, Metric &metrics)
-{
-  calculateColorHistograms(cvImage, metrics);
-}
-
-void calculateGrayscaleFeatures(cv::Mat const& cvImage, Metric &metrics)
-{
-  metrics.contrast = 0;
-  TIMED("runMetrics: contrast", metrics.histogram.data.emplace(Histogram::Channel::Value, normalizedHistogram(cvImage, &*metrics.contrast)));
-  TIMED("runMetrics: noise", metrics.noise = noiseMeasure(cvImage, config::qualified(configPath("noiseMedianSize"), 3)));
-
-  std::string const blurAlgo = config::qualified(configPath("blurAlgorithm"), std::string("laplace"));
-  if (blurAlgo == "sobel")
-    TIMED("runMetrics: sobel", metrics.blur = blur::sobel(cvImage));
-  else if (blurAlgo == "laplaceMod")
-    TIMED("runMetrics: laplaceMod", metrics.blur = blur::laplaceMod(cvImage));
-  else
-    TIMED("runMetrics: laplace", metrics.blur = blur::laplace(cvImage));
-
-  sharpness::Result sharpnessResult;
-  TIMED("tunMetrics: sharpness", sharpnessResult = sharpness::gaussian(cvImage, 5));
-  metrics.sharpness = sharpnessResult.sharpness;
-  metrics.depthOfField = sharpness::depthOfField(sharpnessResult);
-  metrics.depthOfFieldRaw = sharpnessResult.breakout;
-}
-} // unnamed namespace
-
 void LoaderThread::runMetrics(cv::Mat cvImage) const
 {
   TIMED_FUNC(scopefunc);
-
-  cvImage = prepareForProcessing(std::move(cvImage));
-  MetricPtr metrics = std::make_shared<Metric>();
-
-  calculateColorfullFeatures(cvImage, *metrics);
-  cv::cvtColor(cvImage, cvImage, cv::COLOR_BGR2GRAY);
-  calculateGrayscaleFeatures(cvImage, *metrics);
-
-  emit readySignals.metricsReady(itemId, metrics);
+  emit readySignals.metricsReady(itemId, calcMetrics(std::move(cvImage)));
 }
 
 }} // namespace phobos::iprocess

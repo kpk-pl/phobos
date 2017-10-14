@@ -3,10 +3,10 @@
 
 #include "ImageProcessing/Metrics.h"
 
-namespace phobos { namespace iprocess {
+namespace phobos { namespace iprocess { namespace metric {
 
-void aggregateMetrics(MetricPtrVec const& metrics);
+void aggregate(MetricPtrVec const& metrics);
 
-}} // namespace phobos::iprocess
+}}} // namespace phobos::iprocess::metric
 
 #endif // IMAGE_PROCESSING_METRICSAGGREGATE_H

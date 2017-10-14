@@ -1,6 +1,6 @@
 #include "ImageProcessing/MetricsIO.h"
 
-namespace phobos { namespace iprocess {
+namespace phobos { namespace iprocess { namespace metric {
 
 namespace {
 template <typename T>
@@ -54,5 +54,4 @@ std::ostream& operator<<(std::ostream& os, MetricPtr scored)
   return os;
 }
 
-}} // phobos::iprocess
-
+}}} // phobos::iprocess::metric

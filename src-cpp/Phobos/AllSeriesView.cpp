@@ -224,7 +224,7 @@ void AllSeriesView::addItemToGrid(int const row, int const col, pcontainer::Item
   addPhotoToGridAt(item.release(), row, col);
 }
 
-void AllSeriesView::updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics)
+void AllSeriesView::updateMetrics(pcontainer::ItemId const& itemId, iprocess::metric::MetricPtr metrics)
 {
   auto& widget = utils::asserted::fromPtr(findItem(itemId));
   widget.setMetrics(metrics);

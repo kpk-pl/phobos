@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     qRegisterMetaType<std::size_t>("std::size_t");
     qRegisterMetaType<phobos::ViewDescriptionPtr>();
-    qRegisterMetaType<phobos::iprocess::MetricPtr>();
+    qRegisterMetaType<phobos::iprocess::metric::MetricPtr>();
     qRegisterMetaType<phobos::PhotoBulkAction>();
     qRegisterMetaType<phobos::importwiz::PhotoSeriesVec>();
     qRegisterMetaType<phobos::processwiz::ConstActionPtr>();

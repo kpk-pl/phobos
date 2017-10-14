@@ -32,7 +32,7 @@ public:
   MetricCache const& metrics() const { return metricCache; }
 
 signals:
-  void updateMetrics(pcontainer::ItemId itemId, iprocess::MetricPtr);
+  void updateMetrics(pcontainer::ItemId itemId, iprocess::metric::MetricPtr);
 
 private slots:
   void imageReadyFromThread(pcontainer::ItemId itemId, QImage image);

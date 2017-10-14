@@ -20,17 +20,28 @@ namespace phobos { namespace widgets { namespace pitem {
 
 namespace {
 
-QString valueOrNull(boost::optional<double> const& val, int const precision = 6)
+template<typename Mem>
+QString valueOrNull(iprocess::metric::Metric const& metric, Mem member, int const precision = 6)
 {
-  if (!val)
+  auto const& val = metric.*member;
+  if (val == boost::none)
     return "null";
 
-  return QString::number(*val, 'f', precision);
+  QString result = QString::number(*val, 'f', precision);
+
+  if (metric.seriesMetric)
+  {
+    auto const& seriesVal = (*metric.seriesMetric).*member;
+    if (seriesVal != boost::none)
+      result += QString(" (%1%)").arg(static_cast<int>(0.5 + 100.0 * *seriesVal));
+  }
+
+  return result;
 }
 
-QString depthOfFieldFormat(iprocess::Metric const& metric)
+QString depthOfFieldFormat(iprocess::metric::Metric const& metric)
 {
-  QString result = valueOrNull(metric.depthOfField, 2);
+  QString result = valueOrNull(metric, &iprocess::metric::Metric::depthOfField, 2);
   auto const& raw = metric.depthOfFieldRaw;
 
   if (metric.depthOfFieldRaw)
@@ -46,7 +57,7 @@ class DetailLayoutBuilder
 public:
   DetailLayoutBuilder(pcontainer::Item const& photoItem,
                       QImage const& image,
-                      iprocess::MetricPtr const& metrics) :
+                      iprocess::metric::MetricPtr const& metrics) :
     photoItem(photoItem), image(image), metrics(metrics),
     confPath("detailsDialog")
   {}
@@ -97,10 +108,12 @@ private:
   {
     QVBoxLayout *labelsLayout = new QVBoxLayout();
 
-    labelsLayout->addWidget(new QLabel(QObject::tr("Blur: ") + valueOrNull(metrics->blur)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Noise: ") + valueOrNull(metrics->noise)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Contrast: ") + valueOrNull(metrics->contrast)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Sharpness: ") + valueOrNull(metrics->sharpness)));
+    using Metric = iprocess::metric::Metric;
+
+    labelsLayout->addWidget(new QLabel(QObject::tr("Blur: ") + valueOrNull(*metrics, &Metric::blur, 1)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Noise: ") + valueOrNull(*metrics, &Metric::noise, 3)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Contrast: ") + valueOrNull(*metrics, &Metric::contrast, 3)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Sharpness: ") + valueOrNull(*metrics, &Metric::sharpness, 2)));
     labelsLayout->addWidget(new QLabel(QObject::tr("Depth of field: ") + depthOfFieldFormat(*metrics)));
     labelsLayout->addStretch();
 
@@ -150,7 +163,7 @@ private:
 
   pcontainer::Item const& photoItem;
   QImage const& image;
-  iprocess::MetricPtr const& metrics;
+  iprocess::metric::MetricPtr const& metrics;
   config::ConfigPath const confPath;
 };
 
@@ -160,7 +173,7 @@ public:
   DetailsDialog(QWidget *parent,
                 pcontainer::Item const& photoItem,
                 QImage const& image,
-                iprocess::MetricPtr const& metrics) :
+                iprocess::metric::MetricPtr const& metrics) :
     QDialog(parent, Qt::WindowTitleHint | Qt::WindowCloseButtonHint),
     itemId(photoItem.id())
   {
@@ -182,7 +195,7 @@ private:
 void showDetailsDialog(QWidget *parent,
                        pcontainer::Item const& photoItem,
                        QImage const& image,
-                       iprocess::MetricPtr const& metrics)
+                       iprocess::metric::MetricPtr const& metrics)
 {
   DetailsDialog *dialog = new DetailsDialog(parent, photoItem, image, metrics);
 

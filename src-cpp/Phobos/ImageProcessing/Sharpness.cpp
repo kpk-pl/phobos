@@ -83,7 +83,8 @@ Result gaussian(cv::Mat const& cvImage, int const kernel)
 
 double depthOfField(Result const& res)
 {
-  return std::get<1>(res.breakout) / std::get<0>(res.breakout);
+  // ratio between sharpest and median
+  return std::get<2>(res.breakout) / std::get<1>(res.breakout);
 }
 
 }}} // namespace phobos::iprocess::sharpness

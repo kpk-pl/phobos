@@ -5,7 +5,7 @@ disableExecutionOperations = true
 loggingConfig = "logging.conf"
 
 [logging]
-metrics = false
+metrics = true
 
 [mainWindow]
 title = "Phobos"
@@ -16,9 +16,9 @@ defaultSize = { width = 1024, height = 600 }
 minimumPhotosInSeries = 3
 allowedSecondDriftInSeries = 1.1
 
-[imageLoaderThread]
-blurAlgorithm = "laplace" # laplace/laplaceMod/sobel
+[metricCalculator]
 processingSize = [800, 800]
+blurAlgorithm = "laplace" # laplace/laplaceMod/sobel
 noiseMedianSize = 3
 
 [photoItemWidget.focusIcon]

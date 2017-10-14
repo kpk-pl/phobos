@@ -138,7 +138,7 @@ public:
       painter.restore();
     }
 
-    void histogram(iprocess::Histogram const& histogram)
+    void histogram(iprocess::metric::Histogram const& histogram)
     {
       auto const histConfig = baseConfig("histogram");
       auto const prefferedSize = config::qSize(histConfig("size"), QSize(32, 32));

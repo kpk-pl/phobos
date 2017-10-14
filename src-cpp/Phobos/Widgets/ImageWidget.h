@@ -20,7 +20,7 @@ public:
   explicit ImageWidget(QImage const& image);
 
   QImage image() const { return _image; }
-  iprocess::MetricPtr metrics() const { return _metrics; }
+  iprocess::metric::MetricPtr metrics() const { return _metrics; }
 
   int heightForWidth(const int width) const override;
   int widthForHeight(const int height) const override;
@@ -34,11 +34,11 @@ public:
 
 public slots:
   void setImage(QImage image);
-  void setMetrics(iprocess::MetricPtr metrics);
+  void setMetrics(iprocess::metric::MetricPtr metrics);
 
 private:
   QImage _image;
-  iprocess::MetricPtr _metrics;
+  iprocess::metric::MetricPtr _metrics;
   utils::Soul<ImageWidget> const soul;
 };
 

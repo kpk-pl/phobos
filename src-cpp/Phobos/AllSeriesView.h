@@ -40,7 +40,7 @@ public slots:
 
 private slots:
     void changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state);
-    void updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics);
+    void updateMetrics(pcontainer::ItemId const& itemId, iprocess::metric::MetricPtr metrics);
 
 private:
     struct Coords;

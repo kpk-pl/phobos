@@ -4,12 +4,12 @@
 #include <memory>
 #include <vector>
 
-namespace phobos { namespace iprocess {
+namespace phobos { namespace iprocess { namespace metric {
 
 struct Metric;
 typedef std::shared_ptr<Metric> MetricPtr;
 typedef std::vector<MetricPtr> MetricPtrVec;
 
-}} // namespace phobos::iprocess
+}}} // namespace phobos::iprocess::metric
 
 #endif // IMAGEPROCESSING_METRICSFWD_H_

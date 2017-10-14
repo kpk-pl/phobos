@@ -85,7 +85,8 @@ void SeriesViewBase::updateCurrentSeriesFromContent(
   }
 }
 
-void SeriesViewBase::updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics)
+void SeriesViewBase::updateMetrics(pcontainer::ItemId const& itemId,
+                                   iprocess::metric::MetricPtr metrics)
 {
   widgets::pitem::PhotoItem* item = findItemWidget(itemId);
   if (item)

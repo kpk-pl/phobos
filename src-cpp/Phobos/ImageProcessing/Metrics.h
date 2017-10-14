@@ -7,7 +7,7 @@
 #include <memory>
 #include <tuple>
 
-namespace phobos { namespace iprocess {
+namespace phobos { namespace iprocess { namespace metric {
 
 struct Histogram {
   using DataType = std::vector<float>;
@@ -29,11 +29,11 @@ struct DepthOfField {
 
 struct MetricValues
 {
-  boost::optional<double> blur;
-  boost::optional<double> noise;
-  boost::optional<double> contrast;
-  boost::optional<double> sharpness;
-  boost::optional<double> depthOfField;
+  boost::optional<double> blur;         // bigger is better
+  boost::optional<double> noise;        // smaller is better (but smaller means image is blurred)
+  boost::optional<double> contrast;     // bigger is better
+  boost::optional<double> sharpness;    // bigger is better
+  boost::optional<double> depthOfField; // smaller is better
 };
 
 struct Metric : public MetricValues
@@ -47,12 +47,12 @@ struct Metric : public MetricValues
   boost::optional<double> score() const;
 };
 
-}} // namespace phobos::iprocess
+}}} // namespace phobos::iprocess::metric
 
 // TODO: Detect faces -> number of faces should be indicator if quality
 // TODO: cumulative histogram calculate linearity -> indicator of quality
 // TODO: Figure out some sort of Hough transform quality that tells how well-oriented the image is. Display angle the image is skewed.
 
-Q_DECLARE_METATYPE(phobos::iprocess::MetricPtr)
+Q_DECLARE_METATYPE(phobos::iprocess::metric::MetricPtr)
 
 #endif // IMAGE_PROCESSING_METRICS_H

@@ -17,7 +17,7 @@ class LoaderThreadSignals : public QObject
 
 signals:
   void imageReady(pcontainer::ItemId, QImage) const;
-  void metricsReady(pcontainer::ItemId, phobos::iprocess::MetricPtr) const;
+  void metricsReady(pcontainer::ItemId, phobos::iprocess::metric::MetricPtr) const;
 };
 
 class LoaderThread : public icache::Runnable
@@ -35,7 +35,6 @@ private:
   void runWithoutMetrics() const;
   void emitLoadedSignal(cv::Mat const& cvImage);
   void runMetrics(cv::Mat cvImage) const;
-  void runHistogram(cv::Mat const& image, iprocess::Metric const& metrics) const;
 
   pcontainer::ItemId const itemId;
   QSize const requestedSize;

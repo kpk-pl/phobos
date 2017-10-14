@@ -54,7 +54,7 @@ protected:
 
 private slots:
     void changeCurrentSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state);
-    void updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics);
+    void updateMetrics(pcontainer::ItemId const& itemId, iprocess::metric::MetricPtr metrics);
     void updateSeries(QUuid seriesUuid);
 };
 

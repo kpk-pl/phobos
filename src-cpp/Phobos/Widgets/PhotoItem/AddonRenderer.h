@@ -7,9 +7,9 @@
 class QPainter;
 class QSize;
 
-namespace phobos { namespace iprocess {
+namespace phobos { namespace iprocess { namespace metric {
 class Histogram;
-}}
+}}}
 
 namespace phobos { namespace widgets { namespace pitem {
 
@@ -18,11 +18,11 @@ class AddonRenderer
 public:
   AddonRenderer(QPainter &painter, config::ConfigPath const& baseConfigPath);
 
-  void histogram(iprocess::Histogram const& data,
+  void histogram(iprocess::metric::Histogram const& data,
                  QSize const& prefferedSize,
                  QPoint const& origin = QPoint(0,0));
 
-  void cumulativeHistogram(iprocess::Histogram const& data,
+  void cumulativeHistogram(iprocess::metric::Histogram const& data,
                            QSize const& prefferedSize,
                            QPoint const& origin = QPoint(0,0));
 

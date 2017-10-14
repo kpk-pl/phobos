@@ -30,7 +30,7 @@ private:
   QPainter &painter;
 };
 
-QSize histogramSize(iprocess::Histogram const& hist, QSize size)
+QSize histogramSize(iprocess::metric::Histogram const& hist, QSize size)
 {
   static std::vector<std::size_t> const POW2 = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
 
@@ -74,18 +74,20 @@ std::vector<float> scaleHistogram(std::vector<float> const& data, std::size_t co
 
 } // unnamed namespace
 
-void AddonRenderer::histogram(iprocess::Histogram const& hist, QSize const& prefferedSize, QPoint const& origin)
+void AddonRenderer::histogram(iprocess::metric::Histogram const& hist, QSize const& prefferedSize, QPoint const& origin)
 {
   auto const histConfig = baseConfigPath("histogram");
   QSize const histSize = histogramSize(hist, prefferedSize);
 
-  drawHistLike(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Value), histConfig("value"), origin, histSize);
-  drawHistLike(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Blue), histConfig("blue"), origin, histSize);
-  drawHistLike(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Green), histConfig("green"), origin, histSize);
-  drawHistLike(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Red), histConfig("red"), origin, histSize);
+  using Channel = iprocess::metric::Histogram::Channel;
+
+  drawHistLike(utils::asserted::fromMap(hist.data, Channel::Value), histConfig("value"), origin, histSize);
+  drawHistLike(utils::asserted::fromMap(hist.data, Channel::Blue), histConfig("blue"), origin, histSize);
+  drawHistLike(utils::asserted::fromMap(hist.data, Channel::Green), histConfig("green"), origin, histSize);
+  drawHistLike(utils::asserted::fromMap(hist.data, Channel::Red), histConfig("red"), origin, histSize);
 }
 
-void AddonRenderer::cumulativeHistogram(iprocess::Histogram const& hist, QSize const& prefferedSize, QPoint const& origin)
+void AddonRenderer::cumulativeHistogram(iprocess::metric::Histogram const& hist, QSize const& prefferedSize, QPoint const& origin)
 {
   auto const histConfig = baseConfigPath("cumulativeHistogram");
   QSize const histSize = histogramSize(hist, prefferedSize);
@@ -97,10 +99,12 @@ void AddonRenderer::cumulativeHistogram(iprocess::Histogram const& hist, QSize c
     return result;
   };
 
-  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Value)), histConfig("value"), origin, histSize);
-  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Blue)), histConfig("blue"), origin, histSize);
-  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Green)), histConfig("green"), origin, histSize);
-  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, iprocess::Histogram::Channel::Red)), histConfig("red"), origin, histSize);
+  using Channel = iprocess::metric::Histogram::Channel;
+
+  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, Channel::Value)), histConfig("value"), origin, histSize);
+  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, Channel::Blue)), histConfig("blue"), origin, histSize);
+  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, Channel::Green)), histConfig("green"), origin, histSize);
+  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, Channel::Red)), histConfig("red"), origin, histSize);
 }
 
 void AddonRenderer::drawHistLike(std::vector<float> const& data,
