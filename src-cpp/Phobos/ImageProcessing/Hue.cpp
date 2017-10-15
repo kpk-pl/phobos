@@ -1,5 +1,6 @@
 #include "ImageProcessing/Hue.h"
 #include <opencv2/opencv.hpp>
+#include <easylogging++.h>
 
 namespace phobos { namespace iprocess {
 
@@ -35,10 +36,17 @@ double complementaryChannels(metric::Hue const& hue)
 {
   double result = 0;
 
-  for (std::size_t i = 0; i < hue.numberOfChannels; ++i)
-    result += hue.channel[i] * hue.channel[(i+hue.numberOfChannels/2) % hue.numberOfChannels];
+  auto const half = hue.numberOfChannels / 2;
+  for (std::size_t i = 0; i < half; ++i)
+    result += hue.channel[i] * hue.channel[i + half];
 
-  return result;
+  if (result > 0.25)
+    LOG(WARNING) << "Calculating complementary hue channels reached above 0.25";
+
+  /*
+   * The highest possible number from the above calculation is 1/4
+   */
+  return result * 4.0;
 }
 
 }} // namespace phobos::iprocess
