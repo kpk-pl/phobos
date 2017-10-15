@@ -5,7 +5,7 @@ disableExecutionOperations = true
 loggingConfig = "logging.conf"
 
 [logging]
-metrics = true
+metrics = false
 
 [mainWindow]
 title = "Phobos"
