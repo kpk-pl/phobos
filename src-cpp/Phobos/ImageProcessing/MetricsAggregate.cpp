@@ -16,6 +16,7 @@ std::pair<T,T> minMaxMetric(MetricPtrVec const& metrics, T MetricValues::*member
 
 struct BiggerIsBetter{};
 struct SmallerIsBetter{};
+struct ZeroToOneBiggerIsBetter{};
 
 template<typename T>
 struct RelativeValue;
@@ -33,6 +34,24 @@ struct RelativeValue<BiggerIsBetter>
       return 1.0;
 
     return (*value - *minMax.first) / (*minMax.second - *minMax.first);
+  }
+};
+
+template<>
+struct RelativeValue<ZeroToOneBiggerIsBetter>
+{
+  template<typename OptV>
+  OptV operator()(OptV const& value, std::pair<OptV, OptV> const&) const
+  {
+    if (value == boost::none)
+      return boost::none;
+
+    if (*value > 1.0)
+      return 1.0;
+    else if (*value < 0.0)
+      return 0.0;
+
+    return *value;
   }
 };
 
@@ -79,7 +98,7 @@ void aggregate(MetricPtrVec const& metrics)
   aggregateMetric<BiggerIsBetter>(metrics, &Metric::sharpness);
   aggregateMetric<SmallerIsBetter>(metrics, &Metric::depthOfField);
   aggregateMetric<BiggerIsBetter>(metrics, &Metric::saturation);
-  aggregateMetric<BiggerIsBetter>(metrics, &Metric::complementary);
+  aggregateMetric<ZeroToOneBiggerIsBetter>(metrics, &Metric::complementary);
 
   auto& bestEl = *std::max_element(metrics.begin(), metrics.end(),
       [](MetricPtr const& l, MetricPtr const& r){ return l->score() < r->score(); });
