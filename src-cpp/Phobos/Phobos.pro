@@ -39,6 +39,7 @@ SOURCES += Phobos.cpp\
     ImageProcessing/ScalePixmap.cpp \
     ImageProcessing/Sharpness.cpp \
     ImageProcessing/MetricCalculator.cpp \
+    ImageProcessing/Hue.cpp \
     PhotoContainers/ExifData.cpp \
     PhotoContainers/Item.cpp \
     PhotoContainers/Series.cpp \
@@ -116,6 +117,7 @@ HEADERS  += MainWindow.h \
     ImageProcessing/ColoredPixmap.h \
     ImageProcessing/Sharpness.h \
     ImageProcessing/MetricCalculator.h \
+    ImageProcessing/Hue.h \
     PhotoContainers/ExifData.h \
     PhotoContainers/Fwd.h \
     PhotoContainers/Series.h \

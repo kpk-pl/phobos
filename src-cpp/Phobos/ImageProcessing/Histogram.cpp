@@ -3,14 +3,15 @@
 
 namespace phobos { namespace iprocess {
 
-cv::Mat histogram(cv::Mat const& cvImage, int const histSize)
+cv::Mat grayscaleHistogram(cv::Mat const& cvImage)
 {
-  float range[] = {0, float(histSize)};
-  const float* ranges[] = {range};
+  int bins[] = { 256 };
+  float rangeArray[] = {0.0, 256.0};
+  const float* ranges[] = {rangeArray};
   int channels[] = {0};
 
   cv::Mat hist;
-  cv::calcHist(&cvImage, 1, channels, cv::Mat(), hist, 1, &histSize, ranges);
+  cv::calcHist(&cvImage, 1, channels, cv::Mat(), hist, 1, bins, ranges);
 
   return hist;
 }
@@ -18,7 +19,7 @@ cv::Mat histogram(cv::Mat const& cvImage, int const histSize)
 std::vector<float> normalizedHistogram(cv::Mat const& cvImage, double *outContrast)
 {
   int const histSize = 256;
-  cv::Mat hist = histogram(cvImage, histSize);
+  cv::Mat hist = grayscaleHistogram(cvImage);
 
   cv::normalize(hist, hist, 0, 1, cv::NORM_MINMAX, -1, cv::Mat());
 

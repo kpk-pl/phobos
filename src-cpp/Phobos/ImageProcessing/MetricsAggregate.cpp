@@ -30,7 +30,7 @@ struct RelativeValue<BiggerIsBetter>
       return boost::none;
 
     if (minMax.first == minMax.second)
-      return 0.0;
+      return 1.0;
 
     return (*value - *minMax.first) / (*minMax.second - *minMax.first);
   }
@@ -46,7 +46,7 @@ struct RelativeValue<SmallerIsBetter>
       return boost::none;
 
     if (minMax.first == minMax.second)
-      return 0.0;
+      return 1.0;
 
     return (*minMax.second - *value) / (*minMax.second - *minMax.first);
   }

@@ -115,8 +115,8 @@ private:
     labelsLayout->addWidget(new QLabel(QObject::tr("Contrast: ") + valueOrNull(*metrics, &Metric::contrast, 3)));
     labelsLayout->addWidget(new QLabel(QObject::tr("Sharpness: ") + valueOrNull(*metrics, &Metric::sharpness, 2)));
     labelsLayout->addWidget(new QLabel(QObject::tr("Depth of field: ") + depthOfFieldFormat(*metrics)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Saturation: ") + valueOrNull(*metrics, &Metric::saturation)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Complementary colors: ") + valueOrNull(*metrics, &Metric::complementary)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Saturation: ") + valueOrNull(*metrics, &Metric::saturation, 1)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Complementary colors: ") + valueOrNull(*metrics, &Metric::complementary, 3)));
     labelsLayout->addStretch();
 
     QGroupBox *group = new QGroupBox(QObject::tr("Quality"));
@@ -127,6 +127,7 @@ private:
 
   void buildGraphicsUi(QBoxLayout *parent)
   {
+    // TODO: draw hue channels
     QLabel *histWgt = new QLabel();
     histWgt->setPixmap(buildHistogramPixmap());
     histWgt->setToolTip(QObject::tr("Histogram"));

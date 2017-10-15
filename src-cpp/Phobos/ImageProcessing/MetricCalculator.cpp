@@ -3,6 +3,7 @@
 #include "ImageProcessing/Bluriness.h"
 #include "ImageProcessing/Noisiness.h"
 #include "ImageProcessing/Sharpness.h"
+#include "ImageProcessing/Hue.h"
 #include "ImageProcessing/Metrics.h"
 #include "ConfigExtension.h"
 #include "ConfigPath.h"
@@ -44,25 +45,24 @@ public:
 
   void toGrayscale()
   {
-    cv::cvtColor(baseImage, baseImage, cv::COLOR_BGR2GRAY);
+    TIMED("runMetrics: toGrayscale", cv::cvtColor(baseImage, baseImage, cv::COLOR_BGR2GRAY));
   }
 
   void equalize()
   {
     assert(baseImage.channels() == 1);
     cv::Mat result;
-    cv::equalizeHist(baseImage, result);
+    TIMED("runMetrics: equalize", cv::equalizeHist(baseImage, result));
     baseImage = result;
   }
 
   void colorHistograms()
   {
     std::vector<cv::Mat> bgrPlanes;
-    cv::split(baseImage, bgrPlanes);
+    TIMED("runMetrics: splitHist", cv::split(baseImage, bgrPlanes));
     assert(bgrPlanes.size() == 3);
 
     using Channel = metric::Histogram::Channel;
-
     TIMED("runMetrics: blueHistogram", metrics->histogram.data.emplace(Channel::Blue, normalizedHistogram(bgrPlanes[0], nullptr)));
     TIMED("runMetrics: greenHistogram", metrics->histogram.data.emplace(Channel::Green, normalizedHistogram(bgrPlanes[1], nullptr)));
     TIMED("runMetrics: redHistogram", metrics->histogram.data.emplace(Channel::Red, normalizedHistogram(bgrPlanes[2], nullptr)));
@@ -103,27 +103,19 @@ public:
   void colorFeatures()
   {
     cv::Mat hsvImage;
-    cv::cvtColor(baseImage, hsvImage, cv::COLOR_BGR2HSV);
+    TIMED("runMetrics: toHSV", cv::cvtColor(baseImage, hsvImage, cv::COLOR_BGR2HSV));
 
-    std::vector<cv::Mat> hsvPlanes;
-    cv::split(baseImage, hsvPlanes);
-    assert(hsvPlanes.size() == 3);
-    hsvImage.release();
+    TIMED("runMetrics: saturation", metrics->saturation = cv::mean(hsvImage)[1]);
+    TIMED("runMetrics: hueChannels", metrics->hue = hueChannels(hsvImage));
+    TIMED("runMetrics: hueCompl", metrics->complementary = complementaryChannels(metrics->hue.get()));
 
-    metrics->saturation = cv::mean(hsvPlanes[1])[0];
+    LOG(DEBUG) << metrics->hue->channel[0];
+    LOG(DEBUG) << metrics->hue->channel[1];
+    LOG(DEBUG) << metrics->hue->channel[2];
+    LOG(DEBUG) << metrics->hue->channel[3];
+    LOG(DEBUG) << metrics->hue->channel[4];
+    LOG(DEBUG) << metrics->hue->channel[5];
 
-    static_assert(metric::Hue::numberOfChannels == 6, "Wrong number of channels in Hue calculation");
-    cv::Mat const hHist = iprocess::histogram(hsvPlanes[0], 6);
-    hsvPlanes.clear();
-
-    metrics->hue = metric::Hue{};
-    for (std::size_t ch = 0; ch < 6; ++ch)
-      metrics->hue->channel[ch] = hHist.at<float>(ch);
-
-    cv::Mat rotatedVHist(hHist.rows, hHist.cols, hHist.type());
-    hHist.rowRange(0, 3).copyTo(rotatedVHist.rowRange(4, 6));
-    hHist.rowRange(3, 6).copyTo(rotatedVHist.rowRange(0, 3));
-    metrics->complementary = hHist.dot(rotatedVHist);
   }
 
 private:

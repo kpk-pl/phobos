@@ -17,7 +17,7 @@ double nthPercentile(cv::Mat const& cvImage, float const n)
   long const area = cvImage.rows * cvImage.cols;
   long const nthPercArea = n*area;
 
-  cv::Mat const hist = histogram(cvImage, 256);
+  cv::Mat const hist = grayscaleHistogram(cvImage);
 
   long pixels = 0;
   long bin = 0;
