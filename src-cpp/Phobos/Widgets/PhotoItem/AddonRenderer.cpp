@@ -132,4 +132,45 @@ void AddonRenderer::drawHistLike(std::vector<float> const& data,
 
 }
 
+void AddonRenderer::hueDisplay(iprocess::metric::Hue const& data,
+                               QSize const& prefferedSize,
+                               QPoint const& origin)
+{
+  static_assert(iprocess::metric::Hue::numberOfChannels == 6, "Only 6 channels implemented");
+  PainterCtx ctx(painter);
+
+  auto const hueConfig = baseConfigPath("hueDisplay");
+  std::size_t const barSpacing = config::qualified(hueConfig("barSpacing"), 3u);
+  std::size_t const barHeight = (prefferedSize.height() - (6-1)*barSpacing) / 6;
+
+  QColor const colors[6] = {QColor(255, 0, 0), QColor(255, 255, 0), QColor(0, 255, 0),
+                            QColor(0, 255, 255), QColor(0, 0, 255), QColor(255, 0, 255)};
+
+
+  for (std::size_t ch = 0; ch < 6; ++ch)
+  {
+    QRect const barRect(origin.x() + prefferedSize.width()*(1.0 - data.channel[ch]),
+                        origin.y() + ch*(barHeight+barSpacing),
+                        prefferedSize.width() * data.channel[ch],
+                        barHeight);
+
+    painter.setPen(colors[ch]);
+    painter.setBrush(colors[ch]);
+    painter.drawRect(barRect);
+  }
+
+  QFont font = painter.font();
+  font.setPixelSize(barHeight);
+  painter.setFont(font);
+  painter.setPen(Qt::black);
+
+  for (std::size_t ch = 0; ch < 6; ++ch)
+  {
+    painter.drawText(origin.x(), origin.y() + ch*(barHeight+barSpacing),
+                     prefferedSize.width(), barHeight,
+                     Qt::AlignLeft | Qt::TextSingleLine,
+                     QString::number(data.channel[ch]*100.0, 'f', 1) + " %");
+  }
+}
+
 }}} // namespace phobos::widgets::pitem

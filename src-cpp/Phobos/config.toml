@@ -78,6 +78,11 @@ red = { style = "line", color = "red", opacity = 0.8 }
 green = { style = "line", color = "limegreen", opacity = 0.8 }
 blue = { style = "line", color = "#0939FF", opacity = 0.8 }
 
+[detailsDialog.hueDisplay]
+size = [128, 64]
+fillColor = "transparent"
+barSpacing = 3
+
 [detailsDialog.cumulativeHistogram]
 size = [128, 64]
 fillColor = "transparent"

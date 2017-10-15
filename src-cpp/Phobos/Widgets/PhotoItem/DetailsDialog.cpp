@@ -127,18 +127,26 @@ private:
 
   void buildGraphicsUi(QBoxLayout *parent)
   {
-    // TODO: draw hue channels
+    QVBoxLayout *layout = new QVBoxLayout();
+
     QLabel *histWgt = new QLabel();
     histWgt->setPixmap(buildHistogramPixmap());
     histWgt->setToolTip(QObject::tr("Histogram"));
+    layout->addWidget(histWgt);
 
     QLabel *cummWgt = new QLabel();
     cummWgt->setPixmap(buildCumulativeHistogramPixmap());
     cummWgt->setToolTip(QObject::tr("Cumulative histogram"));
-
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(histWgt);
     layout->addWidget(cummWgt);
+
+    if (metrics->hue)
+    {
+      QLabel *hueWgt = new QLabel();
+      hueWgt->setPixmap(buildHueDisplay());
+      hueWgt->setToolTip(QObject::tr("Hue channels"));
+      layout->addWidget(hueWgt);
+    }
+
     parent->addLayout(layout);
   }
 
@@ -162,6 +170,17 @@ private:
     QPainter histPainter(&histPixmap);
     AddonRenderer(histPainter, confPath).cumulativeHistogram(metrics->histogram, histPixmap.size());
     return histPixmap;
+  }
+
+  QPixmap buildHueDisplay()
+  {
+    auto const hueConfig = confPath("hueDisplay");
+    QPixmap huePixmap(config::qSize(hueConfig("size"), QSize(32, 32)));
+    huePixmap.fill(config::qColor(hueConfig("fillColor"), Qt::transparent));
+
+    QPainter huePainter(&huePixmap);
+    AddonRenderer(huePainter, confPath).hueDisplay(*metrics->hue, huePixmap.size());
+    return huePixmap;
   }
 
   pcontainer::Item const& photoItem;

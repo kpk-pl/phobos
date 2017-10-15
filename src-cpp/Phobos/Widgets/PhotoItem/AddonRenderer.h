@@ -9,6 +9,7 @@ class QSize;
 
 namespace phobos { namespace iprocess { namespace metric {
 class Histogram;
+class Hue;
 }}}
 
 namespace phobos { namespace widgets { namespace pitem {
@@ -25,6 +26,10 @@ public:
   void cumulativeHistogram(iprocess::metric::Histogram const& data,
                            QSize const& prefferedSize,
                            QPoint const& origin = QPoint(0,0));
+
+  void hueDisplay(iprocess::metric::Hue const& data,
+                  QSize const& prefferedSize,
+                  QPoint const& origin = QPoint(0,0));
 
 private:
   void drawHistLike(std::vector<float> const& data,
