@@ -7,9 +7,10 @@ cv::Mat histogram(cv::Mat const& cvImage, int const histSize)
 {
   float range[] = {0, float(histSize)};
   const float* ranges[] = {range};
+  int channels[] = {0};
 
   cv::Mat hist;
-  cv::calcHist(&cvImage, 1, 0, cv::Mat(), hist, 1, &histSize, ranges, true, false);
+  cv::calcHist(&cvImage, 1, channels, cv::Mat(), hist, 1, &histSize, ranges);
 
   return hist;
 }

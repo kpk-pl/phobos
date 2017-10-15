@@ -6,19 +6,12 @@ namespace phobos { namespace iprocess { namespace metric {
 
 namespace {
 
-template<typename Func>
-using FuncRes = std::decay_t<std::result_of_t<Func(Metric&)>>;
-
-template<typename Func>
-using FuncResPair = std::pair<FuncRes<Func>, FuncRes<Func>>;
-
-template <typename Func>
-auto minMaxMetric(MetricPtrVec const& metrics, Func const& func)
-    -> FuncResPair<Func>
+template <typename T>
+std::pair<T,T> minMaxMetric(MetricPtrVec const& metrics, T MetricValues::*member)
 {
   auto minmaxIt = std::minmax_element(metrics.begin(), metrics.end(),
-      [&func](MetricPtr const& m1, MetricPtr const& m2){ return func(*m1) < func(*m2); });
-  return std::make_pair(func(**minmaxIt.first), func(**minmaxIt.second));
+      [&](MetricPtr const& m1, MetricPtr const& m2){ return (*m1).*member < (*m2).*member; });
+  return std::make_pair((**minmaxIt.first).*member, (**minmaxIt.second).*member);
 };
 
 struct BiggerIsBetter{};
@@ -59,15 +52,15 @@ struct RelativeValue<SmallerIsBetter>
   }
 };
 
-template<typename Type, typename Func>
-void aggregateMetric(MetricPtrVec const& metrics, Func const& getter)
+template<typename Type, typename T>
+void aggregateMetric(MetricPtrVec const& metrics, T MetricValues::*member)
 {
-  auto const minmaxM = minMaxMetric(metrics, getter);
+  auto const minmaxM = minMaxMetric(metrics, member);
   if (minmaxM.first == boost::none || minmaxM.second == boost::none)
     return;
 
   for (std::size_t i = 0; i < metrics.size(); ++i)
-    getter(*metrics[i]->seriesMetric) = RelativeValue<Type>{}(getter(*metrics[i]), minmaxM);
+    (*metrics[i]->seriesMetric).*member = RelativeValue<Type>{}((*metrics[i]).*member, minmaxM);
 }
 } // unnamed namespace
 
@@ -80,11 +73,13 @@ void aggregate(MetricPtrVec const& metrics)
   for (auto &metric : metrics)
     metric->seriesMetric = MetricValues{};
 
-  aggregateMetric<BiggerIsBetter>(metrics,  [](auto& m)->auto&{ return m.blur; });
-  aggregateMetric<SmallerIsBetter>(metrics, [](auto& m)->auto&{ return m.noise; });
-  aggregateMetric<BiggerIsBetter>(metrics,  [](auto& m)->auto&{ return m.contrast; });
-  aggregateMetric<BiggerIsBetter>(metrics,  [](auto& m)->auto&{ return m.sharpness; });
-  aggregateMetric<SmallerIsBetter>(metrics, [](auto& m)->auto&{ return m.depthOfField; });
+  aggregateMetric<BiggerIsBetter>(metrics, &Metric::blur);
+  aggregateMetric<SmallerIsBetter>(metrics, &Metric::noise);
+  aggregateMetric<BiggerIsBetter>(metrics, &Metric::contrast);
+  aggregateMetric<BiggerIsBetter>(metrics, &Metric::sharpness);
+  aggregateMetric<SmallerIsBetter>(metrics, &Metric::depthOfField);
+  aggregateMetric<BiggerIsBetter>(metrics, &Metric::saturation);
+  aggregateMetric<BiggerIsBetter>(metrics, &Metric::complementary);
 
   auto& bestEl = *std::max_element(metrics.begin(), metrics.end(),
       [](MetricPtr const& l, MetricPtr const& r){ return l->score() < r->score(); });

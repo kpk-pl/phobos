@@ -39,6 +39,8 @@ boost::optional<double> Metric::score() const
   result(seriesMetric->contrast, config::qualified(weightPath("contrast"), 1.0));
   result(seriesMetric->sharpness, config::qualified(weightPath("sharpness"), 1.0));
   result(seriesMetric->depthOfField, config::qualified(weightPath("depthOfField"), 1.0));
+  result(seriesMetric->saturation, config::qualified(weightPath("saturation"), 1.0));
+  result(seriesMetric->complementary, config::qualified(weightPath("complementary"), 1.0));
 
   return double(result);
 }

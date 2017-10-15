@@ -94,10 +94,36 @@ public:
   void sharpness()
   {
     sharpness::Result sharpnessResult;
-    TIMED("tunMetrics: sharpness", sharpnessResult = sharpness::gaussian(baseImage, 5));
+    TIMED("runMetrics: sharpness", sharpnessResult = sharpness::gaussian(baseImage, 5));
     metrics->sharpness = sharpnessResult.sharpness;
     metrics->depthOfField = sharpness::depthOfField(sharpnessResult);
     metrics->depthOfFieldRaw = sharpnessResult.breakout;
+  }
+
+  void colorFeatures()
+  {
+    cv::Mat hsvImage;
+    cv::cvtColor(baseImage, hsvImage, cv::COLOR_BGR2HSV);
+
+    std::vector<cv::Mat> hsvPlanes;
+    cv::split(baseImage, hsvPlanes);
+    assert(hsvPlanes.size() == 3);
+    hsvImage.release();
+
+    metrics->saturation = cv::mean(hsvPlanes[1])[0];
+
+    static_assert(metric::Hue::numberOfChannels == 6, "Wrong number of channels in Hue calculation");
+    cv::Mat const hHist = iprocess::histogram(hsvPlanes[0], 6);
+    hsvPlanes.clear();
+
+    metrics->hue = metric::Hue{};
+    for (std::size_t ch = 0; ch < 6; ++ch)
+      metrics->hue->channel[ch] = hHist.at<float>(ch);
+
+    cv::Mat rotatedVHist(hHist.rows, hHist.cols, hHist.type());
+    hHist.rowRange(0, 3).copyTo(rotatedVHist.rowRange(4, 6));
+    hHist.rowRange(3, 6).copyTo(rotatedVHist.rowRange(0, 3));
+    metrics->complementary = hHist.dot(rotatedVHist);
   }
 
 private:
@@ -112,6 +138,7 @@ metric::MetricPtr calcMetrics(cv::Mat image)
   image.release();
 
   processor.colorHistograms();
+  processor.colorFeatures();
 
   processor.toGrayscale();
   processor.histogram();

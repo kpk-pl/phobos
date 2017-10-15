@@ -9,7 +9,8 @@
 
 namespace phobos { namespace iprocess { namespace metric {
 
-struct Histogram {
+struct Histogram
+{
   using DataType = std::vector<float>;
   enum Channel { Value, Red, Green, Blue };
 
@@ -17,7 +18,8 @@ struct Histogram {
   operator bool() const { return !data.empty(); }
 };
 
-struct DepthOfField {
+struct DepthOfField
+{
   DepthOfField() = default;
   DepthOfField(std::tuple<double, double, double> const& init)
   {
@@ -27,13 +29,26 @@ struct DepthOfField {
   double low, median, high;
 };
 
+struct Hue
+{
+  static constexpr std::size_t const numberOfChannels = 6;
+  enum class Name : std::size_t
+  {
+    Red = 0, Yellow, Green, Cyan, Blue, Magenta
+  };
+
+  std::array<double, numberOfChannels> channel;
+};
+
 struct MetricValues
 {
-  boost::optional<double> blur;         // bigger is better
-  boost::optional<double> noise;        // smaller is better (but smaller means image is blurred)
-  boost::optional<double> contrast;     // bigger is better
-  boost::optional<double> sharpness;    // bigger is better
-  boost::optional<double> depthOfField; // smaller is better
+  boost::optional<double>  blur;           // bigger is better
+  boost::optional<double>  noise;          // smaller is better (but smaller means image is blurred)
+  boost::optional<double>  contrast;       // bigger is better
+  boost::optional<double>  sharpness;      // bigger is better
+  boost::optional<double>  depthOfField;   // smaller is better
+  boost::optional<double>  saturation;     // bigger is better
+  boost::optional<double>  complementary;  // bigger is better
 };
 
 struct Metric : public MetricValues
@@ -42,6 +57,7 @@ struct Metric : public MetricValues
 
   Histogram histogram;
   boost::optional<DepthOfField> depthOfFieldRaw;
+  boost::optional<Hue> hue;
 
   bool bestQuality = false;
   boost::optional<double> score() const;
