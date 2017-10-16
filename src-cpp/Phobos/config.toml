@@ -33,6 +33,8 @@ padding = 7
 opacity = 0.5
 color = "orange"
 sizePercent = 0.15
+minSize = [20, 20]
+maxSize = [80, 80]
 path = ":icons/focus.png"
 
 [photoItemWidget.qualityText]
@@ -47,6 +49,8 @@ path = ":icons/star.png"
 opacity = 0.5
 color = "yellow"
 sizePercent = 0.2
+minSize = [20, 20]
+maxSize = [80, 80]
 padding = 7
 
 [photoItemWidget.ordNum]

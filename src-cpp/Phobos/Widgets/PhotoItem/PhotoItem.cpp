@@ -173,11 +173,17 @@ private:
       QPixmap const pixmap = coloredIcon(configTable);
       painter.drawPixmap(drawStartPoint(alignment, padding, pixmap.size()), pixmap);
     }
-// TODO: specify min and max sizes for icons, if possible keep min->percent->max size, if size exceeds
-// pixmap, scale down
+
     QPixmap coloredIcon(config::ConfigPath const& configTable)
     {
-      QSize const iconSize = withBorderSize * config::qualified(configTable("sizePercent"), 0.2);
+      QSize const minSize = config::qSize(configTable("minSize"), QSize());
+      QSize const maxSize = config::qSize(configTable("maxSize"), QSize());
+      QSize iconSize = withBorderSize * config::qualified(configTable("sizePercent"), 0.2);
+      if (minSize.isValid() && (minSize.width() > iconSize.width() || minSize.height() > iconSize.height()))
+        iconSize = iconSize.scaled(minSize, Qt::KeepAspectRatioByExpanding);
+      else if (maxSize.isValid() && (maxSize.width() < iconSize.width() || maxSize.height() < iconSize.height()))
+        iconSize = iconSize.scaled(maxSize, Qt::KeepAspectRatio);
+
       QColor const color = config::qColor(configTable("color"), Qt::black);
       double const opacity = config::qualified(configTable("opacity"), 0.5);
       std::string const path = config::qualified(configTable("path"), std::string{});
