@@ -64,6 +64,7 @@ width = 3
 
 [photoItemWidget.histogram]
 size = [128, 64]
+minWidgetSize = [256, 128]
 fillColor = "transparent"
 padding = 7
 value = { style = "fill", color = "#CC9900", opacity = 0.8 }

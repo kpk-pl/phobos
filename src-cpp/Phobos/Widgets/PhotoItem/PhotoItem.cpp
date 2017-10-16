@@ -141,6 +141,11 @@ public:
     void histogram(iprocess::metric::Histogram const& histogram)
     {
       auto const histConfig = baseConfig("histogram");
+
+      auto const minWgtSize = config::qSize(histConfig("minWidgetSize"), QSize());
+      if (minWgtSize.isValid() && (withBorderSize.width() < minWgtSize.width() || withBorderSize.height() < minWgtSize.height()))
+        return;
+
       auto const prefferedSize = config::qSize(histConfig("size"), QSize(32, 32));
       unsigned const padding = config::qualified(histConfig("padding"), 7u);
 
@@ -211,23 +216,23 @@ config::ConfigPath const PhotoItem::PixmapRenderer::baseConfig("photoItemWidget"
 
 void PhotoItem::paintEvent(QPaintEvent*)
 {
-    PixmapRenderer renderer(*this);
+  PixmapRenderer renderer(*this);
 
-    if (addons.has(AddonType::FOCUS_IND) && hasFocus())
-        renderer.focusMark();
+  if (addons.has(AddonType::FOCUS_IND) && hasFocus())
+    renderer.focusMark();
 
-    auto const metric = metrics();
-    if (addons.has(AddonType::SCORE_NUM) && metric)
-        renderer.scoreNum(metric->score());
+  auto const metric = metrics();
+  if (addons.has(AddonType::SCORE_NUM) && metric)
+    renderer.scoreNum(metric->score());
 
-    if (addons.has(AddonType::BEST_IND) && metric && metric->bestQuality)
-        renderer.bestMark();
+  if (addons.has(AddonType::BEST_IND) && metric && metric->bestQuality)
+    renderer.bestMark();
 
-    if (addons.has(AddonType::HISTOGRAM) && metric && metric->histogram)
-        renderer.histogram(metric->histogram);
+  if (addons.has(AddonType::HISTOGRAM) && metric && metric->histogram)
+    renderer.histogram(metric->histogram);
 
-    if (addons.has(AddonType::ORD_NUM))
-        renderer.ordNum(_photoItem->ord(), metric && metric->bestQuality);
+  if (addons.has(AddonType::ORD_NUM))
+    renderer.ordNum(_photoItem->ord(), metric && metric->bestQuality);
 }
 
 void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
