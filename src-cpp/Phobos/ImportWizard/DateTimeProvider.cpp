@@ -13,13 +13,23 @@ void paralellThransformModTime(std::vector<Photo>::iterator destination,
                                QStringList::const_iterator const& begin,
                                QStringList::const_iterator const& end)
 {
-  std::transform(begin, end, destination, [](QString const& str) {
+  // TODO: BUG Currect Exif library has some sort of a bug that makes reading data fields
+  // read only 19 bytes instead of 20 and thus making datetime invalid
+  // switch to https://github.com/mayanklahiri/easyexif lib which was tested and does not have this bug
+  std::transform(begin, end, destination, [](QString const& str) -> Photo {
     QExifImageHeader const header(str);
-    auto const dateTime = header.contains(QExifImageHeader::ImageTag::DateTime)
-        ? header.value(QExifImageHeader::ImageTag::DateTime).toDateTime().toSecsSinceEpoch()
-        : utils::fs::lastModificationTime(str.toStdString());
 
-    return Photo{str, dateTime};
+    if (header.contains(QExifImageHeader::ExifExtendedTag::DateTimeOriginal))
+    {
+      auto const v = header.value(QExifImageHeader::ExifExtendedTag::DateTimeOriginal).toDateTime();
+      if (v.isValid()) return {str, v.toSecsSinceEpoch()};
+    }
+    if (header.contains(QExifImageHeader::ImageTag::DateTime))
+    {
+      auto const v = header.value(QExifImageHeader::ImageTag::DateTime).toDateTime();
+      if (v.isValid()) return {str, v.toSecsSinceEpoch()};
+    }
+    return {str, utils::fs::lastModificationTime(str.toStdString())};
   });
 }
 
