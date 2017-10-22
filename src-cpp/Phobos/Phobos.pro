@@ -76,6 +76,7 @@ SOURCES += Phobos.cpp\
     ImageCache/LimitedMap.cpp \
     ImageCache/PriorityThreadPool.cpp \
     ImageCache/Transaction.cpp \
+    ImageCache/Runnable.cpp \
     ProcessWizard/ProcessWizard.cpp \
     ProcessWizard/Operation.cpp \
     ProcessWizard/ActionsCreatorPage.cpp \

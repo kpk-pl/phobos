@@ -89,6 +89,7 @@ void PriorityThreadPool::updatePool()
   queue.erase(taskToRunIt);
 
   QObject::connect(&taskToRun->signal, &RunnableSignals::finished, this, &PriorityThreadPool::taskFinished);
+  QObject::connect(&taskToRun->signal, &RunnableSignals::interrupted, this, &PriorityThreadPool::taskInterrupted);
   runningTasks.insert(taskToRun->id());
   LOG(DEBUG) << "Starting task " << taskToRun->id();
   pool.start(taskToRun.release());
@@ -103,15 +104,26 @@ PriorityThreadPool::QueueType::iterator PriorityThreadPool::findNextTask()
   return queue.end();
 }
 
-void PriorityThreadPool::taskFinished(Runnable::Id id)
+void PriorityThreadPool::taskFinished(Runnable::Id taskId)
 {
-  LOG(DEBUG) << "Finished task " << id;
+  LOG(DEBUG) << "Finished task " << taskId;
+  handleFinished(taskId);
+}
 
-  auto const it = runningTasks.find(id);
+void PriorityThreadPool::taskInterrupted(Runnable::Id taskId)
+{
+  // TODO: Handle crashed task, maybe restart?
+  LOG(WARNING) << "Task crashed! (" << taskId << ")";
+  handleFinished(taskId);
+}
+
+void PriorityThreadPool::handleFinished(Runnable::Id taskId)
+{
+  auto const it = runningTasks.find(taskId);
   assert(it != runningTasks.end());
   runningTasks.erase(it);
 
-  queue.erase(std::remove_if(queue.begin(), queue.end(), PriorityTask::IdEqual{id}), queue.end());
+  queue.erase(std::remove_if(queue.begin(), queue.end(), PriorityTask::IdEqual{taskId}), queue.end());
 
   updatePool();
 }

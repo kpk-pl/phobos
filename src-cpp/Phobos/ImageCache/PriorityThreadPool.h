@@ -21,9 +21,11 @@ public:
 
 private slots:
   void taskFinished(Runnable::Id taskId);
+  void taskInterrupted(Runnable::Id taskId);
 
 private:
   void insertTask(RunnablePtr && task, std::size_t const priority);
+  void handleFinished(Runnable::Id taskId);
   void updatePool();
 
   struct PriorityTask

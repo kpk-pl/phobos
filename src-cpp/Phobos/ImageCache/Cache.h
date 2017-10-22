@@ -24,8 +24,6 @@ class Cache : public QObject
 public:
   explicit Cache(pcontainer::Set const& photoSet);
 
-  QImage getImage(pcontainer::ItemId const& itemId);
-
   Transaction transaction() { return Transaction(*this); }
   Transaction::Result execute(Transaction && transaction);
 

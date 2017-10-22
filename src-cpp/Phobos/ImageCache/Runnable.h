@@ -15,6 +15,7 @@ class RunnableSignals : public QObject
 
 signals:
   void finished(std::size_t id);
+  void interrupted(std::size_t id);
 };
 
 class Runnable : public QRunnable
@@ -22,16 +23,19 @@ class Runnable : public QRunnable
 public:
   using UniqueId = QUuid;
 
-  explicit Runnable() : _uuid(QUuid::createUuid())
-  {}
-
+  explicit Runnable();
   virtual ~Runnable() = default;
+
+  void run() override final;
 
   using Id = std::size_t;
   virtual Id id() const = 0;
   UniqueId const& uuid() const { return _uuid; }
 
   RunnableSignals signal;
+
+protected:
+  virtual void runImpl() = 0;
 
 private:
   UniqueId const _uuid;

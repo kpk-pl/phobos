@@ -29,7 +29,7 @@ icache::Runnable::Id LoaderThread::id() const
 
 // TODO: optimize with-metrics flow
 
-void LoaderThread::run()
+void LoaderThread::runImpl()
 {
   TIMED_FUNC(scopefunc);
   if (calculateMetrics)

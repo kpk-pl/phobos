@@ -26,10 +26,12 @@ public:
   explicit LoaderThread(pcontainer::ItemId const& itemId, QSize const& requestedSize);
 
   void withMetrics(bool calculate) { calculateMetrics = calculate; }
-  void run() override;
   icache::Runnable::Id id() const override;
 
   LoaderThreadSignals readySignals;
+
+protected:
+  void runImpl() override;
 
 private:
   void runWithoutMetrics() const;
