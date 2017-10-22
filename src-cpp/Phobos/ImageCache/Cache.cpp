@@ -73,9 +73,6 @@ void Cache::changedSeries(QUuid const& seriesUuid)
 
 void Cache::imageReadyFromThread(pcontainer::ItemId itemId, QImage image)
 {
-  // TODO: BUG! Handle when image is NULL, as this can happen when in OOM conditions
-  // Currently the code goes into infinite loop requesting new preload and failing to deliver one from cache
-  // because preload is in fact null
   auto const allTrans = transactionsInThread.equal_range(itemId);
   if (allTrans.first == allTrans.second)
     return;

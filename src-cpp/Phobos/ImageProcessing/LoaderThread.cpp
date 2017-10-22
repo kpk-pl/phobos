@@ -35,11 +35,9 @@ void LoaderThread::runImpl()
   if (calculateMetrics)
   {
     cv::Mat cvImage;
-    {
-      TIMED("load:imread", cvImage = cv::imread(itemId.fileName.toStdString().c_str()));
-      // if (!cvImage.data) ...
-      emitLoadedSignal(cvImage);
-    }
+    TIMED("load:imread", cvImage = cv::imread(itemId.fileName.toStdString().c_str()));
+    emitLoadedSignal(cvImage);
+
     runMetrics(std::move(cvImage));
   }
   else
@@ -53,10 +51,6 @@ void LoaderThread::runImpl()
 // TODO: configurable options for metric calculations, weights, disable some portions of calculations
 
 // TODO: Use transaction-like logic with unique IDs to display INFO information about loaded images
-
-// TODO: BUG: handle nullptrs and QImage.isNull() == true. Probably sometimes it is impossible to allocate more memory and nullpts are used
-// If this thread crashes, whole app crashes.
-// To reproduce try to load A LOT of phtoos with increased cache size. Huge cache size helps to reproduce.
 
 namespace {
   QSize scaledDown(QSize const& size, QSize const& limit)
@@ -85,11 +79,17 @@ void LoaderThread::runWithoutMetrics() const
   QImage image;
   TIMED("QImageReade:read", image = reader.read());
 
+  if (image.isNull())
+    throw NullImageException(itemId.fileName.toStdString());
+
   emit readySignals.imageReady(itemId, image);
 }
 
 void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
 {
+  if (!cvImage.data)
+    throw NullImageException(itemId.fileName.toStdString());
+
   QSize const cvSize(cvImage.cols, cvImage.rows);
   QSize const pixmapSize = scaledDown(cvSize, requestedSize);
   LOG(DEBUG) << "Scaling " << itemId.fileName << " from " << cvImage.cols << "x" << cvImage.rows
@@ -100,6 +100,9 @@ void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
 
   QImage image;
   TIMED("cv:convQt", image = iprocess::convCvToImage(resized));
+
+  if (image.isNull())
+    throw NullImageException(itemId.fileName.toStdString());
 
   emit readySignals.imageReady(itemId, image);
 }

@@ -20,6 +20,14 @@ signals:
   void metricsReady(pcontainer::ItemId, phobos::iprocess::metric::MetricPtr) const;
 };
 
+class NullImageException : public std::runtime_error
+{
+public:
+  NullImageException(std::string const& filename) :
+    std::runtime_error("Cannot load image: " + filename)
+  {}
+};
+
 class LoaderThread : public icache::Runnable
 {
 public:
