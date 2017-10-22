@@ -40,6 +40,7 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     QObject::connect(noopChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::DontDivide); });
 
     notSortedPhotosBox = new QCheckBox(tr("My photos cannot be sorted by file names"));
+    notSortedPhotosBox->setToolTip(tr("Check if your photos have irregular naming pattern, you renamed them or they come from several different cameras."));
 
     QGridLayout *layout = new QGridLayout();
     layout->setColumnStretch(1, 1);
