@@ -108,14 +108,6 @@ public:
     TIMED("runMetrics: saturation", metrics->saturation = cv::mean(hsvImage)[1]);
     TIMED("runMetrics: hueChannels", metrics->hue = hueChannels(hsvImage));
     TIMED("runMetrics: hueCompl", metrics->complementary = complementaryChannels(metrics->hue.get()));
-
-    LOG(DEBUG) << metrics->hue->channel[0];
-    LOG(DEBUG) << metrics->hue->channel[1];
-    LOG(DEBUG) << metrics->hue->channel[2];
-    LOG(DEBUG) << metrics->hue->channel[3];
-    LOG(DEBUG) << metrics->hue->channel[4];
-    LOG(DEBUG) << metrics->hue->channel[5];
-
   }
 
 private:
