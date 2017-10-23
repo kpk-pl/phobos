@@ -128,7 +128,7 @@ std::unique_ptr<QTreeWidgetItem> makeTreeItem(PhotoSeries const& series)
   {
     QTreeWidgetItem* photoItem = new QTreeWidgetItem(seriesItem.get(), types::PHOTO_STANDARD);
     photoItem->setFlags(photoItem->flags() | Qt::ItemIsUserCheckable);
-    photoItem->setText(0, QString("[%1] %2").arg(i).arg(series[i].fileName));
+    photoItem->setText(0, QString("[%1] %2").arg(i).arg(series[i].name));
     photoItem->setCheckState(0, (series.size() > 1) ? Qt::Checked : Qt::Unchecked);
   }
 

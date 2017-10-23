@@ -42,6 +42,7 @@ QString Transaction::toString() const
 namespace {
   Transaction::Result getInitialThumbnail(pcontainer::ItemId const& itemId)
   {
+    // TODO: need a specialized way to load thumbnails to get rid of QExifImageHeader
     QImage const exifThumb = QExifImageHeader(itemId.fileName).thumbnail();
     if (!exifThumb.isNull())
     {

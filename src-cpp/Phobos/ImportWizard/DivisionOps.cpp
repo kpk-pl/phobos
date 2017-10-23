@@ -1,5 +1,4 @@
 #include "ImportWizard/DivisionOps.h"
-#include "Utils/Comparators.h"
 #include "Utils/Algorithm.h"
 #include "ConfigExtension.h"
 #include <easylogging++.h>
@@ -45,7 +44,7 @@ double averageTimeDiff(auto beginIt, auto endIt)
   auto nextIt = beginIt+1;
   while (nextIt != endIt)
   {
-    sum += *nextIt->lastModTime - *beginIt->lastModTime;
+    sum += nextIt->info.timestamp - beginIt->info.timestamp;
     ++count;
     ++beginIt;
     ++nextIt;
@@ -53,6 +52,27 @@ double averageTimeDiff(auto beginIt, auto endIt)
 
   return double(sum) / count;
 }
+
+bool exifMatches(Photo const& first, Photo const& second)
+{
+  if (first.info.size != second.info.size)
+    return false;
+
+  if (first.info.camera != second.info.camera)
+    return false;
+
+  return true;
+}
+
+struct DateNameComp
+{
+  bool operator()(Photo const& first, Photo const& second) const
+  {
+    if (first.info.timestamp != second.info.timestamp)
+      return first.info.timestamp < second.info.timestamp;
+    return first.name < second.name;
+  }
+};
 } // unnamed namespace
 
 PhotoSeriesVec divideToSeriesOnMetadata(std::vector<Photo> && photos)
@@ -66,18 +86,19 @@ PhotoSeriesVec divideToSeriesOnMetadata(std::vector<Photo> && photos)
   PhotoSeriesVec result;
   std::deque<Photo> stack;
 
-  std::sort(photos.begin(), photos.end(), utils::less().on(&Photo::lastModTime));
+  std::sort(photos.begin(), photos.end(), DateNameComp{});
 
+  // TODO: handle series that have length of 2. probably if exifMatches and timestamp between photos is close
   for (Photo &photo : photos)
   {
     stack.push_back(std::move(photo));
     if (stack.size() < 3)
       continue;
 
-    auto const last = stack.begin() + (stack.size()-1);
-    unsigned const lastDiff = *last->lastModTime - *(last-1)->lastModTime;
+    auto const last = std::next(stack.begin(), stack.size()-1);
+    unsigned const lastDiff = last->info.timestamp - (last-1)->info.timestamp;
 
-    if (!inRange(lastDiff, averageTimeDiff(stack.begin(), last)))
+    if (!inRange(lastDiff, averageTimeDiff(stack.begin(), last)) || !exifMatches(*(last-1), *last))
     {
       /* If only 3 photos on stack and they do not form any series, pop just one photo from the begin */
       auto const endSeries = (stack.size() == 3 ? stack.begin()+1 : last);

@@ -4,7 +4,7 @@
 #include "PhotoContainers/Fwd.h"
 #include "PhotoContainers/ItemState.h"
 #include "PhotoContainers/ItemId.h"
-#include "PhotoContainers/ExifData.h"
+#include "PhotoContainers/FileInfo.h"
 #include "ImportWizard/Types.h"
 #include <QObject>
 #include <QUuid>
@@ -23,7 +23,7 @@ public:
   bool isSelected() const;
   ItemState state() const { return _state; }
   unsigned ord() const { return _ordinal; }
-  ExifData const& exif() const { return _exif; }
+  FileInfo const& info() const { return _info; }
 
   ItemId const& id() const { return _id; }
   QUuid const& seriesUuid() const { return _id.seriesUuid; }
@@ -43,7 +43,7 @@ public slots:
 private:
   ItemId const _id;
   unsigned const _ordinal;
-  ExifData const _exif;
+  FileInfo const _info;
   mutable ItemState _state;
 };
 

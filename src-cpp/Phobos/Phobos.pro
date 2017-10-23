@@ -40,7 +40,6 @@ SOURCES += Phobos.cpp\
     ImageProcessing/Sharpness.cpp \
     ImageProcessing/MetricCalculator.cpp \
     ImageProcessing/Hue.cpp \
-    PhotoContainers/ExifData.cpp \
     PhotoContainers/Item.cpp \
     PhotoContainers/Series.cpp \
     PhotoContainers/Set.cpp \
@@ -53,13 +52,13 @@ SOURCES += Phobos.cpp\
     Utils/Filesystem/Attributes.cpp \
     Utils/Filesystem/Trash.cpp \
     easyloggingpp/src/easylogging++.cc \
+    easyexif/exif.cpp \
     qt_ext/qexifimageheader.cpp \
     ImportWizard/ImageOpenDialog.cpp \
     ImportWizard/ImportWizard.cpp \
     ImportWizard/DivisionMethodPage.cpp \
     ImportWizard/DivisionOps.cpp \
     ImportWizard/SeriesDisplayPage.cpp \
-    ImportWizard/DateTimeProvider.cpp \
     Widgets/IconLabel.cpp \
     Widgets/HorizontalScrollArea.cpp \
     Widgets/ImageWidget.cpp \
@@ -92,7 +91,10 @@ SOURCES += Phobos.cpp\
     ProcessWizard/ActionTab/RenameActionTab.cpp \
     ProcessWizard/ActionTab/CopyMoveActionTab.cpp \
     ProcessWizard/Execution/ExecutionImpl.cpp \
-    ProcessWizard/Execution/Execute.cpp
+    ProcessWizard/Execution/Execute.cpp \
+    Utils/ExifReader.cpp \
+    PhotoContainers/FileInfo.cpp \
+    ImportWizard/FileInfoProvider.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -119,7 +121,6 @@ HEADERS  += MainWindow.h \
     ImageProcessing/Sharpness.h \
     ImageProcessing/MetricCalculator.h \
     ImageProcessing/Hue.h \
-    PhotoContainers/ExifData.h \
     PhotoContainers/Fwd.h \
     PhotoContainers/Series.h \
     PhotoContainers/Set.h \
@@ -141,11 +142,11 @@ HEADERS  += MainWindow.h \
     Utils/Filesystem/Portable.h \
     Utils/Filesystem/Trash.h \
     easyloggingpp/src/easylogging++.h \
+    easyexif/exif.h \
     qt_ext/qexifimageheader.h \
     ImportWizard/ImageOpenDialog.h \
     ImportWizard/ImportWizard.h \
     ImportWizard/DivisionMethodPage.h \
-    ImportWizard/DateTimeProvider.h \
     ImportWizard/DivisionOps.h \
     ImportWizard/Types.h \
     ImportWizard/SeriesDisplayPage.h \
@@ -188,7 +189,10 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution/Execution.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
-    ProcessWizard/Execution/Execute.h
+    ProcessWizard/Execution/Execute.h \
+    Utils/ExifReader.h \
+    PhotoContainers/FileInfo.h \
+    ImportWizard/FileInfoProvider.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

@@ -1,26 +1,25 @@
 #ifndef IMPORTWIZARD_TYPES_H
 #define IMPORTWIZARD_TYPES_H
 
-#include <string>
 #include <QList>
 #include <QString>
-#include <boost/optional.hpp>
+#include "PhotoContainers/FileInfo.h"
 
 namespace phobos { namespace importwiz {
 
 struct Photo
 {
-    QString fileName;
-    boost::optional<unsigned> lastModTime;
+  QString name;
+  pcontainer::FileInfo info;
 
-    bool operator==(Photo const& other) const
-    {
-        return fileName == other.fileName && lastModTime == other.lastModTime;
-    }
+  bool operator==(Photo const& other) const
+  {
+    return name == other.name && info == other.info;
+  }
 };
 
-typedef QVector<Photo> PhotoSeries;
-typedef QVector<PhotoSeries> PhotoSeriesVec;
+using PhotoSeries = QVector<Photo>;
+using PhotoSeriesVec = QVector<PhotoSeries>;
 
 }} // namespace phobos::importwiz
 

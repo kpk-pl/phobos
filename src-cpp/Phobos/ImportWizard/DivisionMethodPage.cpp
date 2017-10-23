@@ -1,7 +1,7 @@
 #include "ImportWizard/DivisionMethodPage.h"
 #include "ImportWizard/ImageOpenDialog.h"
 #include "ImportWizard/DivisionOps.h"
-#include "ImportWizard/DateTimeProvider.h"
+#include "ImportWizard/FileInfoProvider.h"
 #include "Widgets/HorizontalLine.h"
 #include "Utils/Comparators.h"
 #include <easylogging++.h>
@@ -84,7 +84,7 @@ bool DivisionMethodPage::validatePage()
   if (notSortedPhotosBox->isChecked())
   {
     LOG(INFO) << "Sorting photos based on time before division";
-    std::sort(sortedPhotos.begin(), sortedPhotos.end(), utils::less().on(&Photo::lastModTime));
+    std::sort(sortedPhotos.begin(), sortedPhotos.end(), utils::less().on([](auto const& p){return p.info.timestamp;}));
   }
 
   switch(currentSelection)
@@ -125,14 +125,14 @@ void DivisionMethodPage::importMoreFiles()
   QStringList newFiles = selectImagesInDialog(this);
   LOG(INFO) << "Selected " << newFiles.size() << " new files";
 
-  auto newPhotos = provideDateTime(newFiles);
+  auto newPhotos = provideFileInfo(newFiles);
 
   for (auto & newPhoto : newPhotos)
   {
-    auto const ub = std::lower_bound(_selectedFiles.begin(), _selectedFiles.end(), newPhoto, utils::less().on(&Photo::fileName));
+    auto const ub = std::lower_bound(_selectedFiles.begin(), _selectedFiles.end(), newPhoto, utils::less().on(&Photo::name));
     if (ub == _selectedFiles.end())
       _selectedFiles.insert(_selectedFiles.end(), std::move(newPhoto));
-    else if (!utils::equal().on(&Photo::fileName)(*ub, newPhoto))
+    else if (!utils::equal().on(&Photo::name)(*ub, newPhoto))
       _selectedFiles.insert(std::next(ub), std::move(newPhoto));
   }
 

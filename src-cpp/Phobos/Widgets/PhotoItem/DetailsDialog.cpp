@@ -84,10 +84,10 @@ private:
     QVBoxLayout *labelsLt = new QVBoxLayout();
     labelsLt->addWidget(new QLabel(QObject::tr("File: ") + photoItem.fileName()));
     labelsLt->addWidget(new QLabel(QObject::tr("Resolution: %1x%2")
-                                               .arg(photoItem.exif().size.width())
-                                               .arg(photoItem.exif().size.height())));
+                                               .arg(photoItem.info().size.width())
+                                               .arg(photoItem.info().size.height())));
     labelsLt->addWidget(new QLabel(QObject::tr("Date: ")
-                                   + photoItem.exif().timestamp.toString("ddd d MMMM yyyy, HH:mm:ss")));
+                                   + QDateTime::fromSecsSinceEpoch(photoItem.info().timestamp).toString("ddd d MMMM yyyy, HH:mm:ss")));
     labelsLt->addStretch();
 
     lt->addWidget(imageWgt);

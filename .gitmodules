@@ -1,3 +1,6 @@
 [submodule "src-cpp/Phobos/easyloggingpp"]
 	path = src-cpp/Phobos/easyloggingpp
 	url = https://github.com/muflihun/easyloggingpp.git
+[submodule "src-cpp/Phobos/easyexif"]
+	path = src-cpp/Phobos/easyexif
+	url = https://github.com/mayanklahiri/easyexif
