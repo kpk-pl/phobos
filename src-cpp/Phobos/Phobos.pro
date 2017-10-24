@@ -52,7 +52,6 @@ SOURCES += Phobos.cpp\
     Utils/Filesystem/Attributes.cpp \
     Utils/Filesystem/Trash.cpp \
     easyloggingpp/src/easylogging++.cc \
-    easyexif/exif.cpp \
     qt_ext/qexifimageheader.cpp \
     ImportWizard/ImageOpenDialog.cpp \
     ImportWizard/ImportWizard.cpp \
@@ -92,7 +91,6 @@ SOURCES += Phobos.cpp\
     ProcessWizard/ActionTab/CopyMoveActionTab.cpp \
     ProcessWizard/Execution/ExecutionImpl.cpp \
     ProcessWizard/Execution/Execute.cpp \
-    Utils/ExifReader.cpp \
     PhotoContainers/FileInfo.cpp \
     ImportWizard/FileInfoProvider.cpp
 
@@ -142,7 +140,6 @@ HEADERS  += MainWindow.h \
     Utils/Filesystem/Portable.h \
     Utils/Filesystem/Trash.h \
     easyloggingpp/src/easylogging++.h \
-    easyexif/exif.h \
     qt_ext/qexifimageheader.h \
     ImportWizard/ImageOpenDialog.h \
     ImportWizard/ImportWizard.h \
@@ -190,7 +187,6 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
     ProcessWizard/Execution/Execute.h \
-    Utils/ExifReader.h \
     PhotoContainers/FileInfo.h \
     ImportWizard/FileInfoProvider.h
 

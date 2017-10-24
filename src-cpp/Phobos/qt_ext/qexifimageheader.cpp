@@ -1478,6 +1478,8 @@ QExifValue QExifImageHeader::readIfdValue(QDataStream &stream, int startPos, con
             stream.device()->seek(startPos + header.offset);
 
             QByteArray ascii = stream.device()->read(header.count);
+            if (ascii.size() == 0 || ascii[ascii.size()-1] != '\0')
+                ascii.append('\0');
 
             return QExifValue(QString::fromUtf8(ascii.constData(), ascii.size() - 1));
         } else {

@@ -5,6 +5,7 @@
 #include <QSize>
 #include <QDateTime>
 #include <boost/optional.hpp>
+#include <utility>
 
 namespace phobos { namespace pcontainer {
 
@@ -19,22 +20,26 @@ public:
 
   struct CameraInfo
   {
-    QString make, model;
+    boost::optional<QString> make;
+    boost::optional<QString> model;
     bool operator==(CameraInfo const& other) const;
+    bool operator!=(CameraInfo const& other) const;
   };
 
   struct ShotInfo
   {
-    double exposureTime; // in sec
-    double exposureBias; // in EV
-    double fnumber; // F/stop
-    unsigned ISOSpeed;
-    double focalLen; // in mm
-    bool flash;
+    using Rational = std::pair<long, long>;
+    boost::optional<short> orientation;
+    boost::optional<Rational> exposureTime; // ratio num/denom
+    boost::optional<double> exposureBias; // in EV
+    boost::optional<Rational> fnumber; // F/stop
+    boost::optional<unsigned> ISOSpeed;
+    boost::optional<double> focalLen; // in mm
+    boost::optional<bool> flash;
   };
 
-  boost::optional<CameraInfo> camera;
-  boost::optional<ShotInfo> shot;
+  CameraInfo camera;
+  ShotInfo shot;
 
   bool operator==(FileInfo const& other) const;
 };
