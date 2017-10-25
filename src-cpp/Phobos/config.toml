@@ -74,7 +74,7 @@ green = { style = "line", color = "limegreen", opacity = 0.4 }
 blue = { style = "line", color = "#0939FF", opacity = 0.4 }
 
 [detailsDialog.image]
-size = [100, 75]
+size = [150, 100]
 
 [detailsDialog.histogram]
 size = [128, 64]

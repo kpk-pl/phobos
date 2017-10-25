@@ -52,6 +52,22 @@ QString depthOfFieldFormat(iprocess::metric::Metric const& metric)
   return result;
 }
 
+QString cameraString(pcontainer::FileInfo::CameraInfo const& camera)
+{
+  QString result;
+
+  if (camera.make)
+    result = camera.make.get();
+
+  if (camera.make && camera.model)
+    result += " / ";
+
+  if (camera.model)
+    result += camera.model.get();
+
+  return result;
+}
+
 class DetailLayoutBuilder
 {
 public:
@@ -76,10 +92,9 @@ public:
 private:
   void buildFileinfoUi(QBoxLayout *parent)
   {
-    QHBoxLayout *lt = new QHBoxLayout();
-
+    auto const maxImgSize = config::qSize(confPath("image")("size"), QSize(100, 75));
     ImageWidget *imageWgt = new ImageWidget(image);
-    imageWgt->setFixedSize(config::qSize(confPath, QSize(100, 75)));
+    imageWgt->setFixedSize(image.size().scaled(maxImgSize, Qt::KeepAspectRatio));
 
     QVBoxLayout *labelsLt = new QVBoxLayout();
     labelsLt->addWidget(new QLabel(QObject::tr("File: ") + photoItem.fileName()));
@@ -88,10 +103,13 @@ private:
                                                .arg(photoItem.info().size.height())));
     labelsLt->addWidget(new QLabel(QObject::tr("Date: ")
                                    + QDateTime::fromSecsSinceEpoch(photoItem.info().timestamp).toString("ddd d MMMM yyyy, HH:mm:ss")));
-    labelsLt->addStretch();
+    labelsLt->addWidget(new QLabel(QObject::tr("Camera: ") + cameraString(photoItem.info().camera)));
 
+    QHBoxLayout *lt = new QHBoxLayout();
     lt->addWidget(imageWgt);
     lt->addLayout(labelsLt);
+    lt->setAlignment(imageWgt, Qt::AlignTop);
+    lt->setAlignment(labelsLt, Qt::AlignTop);
     parent->addLayout(lt);
   }
 
