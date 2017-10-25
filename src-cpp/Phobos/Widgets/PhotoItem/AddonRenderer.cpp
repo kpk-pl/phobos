@@ -167,7 +167,7 @@ void AddonRenderer::hueDisplay(iprocess::metric::Hue const& data,
   for (std::size_t ch = 0; ch < 6; ++ch)
   {
     painter.drawText(origin.x(), origin.y() + ch*(barHeight+barSpacing),
-                     prefferedSize.width(), barHeight,
+                     prefferedSize.width(), barHeight+1, // +1 is a hack for Linux, which ignores the correct setting
                      Qt::AlignLeft | Qt::TextSingleLine,
                      QString::number(data.channel[ch]*100.0, 'f', 1) + " %");
   }
