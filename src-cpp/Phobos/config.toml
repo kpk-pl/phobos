@@ -15,6 +15,7 @@ defaultSize = { width = 1024, height = 600 }
 [photoSet]
 minimumPhotosInSeries = 3
 allowedSecondDriftInSeries = 1.1
+maximumTimeBetweenTwoPhotosInSeries = 2.0
 
 [metricCalculator]
 processingSize = [800, 800]

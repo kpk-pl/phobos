@@ -1,6 +1,7 @@
 #include "ImportWizard/DivisionOps.h"
 #include "Utils/Algorithm.h"
 #include "ConfigExtension.h"
+#include "ConfigPath.h"
 #include <easylogging++.h>
 #include <deque>
 
@@ -77,7 +78,9 @@ struct DateNameComp
 
 PhotoSeriesVec divideToSeriesOnMetadata(std::vector<Photo> && photos)
 {
-  double const timeDrift = config::qualified("photoSet.allowedSecondDriftInSeries", 1.5);
+  config::ConfigPath const configPath("photoSet");
+  double const timeDrift = config::qualified(configPath("allowedSecondDriftInSeries"), 1.5);
+  double const maxTimeBtwTwo = config::qualified(configPath("maximumTimeBetweenTwoPhotosInSeries"), 2.0);
 
   auto const inRange = [timeDrift](double value, double targetPoint){
     return value <= targetPoint + timeDrift && value >= targetPoint - timeDrift;
@@ -86,32 +89,63 @@ PhotoSeriesVec divideToSeriesOnMetadata(std::vector<Photo> && photos)
   PhotoSeriesVec result;
   std::deque<Photo> stack;
 
+  auto const makeSeries = [&result, &stack](auto&& end){
+    result.push_back(utils::moveFromRange<PhotoSeries>(stack.begin(), end));
+    stack.erase(stack.begin(), end);
+  };
+
   std::sort(photos.begin(), photos.end(), DateNameComp{});
 
-  // TODO: handle series that have length of 2. probably if exifMatches and timestamp between photos is close
   for (Photo &photo : photos)
   {
     stack.push_back(std::move(photo));
+    if (stack.size() < 2)
+      continue;
+
+    auto const butLast = std::next(stack.begin(), stack.size()-2);
+    auto const last = std::next(butLast);
+    if (!exifMatches(stack.front(), stack.back()))
+    {
+      // If newly added photo does not exif match to the rest of photos, then immediatelly divide series
+      makeSeries(last);
+      continue;
+    }
+
     if (stack.size() < 3)
       continue;
 
-    auto const last = std::next(stack.begin(), stack.size()-1);
-    unsigned const lastDiff = last->info.timestamp - (last-1)->info.timestamp;
+    unsigned const lastDiff = last->info.timestamp - butLast->info.timestamp;
 
-    if (!inRange(lastDiff, averageTimeDiff(stack.begin(), last)) || !exifMatches(*(last-1), *last))
+    if (!inRange(lastDiff, averageTimeDiff(stack.begin(), last)))
     {
-      /* If only 3 photos on stack and they do not form any series, pop just one photo from the begin */
-      auto const endSeries = (stack.size() == 3 ? stack.begin()+1 : last);
-      result.push_back(utils::moveFromRange<PhotoSeries>(stack.begin(), endSeries));
-      stack.erase(stack.begin(), endSeries);
+      // If only 3 photos on stack and they do not form any series, pop just one photo from the begin
+      if (stack.size() == 3)
+      {
+        unsigned const firstDiff = butLast->info.timestamp - stack.front().info.timestamp;
+        if (firstDiff > maxTimeBtwTwo)
+        {
+          makeSeries(std::next(stack.begin()));
+          continue;
+        }
+      }
+      // fallthrough
+      // else make series from all but last photo
+      makeSeries(last);
     }
   }
 
-  if (stack.size() < 3)
-    for (auto &el : stack)
-      result.push_back(PhotoSeries(1, std::move(el)));
-  else
-    result.push_back(utils::moveFromRange<PhotoSeries>(stack.begin(), stack.end()));
+  if (stack.size() == 2)
+  {
+    unsigned const diff = stack.back().info.timestamp - stack.front().info.timestamp;
+    if (diff > maxTimeBtwTwo)
+    {
+      makeSeries(std::next(stack.begin()));
+      makeSeries(stack.end());
+    }
+  }
+
+  if (!stack.empty())
+    makeSeries(stack.end());
 
   return result;
 }
