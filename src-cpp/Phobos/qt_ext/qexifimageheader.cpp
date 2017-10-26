@@ -50,6 +50,7 @@
 #include <QDateTime>
 #include <QtDebug>
 #include <QTextCodec>
+#include <cstring>
 
 /*!
     \typedef QExifSRational
@@ -1481,7 +1482,7 @@ QExifValue QExifImageHeader::readIfdValue(QDataStream &stream, int startPos, con
             if (ascii.size() == 0 || ascii[ascii.size()-1] != '\0')
                 ascii.append('\0');
 
-            return QExifValue(QString::fromUtf8(ascii.constData(), ascii.size() - 1));
+            return QExifValue(QString::fromUtf8(ascii.constData(), std::strlen(ascii.constData())));
         } else {
             return QExifValue(QString::fromUtf8(header.offsetAscii, header.count - 1));
         }
