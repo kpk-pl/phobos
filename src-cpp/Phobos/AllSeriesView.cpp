@@ -78,11 +78,10 @@ AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
     QWidget* scrollWidget = new QWidget();
     scrollWidget->setLayout(scrollLayout);
 
-    QScrollArea* scroll = new QScrollArea();
+    scroll = new QScrollArea();
     scroll->installEventFilter(new ArrowFilter(scroll));
     scroll->setWidgetResizable(true);
     scroll->setFrameShape(QFrame::NoFrame);
-    scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     scroll->setWidget(scrollWidget);
 
     QVBoxLayout* vlayout = new QVBoxLayout();
@@ -134,6 +133,7 @@ void AllSeriesView::focusSeries(QUuid const seriesUuid)
 
 void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
 {
+  updateScrollBar();
   seriesUuidToRow.emplace(series->uuid(), series->ord());
 
   if (series->empty())
@@ -370,5 +370,11 @@ void AllSeriesView::changeSeriesState(QUuid const seriesUuid, pcontainer::ItemSt
     photoWidget->photoItem().setState(state);
   }
 }
+
+void AllSeriesView::updateScrollBar() const
+{
+  scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+}
+
 
 } // namespace phobos

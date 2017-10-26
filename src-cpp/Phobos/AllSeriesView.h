@@ -11,6 +11,7 @@
 #include "ImageProcessing/MetricsFwd.h"
 
 class QGridLayout;
+class QScrollArea;
 
 namespace phobos {
 
@@ -58,9 +59,12 @@ private:
     void addItemToGrid(int const row, int const col, pcontainer::ItemPtr const& itemPtr);
     void addNumberingToGrid(int const row);
 
+    void updateScrollBar() const;
+
     pcontainer::Set const& seriesSet;
     icache::Cache & imageCache;
     std::map<QUuid, std::size_t> seriesUuidToRow;
+    QScrollArea* scroll;
     QGridLayout* grid;
 };
 
