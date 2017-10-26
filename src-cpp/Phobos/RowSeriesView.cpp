@@ -11,33 +11,35 @@
 namespace phobos {
 
 RowSeriesView::RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
-    SeriesViewBase(seriesSet, imageCache)
+  SeriesViewBase(seriesSet, imageCache)
 {
-    NavigationBar* navigationBar = new NavigationBar(NavigationBar::Capability::ALL_SERIES |
-                                                     NavigationBar::Capability::NUM_SERIES |
-                                                     NavigationBar::Capability::SLIDER |
-                                                     NavigationBar::Capability::LEFT |
-                                                     NavigationBar::Capability::RIGHT);
+  NavigationBar* navigationBar = new NavigationBar(NavigationBar::Capability::ALL_SERIES |
+                                                   NavigationBar::Capability::NUM_SERIES |
+                                                   NavigationBar::Capability::SLIDER |
+                                                   NavigationBar::Capability::LEFT |
+                                                   NavigationBar::Capability::RIGHT);
 
-    scroll = new widgets::HorizontalScrollArea();
-    scroll->boxLayout()->setContentsMargins(0, 0, 0, 0);
+  scroll = new widgets::HorizontalScrollArea();
+  scroll->boxLayout()->setContentsMargins(0, 0, 0, 0);
 
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(navigationBar);
-    layout->addWidget(scroll, 100);
-    layout->addStretch(0);
-    setLayout(layout);
+  QVBoxLayout* layout = new QVBoxLayout();
+  layout->addWidget(navigationBar);
+  layout->addWidget(scroll, 100);
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->setSpacing(0);
+  //layout->addStretch(0);
+  setLayout(layout);
 
-    QObject::connect(navigationBar->allSeriesButton(), &QPushButton::clicked,
-                     this, [this](){ switchView(ViewDescription::make(ViewType::ALL_SERIES, currentSeriesUuid)); });
-    QObject::connect(navigationBar->numSeriesButton(), &QPushButton::clicked,
-                     this, [this](){ switchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES, currentSeriesUuid)); });
-    QObject::connect(navigationBar->slider(), &QSlider::valueChanged,
-                     this, &RowSeriesView::resizeImages);
-    QObject::connect(navigationBar->leftButton(), &QPushButton::clicked,
-                     this, [this](){ switchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES, currentSeriesUuid, -1)); });
-    QObject::connect(navigationBar->rightButton(), &QPushButton::clicked,
-                     this, [this](){ switchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES, currentSeriesUuid, +1)); });
+  QObject::connect(navigationBar->allSeriesButton(), &QPushButton::clicked,
+                   this, [this](){ switchView(ViewDescription::make(ViewType::ALL_SERIES, currentSeriesUuid)); });
+  QObject::connect(navigationBar->numSeriesButton(), &QPushButton::clicked,
+                   this, [this](){ switchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES, currentSeriesUuid)); });
+  QObject::connect(navigationBar->slider(), &QSlider::valueChanged,
+                   this, &RowSeriesView::resizeImages);
+  QObject::connect(navigationBar->leftButton(), &QPushButton::clicked,
+                   this, [this](){ switchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES, currentSeriesUuid, -1)); });
+  QObject::connect(navigationBar->rightButton(), &QPushButton::clicked,
+                   this, [this](){ switchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES, currentSeriesUuid, +1)); });
 }
 
 QLayout* RowSeriesView::getLayoutForItems() const

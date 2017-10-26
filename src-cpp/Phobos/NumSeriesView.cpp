@@ -18,28 +18,30 @@ NumSeriesView::NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
     visibleItems(config::get()->get_qualified_as<unsigned>("seriesView.num.visibleItems").value_or(2)),
     currentItem(0)
 {
-    NavigationBar* navigationBar = new NavigationBar(NavigationBar::Capability::ALL_SERIES |
-                                                     NavigationBar::Capability::ONE_SERIES |
-                                                     NavigationBar::Capability::LEFT |
-                                                     NavigationBar::Capability::RIGHT);
+  NavigationBar* navigationBar = new NavigationBar(NavigationBar::Capability::ALL_SERIES |
+                                                   NavigationBar::Capability::ONE_SERIES |
+                                                   NavigationBar::Capability::LEFT |
+                                                   NavigationBar::Capability::RIGHT);
 
-    layoutForItems = new QHBoxLayout();
+  navigationBar->setContentsMargins(0, 0, 0, 0);
 
-    QVBoxLayout* vlayout = new QVBoxLayout();
-    vlayout->addWidget(navigationBar);
-    vlayout->addLayout(layoutForItems);
-    vlayout->addStretch();
+  layoutForItems = new QHBoxLayout();
 
-    setLayout(vlayout);
+  QVBoxLayout* vlayout = new QVBoxLayout();
+  vlayout->addWidget(navigationBar);
+  vlayout->addLayout(layoutForItems);
+  vlayout->addStretch();
 
-    QObject::connect(navigationBar->allSeriesButton(), &QPushButton::clicked,
-                     this, [this](){ switchView(ViewDescription::make(ViewType::ALL_SERIES, currentSeriesUuid)); });
-    QObject::connect(navigationBar->oneSeriesButton(), &QPushButton::clicked,
-                     this, [this](){ switchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES, currentSeriesUuid)); });
-    QObject::connect(navigationBar->leftButton(), &QPushButton::clicked,
-                     this, [this](){ switchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES, currentSeriesUuid, -1)); });
-    QObject::connect(navigationBar->rightButton(), &QPushButton::clicked,
-                     this, [this](){ switchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES, currentSeriesUuid, +1)); });
+  setLayout(vlayout);
+
+  QObject::connect(navigationBar->allSeriesButton(), &QPushButton::clicked,
+                   this, [this](){ switchView(ViewDescription::make(ViewType::ALL_SERIES, currentSeriesUuid)); });
+  QObject::connect(navigationBar->oneSeriesButton(), &QPushButton::clicked,
+                   this, [this](){ switchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES, currentSeriesUuid)); });
+  QObject::connect(navigationBar->leftButton(), &QPushButton::clicked,
+                   this, [this](){ switchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES, currentSeriesUuid, -1)); });
+  QObject::connect(navigationBar->rightButton(), &QPushButton::clicked,
+                   this, [this](){ switchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES, currentSeriesUuid, +1)); });
 }
 
 NumSeriesView::~NumSeriesView()

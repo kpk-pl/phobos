@@ -148,6 +148,7 @@ void ViewStack::bulkSelect(PhotoBulkAction const action)
 
 void ViewStack::setupUI()
 {
+//  setStyleSheet("background-color: red");
     allSeriesView = new AllSeriesView(seriesSet, imageCache);
     rowSeriesView = new RowSeriesView(seriesSet, imageCache);
     numSeriesView = new NumSeriesView(seriesSet, imageCache);

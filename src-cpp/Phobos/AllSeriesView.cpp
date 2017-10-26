@@ -57,38 +57,39 @@ struct AllSeriesView::Coords
 };
 
 AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
-    seriesSet(seriesSet), imageCache(imageCache)
+  seriesSet(seriesSet), imageCache(imageCache)
 {
-    QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &AllSeriesView::updateMetrics);
-    QObject::connect(&seriesSet, &pcontainer::Set::newSeries, this, &AllSeriesView::addNewSeries);
-    QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &AllSeriesView::updateExistingSeries);
+  QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &AllSeriesView::updateMetrics);
+  QObject::connect(&seriesSet, &pcontainer::Set::newSeries, this, &AllSeriesView::addNewSeries);
+  QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &AllSeriesView::updateExistingSeries);
 
-    // TODO: navigationBar
+  // TODO: navigationBar
 
-    grid = new QGridLayout();
-    grid->setContentsMargins(0, 0, 0, 0);
-    grid->setHorizontalSpacing(config::qualified("allSeriesView.photosSpacing", 3u));
-    grid->setVerticalSpacing(config::qualified("allSeriesView.seriesSpacing", 15u));
+  grid = new QGridLayout();
+  grid->setContentsMargins(0, 0, 0, 0);
+  grid->setHorizontalSpacing(config::qualified("allSeriesView.photosSpacing", 3u));
+  grid->setVerticalSpacing(config::qualified("allSeriesView.seriesSpacing", 15u));
 
-    QVBoxLayout* scrollLayout = new QVBoxLayout();
-    scrollLayout->setContentsMargins(0, 0, 0, 0);
-    scrollLayout->addLayout(grid);
-    scrollLayout->addStretch(1);
+  QVBoxLayout* scrollLayout = new QVBoxLayout();
+  scrollLayout->setContentsMargins(0, 0, 0, 0);
+  scrollLayout->addLayout(grid);
+  scrollLayout->addStretch(1);
 
-    QWidget* scrollWidget = new QWidget();
-    scrollWidget->setLayout(scrollLayout);
+  QWidget* scrollWidget = new QWidget();
+  scrollWidget->setLayout(scrollLayout);
 
-    scroll = new QScrollArea();
-    scroll->installEventFilter(new ArrowFilter(scroll));
-    scroll->setWidgetResizable(true);
-    scroll->setFrameShape(QFrame::NoFrame);
-    scroll->setWidget(scrollWidget);
+  scroll = new QScrollArea();
+  scroll->installEventFilter(new ArrowFilter(scroll));
+  scroll->setWidgetResizable(true);
+  scroll->setFrameShape(QFrame::NoFrame);
+  scroll->setWidget(scrollWidget);
 
-    QVBoxLayout* vlayout = new QVBoxLayout();
-    // TODO: vlayout->addWidget(navigationBar);
-    vlayout->addWidget(scroll);
+  QVBoxLayout* vlayout = new QVBoxLayout();
+  vlayout->setContentsMargins(5, 5, 0, 0);
+  // TODO: vlayout->addWidget(navigationBar);
+  vlayout->addWidget(scroll);
 
-    setLayout(vlayout);
+  setLayout(vlayout);
 }
 
 std::size_t AllSeriesView::maxNumberOfPhotosInRow() const

@@ -45,7 +45,6 @@ NavigationBar::NavigationBar(int capabilities) :
   _slider(nullptr)
 {
   QHBoxLayout* layout = new QHBoxLayout();
-  layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(config::qualified(basePath("spacing"), 2u));
   setLayout(layout);
 
@@ -98,6 +97,11 @@ NavigationBar::NavigationBar(int capabilities) :
     _rightButton = new IconButton(QIcon::fromTheme("go-next", QIcon(":icons/go-next.png")));
     layout->addWidget(_rightButton);
   }
+}
+
+void NavigationBar::setContentsMargins(int left, int top, int right, int bottom) const
+{
+  layout()->setContentsMargins(left, top, right, bottom);
 }
 
 } // namespace phobos
