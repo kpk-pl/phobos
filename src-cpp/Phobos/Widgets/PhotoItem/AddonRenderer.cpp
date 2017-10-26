@@ -160,14 +160,14 @@ void AddonRenderer::hueDisplay(iprocess::metric::Hue const& data,
   }
 
   QFont font = painter.font();
-  font.setPixelSize(barHeight);
+  font.setPixelSize(barHeight+3);
   painter.setFont(font);
   painter.setPen(Qt::black);
 
   for (std::size_t ch = 0; ch < 6; ++ch)
   {
-    painter.drawText(origin.x(), origin.y() + ch*(barHeight+barSpacing),
-                     prefferedSize.width(), barHeight+1, // +1 is a hack for Linux, which ignores the correct setting
+    painter.drawText(origin.x(), origin.y() + ch*(barHeight+barSpacing) - 2,
+                     prefferedSize.width(), barHeight+3,
                      Qt::AlignLeft | Qt::TextSingleLine,
                      QString::number(data.channel[ch]*100.0, 'f', 1) + " %");
   }
