@@ -58,6 +58,7 @@ SOURCES += Phobos.cpp\
     ImportWizard/DivisionMethodPage.cpp \
     ImportWizard/DivisionOps.cpp \
     ImportWizard/SeriesDisplayPage.cpp \
+    ImportWizard/FileInfoProvider.cpp \
     Widgets/IconLabel.cpp \
     Widgets/HorizontalScrollArea.cpp \
     Widgets/ImageWidget.cpp \
@@ -75,6 +76,7 @@ SOURCES += Phobos.cpp\
     ImageCache/PriorityThreadPool.cpp \
     ImageCache/Transaction.cpp \
     ImageCache/Runnable.cpp \
+    ImageCache/ContentList.cpp \
     ProcessWizard/ProcessWizard.cpp \
     ProcessWizard/Operation.cpp \
     ProcessWizard/ActionsCreatorPage.cpp \
@@ -91,8 +93,7 @@ SOURCES += Phobos.cpp\
     ProcessWizard/ActionTab/CopyMoveActionTab.cpp \
     ProcessWizard/Execution/ExecutionImpl.cpp \
     ProcessWizard/Execution/Execute.cpp \
-    PhotoContainers/FileInfo.cpp \
-    ImportWizard/FileInfoProvider.cpp
+    PhotoContainers/FileInfo.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -147,6 +148,7 @@ HEADERS  += MainWindow.h \
     ImportWizard/DivisionOps.h \
     ImportWizard/Types.h \
     ImportWizard/SeriesDisplayPage.h \
+    ImportWizard/FileInfoProvider.h \
     Widgets/HeightResizeableInterface.h \
     Widgets/IconLabel.h \
     Widgets/HorizontalScrollArea.h \
@@ -168,6 +170,7 @@ HEADERS  += MainWindow.h \
     ImageCache/Transaction.h \
     ImageCache/TransactionFwd.h \
     ImageCache/Runnable.h \
+    ImageCache/ContentList.h \
     ProcessWizard/ProcessWizard.h \
     ProcessWizard/Operation.h \
     ProcessWizard/ActionsCreatorPage.h \
@@ -187,8 +190,7 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
     ProcessWizard/Execution/Execute.h \
-    PhotoContainers/FileInfo.h \
-    ImportWizard/FileInfoProvider.h
+    PhotoContainers/FileInfo.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

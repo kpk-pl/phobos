@@ -53,9 +53,8 @@ void LimitedMap::erase(KeyType const& key)
 
 void LimitedMap::insertNew(KeyType const& key, ValueType const& value)
 {
-  contentSize += value.byteCount();
+  contentList.insert(key, value.byteCount());
   map.emplace(key, value);
-  insertOrder.push_back(key);
 
   LOG(DEBUG) << "[Cache] Saved new full image " << key << " (" << megabytes(value) << "MB)";
 }
@@ -64,10 +63,9 @@ void LimitedMap::overrideExisting(IteratorType const& iterator, ValueType const&
 {
   auto const& key = iterator->first;
 
-  insertOrder.remove(key);
-  contentSize = contentSize - iterator->second.byteCount() + value.byteCount();
+  contentList.remove(key);
+  contentList.insert(key, value.byteCount());
   iterator->second = value;
-  insertOrder.push_back(key);
 
   LOG(DEBUG) << "[Cache] Replaced full image " << key << " (" << megabytes(value) << "MB)";
 }
@@ -77,20 +75,16 @@ void LimitedMap::erase(UnderlyingType::iterator const it)
   assert(it != map.end());
   LOG(DEBUG) << "[Cache] Removed full image " << it->first << " (" << megabytes(it->second) << "MB)";
 
-  contentSize -= it->second.byteCount();
+  contentList.remove(it->first);
   map.erase(it);
 }
 
 void LimitedMap::release(std::size_t const maxAllowedSize)
 {
-  LOG(DEBUG) << "[Cache] Total full size: " << megabytes(contentSize) << "MB";
+  LOG(DEBUG) << "[Cache] Total full size: " << megabytes(contentList.size()) << "MB";
 
-  while (!insertOrder.empty() && contentSize > maxAllowedSize)
-  {
-    auto const it = map.find(insertOrder.front());
-    erase(it);
-    insertOrder.pop_front();
-  }
+  while (!contentList.empty() && contentList.size() > maxAllowedSize)
+    erase(map.find(contentList.pop_front()));
 }
 
 }} // namespace phobos::icache
