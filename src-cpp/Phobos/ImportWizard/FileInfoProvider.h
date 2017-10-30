@@ -5,9 +5,11 @@
 #include <QStringList>
 #include <vector>
 
+class QWidget;
+
 namespace phobos { namespace importwiz {
 
-std::vector<Photo> provideFileInfo(QStringList const& photos);
+std::vector<Photo> provideFileInfo(QStringList const& photos, QWidget *parent);
 
 }} // namespace phobos::importwiz
 

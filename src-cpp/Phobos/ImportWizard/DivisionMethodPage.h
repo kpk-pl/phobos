@@ -3,6 +3,7 @@
 
 #include "ImportWizard/Types.h"
 #include <QWizardPage>
+#include <QStringList>
 #include <vector>
 
 class QLabel;
@@ -15,49 +16,49 @@ namespace phobos { namespace importwiz {
 
 class DivisionMethodPage : public QWizardPage
 {
-    Q_OBJECT
+  Q_OBJECT
 
-    // although docs does not mention the namespace needs to be fully specified, it really must be
-    Q_PROPERTY(phobos::importwiz::PhotoSeriesVec dividedSeries MEMBER _dividedSeries READ series NOTIFY seriesChanged)
+  // although docs does not mention the namespace needs to be fully specified, it really must be
+  Q_PROPERTY(phobos::importwiz::PhotoSeriesVec dividedSeries MEMBER _dividedSeries READ series NOTIFY seriesChanged)
 
 public:
-    explicit DivisionMethodPage(QWidget *parent = nullptr);
+  explicit DivisionMethodPage(QWidget *parent = nullptr);
 
-    PhotoSeriesVec series() const { return _dividedSeries; }
+  PhotoSeriesVec series() const { return _dividedSeries; }
 
 signals:
-    void seriesChanged(PhotoSeriesVec);
+  void seriesChanged(PhotoSeriesVec);
 
 protected:
-    bool validatePage() override;
-    void initializePage() override;
-    void cleanupPage() override;
+  bool validatePage() override;
+  void initializePage() override;
+  void cleanupPage() override;
 
 private:
-    enum class Selection {
-        DontDivide,
-        FixedNum,
-        Metadata
-    };
+  enum class Selection {
+      DontDivide,
+      FixedNum,
+      Metadata
+  };
 
-    void importMoreFiles();
-    void updateSelection(Selection selection);
+  void importMoreFiles();
+  void updateSelection(Selection selection);
 
-    QLabel *numImportedLabel;
-    QPushButton *importMoreButton;
+  QLabel *numImportedLabel;
+  QPushButton *importMoreButton;
 
-    QRadioButton *fixedNumChoice;
-    QSpinBox *fixedNumParam;
-    bool fixedNumParamChanged;
+  QRadioButton *fixedNumChoice;
+  QSpinBox *fixedNumParam;
+  bool fixedNumParamChanged;
 
-    QRadioButton *metadataAutoChoice;
-    QRadioButton *noopChoice;
+  QRadioButton *metadataAutoChoice;
+  QRadioButton *noopChoice;
 
-    QCheckBox *notSortedPhotosBox;
+  QCheckBox *notSortedPhotosBox;
 
-    Selection currentSelection;
-    std::vector<Photo> _selectedFiles;
-    PhotoSeriesVec _dividedSeries;
+  Selection currentSelection;
+  std::vector<Photo> _selectedFiles;
+  PhotoSeriesVec _dividedSeries;
 };
 
 }} // namespace phobos::importwiz

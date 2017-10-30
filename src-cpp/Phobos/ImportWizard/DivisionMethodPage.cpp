@@ -116,25 +116,52 @@ std::size_t guessBestDivisionValue(std::size_t const size)
       return guess;
   return 5;
 }
+
+struct PhotoNameView
+{
+  QString const& name;
+  PhotoNameView(QString const& pName) : name(pName)
+  {}
+  PhotoNameView(Photo const& photo) : name(photo.name)
+  {}
+  bool operator<(PhotoNameView const& other)
+  {
+    return name < other.name;
+  }
+};
+
+QStringList importMoreUniqueFiles(std::vector<Photo> const& currentSelection, QWidget *parent)
+{
+  LOG(INFO) << "Opening dialog to select additional photos to import";
+
+  QStringList newFiles = selectImagesInDialog(parent);
+  LOG(INFO) << "Selected " << newFiles.size() << " new files";
+
+  QStringList newUniqueFiles;
+  newUniqueFiles.reserve(newFiles.size());
+
+  std::sort(newFiles.begin(), newFiles.end());
+  std::set_difference(newFiles.begin(), newFiles.end(),
+                      currentSelection.begin(), currentSelection.end(),
+                      std::back_inserter(newUniqueFiles),
+                      [](PhotoNameView lhs, PhotoNameView const& rhs){ return lhs < rhs; });
+
+  LOG(INFO) << "Filtered selection to " << newUniqueFiles.size() << " unique new files";
+  return newUniqueFiles;
+}
 } // unnamed namespace
 
 void DivisionMethodPage::importMoreFiles()
 {
-  LOG(INFO) << "Opening dialog to select additional photos to import";
+  QStringList newFiles = importMoreUniqueFiles(_selectedFiles, this);
+  auto newPhotos = provideFileInfo(newFiles, this);
 
-  QStringList newFiles = selectImagesInDialog(this);
-  LOG(INFO) << "Selected " << newFiles.size() << " new files";
+  std::size_t const previousSize = _selectedFiles.size();
 
-  auto newPhotos = provideFileInfo(newFiles);
-
-  for (auto & newPhoto : newPhotos)
-  {
-    auto const ub = std::lower_bound(_selectedFiles.begin(), _selectedFiles.end(), newPhoto, utils::less().on(&Photo::name));
-    if (ub == _selectedFiles.end())
-      _selectedFiles.insert(_selectedFiles.end(), std::move(newPhoto));
-    else if (!utils::equal().on(&Photo::name)(*ub, newPhoto))
-      _selectedFiles.insert(std::next(ub), std::move(newPhoto));
-  }
+  _selectedFiles.reserve(previousSize + newPhotos.size());
+  std::move(newPhotos.begin(), newPhotos.end(), std::back_inserter(_selectedFiles));
+  std::inplace_merge(_selectedFiles.begin(), std::next(_selectedFiles.begin(), previousSize), _selectedFiles.end(),
+                     utils::less().on(&Photo::name));
 
   if (!fixedNumParamChanged)
     fixedNumParam->setValue(guessBestDivisionValue(_selectedFiles.size()));
