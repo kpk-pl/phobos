@@ -21,6 +21,7 @@ Transaction::Result Cache::execute(Transaction && transaction)
   if (transaction.shouldStartThread())
     startThreadForItem(std::move(transaction));
 
+// TODO: Handle proactive transactions, make more threads
   return result;
 }
 
@@ -53,7 +54,8 @@ void Cache::startThreadForItem(Transaction && transaction)
   transactionsInThread.emplace(itemId, std::make_pair(thread->uuid(), std::move(transaction)));
   threadPool.start(std::move(thread), 0);
 
-  // TODO: prioritize loading of full images
+// TODO: use generations to start as priorities. Handle persistent flag from transaction.
+// Don't start loading proactively when there is no more cache space left for given generation
 }
 
 void Cache::changedSeries(QUuid const& seriesUuid)

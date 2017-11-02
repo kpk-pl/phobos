@@ -32,7 +32,7 @@ std::unique_ptr<widgets::pitem::PhotoItem> SeriesViewBase::createConnectedItem(p
   auto result = imageCache.transaction().item(itemId).callback([lt=widget->lifetime()](auto && res){
     auto item = lt.lock();
     if (item) item->setImage(res.image);
-  }).execute();
+  }).proactive().execute();
 
   widget->setImage(result.image);
   widget->setMetrics(imageCache.metrics().get(itemId));

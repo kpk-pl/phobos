@@ -10,9 +10,6 @@
 
 namespace phobos { namespace icache {
 
-namespace detail {
-} // namespace detail
-
 struct TransactionGroup;
 
 class Transaction
@@ -44,6 +41,8 @@ public:
   Transaction&& thumbnail() && { onlyThumbnail = true; return std::move(*this); }
   Transaction&& onlyCache() && { disableLoading = true; return std::move(*this); }
   Transaction&& callback(CallbackType && newCallback) &&;
+  Transaction&& proactive() && { proactiveLoading = true; return std::move(*this); }
+  Transaction&& persistent() && { persistentLoading = true; return std::move(*this); }
 
   Result execute() &&;
   Result operator()() const;
@@ -63,6 +62,8 @@ private:
   pcontainer::ItemId itemId;
   bool onlyThumbnail = false;
   bool disableLoading = false;
+  bool proactiveLoading = false;
+  bool persistentLoading = false;
   OptCallback loadCallback;
 
   bool mutable _shouldStartThread = false;

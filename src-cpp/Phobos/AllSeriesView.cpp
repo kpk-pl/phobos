@@ -210,7 +210,7 @@ void AllSeriesView::addItemToGrid(int const row, int const col, pcontainer::Item
   auto const thumbnail = imageCache.transaction().item(itemId).thumbnail().callback([lt=item->lifetime()](auto && result){
       auto item = lt.lock();
       if (item) item->setImage(result.image);
-    }).execute();
+    }).persistent().execute();
 
   item->setImage(thumbnail.image);
   item->setMetrics(imageCache.metrics().get(itemId));

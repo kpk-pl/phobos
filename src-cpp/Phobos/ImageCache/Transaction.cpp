@@ -33,10 +33,18 @@ void Transaction::OptCallback::operator()(QImage const& im, ImageQuality qual) c
 
 QString Transaction::toString() const
 {
-  return QString("[CacheTransaction]: Get %1 %2 %3")
+  QString s = QString("[CacheTransaction]: Get %1 %2 %3")
     .arg(onlyThumbnail ? "thumbnail" : "full image")
     .arg(itemId.fileName)
     .arg(disableLoading ? "from cache" : "with loading");
+
+  if (proactiveLoading)
+    s += " proactively";
+
+  if (persistentLoading)
+    s += " persistently";
+
+  return s;
 }
 
 namespace {
