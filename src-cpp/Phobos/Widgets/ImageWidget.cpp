@@ -47,7 +47,7 @@ void ImageWidget::paintEvent(QPaintEvent*)
 
 int ImageWidget::heightForWidth(const int width) const
 {
-    if (_image.isNull() && !_image.width())
+    if (_image.isNull() || !_image.width())
         return 0;
     return _image.height() * width / _image.width();
 }

@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <QString>
+#include <QImage>
 #include "PhotoContainers/FileInfo.h"
 
 namespace phobos { namespace importwiz {

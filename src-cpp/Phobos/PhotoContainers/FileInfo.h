@@ -4,6 +4,7 @@
 #include <QString>
 #include <QSize>
 #include <QDateTime>
+#include <QImage>
 #include <boost/optional.hpp>
 #include <utility>
 
@@ -40,6 +41,8 @@ public:
 
   CameraInfo camera;
   ShotInfo shot;
+
+  QImage thumbnail;
 
   bool operator==(FileInfo const& other) const;
 };

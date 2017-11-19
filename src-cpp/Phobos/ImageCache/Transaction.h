@@ -10,22 +10,9 @@
 
 namespace phobos { namespace icache {
 
-struct TransactionGroup;
-
 class Transaction
 {
 public:
-  enum class ImageQuality
-  {
-    None, Blank, ExifThumb, Thumb, Full
-  };
-
-  struct Result
-  {
-    QImage image;
-    ImageQuality quality;
-  };
-
   using CallbackType = std::function<void(Result const&)>;
 
   struct OptCallback
@@ -45,9 +32,6 @@ public:
   Transaction&& persistent() && { persistentLoading = true; return std::move(*this); }
 
   Result execute() &&;
-  Result operator()() const;
-
-  bool shouldStartThread() const { return _shouldStartThread && !disableLoading; }
 
   QString toString() const;
 
@@ -55,6 +39,7 @@ public:
   pcontainer::ItemId const& getItemId() const { return itemId; }
   OptCallback const& getCallback() const { return loadCallback; }
   bool isThumbnail() const { return onlyThumbnail; }
+  bool loadingEnabled() const { return !disableLoading; }
 
 private:
   Cache& cache;
@@ -65,19 +50,6 @@ private:
   bool proactiveLoading = false;
   bool persistentLoading = false;
   OptCallback loadCallback;
-
-  bool mutable _shouldStartThread = false;
-};
-
-struct TransactionGroup
-{
-  using Result = std::map<pcontainer::ItemId, Transaction::Result>;
-
-  Result operator()() const;
-  TransactionGroup& operator+=(Transaction && t);
-  TransactionGroup& operator+=(Transaction const& t);
-
-  TransactionVec transactions;
 };
 
 }} // namespace phobos::icache

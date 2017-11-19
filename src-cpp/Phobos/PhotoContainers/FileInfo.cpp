@@ -50,6 +50,7 @@ FileInfo::FileInfo(QString const& fileName)
 
   timestamp = getImageDatetime(fileName, exif);
   size = getImageSize(fileName, exif);
+  thumbnail = exif.thumbnail();
 
   using Tag = QExifImageHeader::ImageTag;
   using XTag = QExifImageHeader::ExifExtendedTag;

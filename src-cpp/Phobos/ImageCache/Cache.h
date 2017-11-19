@@ -25,7 +25,7 @@ public:
   explicit Cache(pcontainer::Set const& photoSet);
 
   Transaction transaction() { return Transaction(*this); }
-  Transaction::Result execute(Transaction && transaction);
+  Result execute(Transaction && transaction);
 
   MetricCache const& metrics() const { return metricCache; }
 
@@ -40,6 +40,7 @@ private:
   friend class Transaction;
   using LookupKeyType = QString;
 
+  Result executeImpl(Transaction const& transaction) const;
   std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(pcontainer::ItemId const& itemId) const;
   void startThreadForItem(Transaction && transaction);
 

@@ -15,6 +15,7 @@ std::vector<Photo> provideFileInfo(QStringList const& photos, QWidget *parent)
 
   QProgressDialog progress(QObject::tr("Importing files..."), QObject::tr("Cancel"), 0, photos.size(), parent);
   progress.setWindowModality(Qt::WindowModal);
+  progress.setWindowFlags(progress.windowFlags() &= ~Qt::WindowContextHelpButtonHint);
 
   for (auto const& photoPath : photos)
   {

@@ -68,6 +68,19 @@ Series const& Set::findNonEmptySeries(QUuid const& seriesUuid, int const offset)
   return utils::asserted::always;
 }
 
+ItemPtr Set::findItem(ItemId const& id) const
+{
+  SeriesPtr const series = findSeriesImpl(id.seriesUuid, 0);
+  if (!series)
+    return nullptr;
+
+  auto const it = std::find_if(series->begin(), series->end(), [&id](ItemPtr const& item){ return item->id() == id; });
+  if (it == series->end())
+    return nullptr;
+
+  return *it;
+}
+
 void Set::removeImage(pcontainer::ItemId const& itemId)
 {
   removeImagesImpl({itemId});

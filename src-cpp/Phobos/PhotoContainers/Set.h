@@ -21,6 +21,8 @@ public:
   Series const& findSeries(QUuid const& seriesUuid, int const offset = 0) const;
   Series const& findNonEmptySeries(QUuid const& seriesUuid, int const offset = 0) const;
 
+  ItemPtr findItem(ItemId const& id) const;
+
   std::size_t size() const { return _photoSeries.size(); }
   bool empty() const { return _photoSeries.empty(); }
   bool hasPhotos() const;
