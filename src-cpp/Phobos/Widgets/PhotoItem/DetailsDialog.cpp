@@ -21,17 +21,20 @@ namespace phobos { namespace widgets { namespace pitem {
 namespace {
 
 template<typename Mem>
-QString valueOrNull(iprocess::metric::Metric const& metric, Mem member, int const precision = 6)
+QString valueOrNull(iprocess::metric::MetricPtr const& metric, Mem member, int const precision = 6)
 {
-  auto const& val = metric.*member;
+  if (!metric)
+    return "null";
+
+  auto const& val = (*metric).*member;
   if (val == boost::none)
     return "null";
 
   QString result = QString::number(*val, 'f', precision);
 
-  if (metric.seriesMetric)
+  if (metric->seriesMetric)
   {
-    auto const& seriesVal = (*metric.seriesMetric).*member;
+    auto const& seriesVal = (*metric->seriesMetric).*member;
     if (seriesVal != boost::none)
       result += QString(" (%1%)").arg(static_cast<int>(0.5 + 100.0 * *seriesVal));
   }
@@ -39,12 +42,15 @@ QString valueOrNull(iprocess::metric::Metric const& metric, Mem member, int cons
   return result;
 }
 
-QString depthOfFieldFormat(iprocess::metric::Metric const& metric)
+QString depthOfFieldFormat(iprocess::metric::MetricPtr const& metric)
 {
-  QString result = valueOrNull(metric, &iprocess::metric::Metric::depthOfField, 2);
-  auto const& raw = metric.depthOfFieldRaw;
+  if (!metric)
+    return "null";
 
-  if (metric.depthOfFieldRaw)
+  QString result = valueOrNull(metric, &iprocess::metric::Metric::depthOfField, 2);
+
+  auto const& raw = metric->depthOfFieldRaw;
+  if (raw)
     result += QString(" (%1/%2/%3)").arg(raw->low, 0, 'f', 1)
                                     .arg(raw->median, 0, 'f', 1)
                                     .arg(raw->high, 0, 'f', 1);
@@ -128,13 +134,13 @@ private:
 
     using Metric = iprocess::metric::Metric;
 
-    labelsLayout->addWidget(new QLabel(QObject::tr("Blur: ") + valueOrNull(*metrics, &Metric::blur, 1)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Noise: ") + valueOrNull(*metrics, &Metric::noise, 3)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Contrast: ") + valueOrNull(*metrics, &Metric::contrast, 3)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Sharpness: ") + valueOrNull(*metrics, &Metric::sharpness, 2)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Depth of field: ") + depthOfFieldFormat(*metrics)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Saturation: ") + valueOrNull(*metrics, &Metric::saturation, 1)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Complementary colors: ") + valueOrNull(*metrics, &Metric::complementary, 3)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Blur: ") + valueOrNull(metrics, &Metric::blur, 1)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Noise: ") + valueOrNull(metrics, &Metric::noise, 3)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Contrast: ") + valueOrNull(metrics, &Metric::contrast, 3)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Sharpness: ") + valueOrNull(metrics, &Metric::sharpness, 2)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Depth of field: ") + depthOfFieldFormat(metrics)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Saturation: ") + valueOrNull(metrics, &Metric::saturation, 1)));
+    labelsLayout->addWidget(new QLabel(QObject::tr("Complementary colors: ") + valueOrNull(metrics, &Metric::complementary, 3)));
     labelsLayout->addStretch();
 
     QGroupBox *group = new QGroupBox(QObject::tr("Quality"));
@@ -145,6 +151,9 @@ private:
 
   void buildGraphicsUi(QBoxLayout *parent)
   {
+    if (!metrics)
+      return;
+
     QVBoxLayout *layout = new QVBoxLayout();
 
     QLabel *histWgt = new QLabel();
