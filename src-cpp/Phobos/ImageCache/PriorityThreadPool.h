@@ -4,7 +4,7 @@
 #include "ImageCache/Runnable.h"
 #include <QThreadPool>
 #include <QObject>
-#include <vector>
+#include <list>
 #include <set>
 
 namespace phobos { namespace icache {
@@ -43,7 +43,7 @@ private:
     bool operator<(PriorityTask const& rhs) const;
   };
 
-  using QueueType = std::vector<PriorityTask>;
+  using QueueType = std::list<PriorityTask>;
 
   QueueType::iterator findNextTask();
 

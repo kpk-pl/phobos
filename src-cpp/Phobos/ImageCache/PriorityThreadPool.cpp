@@ -64,7 +64,7 @@ void PriorityThreadPool::insertTask(RunnablePtr && task, std::size_t const prior
   LOG(DEBUG) << "Inserting task " << task->id() << " with priority " << priority;
 
   auto const where = std::upper_bound(queue.begin(), queue.end(), priority,
-        [](std::size_t const prio, PriorityTask const& p){ return prio < p.priority; });
+        [](std::size_t const prio, PriorityTask const& p){ return prio > p.priority; });
   queue.emplace(where, priority, std::move(task));
 }
 
