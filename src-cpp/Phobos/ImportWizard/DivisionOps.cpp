@@ -104,9 +104,11 @@ PhotoSeriesVec divideToSeriesOnMetadata(std::vector<Photo> && photos)
 
     auto const butLast = std::next(stack.begin(), stack.size()-2);
     auto const last = std::next(butLast);
-    if (!exifMatches(stack.front(), stack.back()))
+    unsigned const lastDiff = last->info.timestamp - butLast->info.timestamp;
+
+    if (!exifMatches(stack.front(), stack.back()) || lastDiff > maxTimeBtwTwo)
     {
-      // If newly added photo does not exif match to the rest of photos, then immediatelly divide series
+      // If newly added photo does not exif/time match to the rest of photos, then immediatelly divide series
       makeSeries(last);
       continue;
     }
@@ -114,34 +116,8 @@ PhotoSeriesVec divideToSeriesOnMetadata(std::vector<Photo> && photos)
     if (stack.size() < 3)
       continue;
 
-    unsigned const lastDiff = last->info.timestamp - butLast->info.timestamp;
-
     if (!inRange(lastDiff, averageTimeDiff(stack.begin(), last)))
-    {
-      // If only 3 photos on stack and they do not form any series, pop just one photo from the begin
-      if (stack.size() == 3)
-      {
-        unsigned const firstDiff = butLast->info.timestamp - stack.front().info.timestamp;
-        if (firstDiff > maxTimeBtwTwo)
-        {
-          makeSeries(std::next(stack.begin()));
-          continue;
-        }
-      }
-      // fallthrough
-      // else make series from all but last photo
       makeSeries(last);
-    }
-  }
-
-  if (stack.size() == 2)
-  {
-    unsigned const diff = stack.back().info.timestamp - stack.front().info.timestamp;
-    if (diff > maxTimeBtwTwo)
-    {
-      makeSeries(std::next(stack.begin()));
-      makeSeries(stack.end());
-    }
   }
 
   if (!stack.empty())

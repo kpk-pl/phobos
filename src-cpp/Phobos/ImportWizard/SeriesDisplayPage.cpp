@@ -113,6 +113,9 @@ void SeriesDisplayPage::initializeMultipleLengthsInfo(std::map<std::size_t, unsi
 
   multipleLengthsInfo->show();
   multipleLengthsInfo->label()->setText(tr("Found series with different lengths: %1 photos").arg(sLengthList.c_str()));
+
+  // TODO: Some series might be splitted in half
+  // Add controls for that
 }
 
 namespace {
@@ -227,6 +230,8 @@ void SeriesDisplayPage::treeContextMenu(QPoint const& point)
   if (itemPosition > 0)
   {
     QObject::connect(menu.addAction(tr("Join with previous")), &QAction::triggered, [&]{
+      LOG(INFO) << "Manual joining series at position " << itemPosition << " with previous";
+
       delete tree->takeTopLevelItem(itemPosition);
       delete tree->takeTopLevelItem(itemPosition-1);
 
@@ -244,6 +249,8 @@ void SeriesDisplayPage::treeContextMenu(QPoint const& point)
   if (_dividedSeries[itemPosition].size() > 1)
   {
     QObject::connect(menu.addAction(tr("Split in half")), &QAction::triggered, [&]{
+      LOG(INFO) << "Manual splitting series in half at position " << itemPosition;
+
       delete tree->takeTopLevelItem(itemPosition);
 
       auto const sourceIt = std::next(_dividedSeries.begin(), itemPosition);
