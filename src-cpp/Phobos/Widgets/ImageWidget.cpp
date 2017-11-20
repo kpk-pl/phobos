@@ -6,15 +6,15 @@
 
 namespace phobos { namespace widgets {
 
-ImageWidget::ImageWidget() :
-  soul(this)
+ImageWidget::ImageWidget(QSize const suggestedSize) :
+  _size(suggestedSize), soul(this)
 {
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
   setScaledContents(false);
 }
 
 ImageWidget::ImageWidget(QImage const& image) :
-  ImageWidget()
+  ImageWidget(image.size())
 {
   setImage(image);
 }
@@ -22,6 +22,7 @@ ImageWidget::ImageWidget(QImage const& image) :
 void ImageWidget::setImage(QImage image)
 {
   _image = image;
+  _size = image.size();
   updateGeometry();
   update();
 }
@@ -47,26 +48,26 @@ void ImageWidget::paintEvent(QPaintEvent*)
 
 int ImageWidget::heightForWidth(const int width) const
 {
-    if (_image.isNull() || !_image.width())
-        return 0;
-    return _image.height() * width / _image.width();
+  if (_size.isNull() || !_size.width())
+    return 0;
+  return _size.height() * width / _size.width();
 }
 
 int ImageWidget::widthForHeight(const int height) const
 {
-    if (_image.isNull() || !_image.height())
-        return 0;
-    return _image.width() * height / _image.height();
+  if (_size.isNull() || !_size.height())
+    return 0;
+  return _size.width() * height / _size.height();
 }
 
 bool ImageWidget::hasHeightForWidth() const
 {
-    return !_image.isNull();
+  return _size.isValid();
 }
 
 bool ImageWidget::hasWidthForHeight() const
 {
-    return !_image.isNull();
+  return _size.isValid();
 }
 
 }} // namespace phobos::widgets

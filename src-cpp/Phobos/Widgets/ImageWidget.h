@@ -16,7 +16,7 @@ class ImageWidget : public ClickableLabel, public HeightResizeableInterface
   Q_OBJECT
 
 public:
-  explicit ImageWidget();
+  explicit ImageWidget(QSize const suggestedSize);
   explicit ImageWidget(QImage const& image);
 
   QImage image() const { return _image; }
@@ -37,6 +37,7 @@ public slots:
   void setMetrics(iprocess::metric::MetricPtr metrics);
 
 private:
+  QSize _size;
   QImage _image;
   iprocess::metric::MetricPtr _metrics;
   utils::Soul<ImageWidget> const soul;

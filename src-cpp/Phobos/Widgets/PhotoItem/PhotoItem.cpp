@@ -43,10 +43,10 @@ namespace phobos { namespace widgets { namespace pitem {
 PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem,
                      Addons const& addons,
                      Capabilities const& capabilities) :
-    ImageWidget(),
-    _photoItem(photoItem),
-    addons(addons),
-    capabilities(capabilities)
+  ImageWidget(photoItem->info().size),
+  _photoItem(photoItem),
+  addons(addons),
+  capabilities(capabilities)
 {
   setFocusPolicy(Qt::StrongFocus);
   setToolTip(photoItem->fileName());
