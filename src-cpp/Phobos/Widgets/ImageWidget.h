@@ -22,6 +22,8 @@ public:
   QImage image() const { return _image; }
   iprocess::metric::MetricPtr metrics() const { return _metrics; }
 
+  void setBorder(std::size_t const width);
+
   int heightForWidth(const int width) const override;
   int widthForHeight(const int height) const override;
 
@@ -39,6 +41,7 @@ public slots:
 private:
   QSize _size;
   QImage _image;
+  int borderWidth;
   iprocess::metric::MetricPtr _metrics;
   utils::Soul<ImageWidget> const soul;
 };

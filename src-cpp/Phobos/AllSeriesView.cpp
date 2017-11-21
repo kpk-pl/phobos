@@ -212,6 +212,7 @@ void AllSeriesView::addItemToGrid(int const row, int const col, pcontainer::Item
       if (item) item->setImage(result.image);
     }).persistent().execute();
 
+  item->setBorder(config::qualified("photoItemWidget.border.width", 0));
   item->setImage(thumbnail.image);
   item->setMetrics(imageCache.metrics().get(itemId));
 

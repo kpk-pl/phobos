@@ -36,28 +36,47 @@ void ImageWidget::setMetrics(iprocess::metric::MetricPtr metrics)
   update();
 }
 
+void ImageWidget::setBorder(std::size_t const width)
+{
+  borderWidth = static_cast<int>(width);
+  updateGeometry();
+  update();
+}
+
 void ImageWidget::paintEvent(QPaintEvent*)
 {
-    QPoint point;
-    QImage const scaledImage = _image.scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  QPainter painter(this);
+  QSize const fullSize = size();
 
-    point.setX((width() - scaledImage.width()) / 2);
-    point.setY((height() - scaledImage.height()) / 2);
-    QPainter(this).drawImage(point, scaledImage);
+  painter.fillRect(QRect(QPoint(), fullSize), Qt::black);
+
+  QImage const scaledImage = _image.scaled(fullSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  QPoint const point{(fullSize.width()  - scaledImage.width() ) / 2 + borderWidth,
+                     (fullSize.height() - scaledImage.height()) / 2 + borderWidth};
+
+  painter.drawImage(point, scaledImage);
 }
 
 int ImageWidget::heightForWidth(const int width) const
 {
   if (_size.isNull() || !_size.width())
     return 0;
-  return _size.height() * width / _size.width();
+
+  if (width < 2*borderWidth)
+    return 0;
+
+  return _size.height() * (width - 2*borderWidth) / _size.width() + 2*borderWidth;
 }
 
 int ImageWidget::widthForHeight(const int height) const
 {
   if (_size.isNull() || !_size.height())
     return 0;
-  return _size.width() * height / _size.height();
+
+  if (height < 2*borderWidth)
+    return 0;
+
+  return _size.width() * (height - 2*borderWidth) / _size.height() + 2*borderWidth;
 }
 
 bool ImageWidget::hasHeightForWidth() const

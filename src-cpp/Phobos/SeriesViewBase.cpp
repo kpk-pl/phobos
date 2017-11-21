@@ -34,6 +34,7 @@ std::unique_ptr<widgets::pitem::PhotoItem> SeriesViewBase::createConnectedItem(p
     if (item) item->setImage(res.image);
   }).proactive().execute();
 
+  widget->setBorder(config::qualified("photoItemWidget.border.width", 0));
   widget->setImage(result.image);
   widget->setMetrics(imageCache.metrics().get(itemId));
 
