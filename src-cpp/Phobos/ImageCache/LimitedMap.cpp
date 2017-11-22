@@ -1,7 +1,7 @@
-#include <cassert>
 #include "ImageCache/LimitedMap.h"
 #include "ConfigExtension.h"
 #include <easylogging++.h>
+#include <cassert>
 
 namespace phobos { namespace icache {
 
@@ -22,26 +22,33 @@ namespace {
   }
 } // unnamed namespace
 
-void LimitedMap::replace(KeyType const& key, ValueType const& value)
+void LimitedMap::replace(KeyType const& key, ValueType const& value, Generation const& generation)
 {
   auto const maxAllowedSize = config::bytes("imageCache.fullMaxBytes", 0u);
-  LOG(DEBUG) << "[Cache] Full cache maximum size is " << megabytes(maxAllowedSize) << "MB";
+  auto const leftSize = maxAllowedSize - contentList.sizeFrom(generation + 1);
+  LOG(DEBUG) << "[Cache] Left " << megabytes(leftSize) << "MB for generation " << generation
+             << " (max " << megabytes(maxAllowedSize) << "MB)";
 
-  if (static_cast<std::size_t>(value.byteCount()) > maxAllowedSize)
+  if (static_cast<std::size_t>(value.byteCount()) > leftSize)
   {
-    LOG(DEBUG) << "[Cache] Skipping full image " << key << " due to unavailable space"
-                  " (" << megabytes(value) << "MB)";
+    LOG(DEBUG) << "[Cache] Skipping full image " << key
+               << " (" << megabytes(value) << "MB) due to unavailable space";
     return;
   }
 
   auto const it = map.find(key);
 
   if (it == map.end())
-    insertNew(key, value);
+    insertNew(key, value, generation);
   else
-    overrideExisting(it, value);
+    overrideExisting(it, value, generation);
 
   release(maxAllowedSize);
+}
+
+void LimitedMap::touch(KeyType const& key, Generation const& generation)
+{
+  contentList.touch(key, generation);
 }
 
 void LimitedMap::erase(KeyType const& key)
@@ -51,20 +58,20 @@ void LimitedMap::erase(KeyType const& key)
     erase(it);
 }
 
-void LimitedMap::insertNew(KeyType const& key, ValueType const& value)
+void LimitedMap::insertNew(KeyType const& key, ValueType const& value, Generation const& generation)
 {
-  contentList.insert(key, value.byteCount());
+  contentList.insert(key, generation, value.byteCount());
   map.emplace(key, value);
 
   LOG(DEBUG) << "[Cache] Saved new full image " << key << " (" << megabytes(value) << "MB)";
 }
 
-void LimitedMap::overrideExisting(IteratorType const& iterator, ValueType const& value)
+void LimitedMap::overrideExisting(IteratorType const& iterator, ValueType const& value, Generation const& generation)
 {
   auto const& key = iterator->first;
 
   contentList.remove(key);
-  contentList.insert(key, value.byteCount());
+  contentList.insert(key, generation, value.byteCount());
   iterator->second = value;
 
   LOG(DEBUG) << "[Cache] Replaced full image " << key << " (" << megabytes(value) << "MB)";

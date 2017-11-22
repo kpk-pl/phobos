@@ -191,7 +191,7 @@ void Cache::imageReadyFromThread(pcontainer::ItemId itemId, QImage image)
   }
 
   if (updateFullCache)
-    fullImageCache.replace(itemId.fileName, image);
+    fullImageCache.replace(itemId.fileName, image, 0);
 
   transactionsInThread.erase(allTrans.first, allTrans.second);
 }

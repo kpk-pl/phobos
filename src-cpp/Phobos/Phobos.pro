@@ -44,6 +44,7 @@ SOURCES += Phobos.cpp\
     PhotoContainers/Series.cpp \
     PhotoContainers/Set.cpp \
     PhotoContainers/ItemState.cpp \
+    PhotoContainers/FileInfo.cpp \
     Utils/LayoutClear.cpp \
     Utils/Asserted.cpp \
     Utils/ItemStateColor.cpp \
@@ -92,8 +93,7 @@ SOURCES += Phobos.cpp\
     ProcessWizard/ActionTab/RenameActionTab.cpp \
     ProcessWizard/ActionTab/CopyMoveActionTab.cpp \
     ProcessWizard/Execution/ExecutionImpl.cpp \
-    ProcessWizard/Execution/Execute.cpp \
-    PhotoContainers/FileInfo.cpp
+    ProcessWizard/Execution/Execute.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -126,6 +126,7 @@ HEADERS  += MainWindow.h \
     PhotoContainers/Item.h \
     PhotoContainers/ItemId.h \
     PhotoContainers/ItemState.h \
+    PhotoContainers/FileInfo.h \
     Utils/LayoutClear.h \
     Utils/Algorithm.h \
     Utils/Focused.h \
@@ -171,6 +172,7 @@ HEADERS  += MainWindow.h \
     ImageCache/TransactionFwd.h \
     ImageCache/Runnable.h \
     ImageCache/ContentList.h \
+    ImageCache/Types.h \
     ProcessWizard/ProcessWizard.h \
     ProcessWizard/Operation.h \
     ProcessWizard/ActionsCreatorPage.h \
@@ -189,8 +191,7 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution/Execution.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
-    ProcessWizard/Execution/Execute.h \
-    PhotoContainers/FileInfo.h
+    ProcessWizard/Execution/Execute.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost
