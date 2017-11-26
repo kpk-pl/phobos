@@ -22,6 +22,7 @@ SOURCES += Phobos.cpp\
     Config.cpp \
     ConfigPath.cpp \
     AllSeriesView.cpp \
+    WelcomeView.cpp \
     ConfigExtension.cpp \
     SeriesViewBase.cpp \
     NumSeriesView.cpp \
@@ -100,6 +101,7 @@ HEADERS  += MainWindow.h \
     Config.h \
     ConfigPath.h \
     AllSeriesView.h \
+    WelcomeView.h \
     ConfigExtension.h \
     SeriesViewBase.h \
     NumSeriesView.h \

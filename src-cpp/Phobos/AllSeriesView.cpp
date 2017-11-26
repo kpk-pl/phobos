@@ -57,14 +57,17 @@ struct AllSeriesView::Coords
 };
 
 AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
-  seriesSet(seriesSet), imageCache(imageCache)
+  seriesSet(seriesSet), imageCache(imageCache), scroll(nullptr), grid(nullptr)
 {
   QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &AllSeriesView::updateMetrics);
   QObject::connect(&seriesSet, &pcontainer::Set::newSeries, this, &AllSeriesView::addNewSeries);
   QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &AllSeriesView::updateExistingSeries);
 
-  // TODO: navigationBar
+  prepareUI();
+}
 
+void AllSeriesView::prepareUI()
+{
   grid = new QGridLayout();
   grid->setContentsMargins(0, 0, 0, 0);
   grid->setHorizontalSpacing(config::qualified("allSeriesView.photosSpacing", 3u));
@@ -82,14 +85,14 @@ AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
   scroll->installEventFilter(new ArrowFilter(scroll));
   scroll->setWidgetResizable(true);
   scroll->setFrameShape(QFrame::NoFrame);
+  scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   scroll->setWidget(scrollWidget);
 
-  QVBoxLayout* vlayout = new QVBoxLayout();
-  vlayout->setContentsMargins(5, 5, 0, 0);
-  // TODO: vlayout->addWidget(navigationBar);
-  vlayout->addWidget(scroll);
+  QVBoxLayout* newLayout = new QVBoxLayout();
+  newLayout->setContentsMargins(5, 5, 0, 0);
+  newLayout->addWidget(scroll);
 
-  setLayout(vlayout);
+  setLayout(newLayout);
 }
 
 std::size_t AllSeriesView::maxNumberOfPhotosInRow() const
@@ -134,7 +137,6 @@ void AllSeriesView::focusSeries(QUuid const seriesUuid)
 
 void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
 {
-  updateScrollBar();
   seriesUuidToRow.emplace(series->uuid(), series->ord());
 
   if (series->empty())
@@ -372,11 +374,5 @@ void AllSeriesView::changeSeriesState(QUuid const seriesUuid, pcontainer::ItemSt
     photoWidget->photoItem().setState(state);
   }
 }
-
-void AllSeriesView::updateScrollBar() const
-{
-  scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-}
-
 
 } // namespace phobos

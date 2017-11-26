@@ -1,4 +1,5 @@
 #include "ViewStack.h"
+#include "WelcomeView.h"
 #include "AllSeriesView.h"
 #include "NumSeriesView.h"
 #include "RowSeriesView.h"
@@ -7,6 +8,7 @@
 #include "PhotoContainers/Set.h"
 #include "ImageCache/Cache.h"
 #include "Utils/Asserted.h"
+#include <easylogging++.h>
 
 namespace phobos {
 
@@ -38,16 +40,34 @@ pcontainer::Series const& ViewStack::findRequestedSeries(ViewDescriptionPtr cons
     return utils::asserted::always;
 }
 
+void ViewStack::welcomeScreenSwitch()
+{
+  if (seriesSet.hasPhotos())
+  {
+    if (currentWidget() == welcomeView)
+    {
+      LOG(INFO) << "Switching to all series view from welcome screen";
+      setCurrentWidget(allSeriesView);
+    }
+  }
+  else
+  {
+    LOG(INFO) << "Switching to welcome screen";
+    setCurrentWidget(welcomeView);
+  }
+}
+
 void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
 {
   if (!seriesSet.hasPhotos())
-    return; // NO-OP
+    return; // return NO-OP
 
   pcontainer::Series const& targetSeries = findRequestedSeries(viewDesc);
 
   if ((viewDesc->type == ViewType::ALL_SERIES) ||
       ((viewDesc->type == ViewType::CURRENT) && currentWidget() == allSeriesView))
   {
+    LOG(INFO) << "Switching to all series view";
     setCurrentWidget(allSeriesView);
     allSeriesView->focusSeries(targetSeries.uuid());
     return;
@@ -79,6 +99,7 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
     currentSeriesWidget->showSeries(targetSeries);
   }
 
+  LOG(INFO) << "Switching to " << (currentSeriesWidget == numSeriesView ? "num" : "row") << " series view";
   setCurrentWidget(currentSeriesWidget);
 }
 
@@ -148,21 +169,25 @@ void ViewStack::bulkSelect(PhotoBulkAction const action)
 
 void ViewStack::setupUI()
 {
-//  setStyleSheet("background-color: red");
-    allSeriesView = new AllSeriesView(seriesSet, imageCache);
-    rowSeriesView = new RowSeriesView(seriesSet, imageCache);
-    numSeriesView = new NumSeriesView(seriesSet, imageCache);
+  welcomeView = new WelcomeView();
+  allSeriesView = new AllSeriesView(seriesSet, imageCache);
+  rowSeriesView = new RowSeriesView(seriesSet, imageCache);
+  numSeriesView = new NumSeriesView(seriesSet, imageCache);
 
-    addWidget(allSeriesView);
-    addWidget(numSeriesView);
-    addWidget(rowSeriesView);
+  addWidget(welcomeView);
+  addWidget(allSeriesView);
+  addWidget(numSeriesView);
+  addWidget(rowSeriesView);
 }
 
 void ViewStack::connectSignals()
 {
-    QObject::connect(allSeriesView, &AllSeriesView::switchView, this, &ViewStack::handleSwitchView);
-    QObject::connect(rowSeriesView, &RowSeriesView::switchView, this, &ViewStack::handleSwitchView);
-    QObject::connect(numSeriesView, &RowSeriesView::switchView, this, &ViewStack::handleSwitchView);
+  QObject::connect(allSeriesView, &AllSeriesView::switchView, this, &ViewStack::handleSwitchView);
+  QObject::connect(rowSeriesView, &RowSeriesView::switchView, this, &ViewStack::handleSwitchView);
+  QObject::connect(numSeriesView, &RowSeriesView::switchView, this, &ViewStack::handleSwitchView);
+
+  QObject::connect(&seriesSet, &pcontainer::Set::newSeries, this, &ViewStack::welcomeScreenSwitch);
+  QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &ViewStack::welcomeScreenSwitch);
 }
 
 ViewStack::SelectionStatus ViewStack::getSelectionStatus() const

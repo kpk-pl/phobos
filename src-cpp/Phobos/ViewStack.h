@@ -15,6 +15,7 @@ namespace phobos {
 class AllSeriesView;
 class NumSeriesView;
 class RowSeriesView;
+class WelcomeView;
 class SeriesViewBase;
 
 class ViewStack : public QStackedWidget
@@ -40,6 +41,9 @@ public slots:
     void handleSwitchView(ViewDescriptionPtr viewDesc);
     void bulkSelect(PhotoBulkAction const action);
 
+private slots:
+    void welcomeScreenSwitch();
+
 private:
     pcontainer::Series const& findRequestedSeries(ViewDescriptionPtr const& viewDesc) const;
 
@@ -50,9 +54,11 @@ private:
     icache::Cache & imageCache;
     boost::optional<QUuid> currentSeriesInView;
 
+    WelcomeView* welcomeView;
     AllSeriesView* allSeriesView;
     RowSeriesView* rowSeriesView;
     NumSeriesView* numSeriesView;
+
     SeriesViewBase* currentSeriesWidget;
 };
 

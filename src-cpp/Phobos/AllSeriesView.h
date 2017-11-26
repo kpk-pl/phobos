@@ -1,14 +1,13 @@
 #ifndef ALLSERIESVIEW_H
 #define ALLSERIESVIEW_H
 
-#include <map>
-#include <tuple>
-#include <QWidget>
-#include <boost/optional.hpp>
 #include "PhotoContainers/Item.h"
 #include "ImageCache/CacheFwd.h"
 #include "ViewDescription.h"
 #include "ImageProcessing/MetricsFwd.h"
+#include <boost/optional.hpp>
+#include <QWidget>
+#include <map>
 
 class QGridLayout;
 class QScrollArea;
@@ -59,7 +58,7 @@ private:
     void addItemToGrid(int const row, int const col, pcontainer::ItemPtr const& itemPtr);
     void addNumberingToGrid(int const row);
 
-    void updateScrollBar() const;
+    void prepareUI();
 
     pcontainer::Set const& seriesSet;
     icache::Cache & imageCache;
