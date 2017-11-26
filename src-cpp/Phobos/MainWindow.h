@@ -18,6 +18,7 @@ public:
 
 private slots:
   void processAction(processwiz::OperationType const operation);
+  void openDetailsDialog();
 
 private:
   void loadPhotos();

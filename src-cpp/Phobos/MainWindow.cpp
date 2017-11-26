@@ -7,6 +7,7 @@
 #include "ProcessWizard/ProcessWizard.h"
 #include "ProcessWizard/Execution/Execution.h"
 #include "ProcessWizard/Execution/Execute.h"
+#include "Utils/Focused.h"
 #include <easylogging++.h>
 #include <QApplication>
 #include <QMenuBar>
@@ -65,6 +66,10 @@ void MainWindow::createMenus()
     viewMenu->addAction(tr("&Previous series"),
                         [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::CURRENT, boost::none, -1)); },
                         QKeySequence("Shift+Left"))->setStatusTip(tr("Jump to previous series"));
+    viewMenu->addSeparator();
+    viewMenu->addAction(tr("&Details"),
+                        this, &MainWindow::openDetailsDialog,
+                        QKeySequence("Ctrl+D"))->setStatusTip(tr("Show details for selected photo"));
 
     // TODO: Action: Report -> show dialog with number of series / num selected photos, num unchecked series etc
     QMenu* actionMenu = menuBar()->addMenu(tr("&Action"));
@@ -95,6 +100,19 @@ void MainWindow::processAction(processwiz::OperationType const operation)
 
   if (processWizard.exec())
     processwiz::exec::execute(seriesSet, processWizard.executions());
+}
+
+void MainWindow::openDetailsDialog()
+{
+  LOG(INFO) << "Showing details dialog for focused photo";
+  auto const focusedItem = utils::focusedPhotoItemWidget();
+  if (!focusedItem)
+  {
+    LOG(INFO) << "No photo is focused";
+    return;
+  }
+
+  focusedItem->openDetailsDialog();
 }
 
 // TODO: Status bar should display percent and fraction of photos(series) viewed, especially in series view

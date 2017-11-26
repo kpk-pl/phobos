@@ -241,43 +241,42 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
 
   QMenu* photoMenu = menu.addMenu("Photo");
   if (_photoItem->state() != pcontainer::ItemState::SELECTED)
-    QObject::connect(photoMenu->addAction("Select"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::select);
+    photoMenu->addAction(tr("Select"), _photoItem.get(), &pcontainer::Item::select);
   if (_photoItem->state() != pcontainer::ItemState::DISCARDED)
-    QObject::connect(photoMenu->addAction("Discard"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::discard);
+    photoMenu->addAction(tr("Discard"), _photoItem.get(), &pcontainer::Item::discard);
   if (_photoItem->state() != pcontainer::ItemState::UNKNOWN)
-    QObject::connect(photoMenu->addAction("Deselect"), &QAction::triggered, _photoItem.get(), &pcontainer::Item::deselect);
+    photoMenu->addAction(tr("Deselect"), _photoItem.get(), &pcontainer::Item::deselect);
 
   if (capabilities.has(CapabilityType::REMOVE_PHOTO))
   {
     photoMenu->addSeparator();
-    QObject::connect(photoMenu->addAction("Remove"), &QAction::triggered, this, [this](){ emit removeFromSeries(_photoItem->id()); });
+    photoMenu->addAction(tr("Remove"), [this](){ emit removeFromSeries(_photoItem->id()); });
   }
 
   QMenu* seriesMenu = menu.addMenu("Series");
-  QObject::connect(seriesMenu->addAction("Select all"), &QAction::triggered, [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::SELECTED); });
-  QObject::connect(seriesMenu->addAction("Discard all"), &QAction::triggered, [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::DISCARDED); });
-  QObject::connect(seriesMenu->addAction("Deselect all"), &QAction::triggered, [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::UNKNOWN); });
+  seriesMenu->addAction(tr("Select all"), [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::SELECTED); });
+  seriesMenu->addAction(tr("Discard all"), [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::DISCARDED); });
+  seriesMenu->addAction(tr("Deselect all"), [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::UNKNOWN); });
 
   if (capabilities.has(CapabilityType::REMOVE_SERIES))
   {
     seriesMenu->addSeparator();
-    QObject::connect(seriesMenu->addAction("Remove"), &QAction::triggered, [this](){ emit removeAllSeries(_photoItem->seriesUuid()) ;});
+    seriesMenu->addAction(tr("Remove"), [this](){ emit removeAllSeries(_photoItem->seriesUuid()) ;});
   }
 
   menu.addSeparator();
-
-  QObject::connect(menu.addAction("Show details"), &QAction::triggered, [this]{
-    showDetailsDialog(window(), *_photoItem, image(), metrics());
-  });
+  menu.addAction(tr("Show details"), this, &PhotoItem::openDetailsDialog);
 
   if (capabilities.has(CapabilityType::OPEN_SERIES))
-  {
-    QAction* viewSeries = menu.addAction("View series");
-    QObject::connect(viewSeries, &QAction::triggered, [this]{ emit openInSeries(_photoItem->seriesUuid()); });
-  }
+    menu.addAction(tr("View series"), [this]{ emit openInSeries(_photoItem->seriesUuid()); });
 
   LOG(INFO) << "Displayed context menu for " << _photoItem->id().toString();
   menu.exec(mapToGlobal(QPoint(event->x(), event->y())));
+}
+
+void PhotoItem::openDetailsDialog() const
+{
+  showDetailsDialog(window(), *_photoItem, image(), metrics());
 }
 
 void PhotoItem::focusInEvent(QFocusEvent*)

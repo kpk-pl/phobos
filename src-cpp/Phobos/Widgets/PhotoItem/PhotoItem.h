@@ -33,6 +33,9 @@ signals:
     void removeFromSeries(pcontainer::ItemId itemId);
     void removeAllSeries(QUuid const seriesUuid);
 
+public slots:
+    void openDetailsDialog() const;
+
 private:
     class PixmapRenderer;
     friend class PixmapRenderer;
