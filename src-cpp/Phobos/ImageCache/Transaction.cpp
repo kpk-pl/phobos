@@ -19,12 +19,6 @@ void Transaction::OptCallback::operator()(Result && result) const
     func(std::move(result));
 }
 
-void Transaction::OptCallback::operator()(QImage const& im, ImageQuality qual) const
-{
-  if (func)
-    func(Result{im, qual});
-}
-
 QString Transaction::toString() const
 {
   QString s = QString("[CacheTransaction]: Get %1 %2 %3")

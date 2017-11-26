@@ -14,7 +14,7 @@ DEFINES += ELPP_STL_LOGGING
 DEFINES += ELPP_QT_LOGGING
 DEFINES += ELPP_FEATURE_PERFORMANCE_TRACKING
 
-QMAKE_CXXFLAGS += -Wno-unused-variable
+QMAKE_CXXFLAGS += -Wno-unused-variable -Wuninitialized -Winit-self
 
 SOURCES += Phobos.cpp\
     MainWindow.cpp \
