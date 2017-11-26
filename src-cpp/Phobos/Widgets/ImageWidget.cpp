@@ -19,7 +19,7 @@ ImageWidget::ImageWidget(QImage const& image) :
   setImage(image);
 }
 
-void ImageWidget::setImage(QImage image)
+void ImageWidget::setImage(QImage const& image)
 {
   _image = image;
   _size = image.size();

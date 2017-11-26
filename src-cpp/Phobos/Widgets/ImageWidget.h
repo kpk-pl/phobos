@@ -35,13 +35,13 @@ public:
   utils::Soul<ImageWidget>::Lifetime lifetime() const { return soul.lifetime(); }
 
 public slots:
-  void setImage(QImage image);
+  void setImage(QImage const& image);
   void setMetrics(iprocess::metric::MetricPtr metrics);
 
 private:
   QSize _size;
   QImage _image;
-  int borderWidth;
+  int borderWidth = 0;
   iprocess::metric::MetricPtr _metrics;
   utils::Soul<ImageWidget> const soul;
 };
