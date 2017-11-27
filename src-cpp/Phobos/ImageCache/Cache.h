@@ -4,8 +4,8 @@
 #include "ImageCache/CacheFwd.h"
 #include "ImageCache/MetricCache.h"
 #include "ImageCache/LimitedMap.h"
-#include "ImageCache/PriorityThreadPool.h"
 #include "ImageCache/Transaction.h"
+#include "ImageCache/LoadingManager.h"
 #include "ImageProcessing/LoaderThread.h"
 #include "PhotoContainers/Set.h"
 #include "PhotoContainers/ItemId.h"
@@ -22,36 +22,38 @@ class Cache : public QObject
   Q_OBJECT
 
 public:
+  using LookupKeyType = QString;
+  using ThumbnailCache = std::map<LookupKeyType, QImage>;
+
   explicit Cache(pcontainer::Set const& photoSet);
 
   Transaction transaction() { return Transaction(*this); }
   Result execute(Transaction && transaction);
 
   MetricCache const& metrics() const { return metricCache; }
+  ThumbnailCache const& thumbnails() const { return thumbnailCache; }
+
+public slots:
+  void thumbnailReady(pcontainer::ItemId const& itemId, QImage const& image);
+  void imageReady(pcontainer::ItemId const& itemId, QImage const& image);
 
 signals:
   void updateMetrics(pcontainer::ItemId itemId, iprocess::metric::MetricPtr);
 
 private slots:
-  void imageReadyFromThread(pcontainer::ItemId itemId, QImage image);
   void changedSeries(QUuid const& seriesUuid);
 
 private:
   friend class Transaction;
-  using LookupKeyType = QString;
 
   Result executeImpl(Transaction const& transaction) const;
-  std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(pcontainer::ItemId const& itemId) const;
-  void startThreadForItem(Transaction && transaction);
 
-  std::multimap<pcontainer::ItemId, std::pair<Runnable::UniqueId, Transaction>> transactionsInThread;
-
-  std::map<LookupKeyType, QImage> thumbnailCache;
+  ThumbnailCache thumbnailCache;
   LimitedMap fullImageCache;
-
   MetricCache metricCache;
+
   pcontainer::Set const& photoSet;
-  PriorityThreadPool threadPool;
+  LoadingManager loadingManager;
 };
 
 }} // namespace phobos::icache

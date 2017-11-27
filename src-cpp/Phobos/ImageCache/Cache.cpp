@@ -10,10 +10,13 @@
 namespace phobos { namespace icache {
 
 Cache::Cache(pcontainer::Set const& photoSet) :
-    metricCache(photoSet), photoSet(photoSet)
+    metricCache(photoSet), photoSet(photoSet), loadingManager(*this)
 {
   QObject::connect(&metricCache, &MetricCache::updateMetrics, this, &Cache::updateMetrics);
   QObject::connect(&photoSet, &pcontainer::Set::changedSeries, this, &Cache::changedSeries);
+  QObject::connect(&loadingManager, &LoadingManager::imageReady, this, &Cache::imageReady);
+  QObject::connect(&loadingManager, &LoadingManager::thumbnailReady, this, &Cache::thumbnailReady);
+  QObject::connect(&loadingManager, &LoadingManager::metricsReady, &metricCache, &MetricCache::newLoadedFromThread);
 }
 
 Result Cache::execute(Transaction && transaction)
@@ -26,7 +29,7 @@ Result Cache::execute(Transaction && transaction)
 
   auto const result = executeImpl(transaction);
   if (transaction.loadingEnabled() && !result.sufficient)
-    startThreadForItem(std::move(transaction));
+    loadingManager.start(std::move(transaction));
 
 // TODO: Handle proactive transactions, make more threads
   return result;
@@ -115,85 +118,26 @@ Result Cache::executeImpl(Transaction const& transaction) const
   return getInitialThumbnail(*item);
 }
 
-std::unique_ptr<iprocess::LoaderThread> Cache::makeLoadingThread(pcontainer::ItemId const& itemId) const
-{
-  QSize const fullSize = config::qSize("imageCache.fullSize", QSize(1920, 1080));
-  auto thread = std::make_unique<iprocess::LoaderThread>(itemId, fullSize);
-
-  thread->setAutoDelete(true);
-
-  if (!metrics().has(itemId))
-  {
-    thread->withMetrics(true);
-    QObject::connect(&thread->readySignals, &iprocess::LoaderThreadSignals::metricsReady,
-                     &metricCache, &MetricCache::newLoadedFromThread, Qt::QueuedConnection);
-  }
-
-  QObject::connect(&thread->readySignals, &iprocess::LoaderThreadSignals::imageReady,
-                   this, &Cache::imageReadyFromThread, Qt::QueuedConnection);
-
-  return thread;
-}
-
-void Cache::startThreadForItem(Transaction && transaction)
-{
-  pcontainer::ItemId const itemId = transaction.getItemId();
-
-  LOG(DEBUG) << "[Cache] Requested thread load for " << itemId.fileName;
-  auto thread = makeLoadingThread(itemId);
-  transactionsInThread.emplace(itemId, std::make_pair(thread->uuid(), std::move(transaction)));
-  threadPool.start(std::move(thread), 0);
-
-// TODO: use generations to start as priorities. Handle persistent flag from transaction.
-// Don't start loading proactively when there is no more cache space left for given generation
-}
-
 void Cache::changedSeries(QUuid const& seriesUuid)
 {
   auto const& series = photoSet.findSeries(seriesUuid);
   for (auto const& itemId : series.removedItems())
   {
-    auto const allTrans = transactionsInThread.equal_range(itemId);
-    for (auto it = allTrans.first; it != allTrans.second; ++it)
-      threadPool.cancel(it->second.first);
-    transactionsInThread.erase(allTrans.first, allTrans.second);
-
+    loadingManager.stop(itemId);
     thumbnailCache.erase(itemId.fileName);
     fullImageCache.erase(itemId.fileName);
   }
 }
 
-void Cache::imageReadyFromThread(pcontainer::ItemId itemId, QImage image)
+void Cache::thumbnailReady(pcontainer::ItemId const& itemId, QImage const& image)
 {
-  auto const allTrans = transactionsInThread.equal_range(itemId);
-  if (allTrans.first == allTrans.second)
-    return;
+  thumbnailCache[itemId.fileName] = image;
+  LOG(DEBUG) << "[Cache] Saved new preload image " << itemId.fileName;
+}
 
-  auto& thumb = thumbnailCache[itemId.fileName];
-  if (thumb.isNull())
-  {
-    auto const preloadSize = config::qSize("imageCache.preloadSize", QSize(320, 240));
-    thumb = image.scaled(preloadSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    LOG(DEBUG) << "[Cache] Saved new preload image " << itemId.fileName;
-  }
-
-  bool updateFullCache = false;
-
-  for (auto it = allTrans.first; it != allTrans.second; ++it)
-  {
-    if (it->second.second.isThumbnail())
-      it->second.second.getCallback()(Result{thumb, ImageQuality::Thumb, true});
-    else
-    {
-      updateFullCache = true;
-      it->second.second.getCallback()(Result{image, ImageQuality::Full, true});
-    }
-  }
-
-  if (updateFullCache)
-    fullImageCache.replace(itemId.fileName, image, 0);
-
-  transactionsInThread.erase(allTrans.first, allTrans.second);
+void Cache::imageReady(pcontainer::ItemId const& itemId, QImage const& image)
+{
+  fullImageCache.replace(itemId.fileName, image, 0);
 }
 
 }} // namespace phobos::icache
