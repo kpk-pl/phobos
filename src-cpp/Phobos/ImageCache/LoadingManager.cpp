@@ -7,16 +7,15 @@
 namespace phobos { namespace icache {
 
 LoadingManager::LoadingManager(Cache const& cache) : cache(cache)
-{
-}
+{}
 
-void LoadingManager::start(Transaction && job)
+void LoadingManager::start(LoadingJob && job)
 {
-  pcontainer::ItemId const itemId = job.getItemId();
+  pcontainer::ItemId const itemId = job.itemId;
 
   LOG(DEBUG) << "[Cache] Requested thread load for " << itemId.fileName;
   auto thread = makeLoadingThread(itemId);
-  transactionsInThread.emplace(itemId, std::make_pair(thread->uuid(), std::move(job)));
+  jobsInThread.emplace(itemId, std::make_pair(thread->uuid(), std::move(job)));
   threadPool.start(std::move(thread), 0);
 
 // TODO: use generations to start as priorities. Handle persistent flag from transaction.
@@ -25,10 +24,10 @@ void LoadingManager::start(Transaction && job)
 
 void LoadingManager::stop(pcontainer::ItemId const& itemId)
 {
-  auto const allTrans = transactionsInThread.equal_range(itemId);
+  auto const allTrans = jobsInThread.equal_range(itemId);
   for (auto it = allTrans.first; it != allTrans.second; ++it)
     threadPool.cancel(it->second.first);
-  transactionsInThread.erase(allTrans.first, allTrans.second);
+  jobsInThread.erase(allTrans.first, allTrans.second);
 }
 
 std::unique_ptr<iprocess::LoaderThread> LoadingManager::makeLoadingThread(pcontainer::ItemId const& itemId) const
@@ -53,7 +52,7 @@ std::unique_ptr<iprocess::LoaderThread> LoadingManager::makeLoadingThread(pconta
 
 void LoadingManager::imageLoaded(pcontainer::ItemId const& itemId, QImage const& image)
 {
-  auto const allTrans = transactionsInThread.equal_range(itemId);
+  auto const allTrans = jobsInThread.equal_range(itemId);
   if (allTrans.first == allTrans.second)
     return;
 
@@ -75,19 +74,19 @@ void LoadingManager::imageLoaded(pcontainer::ItemId const& itemId, QImage const&
 
   for (auto it = allTrans.first; it != allTrans.second; ++it)
   {
-    if (it->second.second.isThumbnail())
-      it->second.second.getCallback()(Result{thumbnail, ImageQuality::Thumb, true});
+    if (it->second.second.onlyThumbnail)
+      it->second.second.callback(Result{thumbnail, ImageQuality::Thumb, true});
     else
     {
       updateFullCache = true;
-      it->second.second.getCallback()(Result{image, ImageQuality::Full, true});
+      it->second.second.callback(Result{image, ImageQuality::Full, true});
     }
   }
 
   if (updateFullCache)
     emit imageReady(itemId, image);
 
-  transactionsInThread.erase(allTrans.first, allTrans.second);
+  jobsInThread.erase(allTrans.first, allTrans.second);
 }
 
 }} // namespace phobos::icache

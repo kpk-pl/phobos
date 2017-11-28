@@ -3,6 +3,7 @@
 
 #include "ImageCache/CacheFwd.h"
 #include "ImageCache/TransactionFwd.h"
+#include "ImageCache/LoadingJob.h"
 #include "PhotoContainers/ItemId.h"
 #include <QImage>
 #include <QUuid>
@@ -13,20 +14,12 @@ namespace phobos { namespace icache {
 class Transaction
 {
 public:
-  using CallbackType = std::function<void(Result const&)>;
-
-  struct OptCallback
-  {
-    void operator()(Result && result) const;
-    CallbackType func;
-  };
-
   Transaction(Cache& cache);
 
   Transaction&& item(pcontainer::ItemId const& itemId) && { this->itemId = itemId; return std::move(*this); }
   Transaction&& thumbnail() && { onlyThumbnail = true; return std::move(*this); }
   Transaction&& onlyCache() && { disableLoading = true; return std::move(*this); }
-  Transaction&& callback(CallbackType && newCallback) &&;
+  Transaction&& callback(TransactionCallback && newCallback) &&;
   Transaction&& proactive() && { proactiveLoading = true; return std::move(*this); }
   Transaction&& persistent() && { persistentLoading = true; return std::move(*this); }
 
@@ -36,9 +29,11 @@ public:
 
   QUuid const uuid;
   pcontainer::ItemId const& getItemId() const { return itemId; }
-  OptCallback const& getCallback() const { return loadCallback; }
+  OptTransactionCallback const& getCallback() const { return loadCallback; }
   bool isThumbnail() const { return onlyThumbnail; }
   bool loadingEnabled() const { return !disableLoading; }
+
+  LoadingJob toLoadingJob() &&;
 
 private:
   Cache& cache;
@@ -48,7 +43,7 @@ private:
   bool disableLoading = false;
   bool proactiveLoading = false;
   bool persistentLoading = false;
-  OptCallback loadCallback;
+  OptTransactionCallback loadCallback;
 };
 
 }} // namespace phobos::icache

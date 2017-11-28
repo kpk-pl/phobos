@@ -79,6 +79,7 @@ SOURCES += Phobos.cpp\
     ImageCache/Transaction.cpp \
     ImageCache/Runnable.cpp \
     ImageCache/ContentList.cpp \
+    ImageCache/LoadingManager.cpp \
     ProcessWizard/ProcessWizard.cpp \
     ProcessWizard/Operation.cpp \
     ProcessWizard/ActionsCreatorPage.cpp \
@@ -94,8 +95,7 @@ SOURCES += Phobos.cpp\
     ProcessWizard/ActionTab/RenameActionTab.cpp \
     ProcessWizard/ActionTab/CopyMoveActionTab.cpp \
     ProcessWizard/Execution/ExecutionImpl.cpp \
-    ProcessWizard/Execution/Execute.cpp \
-    ImageCache/LoadingManager.cpp
+    ProcessWizard/Execution/Execute.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -176,6 +176,8 @@ HEADERS  += MainWindow.h \
     ImageCache/Runnable.h \
     ImageCache/ContentList.h \
     ImageCache/Types.h \
+    ImageCache/LoadingManager.h \
+    ImageCache/LoadingJob.h \
     ProcessWizard/ProcessWizard.h \
     ProcessWizard/Operation.h \
     ProcessWizard/ActionsCreatorPage.h \
@@ -194,8 +196,7 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution/Execution.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
-    ProcessWizard/Execution/Execute.h \
-    ImageCache/LoadingManager.h
+    ProcessWizard/Execution/Execute.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

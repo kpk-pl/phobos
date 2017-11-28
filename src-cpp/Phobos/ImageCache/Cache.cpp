@@ -29,7 +29,7 @@ Result Cache::execute(Transaction && transaction)
 
   auto const result = executeImpl(transaction);
   if (transaction.loadingEnabled() && !result.sufficient)
-    loadingManager.start(std::move(transaction));
+    loadingManager.start(std::move(transaction).toLoadingJob());
 
 // TODO: Handle proactive transactions, make more threads
   return result;

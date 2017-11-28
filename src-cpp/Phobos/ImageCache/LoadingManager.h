@@ -3,7 +3,7 @@
 
 #include "ImageCache/PriorityThreadPool.h"
 #include "ImageCache/CacheFwd.h"
-#include "ImageCache/Transaction.h"
+#include "ImageCache/LoadingJob.h"
 #include "PhotoContainers/ItemId.h"
 #include "ImageProcessing/LoaderThread.h"
 #include <QObject>
@@ -17,7 +17,7 @@ class LoadingManager : public QObject
 public:
   explicit LoadingManager(Cache const& cache);
 
-  void start(Transaction && job);
+  void start(LoadingJob && job);
   void stop(pcontainer::ItemId const& itemId);
 
 signals:
@@ -29,7 +29,7 @@ private slots:
   void imageLoaded(pcontainer::ItemId const& itemId, QImage const& image);
 
 private:
-  std::multimap<pcontainer::ItemId, std::pair<Runnable::UniqueId, Transaction>> transactionsInThread;
+  std::multimap<pcontainer::ItemId, std::pair<Runnable::UniqueId, LoadingJob>> jobsInThread;
 
   std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(pcontainer::ItemId const& itemId) const;
 

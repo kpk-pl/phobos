@@ -7,16 +7,10 @@ Transaction::Transaction(Cache& cache) :
   uuid(QUuid::createUuid()), cache(cache)
 {}
 
-Transaction&& Transaction::callback(CallbackType && newCallback) &&
+Transaction&& Transaction::callback(TransactionCallback && newCallback) &&
 {
-  loadCallback = OptCallback{std::move(newCallback)};
+  loadCallback = OptTransactionCallback{std::move(newCallback)};
   return std::move(*this);
-}
-
-void Transaction::OptCallback::operator()(Result && result) const
-{
-  if (func)
-    func(std::move(result));
 }
 
 QString Transaction::toString() const
@@ -38,6 +32,11 @@ QString Transaction::toString() const
 Result Transaction::execute() &&
 {
   return cache.execute(std::move(*this));
+}
+
+LoadingJob Transaction::toLoadingJob() &&
+{
+  return LoadingJob{std::move(itemId), onlyThumbnail, std::move(loadCallback)};
 }
 
 }} // namespace phobos::icache
