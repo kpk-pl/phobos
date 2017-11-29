@@ -6,6 +6,7 @@
 #include "ImageCache/LimitedMap.h"
 #include "ImageCache/Transaction.h"
 #include "ImageCache/LoadingManager.h"
+#include "ImageCache/ProactiveScheduler.h"
 #include "ImageProcessing/LoaderThread.h"
 #include "PhotoContainers/Set.h"
 #include "PhotoContainers/ItemId.h"
@@ -54,6 +55,7 @@ private:
 
   pcontainer::Set const& photoSet;
   LoadingManager loadingManager;
+  ProactiveScheduler scheduler;
 };
 
 }} // namespace phobos::icache

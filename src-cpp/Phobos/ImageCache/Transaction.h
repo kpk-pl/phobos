@@ -3,7 +3,6 @@
 
 #include "ImageCache/CacheFwd.h"
 #include "ImageCache/TransactionFwd.h"
-#include "ImageCache/LoadingJob.h"
 #include "PhotoContainers/ItemId.h"
 #include <QImage>
 #include <QUuid>
@@ -32,8 +31,6 @@ public:
   OptTransactionCallback const& getCallback() const { return loadCallback; }
   bool isThumbnail() const { return onlyThumbnail; }
   bool loadingEnabled() const { return !disableLoading; }
-
-  LoadingJob toLoadingJob() &&;
 
 private:
   Cache& cache;

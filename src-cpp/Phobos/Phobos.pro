@@ -80,6 +80,8 @@ SOURCES += Phobos.cpp\
     ImageCache/Runnable.cpp \
     ImageCache/ContentList.cpp \
     ImageCache/LoadingManager.cpp \
+    ImageCache/GenerationTracker.cpp \
+    ImageCache/ProactiveScheduler.cpp \
     ProcessWizard/ProcessWizard.cpp \
     ProcessWizard/Operation.cpp \
     ProcessWizard/ActionsCreatorPage.cpp \
@@ -178,6 +180,8 @@ HEADERS  += MainWindow.h \
     ImageCache/Types.h \
     ImageCache/LoadingManager.h \
     ImageCache/LoadingJob.h \
+    ImageCache/GenerationTracker.h \
+    ImageCache/ProactiveScheduler.h \
     ProcessWizard/ProcessWizard.h \
     ProcessWizard/Operation.h \
     ProcessWizard/ActionsCreatorPage.h \

@@ -34,9 +34,4 @@ Result Transaction::execute() &&
   return cache.execute(std::move(*this));
 }
 
-LoadingJob Transaction::toLoadingJob() &&
-{
-  return LoadingJob{std::move(itemId), onlyThumbnail, std::move(loadCallback)};
-}
-
 }} // namespace phobos::icache

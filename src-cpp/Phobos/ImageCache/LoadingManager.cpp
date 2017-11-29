@@ -9,7 +9,13 @@ namespace phobos { namespace icache {
 LoadingManager::LoadingManager(Cache const& cache) : cache(cache)
 {}
 
-void LoadingManager::start(LoadingJob && job)
+void LoadingManager::start(LoadingJobVec && jobs)
+{
+  for (auto job : jobs)
+    startOne(std::move(job));
+}
+
+void LoadingManager::startOne(LoadingJob && job)
 {
   pcontainer::ItemId const itemId = job.itemId;
 
@@ -17,9 +23,6 @@ void LoadingManager::start(LoadingJob && job)
   auto thread = makeLoadingThread(itemId);
   jobsInThread.emplace(itemId, std::make_pair(thread->uuid(), std::move(job)));
   threadPool.start(std::move(thread), 0);
-
-// TODO: use generations to start as priorities. Handle persistent flag from transaction.
-// Don't start loading proactively when there is no more cache space left for given generation
 }
 
 void LoadingManager::stop(pcontainer::ItemId const& itemId)

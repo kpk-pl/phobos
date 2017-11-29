@@ -17,7 +17,7 @@ class LoadingManager : public QObject
 public:
   explicit LoadingManager(Cache const& cache);
 
-  void start(LoadingJob && job);
+  void start(LoadingJobVec && job);
   void stop(pcontainer::ItemId const& itemId);
 
 signals:
@@ -31,6 +31,7 @@ private slots:
 private:
   std::multimap<pcontainer::ItemId, std::pair<Runnable::UniqueId, LoadingJob>> jobsInThread;
 
+  void startOne(LoadingJob && job);
   std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(pcontainer::ItemId const& itemId) const;
 
   PriorityThreadPool threadPool;
