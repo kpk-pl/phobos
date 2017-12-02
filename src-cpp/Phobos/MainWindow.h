@@ -7,6 +7,8 @@
 #include "ImageCache/Cache.h"
 #include "ProcessWizard/Operation.h"
 
+class QCloseEvent;
+
 namespace phobos {
 
 class MainWindow : public QMainWindow
@@ -15,6 +17,8 @@ class MainWindow : public QMainWindow
 
 public:
   explicit MainWindow(QWidget *parent = nullptr);
+
+  void closeEvent(QCloseEvent *ev) override;
 
 private slots:
   void processAction(processwiz::OperationType const operation);

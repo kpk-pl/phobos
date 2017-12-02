@@ -12,6 +12,8 @@
 #include <QApplication>
 #include <QMenuBar>
 #include <QAction>
+#include <QCloseEvent>
+#include <QMessageBox>
 #include <QKeySequence>
 #include <cstdio>
 
@@ -29,6 +31,17 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle(config::qualified<std::string>("mainWindow.title", "Phobos").c_str());
     setMinimumSize(config::qSize("mainWindow.minimumSize", QSize(480, 360)));
     resize(config::qSize("mainWindow.defaultSize", QSize(1024, 768)));
+}
+
+void MainWindow::closeEvent(QCloseEvent *ev)
+{
+  auto const resButton = QMessageBox::question(this, windowTitle(), tr("Are you sure you want to quit?\n"),
+                                               QMessageBox::Cancel | QMessageBox::Yes,
+                                               QMessageBox::Yes);
+  if (resButton != QMessageBox::Yes)
+    ev->ignore();
+  else
+    ev->accept();
 }
 
 void MainWindow::loadPhotos()
