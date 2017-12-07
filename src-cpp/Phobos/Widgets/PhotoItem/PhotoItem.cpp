@@ -39,6 +39,9 @@ namespace phobos { namespace widgets { namespace pitem {
 // TODO: addon: Display selected metrics in text form on single series views.
 //
 // TODO: show "Quality" text in quality label
+//
+// TODO: Right-click to open image in separate window with full quality. Keep just one of that window and
+// reuse if another image is chosen
 
 PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem,
                      Addons const& addons,
@@ -237,6 +240,9 @@ void PhotoItem::paintEvent(QPaintEvent*)
 
 void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
 {
+  // TODO: show context menu ONLY if click happened on the drawed canvas. Don't show it if
+  // click was on the spacer between photos of different sizes
+  // This has to be configurable in config
   QMenu menu;
 
   QMenu* photoMenu = menu.addMenu("Photo");

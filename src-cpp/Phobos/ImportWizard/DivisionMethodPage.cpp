@@ -39,6 +39,8 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     noopChoice = new QRadioButton(tr("Don't divide photos - create one series"));
     QObject::connect(noopChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::DontDivide); });
 
+    // TODO: radio choice: "Sort by filenames", "Sort by dates (less accurate)"
+    // add some helptext of some sort
     notSortedPhotosBox = new QCheckBox(tr("My photos cannot be sorted by file names"));
     notSortedPhotosBox->setToolTip(tr("Check if your photos have irregular naming pattern, you renamed them or they come from several different cameras."));
 
