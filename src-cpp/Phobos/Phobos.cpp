@@ -17,6 +17,15 @@
 INITIALIZE_EASYLOGGINGPP
 
 // TODO: My app has no icon - add one
+
+// TODO: Add a separate dialog window with the ability to display zommed full-size image.
+// The dialog should be resizeable and should be updated once another photo is selected to be displayed
+// use setObjectName with topLevelWidgets to implement a singleton-like solution to obtain
+// handle to this dialog when it exists. Create new if does not exists.
+
+// TODO: DetailsDialog should use the same logic to not require parent widget peing passed. Main application
+// should be used as a singleton (there is a dedicated function for this, or name main application and
+// use logic as above)
 int main(int argc, char *argv[])
 {
     auto const elConf = phobos::config::get()->get_qualified_as<std::string>("global.loggingConfig");
