@@ -18,6 +18,7 @@ public:
 
   LimitedMap() = default;
 
+  bool has(KeyType const& key) const;
   ValueType find(KeyType const& key) const;
   void replace(KeyType const& key, ValueType const& value, Generation const& generation);
   void touch(KeyType const& key, Generation const& generation);

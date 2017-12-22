@@ -22,7 +22,7 @@ void LoadingManager::startOne(LoadingJob && job)
   LOG(DEBUG) << "[Cache] Requested thread load for " << itemId.fileName;
   auto thread = makeLoadingThread(itemId);
   jobsInThread.emplace(itemId, std::make_pair(thread->uuid(), std::move(job)));
-  threadPool.start(std::move(thread), 0);
+  threadPool.start(std::move(thread), job.generation);
 }
 
 void LoadingManager::stop(pcontainer::ItemId const& itemId)
@@ -74,6 +74,7 @@ void LoadingManager::imageLoaded(pcontainer::ItemId const& itemId, QImage const&
   }
 
   bool updateFullCache = false;
+  Generation biggestGeneration = 0;
 
   for (auto it = allTrans.first; it != allTrans.second; ++it)
   {
@@ -82,12 +83,13 @@ void LoadingManager::imageLoaded(pcontainer::ItemId const& itemId, QImage const&
     else
     {
       updateFullCache = true;
+      biggestGeneration = std::max(biggestGeneration, it->second.second.generation);
       it->second.second.callback(Result{image, ImageQuality::Full, true});
     }
   }
 
   if (updateFullCache)
-    emit imageReady(itemId, image);
+    emit imageReady(itemId, image, biggestGeneration);
 
   jobsInThread.erase(allTrans.first, allTrans.second);
 }

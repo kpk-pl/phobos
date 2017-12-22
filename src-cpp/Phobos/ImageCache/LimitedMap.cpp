@@ -5,6 +5,11 @@
 
 namespace phobos { namespace icache {
 
+bool LimitedMap::has(KeyType const& key) const
+{
+  return map.find(key) != map.end();
+}
+
 auto LimitedMap::find(KeyType const& key) const -> ValueType
 {
   auto const it = map.find(key);
@@ -63,7 +68,7 @@ void LimitedMap::insertNew(KeyType const& key, ValueType const& value, Generatio
   contentList.insert(key, generation, value.byteCount());
   map.emplace(key, value);
 
-  LOG(DEBUG) << "[Cache] Saved new full image " << key << " (" << megabytes(value) << "MB)";
+  LOG(DEBUG) << "[Cache] Saved new full image " << key << " (" << megabytes(value) << "MB) at generation " << generation;
 }
 
 void LimitedMap::overrideExisting(IteratorType const& iterator, ValueType const& value, Generation const& generation)

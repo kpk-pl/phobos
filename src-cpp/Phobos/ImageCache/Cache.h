@@ -36,7 +36,7 @@ public:
 
 public slots:
   void thumbnailReady(pcontainer::ItemId const& itemId, QImage const& image);
-  void imageReady(pcontainer::ItemId const& itemId, QImage const& image);
+  void imageReady(pcontainer::ItemId const& itemId, QImage const& image, Generation const generation);
 
 signals:
   void updateMetrics(pcontainer::ItemId itemId, iprocess::metric::MetricPtr);

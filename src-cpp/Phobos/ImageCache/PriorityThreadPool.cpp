@@ -123,7 +123,10 @@ void PriorityThreadPool::handleFinished(Runnable::Id taskId)
   assert(it != runningTasks.end());
   runningTasks.erase(it);
 
+  auto const originalSize = queue.size();
   queue.erase(std::remove_if(queue.begin(), queue.end(), PriorityTask::IdEqual{taskId}), queue.end());
+  if (queue.size() != originalSize)
+    LOG(DEBUG) << "Removed " << originalSize - queue.size() << " tasks from queue";
 
   updatePool();
 }

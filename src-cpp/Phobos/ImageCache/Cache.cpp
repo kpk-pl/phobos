@@ -5,12 +5,13 @@
 #include "Utils/Asserted.h"
 #include "ConfigExtension.h"
 #include <easylogging++.h>
+#include <algorithm>
 #include <QPixmapCache>
 
 namespace phobos { namespace icache {
 
 Cache::Cache(pcontainer::Set const& photoSet) :
-    metricCache(photoSet), photoSet(photoSet), loadingManager(*this)
+  metricCache(photoSet), photoSet(photoSet), loadingManager(*this), scheduler(photoSet)
 {
   QObject::connect(&metricCache, &MetricCache::updateMetrics, this, &Cache::updateMetrics);
   QObject::connect(&photoSet, &pcontainer::Set::changedSeries, this, &Cache::changedSeries);
@@ -28,10 +29,22 @@ Result Cache::execute(Transaction && transaction)
     return {QImage{}, ImageQuality::None, false};
 
   auto const result = executeImpl(transaction);
-  if (transaction.loadingEnabled() && !result.sufficient)
-    loadingManager.start(scheduler(std::move(transaction)));
 
-// TODO: Handle proactive transactions, make more threads
+  LoadingJobVec jobs = scheduler(std::move(transaction));
+  auto const part = std::partition(jobs.begin(), jobs.end(), [this](LoadingJob const& job){
+    if (job.onlyThumbnail)
+      return thumbnailCache.find(job.itemId.fileName) == thumbnailCache.end();
+    return !fullImageCache.has(job.itemId.fileName);
+  });
+
+  std::for_each(part, jobs.end(), [this](LoadingJob const& job){
+    if (!job.onlyThumbnail)
+      fullImageCache.touch(job.itemId.fileName, job.generation);
+  });
+
+  jobs.erase(part, jobs.end());
+  loadingManager.start(std::move(jobs));
+
   return result;
 }
 
@@ -80,13 +93,12 @@ Result getInitialThumbnail(pcontainer::Item const& item)
 
 Result Cache::executeImpl(Transaction const& transaction) const
 {
-  if (!transaction.getItemId())
+  auto const& itemId = transaction.getItemId();
+  if (!itemId)
   {
     LOG(ERROR) << "[Cache] Invalid transaction";
     return {QImage{}, ImageQuality::None, false};
   }
-
-  auto const& itemId = transaction.getItemId();
 
   bool sufficient = true;
   if (!transaction.isThumbnail())
@@ -135,9 +147,9 @@ void Cache::thumbnailReady(pcontainer::ItemId const& itemId, QImage const& image
   LOG(DEBUG) << "[Cache] Saved new preload image " << itemId.fileName;
 }
 
-void Cache::imageReady(pcontainer::ItemId const& itemId, QImage const& image)
+void Cache::imageReady(pcontainer::ItemId const& itemId, QImage const& image, Generation const generation)
 {
-  fullImageCache.replace(itemId.fileName, image, 0);
+  fullImageCache.replace(itemId.fileName, image, generation);
 }
 
 }} // namespace phobos::icache

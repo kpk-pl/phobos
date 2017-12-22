@@ -80,7 +80,6 @@ SOURCES += Phobos.cpp\
     ImageCache/Runnable.cpp \
     ImageCache/ContentList.cpp \
     ImageCache/LoadingManager.cpp \
-    ImageCache/GenerationTracker.cpp \
     ImageCache/ProactiveScheduler.cpp \
     ProcessWizard/ProcessWizard.cpp \
     ProcessWizard/Operation.cpp \
@@ -146,6 +145,7 @@ HEADERS  += MainWindow.h \
     Utils/Filesystem/Attributes.h \
     Utils/Filesystem/Portable.h \
     Utils/Filesystem/Trash.h \
+    Utils/Circulator.h \
     easyloggingpp/src/easylogging++.h \
     qt_ext/qexifimageheader.h \
     ImportWizard/ImageOpenDialog.h \
@@ -180,7 +180,6 @@ HEADERS  += MainWindow.h \
     ImageCache/Types.h \
     ImageCache/LoadingManager.h \
     ImageCache/LoadingJob.h \
-    ImageCache/GenerationTracker.h \
     ImageCache/ProactiveScheduler.h \
     ProcessWizard/ProcessWizard.h \
     ProcessWizard/Operation.h \

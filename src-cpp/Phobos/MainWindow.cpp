@@ -17,6 +17,8 @@
 #include <QKeySequence>
 #include <cstdio>
 
+// TODO: Allow changing toggle order, so user can prefer removing (red) instead of selecting (green).
+// Allow to disable some choices
 namespace phobos {
 
 MainWindow::MainWindow(QWidget *parent) :

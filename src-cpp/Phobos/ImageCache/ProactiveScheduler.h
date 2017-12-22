@@ -3,21 +3,25 @@
 
 #include "ImageCache/TransactionFwd.h"
 #include "ImageCache/LoadingJob.h"
-#include "ImageCache/GenerationTracker.h"
+#include "PhotoContainers/Fwd.h"
 
 namespace phobos { namespace icache {
 
 class ProactiveScheduler
 {
 public:
-  explicit ProactiveScheduler() = default;
+  explicit ProactiveScheduler(pcontainer::Set const& photoSet);
 
-  LoadingJobVec operator()(Transaction && parent) const;
-
-  GenerationTracker const& generation() const;
+  LoadingJobVec operator()(Transaction && parent);
 
 private:
-  GenerationTracker generationTracker;
+  LoadingJobVec scheduleProactive(Transaction const& transaction);
+  LoadingJobVec scheduleOrganic(Transaction const& transaction);
+
+  pcontainer::Set const& photoSet;
+  Generation currentGeneration;
+
+  QUuid lastProactiveSeries;
 };
 
 }} // namespace phobos::icache

@@ -209,10 +209,10 @@ void AllSeriesView::addItemToGrid(int const row, int const col, pcontainer::Item
 
   auto item = std::make_unique<PhotoItem>(itemPtr, widgetAddons, capabilities);
 
-  auto const thumbnail = imageCache.transaction().item(itemId).thumbnail().callback([lt=item->lifetime()](auto && result){
+  auto const thumbnail = imageCache.transaction().item(itemId).callback([lt=item->lifetime()](auto && result){
       auto item = lt.lock();
       if (item) item->setImage(result.image);
-    }).persistent().execute();
+    }).thumbnail().persistent().execute();
 
   item->setBorder(config::qualified("photoItemWidget.border.width", 0));
   item->setImage(thumbnail.image);

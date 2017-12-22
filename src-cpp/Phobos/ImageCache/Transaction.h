@@ -30,6 +30,8 @@ public:
   pcontainer::ItemId const& getItemId() const { return itemId; }
   OptTransactionCallback const& getCallback() const { return loadCallback; }
   bool isThumbnail() const { return onlyThumbnail; }
+  bool isProactive() const { return proactiveLoading; }
+  bool isPersistent() const { return persistentLoading; }
   bool loadingEnabled() const { return !disableLoading; }
 
 private:

@@ -22,7 +22,7 @@ public:
 
 signals:
   void thumbnailReady(pcontainer::ItemId const& itemId, QImage const& image);
-  void imageReady(pcontainer::ItemId const& itemId, QImage const& image);
+  void imageReady(pcontainer::ItemId const& itemId, QImage const& image, Generation const generation);
   void metricsReady(pcontainer::ItemId const& itemId, iprocess::metric::MetricPtr metrics);
 
 private slots:

@@ -21,6 +21,12 @@ struct ItemId
   {
     return fileName == rhs.fileName && seriesUuid == rhs.seriesUuid;
   }
+
+  bool operator!=(ItemId const& rhs) const
+  {
+    return fileName != rhs.fileName || seriesUuid != rhs.seriesUuid;
+  }
+
   bool operator<(ItemId const& rhs) const
   {
     return (seriesUuid == rhs.seriesUuid) ? fileName < rhs.fileName : seriesUuid < rhs.seriesUuid;

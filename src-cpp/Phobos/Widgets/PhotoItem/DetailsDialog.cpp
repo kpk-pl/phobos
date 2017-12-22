@@ -20,6 +20,7 @@ namespace phobos { namespace widgets { namespace pitem {
 
 namespace {
 
+// TODO: show percent value as a separate column aligned to right
 template<typename Mem>
 QString valueOrNull(iprocess::metric::MetricPtr const& metric, Mem member, int const precision = 6)
 {
