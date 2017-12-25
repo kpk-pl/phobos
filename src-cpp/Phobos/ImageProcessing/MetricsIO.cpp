@@ -22,6 +22,21 @@ std::ostream& operator<<(std::ostream& os, DepthOfField const& dof)
   return os;
 }
 
+std::ostream& operator<<(std::ostream& os, Hue const& hue)
+{
+  static_assert(Hue::numberOfChannels == 6, "Support for only 6 channels");
+
+  os << "{ "
+     << "red: " << hue.getChannel(Hue::Name::Red) << ' '
+     << "yellow: " << hue.getChannel(Hue::Name::Yellow) << ' '
+     << "green: " << hue.getChannel(Hue::Name::Green) << ' '
+     << "cyan: " << hue.getChannel(Hue::Name::Cyan) << ' '
+     << "blue: " << hue.getChannel(Hue::Name::Blue) << ' '
+     << "magenta: " << hue.getChannel(Hue::Name::Magenta)
+     << " }";
+  return os;
+}
+
 std::ostream& operator<<(std::ostream& os, MetricValues const& metric)
 {
   os << "{ "
@@ -29,7 +44,9 @@ std::ostream& operator<<(std::ostream& os, MetricValues const& metric)
      << "noise: " << metric.noise << ' '
      << "contrast: " << metric.contrast << ' '
      << "sharpness: " << metric.sharpness << ' '
-     << "depthOfField: " << metric.depthOfField
+     << "depthOfField: " << metric.depthOfField << ' '
+     << "saturation: " << metric.saturation << ' '
+     << "complementary: " << metric.complementary
      << " }";
   return os;
 }
@@ -40,6 +57,7 @@ std::ostream& operator<<(std::ostream& os, Metric const& scored)
      << "itemMetric: " << dynamic_cast<MetricValues const&>(scored) << ' '
      << "seriesMetric: " << scored.seriesMetric << ' '
      << "depthOfFieldRaw: " << scored.depthOfFieldRaw << ' '
+     << "hue: " << scored.hue << ' '
      << "best: " << (scored.bestQuality ? "true" : "false") << ' '
      << "score: " << scored.score()
      << " }";

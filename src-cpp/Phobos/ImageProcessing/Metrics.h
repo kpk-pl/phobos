@@ -38,6 +38,10 @@ struct Hue
   };
 
   std::array<double, numberOfChannels> channel;
+  double getChannel(Name const name) const
+  {
+    return channel[static_cast<std::size_t>(name)];
+  }
 };
 
 struct MetricValues

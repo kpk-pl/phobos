@@ -63,8 +63,8 @@ bool MetricCache::changedSeries(QUuid const& seriesUuid)
     auto const& metric = metricCache[filename];
     emit updateMetrics(pcontainer::ItemId{seriesUuid, filename}, metric);
 
-    LOG_IF(doLog, DEBUG) << "Calculated series metrics" << std::endl
-       << "photoItem: " << filename << std::endl
+    LOG_IF(doLog, DEBUG) << "Calculated series metrics: "
+       << "photoItem: " << filename << ' '
        << "metric: " << metric;
   }
 
