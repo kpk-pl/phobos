@@ -20,6 +20,7 @@ maximumTimeBetweenTwoPhotosInSeries = 3.0
 [metricCalculator]
 processingSize = [800, 800]
 blurAlgorithm = "laplace" # laplace/laplaceMod/sobel
+blurRoiSide = 5
 noiseMedianSize = 3
 
 [metricWeights]

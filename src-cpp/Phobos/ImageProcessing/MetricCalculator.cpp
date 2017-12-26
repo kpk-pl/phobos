@@ -83,12 +83,14 @@ public:
   void blur()
   {
     std::string const blurAlgo = config::qualified(configPath("blurAlgorithm"), std::string("laplace"));
+    std::size_t const blurROISide = config::qualified<std::size_t>(configPath("blurRoiSide"), 1);
+
     if (blurAlgo == "sobel")
-      TIMED("runMetrics: sobel", metrics->blur = blur::sobel(baseImage));
+      TIMED("runMetrics: sobel", metrics->blur = Bluriness<blur::Sobel>{blurROISide}(baseImage));
     else if (blurAlgo == "laplaceMod")
-      TIMED("runMetrics: laplaceMod", metrics->blur = blur::laplaceMod(baseImage));
+      TIMED("runMetrics: laplaceMod", metrics->blur = Bluriness<blur::LaplaceMod>{blurROISide}(baseImage));
     else
-      TIMED("runMetrics: laplace", metrics->blur = blur::laplace(baseImage));
+      TIMED("runMetrics: laplace", metrics->blur = Bluriness<blur::Laplace>{blurROISide}(baseImage));
   }
 
   void sharpness()

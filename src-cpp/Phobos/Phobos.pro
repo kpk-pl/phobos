@@ -123,6 +123,7 @@ HEADERS  += MainWindow.h \
     ImageProcessing/ColoredPixmap.h \
     ImageProcessing/Sharpness.h \
     ImageProcessing/MetricCalculator.h \
+    ImageProcessing/ROIProcessor.h \
     ImageProcessing/Hue.h \
     PhotoContainers/Fwd.h \
     PhotoContainers/Series.h \

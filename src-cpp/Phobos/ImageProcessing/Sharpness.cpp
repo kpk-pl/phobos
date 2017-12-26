@@ -1,5 +1,6 @@
 #include "ImageProcessing/Sharpness.h"
 #include "ImageProcessing/Histogram.h"
+#include "ImageProcessing/ROIProcessor.h"
 #include <opencv2/opencv.hpp>
 #include <cassert>
 #include <set>
@@ -41,25 +42,13 @@ Result calculateAll(cv::Mat const& highImage)
   Result result;
   result.sharpness = nthPercentile(highImage, sharpPercentile);
 
-  std::size_t constexpr sideBreak = 5;
-  std::size_t constexpr bins = sideBreak*sideBreak;
-  auto const widthWide = highImage.cols / sideBreak;
-  auto const heightWide = highImage.rows / sideBreak;
+  ROIProcessor<> roiProcessor;
+  auto const segmentSharpness = roiProcessor(highImage,
+      [&sharpPercentile](auto const& roi){
+        return nthPercentile(roi, sharpPercentile);
+      }, 5);
 
-  std::array<double, bins> segmentSharpness;
-
-  for (unsigned colPiece = 0; colPiece < sideBreak; ++colPiece)
-    for (unsigned rowPiece = 0; rowPiece < sideBreak; ++rowPiece)
-    {
-      cv::Rect const roi(colPiece*widthWide, rowPiece*heightWide, widthWide, heightWide);
-      segmentSharpness[colPiece*sideBreak+rowPiece] = nthPercentile(highImage(roi), sharpPercentile);
-    }
-
-  std::sort(std::begin(segmentSharpness), std::end(segmentSharpness));
-
-  std::get<0>(result.breakout) = segmentSharpness.front();
-  std::get<1>(result.breakout) = 0.5 * (segmentSharpness.at(bins / 2) + segmentSharpness.at((bins+1) / 2));
-  std::get<2>(result.breakout) = segmentSharpness.back();
+  result.breakout = aggregateROI(std::move(segmentSharpness));
 
   return result;
 }
