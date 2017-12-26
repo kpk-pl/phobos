@@ -27,7 +27,7 @@ RowSeriesView::RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
   layout->addWidget(scroll, 100);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
-  //layout->addStretch(0);
+  layout->addStretch(0);
   setLayout(layout);
 
   QObject::connect(navigationBar->allSeriesButton(), &QPushButton::clicked,
