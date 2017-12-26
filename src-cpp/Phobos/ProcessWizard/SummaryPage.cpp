@@ -25,6 +25,9 @@ namespace phobos { namespace processwiz {
 // 2. %F flag should stop be handled as a unique resolution
 // 3. When some executions fail, files are removed from application. Trying to execute similar actions will mess up numbering of output files
 //    figure out a way to use ord() numbers and use absolute number of photos in series (photos existing + removed) to fix up numbering
+//
+//  TODO: If displaying sumary page without any action created, display label with warning
+//  saying that user needs to "Create action" on previous page
 
 SummaryPage::SummaryPage(SeriesCounts const& seriesCounts, pcontainer::Set const& photoSet) :
   seriesCounts(seriesCounts), photoSet(photoSet)

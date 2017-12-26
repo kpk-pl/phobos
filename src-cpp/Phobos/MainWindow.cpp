@@ -63,6 +63,8 @@ void MainWindow::createMenus()
     fileMenu->addAction(tr("&Exit"), this, &MainWindow::close, QKeySequence("Ctrl+Q"))->setStatusTip(tr("Exit the application"));
 
     // TODO: to viewMenubar add selectable options to enable/disable addons on photoitemwidgets
+    //
+    // TODO: Select only best phtoos to clear selection and select best photos
 
     QMenu* viewMenu = menuBar()->addMenu(tr("&View"));
     viewMenu->addAction(tr("&All series"),

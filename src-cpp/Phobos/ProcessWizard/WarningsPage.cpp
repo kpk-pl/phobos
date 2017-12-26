@@ -30,6 +30,8 @@ WarningsPage::WarningsPage(SeriesCounts const& counts)
   layout->addWidget(new QLabel(tr("Processing %1 photos from %2 series in total")
                                .arg(counts.all.photos).arg(counts.all.series)));
 
+  // TODO: display how many selected, discarded and unknown photos are there
+
   // TODO: span color tags with colors for discarded, uncheched ?
   bool warningsPresent = false;
   warningsPresent |= maker(tr("Found %1 completely discarded series"), counts.seriesCompletelyDiscarded);

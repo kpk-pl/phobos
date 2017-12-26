@@ -56,6 +56,12 @@ struct AllSeriesView::Coords
     int row, col;
 };
 
+// TODO: Need navigation bar with some UI icons:
+// Import photos
+// show whole series (num/row)
+// select best photos
+// delete/move/copy/rename photos
+
 AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
   seriesSet(seriesSet), imageCache(imageCache), scroll(nullptr), grid(nullptr)
 {

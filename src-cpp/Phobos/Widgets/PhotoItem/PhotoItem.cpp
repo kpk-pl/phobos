@@ -42,6 +42,10 @@ namespace phobos { namespace widgets { namespace pitem {
 //
 // TODO: Right-click to open image in separate window with full quality. Keep just one of that window and
 // reuse if another image is chosen
+//
+// TODO: color border is not enough. need to add a triangle in one of the corners in color
+// or color ord number
+// or use some ico like questionmark, tick and a cross
 
 PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem,
                      Addons const& addons,

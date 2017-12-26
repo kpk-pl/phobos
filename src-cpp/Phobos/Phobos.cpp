@@ -26,6 +26,14 @@ INITIALIZE_EASYLOGGINGPP
 // TODO: DetailsDialog should use the same logic to not require parent widget peing passed. Main application
 // should be used as a singleton (there is a dedicated function for this, or name main application and
 // use logic as above)
+//
+// TODO: Every UI element should have tooltip saying what it does (buttons and sliders on navigation bar)
+//
+// TODO: Need to add a lot of helper tests to be displayed in the status bar of the application
+// Possibility to disable status bar entirely
+// Every screen and page should say what is expected of the user
+// and if mouse toogles over some UI element text should shange to a description what this element does
+
 int main(int argc, char *argv[])
 {
     auto const elConf = phobos::config::get()->get_qualified_as<std::string>("global.loggingConfig");
