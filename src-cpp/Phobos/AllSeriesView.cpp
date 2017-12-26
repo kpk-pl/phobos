@@ -61,6 +61,7 @@ struct AllSeriesView::Coords
 // show whole series (num/row)
 // select best photos
 // delete/move/copy/rename photos
+// also, counters of selected, discarded and unselected photos
 
 AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
   seriesSet(seriesSet), imageCache(imageCache), scroll(nullptr), grid(nullptr)
