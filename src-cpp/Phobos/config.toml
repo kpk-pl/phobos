@@ -62,7 +62,7 @@ background = { type = "square", color = "red", opacity = 0.5 } # type circle is 
 bestBackground = { type = "square", color = "green", opacity = 0.5 }
 
 [photoItemWidget.border]
-width = 3
+width = 5
 
 [photoItemWidget.histogram]
 size = [128, 64]
@@ -103,7 +103,7 @@ color = "darkGray"
 icon = ":icons/awesome/png/question-mark-on-a-circular-black-background.png"
 
 [category.selected]
-color = "green"
+color = "#8cff66"
 icon = ":icons/awesome/png/checked-symbol.png"
 
 [category.discarded]
