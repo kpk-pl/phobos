@@ -36,7 +36,7 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char *argv[])
 {
-    auto const elConf = phobos::config::get()->get_qualified_as<std::string>("global.loggingConfig");
+    auto const elConf = phobos::config::get()->get_qualified_as<std::string>("logging.config");
     if (elConf)
     {
         el::Configurations conf(*elConf);
