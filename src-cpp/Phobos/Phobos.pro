@@ -36,6 +36,7 @@ SOURCES += Phobos.cpp\
     ImageProcessing/Calculator/Sharpness.cpp \
     ImageProcessing/Calculator/Noisiness.cpp \
     ImageProcessing/Calculator/Histogram.cpp \
+    ImageProcessing/Calculator/Saturation.cpp \
     ImageProcessing/MetricsAggregate.cpp \
     ImageProcessing/MetricCalculator.cpp \
     ImageProcessing/Utils/ColoredPixmap.cpp \
@@ -96,8 +97,7 @@ SOURCES += Phobos.cpp\
     ProcessWizard/ActionTab/RenameActionTab.cpp \
     ProcessWizard/ActionTab/CopyMoveActionTab.cpp \
     ProcessWizard/Execution/ExecutionImpl.cpp \
-    ProcessWizard/Execution/Execute.cpp \
-    ImageProcessing/Calculator/Saturation.cpp
+    ProcessWizard/Execution/Execute.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -116,11 +116,13 @@ HEADERS  += MainWindow.h \
     ImageProcessing/Metrics.h \
     ImageProcessing/MetricsIO.h \
     ImageProcessing/LoaderThread.h \
+    ImageProcessing/Calculator/All.h \
     ImageProcessing/Calculator/Bluriness.h \
     ImageProcessing/Calculator/Hue.h \
     ImageProcessing/Calculator/Sharpness.h \
     ImageProcessing/Calculator/Noisiness.h \
     ImageProcessing/Calculator/Histogram.h \
+    ImageProcessing/Calculator/Saturation.h \
     ImageProcessing/MetricsAggregate.h \
     ImageProcessing/MetricCalculator.h \
     ImageProcessing/Metric/Traits.h \
@@ -131,6 +133,11 @@ HEADERS  += MainWindow.h \
     ImageProcessing/Metric/Noise.h \
     ImageProcessing/Metric/Sharpness.h \
     ImageProcessing/Metric/DepthOfField.h \
+    ImageProcessing/Metric/Saturation.h \
+    ImageProcessing/Metric/ComplementaryColors.h \
+    ImageProcessing/Feature/Histogram.h \
+    ImageProcessing/Feature/Hue.h \
+    ImageProcessing/Feature/All.h \
     ImageProcessing/Utils/ColoredPixmap.h \
     ImageProcessing/Utils/ROIProcessor.h \
     ImageProcessing/Utils/FormatConversion.h \
@@ -210,14 +217,7 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution/Execution.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
-    ProcessWizard/Execution/Execute.h \
-    ImageProcessing/Feature/Histogram.h \
-    ImageProcessing/Feature/Hue.h \
-    ImageProcessing/Metric/Saturation.h \
-    ImageProcessing/Metric/ComplementaryColors.h \
-    ImageProcessing/Feature/All.h \
-    ImageProcessing/Calculator/All.h \
-    ImageProcessing/Calculator/Saturation.h
+    ProcessWizard/Execution/Execute.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

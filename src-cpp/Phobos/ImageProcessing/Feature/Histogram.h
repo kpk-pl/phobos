@@ -12,7 +12,21 @@ struct Histogram
   enum Channel { Value, Red, Green, Blue };
 
   std::map<Channel, DataType> data;
-  operator bool() const { return !data.empty(); }
+
+  operator bool() const
+  {
+    return !data.empty();
+  }
+
+  bool hasChannel(Channel const ch) const
+  {
+    return data.find(ch) != data.end();
+  }
+
+  DataType const& channel(Channel const ch) const
+  {
+    return data.find(ch)->second;
+  }
 };
 
 }}} // namespace phobos::iprocess::feature

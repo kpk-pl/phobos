@@ -2,7 +2,6 @@
 #include "ImageProcessing/Metrics.h"
 #include "PhotoContainers/Item.h"
 #include "ConfigExtension.h"
-#include "Utils/Asserted.h"
 #include "Utils/Algorithm.h"
 #include <QPainter>
 #include <QSize>
@@ -81,10 +80,15 @@ void AddonRenderer::histogram(iprocess::feature::Histogram const& hist, QSize co
 
   using Channel = iprocess::feature::Histogram::Channel;
 
-  drawHistLike(utils::asserted::fromMap(hist.data, Channel::Value), histConfig("value"), origin, histSize);
-  drawHistLike(utils::asserted::fromMap(hist.data, Channel::Blue), histConfig("blue"), origin, histSize);
-  drawHistLike(utils::asserted::fromMap(hist.data, Channel::Green), histConfig("green"), origin, histSize);
-  drawHistLike(utils::asserted::fromMap(hist.data, Channel::Red), histConfig("red"), origin, histSize);
+  auto const draw = [&](Channel const channel, config::ConfigPath const& path){
+    if (hist.hasChannel(channel))
+      drawHistLike(hist.channel(channel), path, origin, histSize);
+  };
+
+  draw(Channel::Value, histConfig("value"));
+  draw(Channel::Blue, histConfig("blue"));
+  draw(Channel::Green, histConfig("green"));
+  draw(Channel::Red, histConfig("red"));
 }
 
 void AddonRenderer::cumulativeHistogram(iprocess::feature::Histogram const& hist, QSize const& prefferedSize, QPoint const& origin)
@@ -101,10 +105,15 @@ void AddonRenderer::cumulativeHistogram(iprocess::feature::Histogram const& hist
 
   using Channel = iprocess::feature::Histogram::Channel;
 
-  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, Channel::Value)), histConfig("value"), origin, histSize);
-  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, Channel::Blue)), histConfig("blue"), origin, histSize);
-  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, Channel::Green)), histConfig("green"), origin, histSize);
-  drawHistLike(cumulate(utils::asserted::fromMap(hist.data, Channel::Red)), histConfig("red"), origin, histSize);
+  auto const draw = [&](Channel const channel, config::ConfigPath const& path){
+    if (hist.hasChannel(channel))
+      drawHistLike(cumulate(hist.channel(channel)), path, origin, histSize);
+  };
+
+  draw(Channel::Value, histConfig("value"));
+  draw(Channel::Blue, histConfig("blue"));
+  draw(Channel::Green, histConfig("green"));
+  draw(Channel::Red, histConfig("red"));
 }
 
 void AddonRenderer::drawHistLike(std::vector<float> const& data,

@@ -46,6 +46,11 @@ public:
     return metrics;
   }
 
+  bool isGrayscale() const
+  {
+    return baseImage.channels() == 1;
+  }
+
   void toGrayscale()
   {
     TIMED("runMetrics: toGrayscale", cv::cvtColor(baseImage, baseImage, cv::COLOR_BGR2GRAY));
@@ -61,6 +66,9 @@ public:
 
   void colorHistograms()
   {
+    if (metrics->saturation.isGrayscale())
+      return;
+
     std::vector<cv::Mat> bgrPlanes;
     TIMED("runMetrics: splitHist", cv::split(baseImage, bgrPlanes));
     assert(bgrPlanes.size() == 3);
@@ -69,6 +77,19 @@ public:
     TIMED("runMetrics: blueHistogram", metrics->histogram.data.emplace(Channel::Blue, calc::normalizedHistogram(bgrPlanes[0], nullptr)));
     TIMED("runMetrics: greenHistogram", metrics->histogram.data.emplace(Channel::Green, calc::normalizedHistogram(bgrPlanes[1], nullptr)));
     TIMED("runMetrics: redHistogram", metrics->histogram.data.emplace(Channel::Red, calc::normalizedHistogram(bgrPlanes[2], nullptr)));
+  }
+
+  void hsvColorFeatures()
+  {
+    cv::Mat hsvImage;
+    TIMED("runMetrics: toHSV", cv::cvtColor(baseImage, hsvImage, cv::COLOR_BGR2HSV));
+    TIMED("runMetrics: saturation", metrics->saturation = calc::saturation(hsvImage));
+
+    if (!metrics->saturation.isGrayscale())
+    {
+      TIMED("runMetrics: hueChannels", metrics->hue = calc::hueChannels(hsvImage));
+      TIMED("runMetrics: hueCompl", metrics->complementary = calc::complementaryChannels(metrics->hue.get()));
+    }
   }
 
   void histogramAndContrast()
@@ -107,16 +128,6 @@ public:
     });
   }
 
-  void colorFeatures()
-  {
-    cv::Mat hsvImage;
-    TIMED("runMetrics: toHSV", cv::cvtColor(baseImage, hsvImage, cv::COLOR_BGR2HSV));
-
-    TIMED("runMetrics: saturation", metrics->saturation = calc::saturation(hsvImage));
-    TIMED("runMetrics: hueChannels", metrics->hue = calc::hueChannels(hsvImage));
-    TIMED("runMetrics: hueCompl", metrics->complementary = calc::complementaryChannels(metrics->hue.get()));
-  }
-
 private:
   MetricPtr metrics;
   cv::Mat baseImage;
@@ -128,10 +139,13 @@ MetricPtr calcMetrics(cv::Mat image)
   Processor processor(std::move(image));
   image.release();
 
-  processor.colorHistograms();
-  processor.colorFeatures();
+  if (!processor.isGrayscale())
+  {
+    processor.hsvColorFeatures();
+    processor.colorHistograms();
+    processor.toGrayscale();
+  }
 
-  processor.toGrayscale();
   processor.histogramAndContrast();
   processor.blur();
 

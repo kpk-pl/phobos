@@ -27,6 +27,14 @@ std::ostream& operator<<(std::ostream& os, metric::DepthOfField const& dof)
      << " }";
   return os;
 }
+std::ostream& operator<<(std::ostream& os, metric::Saturation const& sat)
+{
+  os << "{ "
+     << "value: " << sat.value << ' '
+     << "isGrayscale: " << sat.isGrayscale()
+     << " }";
+  return os;
+}
 
 std::ostream& operator<<(std::ostream& os, feature::Hue const& hue)
 {

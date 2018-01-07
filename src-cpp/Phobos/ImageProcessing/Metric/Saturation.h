@@ -14,6 +14,11 @@ struct Saturation : public MetricType<Saturation>
 
   using Comparing = comparing::BiggerIsBetter;
   using Aggregation = aggregation::Relative;
+
+  bool isGrayscale() const
+  {
+    return value && *value < 0.001;
+  }
 };
 
 }}} // namespace phobos::iprocess::metric
