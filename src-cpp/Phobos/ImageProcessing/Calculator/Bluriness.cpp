@@ -7,6 +7,8 @@ namespace phobos { namespace iprocess { namespace calc {
 template<>
 metric::Blur Bluriness<blur::Sobel>::calculate(cv::Mat const& cvImage) const
 {
+  constexpr static double scalingValue = 65536.0 / metric::Blur::maximum;
+
   cv::Mat sobelImg;
 
   cv::Sobel(cvImage, sobelImg, _depth, 1, 0);
@@ -17,22 +19,30 @@ metric::Blur Bluriness<blur::Sobel>::calculate(cv::Mat const& cvImage) const
 
   double const sumSq = sobelNormX*sobelNormX + sobelNormY*sobelNormY;
   long const area = cvImage.rows * cvImage.cols;
-  return metric::Blur(sumSq / area);
+
+  double const sobelBlur = sumSq / area; // max at 65536
+  return metric::Blur(sobelBlur / scalingValue);
 }
 
 template<>
 metric::Blur Bluriness<blur::Laplace>::calculate(cv::Mat const& cvImage) const
 {
+  constexpr static double scalingValue = 16384.0;
+
   cv::Mat lap;
   cv::Laplacian(cvImage, lap, _depth);
   cv::Scalar mean, stddev;
   cv::meanStdDev(lap, mean, stddev);
-  return metric::Blur{stddev.val[0] * stddev.val[0]};
+
+  double const laplaceBlur = stddev.val[0] * stddev.val[0]; // max at 16384
+  return metric::Blur{laplaceBlur / scalingValue};
 }
 
 template<>
 metric::Blur Bluriness<blur::LaplaceMod>::calculate(cv::Mat const& cvImage) const
 {
+  constexpr static double scalingValue = 128.0 / metric::Blur::maximum;
+
   cv::Mat const kernelX = (cv::Mat_<double>(3, 1) << -1, 2, -1);
   cv::Mat const kernelY = cv::getGaussianKernel(3, -1, CV_64F);
 
@@ -43,7 +53,8 @@ metric::Blur Bluriness<blur::LaplaceMod>::calculate(cv::Mat const& cvImage) cons
   cv::sepFilter2D(cvImage, sepf, _depth, kernelY, kernelX);
   double const meanY = cv::mean(cv::abs(sepf)).val[0];
 
-  return metric::Blur{meanX + meanY};
+  double const laplaceModBlur = meanX + meanY; // max at 128
+  return metric::Blur{laplaceModBlur / scalingValue};
 }
 
 template<typename Strategy>
