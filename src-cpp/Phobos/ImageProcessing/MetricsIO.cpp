@@ -1,6 +1,7 @@
 #include "ImageProcessing/MetricsIO.h"
+#include "ImageProcessing/Feature/Hue.h"
 
-namespace phobos { namespace iprocess { namespace metric {
+namespace phobos { namespace iprocess {
 
 namespace {
 template <typename T>
@@ -10,11 +11,16 @@ std::ostream& operator<<(std::ostream& os, boost::optional<T> const& el)
   else    os << "none";
   return os;
 }
-} // unnamed namespace
-
-std::ostream& operator<<(std::ostream& os, DepthOfField const& dof)
+template<typename T>
+std::ostream& operator<<(std::ostream& os, metric::MetricType<T> const& m)
+{
+  os << m.value;
+  return os;
+}
+std::ostream& operator<<(std::ostream& os, metric::DepthOfField const& dof)
 {
   os << "{ "
+     << "value: " << dof.value << ' '
      << "low: " << dof.low << ' '
      << "median: " << dof.median << ' '
      << "high: " << dof.high
@@ -22,8 +28,9 @@ std::ostream& operator<<(std::ostream& os, DepthOfField const& dof)
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, Hue const& hue)
+std::ostream& operator<<(std::ostream& os, feature::Hue const& hue)
 {
+  using feature::Hue;
   static_assert(Hue::numberOfChannels == 6, "Support for only 6 channels");
 
   os << "{ "
@@ -36,10 +43,13 @@ std::ostream& operator<<(std::ostream& os, Hue const& hue)
      << " }";
   return os;
 }
+} // unnamed namespace
 
-std::ostream& operator<<(std::ostream& os, MetricValues const& metric)
+std::ostream& operator<<(std::ostream& os, MetricSeriesScores const& metric)
 {
   os << "{ "
+     << "best: " << metric.bestQuality << ' '
+     << "score: " << metric.score() << ' '
      << "blur: " << metric.blur << ' '
      << "noise: " << metric.noise << ' '
      << "contrast: " << metric.contrast << ' '
@@ -54,12 +64,15 @@ std::ostream& operator<<(std::ostream& os, MetricValues const& metric)
 std::ostream& operator<<(std::ostream& os, Metric const& scored)
 {
   os << "{ "
-     << "itemMetric: " << dynamic_cast<MetricValues const&>(scored) << ' '
-     << "seriesMetric: " << scored.seriesMetric << ' '
-     << "depthOfFieldRaw: " << scored.depthOfFieldRaw << ' '
-     << "hue: " << scored.hue << ' '
-     << "best: " << (scored.bestQuality ? "true" : "false") << ' '
-     << "score: " << scored.score()
+     << "blur: " << scored.blur << ' '
+     << "noise: " << scored.noise << ' '
+     << "contrast: " << scored.contrast << ' '
+     << "sharpness: " << scored.sharpness << ' '
+     << "depthOfField: " << scored.depthOfField << ' '
+     << "saturation: " << scored.saturation << ' '
+     << "complementary: " << scored.complementary << ' '
+     << "seriesScores: " << scored.seriesScores << ' '
+     << "hue: " << scored.hue
      << " }";
 
   return os;
@@ -72,4 +85,4 @@ std::ostream& operator<<(std::ostream& os, MetricPtr scored)
   return os;
 }
 
-}}} // phobos::iprocess::metric
+}} // phobos::iprocess

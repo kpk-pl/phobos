@@ -4,7 +4,7 @@
 #include "Config.h"
 #include "ConfigExtension.h"
 #include "ConfigPath.h"
-#include "ImageProcessing/ColoredPixmap.h"
+#include "ImageProcessing/Utils/ColoredPixmap.h"
 #include "ImageProcessing/Metrics.h"
 #include "Utils/Algorithm.h"
 #include "Utils/Asserted.h"
@@ -145,7 +145,7 @@ public:
       painter.restore();
     }
 
-    void histogram(iprocess::metric::Histogram const& histogram)
+    void histogram(iprocess::feature::Histogram const& histogram)
     {
       auto const histConfig = baseConfig("histogram");
 
@@ -207,7 +207,7 @@ private:
       QPixmap result;
       if (!QPixmapCache::find(cacheKey, &result) || result.isNull())
       {
-        result = iprocess::coloredPixmap(path, color, iconSize, opacity);
+        result = iprocess::utils::coloredPixmap(path, color, iconSize, opacity);
         QPixmapCache::insert(cacheKey, result);
       }
       return result;
@@ -229,17 +229,17 @@ void PhotoItem::paintEvent(QPaintEvent*)
     renderer.focusMark();
 
   auto const metric = metrics();
-  if (addons.has(AddonType::SCORE_NUM) && metric)
-    renderer.scoreNum(metric->score());
+  if (addons.has(AddonType::SCORE_NUM) && metric && metric->seriesScores)
+    renderer.scoreNum(metric->seriesScores->score());
 
-  if (addons.has(AddonType::BEST_IND) && metric && metric->bestQuality)
+  if (addons.has(AddonType::BEST_IND) && metric && metric->seriesScores && metric->seriesScores->bestQuality)
     renderer.bestMark();
 
   if (addons.has(AddonType::HISTOGRAM) && metric && metric->histogram)
     renderer.histogram(metric->histogram);
 
   if (addons.has(AddonType::ORD_NUM))
-    renderer.ordNum(_photoItem->ord(), metric && metric->bestQuality);
+    renderer.ordNum(_photoItem->ord(), metric && metric->seriesScores && metric->seriesScores->bestQuality);
 }
 
 void PhotoItem::contextMenuEvent(QContextMenuEvent* event)

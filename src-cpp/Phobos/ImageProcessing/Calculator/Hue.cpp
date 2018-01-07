@@ -1,8 +1,7 @@
-#include "ImageProcessing/Hue.h"
+#include "ImageProcessing/Calculator/Hue.h"
 #include <opencv2/opencv.hpp>
-#include <easylogging++.h>
 
-namespace phobos { namespace iprocess {
+namespace phobos { namespace iprocess { namespace calc {
 
 namespace {
 cv::Mat hueHistogram(cv::Mat const& hsvImage, int const bins)
@@ -18,21 +17,21 @@ cv::Mat hueHistogram(cv::Mat const& hsvImage, int const bins)
 }
 } // unnamed namespace
 
-metric::Hue hueChannels(cv::Mat const& hsvImage)
+feature::Hue hueChannels(cv::Mat const& hsvImage)
 {
-  static_assert(metric::Hue::numberOfChannels == 6, "Wrong number of channels in Hue calculation");
+  static_assert(feature::Hue::numberOfChannels == 6, "Wrong number of channels in Hue calculation");
 
   cv::Mat const hueHist = hueHistogram(hsvImage, 6);
   float const imageArea = hsvImage.rows * hsvImage.cols;
 
-  metric::Hue hue;
+  feature::Hue hue;
   for (std::size_t ch = 0; ch < 6; ++ch)
     hue.channel[ch] = hueHist.at<float>(ch) / imageArea;
 
   return hue;
 }
 
-double complementaryChannels(metric::Hue const& hue)
+metric::ComplementaryColors complementaryChannels(feature::Hue const& hue)
 {
   double result = 0;
 
@@ -40,13 +39,10 @@ double complementaryChannels(metric::Hue const& hue)
   for (std::size_t i = 0; i < half; ++i)
     result += hue.channel[i] * hue.channel[i + half];
 
-  if (result > 0.25)
-    LOG(WARNING) << "Calculating complementary hue channels reached above 0.25";
-
   /*
    * The highest possible number from the above calculation is 1/4
    */
-  return result * 4.0;
+  return metric::ComplementaryColors{result * 4.0};
 }
 
-}} // namespace phobos::iprocess
+}}} // namespace phobos::iprocess::calc

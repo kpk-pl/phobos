@@ -6,7 +6,7 @@
 
 namespace phobos { namespace iprocess {
 
-metric::MetricPtr calcMetrics(cv::Mat image);
+MetricPtr calcMetrics(cv::Mat image);
 
 }} // namespace phobos::iprocess
 

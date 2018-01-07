@@ -9,6 +9,7 @@
 #include "ConfigPath.h"
 #include <easylogging++.h>
 #include <QDialog>
+#include <QStringBuilder>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -20,42 +21,24 @@ namespace phobos { namespace widgets { namespace pitem {
 
 namespace {
 
-// TODO: show percent value as a separate column aligned to right
-template<typename Mem>
-QString valueOrNull(iprocess::metric::MetricPtr const& metric, Mem member, int const precision = 6)
+namespace detail {
+template<typename M>
+QString metricScore(iprocess::MetricPtr const& metric, M metricField)
 {
   if (!metric)
-    return "null";
-
-  auto const& val = (*metric).*member;
+    return "none";
+  auto const val = ((*metric).*metricField).score();
   if (val == boost::none)
-    return "null";
+    return "none";
 
-  QString result = QString::number(*val, 'f', precision);
-
-  if (metric->seriesMetric)
-  {
-    auto const& seriesVal = (*metric->seriesMetric).*member;
-    if (seriesVal != boost::none)
-      result += QString(" (%1%)").arg(static_cast<int>(0.5 + 100.0 * *seriesVal));
-  }
-
-  return result;
+  return QString::number(*val * 100.0, 'f', 1) + "%";
 }
+} // namespace detail
 
-QString depthOfFieldFormat(iprocess::metric::MetricPtr const& metric)
+template<typename M, typename S>
+QLabel* metricLabel(iprocess::MetricPtr const& metric, M metricField, S seriesField, QString const name, int const precision)
 {
-  if (!metric)
-    return "null";
-
-  QString result = valueOrNull(metric, &iprocess::metric::Metric::depthOfField, 2);
-
-  auto const& raw = metric->depthOfFieldRaw;
-  if (raw)
-    result += QString(" (%1/%2/%3)").arg(raw->low, 0, 'f', 1)
-                                    .arg(raw->median, 0, 'f', 1)
-                                    .arg(raw->high, 0, 'f', 1);
-
+  QLabel* result = new QLabel(name + ": " + detail::metricScore(metric, metricField));
   return result;
 }
 
@@ -80,7 +63,7 @@ class DetailLayoutBuilder
 public:
   DetailLayoutBuilder(pcontainer::Item const& photoItem,
                       QImage const& image,
-                      iprocess::metric::MetricPtr const& metrics) :
+                      iprocess::MetricPtr const& metrics) :
     photoItem(photoItem), image(image), metrics(metrics),
     confPath("detailsDialog")
   {}
@@ -133,15 +116,15 @@ private:
   {
     QVBoxLayout *labelsLayout = new QVBoxLayout();
 
-    using Metric = iprocess::metric::Metric;
+    using namespace iprocess;
 
-    labelsLayout->addWidget(new QLabel(QObject::tr("Blur: ") + valueOrNull(metrics, &Metric::blur, 1)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Noise: ") + valueOrNull(metrics, &Metric::noise, 3)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Contrast: ") + valueOrNull(metrics, &Metric::contrast, 3)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Sharpness: ") + valueOrNull(metrics, &Metric::sharpness, 2)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Depth of field: ") + depthOfFieldFormat(metrics)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Saturation: ") + valueOrNull(metrics, &Metric::saturation, 1)));
-    labelsLayout->addWidget(new QLabel(QObject::tr("Complementary colors: ") + valueOrNull(metrics, &Metric::complementary, 3)));
+    labelsLayout->addWidget(metricLabel(metrics, &Metric::blur, &MetricSeriesScores::blur, "Blur", 1));
+    labelsLayout->addWidget(metricLabel(metrics, &Metric::noise, &MetricSeriesScores::noise, "Noise", 3));
+    labelsLayout->addWidget(metricLabel(metrics, &Metric::contrast, &MetricSeriesScores::contrast, "Contrast", 3));
+    labelsLayout->addWidget(metricLabel(metrics, &Metric::sharpness, &MetricSeriesScores::sharpness, "Sharpness", 2));
+    labelsLayout->addWidget(metricLabel(metrics, &Metric::depthOfField, &MetricSeriesScores::depthOfField, "Depth of field", 2));
+    labelsLayout->addWidget(metricLabel(metrics, &Metric::saturation, &MetricSeriesScores::saturation, "Saturation", 1));
+    labelsLayout->addWidget(metricLabel(metrics, &Metric::complementary, &MetricSeriesScores::complementary, "Complementary colors", 3));
     labelsLayout->addStretch();
 
     QGroupBox *group = new QGroupBox(QObject::tr("Quality"));
@@ -213,7 +196,7 @@ private:
 
   pcontainer::Item const& photoItem;
   QImage const& image;
-  iprocess::metric::MetricPtr const& metrics;
+  iprocess::MetricPtr const& metrics;
   config::ConfigPath const confPath;
 };
 
@@ -223,7 +206,7 @@ public:
   DetailsDialog(QWidget *parent,
                 pcontainer::Item const& photoItem,
                 QImage const& image,
-                iprocess::metric::MetricPtr const& metrics) :
+                iprocess::MetricPtr const& metrics) :
     QDialog(parent, Qt::WindowTitleHint | Qt::WindowCloseButtonHint),
     itemId(photoItem.id())
   {
@@ -245,7 +228,7 @@ private:
 void showDetailsDialog(QWidget *parent,
                        pcontainer::Item const& photoItem,
                        QImage const& image,
-                       iprocess::metric::MetricPtr const& metrics)
+                       iprocess::MetricPtr const& metrics)
 {
   DetailsDialog *dialog = new DetailsDialog(parent, photoItem, image, metrics);
 

@@ -1,8 +1,7 @@
+#include "Widgets/ImageWidget.h"
 #include <QPaintEvent>
 #include <QPoint>
 #include <QPainter>
-#include "Widgets/ImageWidget.h"
-#include "ImageProcessing/ScalePixmap.h"
 
 namespace phobos { namespace widgets {
 
@@ -27,7 +26,7 @@ void ImageWidget::setImage(QImage const& image)
   update();
 }
 
-void ImageWidget::setMetrics(iprocess::metric::MetricPtr metrics)
+void ImageWidget::setMetrics(iprocess::MetricPtr metrics)
 {
   if (!metrics)
     return;

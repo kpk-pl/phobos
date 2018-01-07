@@ -4,7 +4,7 @@
 #include "NavigationBar.h"
 #include "ConfigExtension.h"
 #include "ConfigPath.h"
-#include "ImageProcessing/ColoredPixmap.h"
+#include "ImageProcessing/Utils/ColoredPixmap.h"
 
 namespace phobos {
 
@@ -15,7 +15,7 @@ namespace {
   {
     std::string const path = config::qualified(basePath(configName), std::string{});
     QColor const color = config::qColor(basePath("iconColor"), Qt::black);
-    return iprocess::coloredPixmap(path, color, QSize(64, 64));
+    return iprocess::utils::coloredPixmap(path, color, QSize(64, 64));
   }
 
   class IconButton : public QPushButton

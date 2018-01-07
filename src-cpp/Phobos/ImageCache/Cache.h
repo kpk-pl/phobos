@@ -39,7 +39,7 @@ public slots:
   void imageReady(pcontainer::ItemId const& itemId, QImage const& image, Generation const generation);
 
 signals:
-  void updateMetrics(pcontainer::ItemId itemId, iprocess::metric::MetricPtr);
+  void updateMetrics(pcontainer::ItemId itemId, iprocess::MetricPtr);
 
 private slots:
   void changedSeries(QUuid const& seriesUuid);

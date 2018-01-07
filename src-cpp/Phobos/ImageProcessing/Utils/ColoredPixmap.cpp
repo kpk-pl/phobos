@@ -1,7 +1,7 @@
+#include "ImageProcessing/Utils/ColoredPixmap.h"
 #include <QPainter>
-#include "ImageProcessing/ColoredPixmap.h"
 
-namespace phobos { namespace iprocess {
+namespace phobos { namespace iprocess { namespace utils {
 
 QPixmap coloredPixmap(std::string const& fileName, QColor const& color,
                       QSize const& size, double const opacity)
@@ -26,4 +26,4 @@ QPixmap coloredPixmap(std::string const& fileName, QColor const& color,
     return pixmap;
 }
 
-}} // namespace phobos::iprocess
+}}} // namespace phobos::iprocess::utils

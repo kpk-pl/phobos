@@ -1,6 +1,7 @@
-#ifndef IMAGE_PROCESSING_BLURINESS_H
-#define IMAGE_PROCESSING_BLURINESS_H
+#ifndef IMAGE_PROCESSING_CALCULATOR_BLURINESS_H
+#define IMAGE_PROCESSING_CALCULATOR_BLURINESS_H
 
+#include "ImageProcessing/Metric/Blur.h"
 #include <opencv2/core/core.hpp>
 
 /*
@@ -8,12 +9,12 @@
  * http://stackoverflow.com/questions/7765810/is-there-a-way-to-detect-if-an-image-is-blurry/7768918#7768918
  */
 
-namespace phobos { namespace iprocess { namespace blur {
+namespace phobos { namespace iprocess { namespace calc {
 
+namespace blur {
 struct Sobel{};
 struct Laplace{};
 struct LaplaceMod{};
-
 } // namespace blur
 
 template<typename Strategy>
@@ -25,15 +26,15 @@ struct Bluriness
   {}
 
   // Returns smaller values for blurry images
-  double operator()(cv::Mat const& cvImage) const;
+  metric::Blur operator()(cv::Mat const& cvImage) const;
 
-protected:
-  double calc(cv::Mat const& cvImage) const;
+private:
+  metric::Blur calculate(cv::Mat const& cvImage) const;
 
   std::size_t const _n;
   int const _depth;
 };
 
-}} // namespace phobos::iprocess
+}}} // namespace phobos::iprocess::calc
 
-#endif // IMAGE_PROCESSING_BLURINESS_H
+#endif // IMAGE_PROCESSING_CALCULATOR_BLURINESS_H

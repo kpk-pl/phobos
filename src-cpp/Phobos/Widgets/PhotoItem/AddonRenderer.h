@@ -2,6 +2,8 @@
 #define WIDGETS_PHOTOITEM_ADDON_RENDERER_H
 
 #include "ConfigPath.h"
+#include "ImageProcessing/Feature/Histogram.h"
+#include "ImageProcessing/Feature/Hue.h"
 #include <QPoint>
 
 class QPainter;
@@ -19,15 +21,15 @@ class AddonRenderer
 public:
   AddonRenderer(QPainter &painter, config::ConfigPath const& baseConfigPath);
 
-  void histogram(iprocess::metric::Histogram const& data,
+  void histogram(iprocess::feature::Histogram const& data,
                  QSize const& prefferedSize,
                  QPoint const& origin = QPoint(0,0));
 
-  void cumulativeHistogram(iprocess::metric::Histogram const& data,
+  void cumulativeHistogram(iprocess::feature::Histogram const& data,
                            QSize const& prefferedSize,
                            QPoint const& origin = QPoint(0,0));
 
-  void hueDisplay(iprocess::metric::Hue const& data,
+  void hueDisplay(iprocess::feature::Hue const& data,
                   QSize const& prefferedSize,
                   QPoint const& origin = QPoint(0,0));
 

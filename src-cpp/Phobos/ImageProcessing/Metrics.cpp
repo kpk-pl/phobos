@@ -1,8 +1,8 @@
-#include "Metrics.h"
+#include "ImageProcessing/Metrics.h"
 #include "ConfigExtension.h"
 #include "ConfigPath.h"
 
-namespace phobos { namespace iprocess { namespace metric {
+namespace phobos { namespace iprocess {
 
 namespace {
 struct Acc
@@ -26,23 +26,20 @@ private:
 };
 } // unnamed namespace
 
-boost::optional<double> Metric::score() const
+double MetricSeriesScores::score() const
 {
-  if (!seriesMetric)
-    return boost::none;
-
   config::ConfigPath const weightPath("metricWeights");
   Acc result;
 
-  result(seriesMetric->blur, config::qualified(weightPath("blur"), 1.0));
-  result(seriesMetric->noise, config::qualified(weightPath("noise"), 1.0));
-  result(seriesMetric->contrast, config::qualified(weightPath("contrast"), 1.0));
-  result(seriesMetric->sharpness, config::qualified(weightPath("sharpness"), 1.0));
-  result(seriesMetric->depthOfField, config::qualified(weightPath("depthOfField"), 1.0));
-  result(seriesMetric->saturation, config::qualified(weightPath("saturation"), 1.0));
-  result(seriesMetric->complementary, config::qualified(weightPath("complementary"), 1.0));
+  result(blur, config::qualified(weightPath("blur"), 1.0));
+  result(noise, config::qualified(weightPath("noise"), 1.0));
+  result(contrast, config::qualified(weightPath("contrast"), 1.0));
+  result(sharpness, config::qualified(weightPath("sharpness"), 1.0));
+  result(depthOfField, config::qualified(weightPath("depthOfField"), 1.0));
+  result(saturation, config::qualified(weightPath("saturation"), 1.0));
+  result(complementary, config::qualified(weightPath("complementary"), 1.0));
 
-  return double(result);
+  return result;
 }
 
-}}} // namespace phobos::iprocess::metric
+}} // namespace phobos::iprocess

@@ -1,9 +1,10 @@
-#ifndef IMAGEPROCESSING_NOISINESS_H
-#define IMAGEPROCESSING_NOISINESS_H
+#ifndef IMAGEPROCESSING_CALCULATOR_NOISINESS_H
+#define IMAGEPROCESSING_CALCULATOR_NOISINESS_H
 
+#include "ImageProcessing/Metric/Noise.h"
 #include <opencv2/core/core.hpp>
 
-namespace phobos { namespace iprocess {
+namespace phobos { namespace iprocess { namespace calc {
 
 /*
  * Noise estimate is the difference between an image and median filtered version of the image.
@@ -11,8 +12,8 @@ namespace phobos { namespace iprocess {
  * to interpret. Low noise values indicate that an image is blurred, but high values indicate an
  * image has a lot of noise.
  */
-double noiseMeasure(cv::Mat const& cvImage, int medianSize);
+metric::Noise noiseMeasure(cv::Mat const& cvImage, int medianSize);
 
-}}
+}}}
 
-#endif // IMAGEPROCESSING_NOISINESS_H
+#endif // IMAGEPROCESSING_CALCULATOR_NOISINESS_H

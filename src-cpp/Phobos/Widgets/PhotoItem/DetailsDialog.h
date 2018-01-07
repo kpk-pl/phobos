@@ -12,7 +12,7 @@ namespace phobos { namespace widgets { namespace pitem {
 void showDetailsDialog(QWidget *parent,
                        pcontainer::Item const& photoItem,
                        QImage const& image,
-                       iprocess::metric::MetricPtr const& metrics);
+                       iprocess::MetricPtr const& metrics);
 
 }}} // namespace phobos::widgets::pitem
 

@@ -17,7 +17,7 @@ class LoaderThreadSignals : public QObject
 
 signals:
   void imageReady(pcontainer::ItemId, QImage) const;
-  void metricsReady(pcontainer::ItemId, phobos::iprocess::metric::MetricPtr) const;
+  void metricsReady(pcontainer::ItemId, phobos::iprocess::MetricPtr) const;
 };
 
 class NullImageException : public std::runtime_error

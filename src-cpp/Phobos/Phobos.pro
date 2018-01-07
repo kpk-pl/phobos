@@ -31,16 +31,16 @@ SOURCES += Phobos.cpp\
     ImageProcessing/Metrics.cpp \
     ImageProcessing/MetricsIO.cpp \
     ImageProcessing/LoaderThread.cpp \
-    ImageProcessing/FormatConversion.cpp \
-    ImageProcessing/Bluriness.cpp \
-    ImageProcessing/Noisiness.cpp \
-    ImageProcessing/Histogram.cpp \
+    ImageProcessing/Calculator/Bluriness.cpp \
+    ImageProcessing/Calculator/Hue.cpp \
+    ImageProcessing/Calculator/Sharpness.cpp \
+    ImageProcessing/Calculator/Noisiness.cpp \
+    ImageProcessing/Calculator/Histogram.cpp \
     ImageProcessing/MetricsAggregate.cpp \
-    ImageProcessing/ColoredPixmap.cpp \
-    ImageProcessing/ScalePixmap.cpp \
-    ImageProcessing/Sharpness.cpp \
     ImageProcessing/MetricCalculator.cpp \
-    ImageProcessing/Hue.cpp \
+    ImageProcessing/Utils/ColoredPixmap.cpp \
+    ImageProcessing/Utils/ScalePixmap.cpp \
+    ImageProcessing/Utils/FormatConversion.cpp \
     PhotoContainers/Item.cpp \
     PhotoContainers/Series.cpp \
     PhotoContainers/Set.cpp \
@@ -96,7 +96,8 @@ SOURCES += Phobos.cpp\
     ProcessWizard/ActionTab/RenameActionTab.cpp \
     ProcessWizard/ActionTab/CopyMoveActionTab.cpp \
     ProcessWizard/Execution/ExecutionImpl.cpp \
-    ProcessWizard/Execution/Execute.cpp
+    ProcessWizard/Execution/Execute.cpp \
+    ImageProcessing/Calculator/Saturation.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -111,20 +112,29 @@ HEADERS  += MainWindow.h \
     RowSeriesView.h \
     ViewDescription.h \
     PhotoBulkAction.h \
+    ImageProcessing/MetricsFwd.h \
     ImageProcessing/Metrics.h \
     ImageProcessing/MetricsIO.h \
     ImageProcessing/LoaderThread.h \
-    ImageProcessing/ScalePixmap.h \
-    ImageProcessing/FormatConversion.h \
-    ImageProcessing/Bluriness.h \
-    ImageProcessing/Noisiness.h \
-    ImageProcessing/Histogram.h \
+    ImageProcessing/Calculator/Bluriness.h \
+    ImageProcessing/Calculator/Hue.h \
+    ImageProcessing/Calculator/Sharpness.h \
+    ImageProcessing/Calculator/Noisiness.h \
+    ImageProcessing/Calculator/Histogram.h \
     ImageProcessing/MetricsAggregate.h \
-    ImageProcessing/ColoredPixmap.h \
-    ImageProcessing/Sharpness.h \
     ImageProcessing/MetricCalculator.h \
-    ImageProcessing/ROIProcessor.h \
-    ImageProcessing/Hue.h \
+    ImageProcessing/Metric/Traits.h \
+    ImageProcessing/Metric/MetricType.h \
+    ImageProcessing/Metric/Blur.h \
+    ImageProcessing/Metric/All.h \
+    ImageProcessing/Metric/Contrast.h \
+    ImageProcessing/Metric/Noise.h \
+    ImageProcessing/Metric/Sharpness.h \
+    ImageProcessing/Metric/DepthOfField.h \
+    ImageProcessing/Utils/ColoredPixmap.h \
+    ImageProcessing/Utils/ROIProcessor.h \
+    ImageProcessing/Utils/FormatConversion.h \
+    ImageProcessing/Utils/ScalePixmap.h \
     PhotoContainers/Fwd.h \
     PhotoContainers/Series.h \
     PhotoContainers/Set.h \
@@ -200,7 +210,14 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution/Execution.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
-    ProcessWizard/Execution/Execute.h
+    ProcessWizard/Execution/Execute.h \
+    ImageProcessing/Feature/Histogram.h \
+    ImageProcessing/Feature/Hue.h \
+    ImageProcessing/Metric/Saturation.h \
+    ImageProcessing/Metric/ComplementaryColors.h \
+    ImageProcessing/Feature/All.h \
+    ImageProcessing/Calculator/All.h \
+    ImageProcessing/Calculator/Saturation.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

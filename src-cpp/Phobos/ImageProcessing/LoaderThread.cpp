@@ -1,5 +1,4 @@
-#include "ImageProcessing/FormatConversion.h"
-#include "ImageProcessing/ScalePixmap.h"
+#include "ImageProcessing/Utils/FormatConversion.h"
 #include "ImageProcessing/LoaderThread.h"
 #include "ImageProcessing/MetricCalculator.h"
 #include <opencv2/core/core.hpp>
@@ -99,7 +98,7 @@ void LoaderThread::emitLoadedSignal(cv::Mat const& cvImage)
   TIMED("cv:resize", cv::resize(cvImage, resized, cv::Size(pixmapSize.width(), pixmapSize.height()), 0, 0, cv::INTER_CUBIC));
 
   QImage image;
-  TIMED("cv:convQt", image = iprocess::convCvToImage(resized));
+  TIMED("cv:convQt", image = iprocess::utils::convCvToImage(resized));
 
   if (image.isNull())
     throw NullImageException(itemId.fileName.toStdString());

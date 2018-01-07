@@ -2,85 +2,67 @@
 #include <algorithm>
 #include <type_traits>
 
-namespace phobos { namespace iprocess { namespace metric {
+namespace phobos { namespace iprocess {
 
 namespace {
 
-template <typename T>
-std::pair<T,T> minMaxMetric(MetricPtrVec const& metrics, T MetricValues::*member)
+namespace detail {
+template<typename M>
+auto source(MetricPtr const& metric, M Metric::*ptr)
+  -> typename std::add_lvalue_reference<decltype((*metric).*ptr)>::type
 {
-  auto minmaxIt = std::minmax_element(metrics.begin(), metrics.end(),
-      [&](MetricPtr const& m1, MetricPtr const& m2){ return (*m1).*member < (*m2).*member; });
-  return std::make_pair((**minmaxIt.first).*member, (**minmaxIt.second).*member);
-};
+  return (*metric).*ptr;
+}
 
-struct BiggerIsBetter{};
-struct SmallerIsBetter{};
-struct ZeroToOneBiggerIsBetter{};
+template<typename S>
+auto target(MetricPtr const& metric, S MetricSeriesScores::*ptr)
+  -> typename std::add_lvalue_reference<decltype((metric->seriesScores.get()).*ptr)>::type
+{
+  return (metric->seriesScores.get()).*ptr;
+}
+} // namespace detail
 
 template<typename T>
-struct RelativeValue;
-
-template<>
-struct RelativeValue<BiggerIsBetter>
+void aggregateMetric(T& target, boost::optional<double> const& minValue, boost::optional<double> const& maxValue)
 {
-  template<typename OptV>
-  OptV operator()(OptV const& value, std::pair<OptV, OptV> const& minMax) const
+  if (!minValue || !maxValue || !target)
   {
-    if (value == boost::none)
-      return boost::none;
-
-    if (minMax.first == minMax.second)
-      return 1.0;
-
-    return (*value - *minMax.first) / (*minMax.second - *minMax.first);
-  }
-};
-
-template<>
-struct RelativeValue<ZeroToOneBiggerIsBetter>
-{
-  template<typename OptV>
-  OptV operator()(OptV const& value, std::pair<OptV, OptV> const&) const
-  {
-    if (value == boost::none)
-      return boost::none;
-
-    if (*value > 1.0)
-      return 1.0;
-    else if (*value < 0.0)
-      return 0.0;
-
-    return *value;
-  }
-};
-
-template<>
-struct RelativeValue<SmallerIsBetter>
-{
-  template<typename OptV>
-  OptV operator()(OptV const& value, std::pair<OptV, OptV> const& minMax) const
-  {
-    if (value == boost::none)
-      return boost::none;
-
-    if (minMax.first == minMax.second)
-      return 1.0;
-
-    return (*minMax.second - *value) / (*minMax.second - *minMax.first);
-  }
-};
-
-template<typename Type, typename T>
-void aggregateMetric(MetricPtrVec const& metrics, T MetricValues::*member)
-{
-  auto const minmaxM = minMaxMetric(metrics, member);
-  if (minmaxM.first == boost::none || minmaxM.second == boost::none)
+    target = boost::none;
     return;
+  }
 
-  for (std::size_t i = 0; i < metrics.size(); ++i)
-    (*metrics[i]->seriesMetric).*member = RelativeValue<Type>{}((*metrics[i]).*member, minmaxM);
+  target = (*target - *minValue) / (*maxValue - *minValue);
 }
+
+template<typename M, typename S>
+void processMetric(MetricPtrVec const& metrics, M Metric::*source, S MetricSeriesScores::*target, metric::aggregation::Absolute)
+{
+  for (MetricPtr const& metric : metrics)
+    detail::target(metric, target) = detail::source(metric, source).score();
+}
+
+template<typename M, typename S>
+void processMetric(MetricPtrVec const& metrics, M Metric::*source, S MetricSeriesScores::*target, metric::aggregation::Relative)
+{
+  for (MetricPtr const& metric : metrics)
+    detail::target(metric, target) = detail::source(metric, source).score();
+
+  auto minmaxIt = std::minmax_element(metrics.begin(), metrics.end(),
+      [&](MetricPtr const& m1, MetricPtr const& m2){ return detail::target(m1, target) < detail::target(m2, target); });
+
+  auto const minValue = detail::target(*minmaxIt.first, target);
+  auto const maxValue = detail::target(*minmaxIt.second, target);
+
+  for (MetricPtr const& metric : metrics)
+    aggregateMetric(detail::target(metric, target), minValue, maxValue);
+}
+
+template<typename M, typename S>
+void processMetric(MetricPtrVec const& metrics, M Metric::*source, S MetricSeriesScores::*target)
+{
+  processMetric(metrics, source, target, typename M::Aggregation());
+}
+
 } // unnamed namespace
 
 // TODO: Need to examine if scoring by values linearily is the best approach
@@ -90,22 +72,19 @@ void aggregate(MetricPtrVec const& metrics)
     return;
 
   for (auto &metric : metrics)
-    metric->seriesMetric = MetricValues{};
+    metric->seriesScores = MetricSeriesScores{};
 
-  aggregateMetric<BiggerIsBetter>(metrics, &Metric::blur);
-  aggregateMetric<SmallerIsBetter>(metrics, &Metric::noise);
-  aggregateMetric<BiggerIsBetter>(metrics, &Metric::contrast);
-  aggregateMetric<BiggerIsBetter>(metrics, &Metric::sharpness);
-  aggregateMetric<SmallerIsBetter>(metrics, &Metric::depthOfField);
-  aggregateMetric<BiggerIsBetter>(metrics, &Metric::saturation);
-  aggregateMetric<ZeroToOneBiggerIsBetter>(metrics, &Metric::complementary);
+  processMetric(metrics, &Metric::blur, &MetricSeriesScores::blur);
+  processMetric(metrics, &Metric::noise, &MetricSeriesScores::noise);
+  processMetric(metrics, &Metric::contrast, &MetricSeriesScores::contrast);
+  processMetric(metrics, &Metric::sharpness, &MetricSeriesScores::sharpness);
+  processMetric(metrics, &Metric::depthOfField, &MetricSeriesScores::depthOfField);
+  processMetric(metrics, &Metric::saturation, &MetricSeriesScores::saturation);
+  processMetric(metrics, &Metric::complementary, &MetricSeriesScores::complementary);
 
   auto& bestEl = *std::max_element(metrics.begin(), metrics.end(),
-      [](MetricPtr const& l, MetricPtr const& r){ return l->score() < r->score(); });
-
-  for (auto & metric : metrics)
-    metric->bestQuality = (metric == bestEl);
+      [](MetricPtr const& l, MetricPtr const& r){ return l->seriesScores->score() < r->seriesScores->score(); });
+  bestEl->seriesScores->bestQuality = true;
 }
 
-}}} // namespace phobos::iprocess::metric
-
+}} // namespace phobos::iprocess

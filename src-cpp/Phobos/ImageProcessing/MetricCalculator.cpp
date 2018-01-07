@@ -1,9 +1,6 @@
 #include "ImageProcessing/MetricCalculator.h"
-#include "ImageProcessing/Histogram.h"
-#include "ImageProcessing/Bluriness.h"
-#include "ImageProcessing/Noisiness.h"
-#include "ImageProcessing/Sharpness.h"
-#include "ImageProcessing/Hue.h"
+#include "ImageProcessing/Metric/All.h"
+#include "ImageProcessing/Calculator/All.h"
 #include "ImageProcessing/Metrics.h"
 #include "ConfigExtension.h"
 #include "ConfigPath.h"
@@ -24,21 +21,27 @@ namespace phobos { namespace iprocess {
 namespace {
 config::ConfigPath const configPath("metricCalculator");
 
+cv::Mat prepareScaled(cv::Mat image)
+{
+  QSize const maxSize = config::qSize(configPath("processingSize"), QSize(1920, 1080));
+  QSize const scaledSize = QSize(image.cols, image.rows).scaled(maxSize, Qt::KeepAspectRatio);
+  LOG(DEBUG) << "Scaling image for metrics from " << image.cols << "x" << image.rows
+             << " to " << scaledSize.width() << "x" << scaledSize.height();
+
+  cv::Mat result;
+  cv::resize(image, result, cv::Size(scaledSize.width(), scaledSize.height()), 0, 0, cv::INTER_CUBIC);
+  return result;
+}
+
 class Processor
 {
 public:
-  Processor(cv::Mat const& image) :
-    metrics(std::make_shared<metric::Metric>())
-  {
-    QSize const maxSize = config::qSize(configPath("processingSize"), QSize(1920, 1080));
-    QSize const scaledSize = QSize(image.cols, image.rows).scaled(maxSize, Qt::KeepAspectRatio);
-    LOG(DEBUG) << "Scaling image for metrics from " << image.cols << "x" << image.rows
-               << " to " << scaledSize.width() << "x" << scaledSize.height();
+  Processor(cv::Mat image) :
+    metrics(std::make_shared<Metric>()),
+    baseImage(prepareScaled(std::move(image)))
+  {}
 
-    cv::resize(image, baseImage, cv::Size(scaledSize.width(), scaledSize.height()), 0, 0, cv::INTER_CUBIC);
-  }
-
-  metric::MetricPtr result() const
+  MetricPtr result() const
   {
     return metrics;
   }
@@ -62,22 +65,24 @@ public:
     TIMED("runMetrics: splitHist", cv::split(baseImage, bgrPlanes));
     assert(bgrPlanes.size() == 3);
 
-    using Channel = metric::Histogram::Channel;
-    TIMED("runMetrics: blueHistogram", metrics->histogram.data.emplace(Channel::Blue, normalizedHistogram(bgrPlanes[0], nullptr)));
-    TIMED("runMetrics: greenHistogram", metrics->histogram.data.emplace(Channel::Green, normalizedHistogram(bgrPlanes[1], nullptr)));
-    TIMED("runMetrics: redHistogram", metrics->histogram.data.emplace(Channel::Red, normalizedHistogram(bgrPlanes[2], nullptr)));
+    using Channel = feature::Histogram::Channel;
+    TIMED("runMetrics: blueHistogram", metrics->histogram.data.emplace(Channel::Blue, calc::normalizedHistogram(bgrPlanes[0], nullptr)));
+    TIMED("runMetrics: greenHistogram", metrics->histogram.data.emplace(Channel::Green, calc::normalizedHistogram(bgrPlanes[1], nullptr)));
+    TIMED("runMetrics: redHistogram", metrics->histogram.data.emplace(Channel::Red, calc::normalizedHistogram(bgrPlanes[2], nullptr)));
   }
 
-  void histogram()
+  void histogramAndContrast()
   {
-    metrics->contrast = 0;
-    using Channel = metric::Histogram::Channel;
-    TIMED("runMetrics: contrast", metrics->histogram.data.emplace(Channel::Value, normalizedHistogram(baseImage, &*metrics->contrast)));
+    using Channel = feature::Histogram::Channel;
+    double contrast;
+    TIMED("runMetrics: contrast", metrics->histogram.data.emplace(Channel::Value, calc::normalizedHistogram(baseImage, &contrast)));
+
+    metrics->contrast = metric::Contrast(contrast);
   }
 
   void noise()
   {
-    TIMED("runMetrics: noise", metrics->noise = noiseMeasure(baseImage, config::qualified(configPath("noiseMedianSize"), 3)));
+    TIMED("runMetrics: noise", metrics->noise = calc::noiseMeasure(baseImage, config::qualified(configPath("noiseMedianSize"), 3)));
   }
 
   void blur()
@@ -86,20 +91,20 @@ public:
     std::size_t const blurROISide = config::qualified<std::size_t>(configPath("blurRoiSide"), 1);
 
     if (blurAlgo == "sobel")
-      TIMED("runMetrics: sobel", metrics->blur = Bluriness<blur::Sobel>{blurROISide}(baseImage));
+      TIMED("runMetrics: sobel", metrics->blur = calc::Bluriness<calc::blur::Sobel>{blurROISide}(baseImage));
     else if (blurAlgo == "laplaceMod")
-      TIMED("runMetrics: laplaceMod", metrics->blur = Bluriness<blur::LaplaceMod>{blurROISide}(baseImage));
+      TIMED("runMetrics: laplaceMod", metrics->blur = calc::Bluriness<calc::blur::LaplaceMod>{blurROISide}(baseImage));
     else
-      TIMED("runMetrics: laplace", metrics->blur = Bluriness<blur::Laplace>{blurROISide}(baseImage));
+      TIMED("runMetrics: laplace", metrics->blur = calc::Bluriness<calc::blur::Laplace>{blurROISide}(baseImage));
   }
 
   void sharpness()
   {
-    sharpness::Result sharpnessResult;
-    TIMED("runMetrics: sharpness", sharpnessResult = sharpness::gaussian(baseImage, 5));
-    metrics->sharpness = sharpnessResult.sharpness;
-    metrics->depthOfField = sharpness::depthOfField(sharpnessResult);
-    metrics->depthOfFieldRaw = sharpnessResult.breakout;
+    TIMED("runMetrics: sharpness", {
+      calc::Sharpness<calc::sharpness::Gaussian> sharpCalc(baseImage, 5);
+      metrics->sharpness = sharpCalc.sharpness();
+      metrics->depthOfField = sharpCalc.depthOfField();
+    });
   }
 
   void colorFeatures()
@@ -107,27 +112,27 @@ public:
     cv::Mat hsvImage;
     TIMED("runMetrics: toHSV", cv::cvtColor(baseImage, hsvImage, cv::COLOR_BGR2HSV));
 
-    TIMED("runMetrics: saturation", metrics->saturation = cv::mean(hsvImage)[1]);
-    TIMED("runMetrics: hueChannels", metrics->hue = hueChannels(hsvImage));
-    TIMED("runMetrics: hueCompl", metrics->complementary = complementaryChannels(metrics->hue.get()));
+    TIMED("runMetrics: saturation", metrics->saturation = calc::saturation(hsvImage));
+    TIMED("runMetrics: hueChannels", metrics->hue = calc::hueChannels(hsvImage));
+    TIMED("runMetrics: hueCompl", metrics->complementary = calc::complementaryChannels(metrics->hue.get()));
   }
 
 private:
-  metric::MetricPtr metrics;
+  MetricPtr metrics;
   cv::Mat baseImage;
 };
 } // unnamed namespace
 
-metric::MetricPtr calcMetrics(cv::Mat image)
+MetricPtr calcMetrics(cv::Mat image)
 {
-  Processor processor(image);
+  Processor processor(std::move(image));
   image.release();
 
   processor.colorHistograms();
   processor.colorFeatures();
 
   processor.toGrayscale();
-  processor.histogram();
+  processor.histogramAndContrast();
   processor.blur();
 
   processor.equalize();

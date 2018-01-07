@@ -19,7 +19,7 @@ bool MetricCache::has(pcontainer::ItemId const& itemId) const
   return utils::valueIn(itemId.fileName, metricCache);
 }
 
-iprocess::metric::MetricPtr MetricCache::get(pcontainer::ItemId const& itemId) const
+iprocess::MetricPtr MetricCache::get(pcontainer::ItemId const& itemId) const
 {
   auto const it = metricCache.find(itemId.fileName);
   if (it == metricCache.end())
@@ -29,7 +29,7 @@ iprocess::metric::MetricPtr MetricCache::get(pcontainer::ItemId const& itemId) c
   return it->second;
 }
 
-void MetricCache::newLoadedFromThread(pcontainer::ItemId itemId, iprocess::metric::MetricPtr metrics)
+void MetricCache::newLoadedFromThread(pcontainer::ItemId itemId, iprocess::MetricPtr metrics)
 {
   metricCache.emplace(itemId.fileName, metrics);
   LOG(DEBUG) << "[Cache] Saved new metrics for " << itemId.fileName;
@@ -50,11 +50,11 @@ bool MetricCache::changedSeries(QUuid const& seriesUuid)
     return false;
   }
 
-  auto allMetrics = utils::transformToVector<iprocess::metric::MetricPtr>(series.begin(), series.end(),
+  auto allMetrics = utils::transformToVector<iprocess::MetricPtr>(series.begin(), series.end(),
       [this](auto const& item){ return metricCache[item->fileName()]; });
 
   LOG(DEBUG) << "[Cache] Aggregating metrics for series " << seriesUuid.toString();
-  iprocess::metric::aggregate(allMetrics);
+  iprocess::aggregate(allMetrics);
 
   bool const doLog = config::qualified("logging.metrics", false);
   for (std::size_t i = 0; i < series.size(); ++i)

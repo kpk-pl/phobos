@@ -20,7 +20,7 @@ public:
   explicit ImageWidget(QImage const& image);
 
   QImage image() const { return _image; }
-  iprocess::metric::MetricPtr metrics() const { return _metrics; }
+  iprocess::MetricPtr metrics() const { return _metrics; }
 
   void setBorder(std::size_t const width);
 
@@ -36,13 +36,13 @@ public:
 
 public slots:
   void setImage(QImage const& image);
-  void setMetrics(iprocess::metric::MetricPtr metrics);
+  void setMetrics(iprocess::MetricPtr metrics);
 
 private:
   QSize _size;
   QImage _image;
   int borderWidth = 0;
-  iprocess::metric::MetricPtr _metrics;
+  iprocess::MetricPtr _metrics;
   utils::Soul<ImageWidget> const soul;
 };
 

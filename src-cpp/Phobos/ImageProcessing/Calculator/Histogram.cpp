@@ -1,7 +1,7 @@
-#include "ImageProcessing/Histogram.h"
+#include "ImageProcessing/Calculator/Histogram.h"
 #include <opencv2/opencv.hpp>
 
-namespace phobos { namespace iprocess {
+namespace phobos { namespace iprocess { namespace calc {
 
 cv::Mat grayscaleHistogram(cv::Mat const& cvImage)
 {
@@ -37,4 +37,4 @@ std::vector<float> normalizedHistogram(cv::Mat const& cvImage, double *outContra
   return result;
 }
 
-}} // namespace phobos::iprocess
+}}} // namespace phobos::iprocess::calc

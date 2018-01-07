@@ -30,7 +30,7 @@ private:
   QPainter &painter;
 };
 
-QSize histogramSize(iprocess::metric::Histogram const& hist, QSize size)
+QSize histogramSize(iprocess::feature::Histogram const& hist, QSize size)
 {
   static std::vector<std::size_t> const POW2 = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
 
@@ -74,12 +74,12 @@ std::vector<float> scaleHistogram(std::vector<float> const& data, std::size_t co
 
 } // unnamed namespace
 
-void AddonRenderer::histogram(iprocess::metric::Histogram const& hist, QSize const& prefferedSize, QPoint const& origin)
+void AddonRenderer::histogram(iprocess::feature::Histogram const& hist, QSize const& prefferedSize, QPoint const& origin)
 {
   auto const histConfig = baseConfigPath("histogram");
   QSize const histSize = histogramSize(hist, prefferedSize);
 
-  using Channel = iprocess::metric::Histogram::Channel;
+  using Channel = iprocess::feature::Histogram::Channel;
 
   drawHistLike(utils::asserted::fromMap(hist.data, Channel::Value), histConfig("value"), origin, histSize);
   drawHistLike(utils::asserted::fromMap(hist.data, Channel::Blue), histConfig("blue"), origin, histSize);
@@ -87,7 +87,7 @@ void AddonRenderer::histogram(iprocess::metric::Histogram const& hist, QSize con
   drawHistLike(utils::asserted::fromMap(hist.data, Channel::Red), histConfig("red"), origin, histSize);
 }
 
-void AddonRenderer::cumulativeHistogram(iprocess::metric::Histogram const& hist, QSize const& prefferedSize, QPoint const& origin)
+void AddonRenderer::cumulativeHistogram(iprocess::feature::Histogram const& hist, QSize const& prefferedSize, QPoint const& origin)
 {
   auto const histConfig = baseConfigPath("cumulativeHistogram");
   QSize const histSize = histogramSize(hist, prefferedSize);
@@ -99,7 +99,7 @@ void AddonRenderer::cumulativeHistogram(iprocess::metric::Histogram const& hist,
     return result;
   };
 
-  using Channel = iprocess::metric::Histogram::Channel;
+  using Channel = iprocess::feature::Histogram::Channel;
 
   drawHistLike(cumulate(utils::asserted::fromMap(hist.data, Channel::Value)), histConfig("value"), origin, histSize);
   drawHistLike(cumulate(utils::asserted::fromMap(hist.data, Channel::Blue)), histConfig("blue"), origin, histSize);
@@ -132,11 +132,11 @@ void AddonRenderer::drawHistLike(std::vector<float> const& data,
 
 }
 
-void AddonRenderer::hueDisplay(iprocess::metric::Hue const& data,
+void AddonRenderer::hueDisplay(iprocess::feature::Hue const& data,
                                QSize const& prefferedSize,
                                QPoint const& origin)
 {
-  static_assert(iprocess::metric::Hue::numberOfChannels == 6, "Only 6 channels implemented");
+  static_assert(iprocess::feature::Hue::numberOfChannels == 6, "Only 6 channels implemented");
   PainterCtx ctx(painter);
 
   auto const hueConfig = baseConfigPath("hueDisplay");

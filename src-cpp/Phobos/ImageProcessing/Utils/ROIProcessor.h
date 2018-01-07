@@ -1,12 +1,12 @@
-#ifndef IMAGEPROCESSING_ROI_PROCESSOR_H_
-#define IMAGEPROCESSING_ROI_PROCESSOR_H_
+#ifndef IMAGEPROCESSING_UTILS_ROI_PROCESSOR_H_
+#define IMAGEPROCESSING_UTILS_ROI_PROCESSOR_H_
 
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include <tuple>
 #include <algorithm>
 
-namespace phobos { namespace iprocess {
+namespace phobos { namespace iprocess { namespace utils {
 
 template<typename ResultT = double>
 struct ROIProcessor
@@ -50,6 +50,6 @@ aggregateROI(std::vector<ResultT> roiResults)
     roiResults.back());
 }
 
-}} // namespace phobos::iprocess
+}}} // namespace phobos::iprocess::utils
 
-#endif // IMAGEPROCESSING_ROI_PROCESSOR_H_
+#endif // IMAGEPROCESSING_UTILS_ROI_PROCESSOR_H_
