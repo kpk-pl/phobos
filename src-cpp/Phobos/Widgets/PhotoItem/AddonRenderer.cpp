@@ -133,11 +133,11 @@ void AddonRenderer::drawHistLike(std::vector<float> const& data,
   if (type == "fill")
     for (std::size_t i = 0; i < scaledHist.size(); ++i)
       painter.drawLine(origin.x() + i, origin.y() + H,
-                       origin.x() + i, origin.y() + (1.0-scaledHist[i])*H);
+                       origin.x() + i, origin.y() + (1.0-scaledHist[i])*H - 0.5);
   else if (type == "line")
     for (std::size_t i = 1; i < scaledHist.size(); ++i)
-      painter.drawLine(origin.x() + (i-1), origin.y() + (1.0-scaledHist[i-1])*H,
-                       origin.x() + i,     origin.y() + (1.0-scaledHist[i])*H);
+      painter.drawLine(origin.x() + (i-1), origin.y() + (1.0-scaledHist[i-1])*H - 0.5,
+                       origin.x() + i,     origin.y() + (1.0-scaledHist[i])  *H - 0.5);
 
 }
 
