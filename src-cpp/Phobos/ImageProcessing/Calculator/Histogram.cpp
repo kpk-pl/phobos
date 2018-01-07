@@ -21,6 +21,7 @@ std::vector<float> normalizedHistogram(cv::Mat const& cvImage, double *outContra
   int const histSize = 256;
   cv::Mat hist = grayscaleHistogram(cvImage);
 
+  // Limit scale to 0-1 max in each bin
   cv::normalize(hist, hist, 0, 1, cv::NORM_MINMAX, -1, cv::Mat());
 
   if (outContrast)

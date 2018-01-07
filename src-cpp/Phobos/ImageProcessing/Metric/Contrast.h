@@ -9,8 +9,9 @@ struct Contrast : public MetricType<Contrast>
 {
   using MetricType::MetricType;
 
-  static constexpr double minimum = 0.06;
-  static constexpr double maximum = 0.39;
+  // for 256 bins 0-1 normalized histogram
+  static constexpr double minimum = 0.0625;
+  static constexpr double maximum = 0.5;
 
   using Comparing = comparing::BiggerIsBetter;
   using Aggregation = aggregation::Relative;

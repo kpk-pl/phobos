@@ -8,7 +8,7 @@ metric::Noise noiseMeasure(cv::Mat const& cvImage, int medianSize)
 {
   cv::Mat med;
   cv::medianBlur(cvImage, med, medianSize);
-  return metric::Noise{std::log2(cv::mean(cvImage-med)[0])};
+  return metric::Noise{std::log2(cv::mean(cvImage-med)[0] + 1.0)};
 }
 
 }}} // namespace phobos::iprocess::calc
