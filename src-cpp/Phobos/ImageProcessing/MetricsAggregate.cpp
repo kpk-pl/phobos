@@ -31,6 +31,12 @@ void aggregateMetric(T& target, boost::optional<double> const& minValue, boost::
     return;
   }
 
+  if (*maxValue == *minValue)
+  {
+    target = 1.0;
+    return;
+  }
+
   target = (*target - *minValue) / (*maxValue - *minValue);
 }
 
@@ -65,7 +71,6 @@ void processMetric(MetricPtrVec const& metrics, M Metric::*source, S MetricSerie
 
 } // unnamed namespace
 
-// TODO: Need to examine if scoring by values linearily is the best approach
 void aggregate(MetricPtrVec const& metrics)
 {
   if (metrics.empty())

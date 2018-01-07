@@ -37,12 +37,12 @@ metric::ComplementaryColors complementaryChannels(feature::Hue const& hue)
 
   auto const half = hue.numberOfChannels / 2;
   for (std::size_t i = 0; i < half; ++i)
-    result += hue.channel[i] * hue.channel[i + half];
+    result += std::min(hue.channel[i], hue.channel[i + half]);
 
   /*
-   * The highest possible number from the above calculation is 1/4
+   * The highest possible number from the above calculation is 1/2
    */
-  return metric::ComplementaryColors{result * 4.0};
+  return metric::ComplementaryColors{result * 2.0};
 }
 
 }}} // namespace phobos::iprocess::calc
