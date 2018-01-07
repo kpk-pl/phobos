@@ -39,38 +39,38 @@ namespace {
   };
 } // unnamed namespace
 
-NavigationBar::NavigationBar(int capabilities) :
-  _leftButton(nullptr), _rightButton(nullptr),
-  _allSeries(nullptr), _numSeries(nullptr), _oneSeries(nullptr),
+NavigationBar::NavigationBar(bool includeSlider) :
+  leftButton(new IconButton(makeIcon("prevItemIcon"))),
+  rightButton(new IconButton(makeIcon("nextItemIcon"))),
+  prevSeriesButton(new IconButton(makeIcon("prevSeriesIcon"))),
+  nextSeriesButton(new IconButton(makeIcon("nextSeriesIcon"))),
+  allSeriesButton(new IconButton(makeIcon("allSeriesIcon"))),
+  numSeriesButton(new IconButton(makeIcon("numSeriesIcon"))),
+  oneSeriesButton(new IconButton(makeIcon("oneSeriesIcon"))),
   _slider(nullptr)
 {
+  leftButton->setToolTip(tr("Previous photo"));
+  rightButton->setToolTip(tr("Next photo"));
+  prevSeriesButton->setToolTip(tr("Previous series"));
+  nextSeriesButton->setToolTip(tr("Next series"));
+  allSeriesButton->setToolTip(tr("Return to main view with all series displayed"));
+  numSeriesButton->setToolTip(tr("Switch to view with photos side by side"));
+  oneSeriesButton->setToolTip(tr("Switch to view with whole series in one row"));
+
   QHBoxLayout* layout = new QHBoxLayout();
   layout->setSpacing(config::qualified(basePath("spacing"), 2u));
   setLayout(layout);
 
-  if (capabilities & Capability::ALL_SERIES)
-  {
-    _allSeries = new IconButton(makeIcon("allSeriesIcon"));
-    layout->addWidget(_allSeries);
-  }
+  layout->addWidget(allSeriesButton);
+  layout->addWidget(numSeriesButton);
+  layout->addWidget(oneSeriesButton);
 
-  if (capabilities & Capability::NUM_SERIES)
-  {
-    _numSeries = new IconButton(makeIcon("numSeriesIcon"));
-    layout->addWidget(_numSeries);
-  }
-
-  if (capabilities & Capability::ONE_SERIES)
-  {
-    _oneSeries = new IconButton(makeIcon("oneSeriesIcon"));
-    layout->addWidget(_oneSeries);
-  }
-
-  if (capabilities & Capability::SLIDER)
+  if (includeSlider)
   {
     _slider = new QSlider(Qt::Horizontal);
     _slider->setMaximum(100);
     _slider->setValue(100);
+    _slider->setToolTip(tr("Zoom in / zoom out"));
 
     QWidget* lSpacing = new QWidget();
     lSpacing->setMinimumWidth(15);
@@ -86,17 +86,10 @@ NavigationBar::NavigationBar(int capabilities) :
     layout->addStretch();
   }
 
-  if (capabilities & Capability::LEFT)
-  {
-    _leftButton = new IconButton(QIcon::fromTheme("go-previous", QIcon(":icons/go-previous.png")));
-    layout->addWidget(_leftButton);
-  }
-
-  if (capabilities & Capability::RIGHT)
-  {
-    _rightButton = new IconButton(QIcon::fromTheme("go-next", QIcon(":icons/go-next.png")));
-    layout->addWidget(_rightButton);
-  }
+  layout->addWidget(prevSeriesButton);
+  layout->addWidget(leftButton);
+  layout->addWidget(rightButton);
+  layout->addWidget(nextSeriesButton);
 }
 
 void NavigationBar::setContentsMargins(int left, int top, int right, int bottom) const

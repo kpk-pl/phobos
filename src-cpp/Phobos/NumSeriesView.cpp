@@ -18,10 +18,8 @@ NumSeriesView::NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
     visibleItems(config::get()->get_qualified_as<unsigned>("seriesView.num.visibleItems").value_or(2)),
     currentItem(0)
 {
-  NavigationBar* navigationBar = new NavigationBar(NavigationBar::Capability::ALL_SERIES |
-                                                   NavigationBar::Capability::ONE_SERIES |
-                                                   NavigationBar::Capability::LEFT |
-                                                   NavigationBar::Capability::RIGHT);
+  NavigationBar* navigationBar = new NavigationBar(false);
+  navigationBar->numSeriesButton->hide();
 
   navigationBar->setContentsMargins(0, 0, 0, 0);
 
@@ -34,14 +32,16 @@ NumSeriesView::NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
 
   setLayout(vlayout);
 
-  QObject::connect(navigationBar->allSeriesButton(), &QPushButton::clicked,
+  QObject::connect(navigationBar->allSeriesButton, &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::ALL_SERIES, currentSeriesUuid)); });
-  QObject::connect(navigationBar->oneSeriesButton(), &QPushButton::clicked,
+  QObject::connect(navigationBar->oneSeriesButton, &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES, currentSeriesUuid)); });
-  QObject::connect(navigationBar->leftButton(), &QPushButton::clicked,
+  QObject::connect(navigationBar->prevSeriesButton, &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES, currentSeriesUuid, -1)); });
-  QObject::connect(navigationBar->rightButton(), &QPushButton::clicked,
+  QObject::connect(navigationBar->nextSeriesButton, &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES, currentSeriesUuid, +1)); });
+  QObject::connect(navigationBar->leftButton, &QPushButton::clicked, this, &NumSeriesView::showPrevItem);
+  QObject::connect(navigationBar->rightButton, &QPushButton::clicked, this, &NumSeriesView::showNextItem);
 }
 
 NumSeriesView::~NumSeriesView()
@@ -78,7 +78,6 @@ void NumSeriesView::clear()
   utils::clearLayout(layoutForItems, false);
   photoItems.clear();
   currentItem = 0;
-  update();
 }
 
 void NumSeriesView::keyPressEvent(QKeyEvent* keyEvent)
@@ -93,35 +92,60 @@ void NumSeriesView::keyPressEvent(QKeyEvent* keyEvent)
 
 void NumSeriesView::showPrevItem()
 {
+  VisibleRange range;
   if (currentItem > 0)
   {
     --currentItem;
-    setCurrentView();
+    range = visibleRange();
+    setCurrentView(range);
   }
+  else
+  {
+    range = visibleRange();
+  }
+
+  focusCurrentItem(range);
 }
 
 void NumSeriesView::showNextItem()
 {
+  VisibleRange range;
   if (currentItem < photoItems.size()-1)
   {
     ++currentItem;
-    setCurrentView();
+    range = visibleRange();
+    setCurrentView(range);
   }
+  else
+  {
+    range = visibleRange();
+  }
+
+  focusCurrentItem(range);
 }
 
-void NumSeriesView::setCurrentView()
+NumSeriesView::VisibleRange NumSeriesView::visibleRange() const
 {
-  utils::clearLayout(layoutForItems, false);
-
   int startShow = std::max(int(currentItem) - int((visibleItems-1)/2), 0);
   int endShow = std::min(startShow + int(visibleItems), int(photoItems.size()));
   if (endShow - startShow < int(visibleItems))
       startShow = std::max(endShow - int(visibleItems), 0);
 
-  for (int i = startShow; i < endShow; ++i)
+  return std::make_pair(startShow, endShow);
+}
+
+void NumSeriesView::setCurrentView(VisibleRange const& range)
+{
+  utils::clearLayout(layoutForItems, false);
+
+  for (int i = range.first; i < range.second; ++i)
     layoutForItems->addWidget(photoItems[i].get());
 
-  layoutForItems->itemAt(currentItem - startShow)->widget()->setFocus();
+}
+
+void NumSeriesView::focusCurrentItem(VisibleRange const& range)
+{
+  layoutForItems->itemAt(currentItem - range.first)->widget()->setFocus();
 }
 
 void NumSeriesView::addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemWidget)

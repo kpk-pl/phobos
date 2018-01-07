@@ -27,6 +27,8 @@ noise = 0
 contrast = 1
 sharpness = 1
 depthOfField = 1
+saturation = 1
+complementary = 1
 
 [photoItemWidget.focusIcon]
 padding = 7
@@ -124,6 +126,10 @@ default = true
 allSeriesIcon = ":icons/all_grid.png"
 numSeriesIcon = ":icons/num_grid.png"
 oneSeriesIcon = ":icons/scroll_grid.png"
+prevSeriesIcon = ":icons/awesome/png/left-arrow.png"
+nextSeriesIcon = ":icons/awesome/png/arrowhead-pointing-to-the-right.png"
+prevItemIcon = ":icons/awesome/png/chevron-pointing-to-the-left.png"
+nextItemIcon = ":icons/awesome/png/right-chevron.png"
 iconColor = "blue"
 spacing = 2
 buttonSize = [40, 40]

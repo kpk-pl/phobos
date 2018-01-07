@@ -30,7 +30,11 @@ protected:
 private:
   void showNextItem();
   void showPrevItem();
-  void setCurrentView();
+
+  using VisibleRange = std::pair<int, int>;
+  VisibleRange visibleRange() const;
+  void setCurrentView(VisibleRange const& range);
+  void focusCurrentItem(VisibleRange const& range);
 
   unsigned const visibleItems;
   unsigned currentItem;

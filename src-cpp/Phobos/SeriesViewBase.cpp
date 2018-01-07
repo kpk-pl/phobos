@@ -61,6 +61,8 @@ void SeriesViewBase::showSeries(pcontainer::Series const& series)
 
   if (!series.empty())
     getLayoutForItems()->itemAt(0)->widget()->setFocus();
+
+  update();
 }
 
 void SeriesViewBase::updateCurrentSeriesFromContent(

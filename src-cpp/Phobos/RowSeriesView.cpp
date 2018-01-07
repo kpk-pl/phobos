@@ -13,11 +13,10 @@ namespace phobos {
 RowSeriesView::RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
   SeriesViewBase(seriesSet, imageCache)
 {
-  NavigationBar* navigationBar = new NavigationBar(NavigationBar::Capability::ALL_SERIES |
-                                                   NavigationBar::Capability::NUM_SERIES |
-                                                   NavigationBar::Capability::SLIDER |
-                                                   NavigationBar::Capability::LEFT |
-                                                   NavigationBar::Capability::RIGHT);
+  NavigationBar* navigationBar = new NavigationBar(true);
+  navigationBar->oneSeriesButton->hide();
+  navigationBar->leftButton->hide();
+  navigationBar->rightButton->hide();
 
   scroll = new widgets::HorizontalScrollArea();
   scroll->boxLayout()->setContentsMargins(0, 0, 0, 0);
@@ -30,15 +29,17 @@ RowSeriesView::RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
   layout->addStretch(0);
   setLayout(layout);
 
-  QObject::connect(navigationBar->allSeriesButton(), &QPushButton::clicked,
+  QObject::connect(navigationBar->allSeriesButton, &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::ALL_SERIES, currentSeriesUuid)); });
-  QObject::connect(navigationBar->numSeriesButton(), &QPushButton::clicked,
+  QObject::connect(navigationBar->numSeriesButton, &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES, currentSeriesUuid)); });
+
   QObject::connect(navigationBar->slider(), &QSlider::valueChanged,
                    this, &RowSeriesView::resizeImages);
-  QObject::connect(navigationBar->leftButton(), &QPushButton::clicked,
+
+  QObject::connect(navigationBar->prevSeriesButton, &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES, currentSeriesUuid, -1)); });
-  QObject::connect(navigationBar->rightButton(), &QPushButton::clicked,
+  QObject::connect(navigationBar->nextSeriesButton, &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES, currentSeriesUuid, +1)); });
 }
 
@@ -60,7 +61,6 @@ void RowSeriesView::clear()
   SeriesViewBase::clear();
   utils::clearLayout(scroll->boxLayout());
   scroll->horizontalScrollBar()->setValue(0);
-  update();
 }
 
 widgets::pitem::PhotoItem* RowSeriesView::findItemWidget(pcontainer::ItemId const& itemId) const

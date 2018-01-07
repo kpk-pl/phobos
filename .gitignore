@@ -2,3 +2,8 @@
 *.pyc
 *.idea/
 src-cpp/Build/*
+src-cpp/Phobos/icons/awesome/.*
+src-cpp/Phobos/icons/awesome/svg/*
+src-cpp/Phobos/icons/awesome/psd/*
+src-cpp/Phobos/icons/awesome/eps/*
+src-cpp/Phobos/icons/awesome/font/*

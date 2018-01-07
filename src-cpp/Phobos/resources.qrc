@@ -2,8 +2,6 @@
     <qresource prefix="/">
         <file>icons/focus.png</file>
         <file>icons/star.png</file>
-        <file>icons/go-next.png</file>
-        <file>icons/go-previous.png</file>
         <file>icons/num_grid.png</file>
         <file>icons/scroll_grid.png</file>
         <file>icons/all_grid.png</file>
@@ -14,5 +12,9 @@
         <file>icons/awesome/png/pencil.png</file>
         <file>icons/awesome/png/copy-document.png</file>
         <file>icons/awesome/png/move-document.png</file>
+        <file>icons/awesome/png/chevron-pointing-to-the-left.png</file>
+        <file>icons/awesome/png/right-chevron.png</file>
+        <file>icons/awesome/png/arrowhead-pointing-to-the-right.png</file>
+        <file>icons/awesome/png/left-arrow.png</file>
     </qresource>
 </RCC>

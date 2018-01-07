@@ -78,12 +78,14 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
     if (viewDesc->type == ViewType::NUM_SINGLE_SERIES && currentSeriesWidget == rowSeriesView)
     {
       rowSeriesView->clear();
+      rowSeriesView->update();
       numSeriesView->showSeries(targetSeries);
       currentSeriesWidget = numSeriesView;
     }
     else if (viewDesc->type == ViewType::ROW_SINGLE_SERIES && currentSeriesWidget == numSeriesView)
     {
       numSeriesView->clear();
+      numSeriesView->update();
       rowSeriesView->showSeries(targetSeries);
       currentSeriesWidget = rowSeriesView;
     }
