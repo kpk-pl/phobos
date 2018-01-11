@@ -92,10 +92,8 @@ void MainWindow::createMenus()
     QMenu* actionMenu = menuBar()->addMenu(tr("&Action"));
     actionMenu->addAction(tr("Select &best"), [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_BEST); })
             ->setStatusTip(tr("Select best photos in each series"));
-    actionMenu->addAction(tr("Select &unchecked"), [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_UNCHECKED); })
-            ->setStatusTip(tr("Select all unchecked photos"));
-    actionMenu->addAction(tr("&Discard unchecked"), [this](){ viewStack->bulkSelect(PhotoBulkAction::DISCARD_UNCHECKED); })
-            ->setStatusTip(tr("Select all unchecked photos"));
+    actionMenu->addAction(tr("Select &all"), [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_ALL); })
+            ->setStatusTip(tr("Select all photos"));
     actionMenu->addAction(tr("&Invert selection"), [this](){ viewStack->bulkSelect(PhotoBulkAction::INVERT); })
             ->setStatusTip(tr("Invert selection"));
     actionMenu->addAction(tr("&Clear selection"), [this](){ viewStack->bulkSelect(PhotoBulkAction::CLEAR); })

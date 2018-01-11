@@ -1,7 +1,7 @@
 #include "Utils/ItemStateColor.h"
+#include "Utils/Asserted.h"
 #include "Config.h"
 #include "ConfigExtension.h"
-#include <cassert>
 
 namespace phobos { namespace utils {
 
@@ -13,12 +13,9 @@ QColor itemStateColor(pcontainer::ItemState const& state)
     return config::qColor("category.unknown.color", Qt::lightGray);
   case pcontainer::ItemState::SELECTED:
     return config::qColor("category.selected.color", Qt::green);
-  case pcontainer::ItemState::DISCARDED:
-    return config::qColor("caregory.discarded.color", Qt::red);
   }
 
-  assert(false);
-  return QColor();
+  return utils::asserted::always;
 }
 
 }} // namespace phobos::utils

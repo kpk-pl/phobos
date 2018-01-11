@@ -8,7 +8,6 @@ namespace phobos { namespace pcontainer {
 namespace {
   static std::map<ItemState, std::string> const stateToString = {
     { ItemState::SELECTED, "selected" },
-    { ItemState::DISCARDED, "discarded" },
     { ItemState::UNKNOWN, "unknown" }
   };
 } // unnamed namespace

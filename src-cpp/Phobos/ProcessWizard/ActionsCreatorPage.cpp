@@ -20,7 +20,7 @@ namespace phobos { namespace processwiz {
 
 namespace {
   using ItemState = pcontainer::ItemState;
-  static ItemState const allStates[] = { ItemState::SELECTED, ItemState::DISCARDED, ItemState::UNKNOWN };
+  static ItemState const allStates[] = { ItemState::SELECTED, ItemState::UNKNOWN };
 } // unnamed namespace
 
 ActionsCreatorPage::ActionsCreatorPage(OperationType const& defaultOperation) :
@@ -37,12 +37,7 @@ ActionsCreatorPage::ActionsCreatorPage(OperationType const& defaultOperation) :
   addStatusRow(mainLayout);
   setLayout(mainLayout);
 
-  TypeActionTab *currentTab;
-  if (defaultOperation == OperationType::Delete)
-    currentTab = utils::asserted::fromMap(actionTabs, ItemState::DISCARDED);
-  else
-    currentTab = utils::asserted::fromMap(actionTabs, ItemState::SELECTED);
-
+  TypeActionTab *currentTab = utils::asserted::fromMap(actionTabs, ItemState::SELECTED);
   actionTabsWidget->setCurrentWidget(currentTab);
 
   selectedActionsChanged();

@@ -119,19 +119,11 @@ namespace {
         }
       }
   }
-  void selectUncheckedPhotos(pcontainer::Set const& seriesSet)
+  void selectAllPhotos(pcontainer::Set const& seriesSet)
   {
     for (auto const& series : seriesSet)
       for (auto const& item : *series)
-        if (item->state() == pcontainer::ItemState::UNKNOWN)
-          item->select();
-  }
-  void discardUncheckedPhotos(pcontainer::Set const& seriesSet)
-  {
-    for (auto const& series : seriesSet)
-      for (auto const& item : *series)
-        if (item->state() == pcontainer::ItemState::UNKNOWN)
-          item->discard();
+        item->select();
   }
   void invertSelections(pcontainer::Set const& seriesSet)
   {
@@ -154,11 +146,8 @@ void ViewStack::bulkSelect(PhotoBulkAction const action)
     case PhotoBulkAction::SELECT_BEST:
         selectBestPhotos(seriesSet, imageCache);
         break;
-    case PhotoBulkAction::SELECT_UNCHECKED:
-        selectUncheckedPhotos(seriesSet);
-        break;
-    case PhotoBulkAction::DISCARD_UNCHECKED:
-        discardUncheckedPhotos(seriesSet);
+    case PhotoBulkAction::SELECT_ALL:
+        selectAllPhotos(seriesSet);
         break;
     case PhotoBulkAction::INVERT:
         invertSelections(seriesSet);
@@ -194,29 +183,26 @@ void ViewStack::connectSignals()
 
 ViewStack::SelectionStatus ViewStack::getSelectionStatus() const
 {
-    SelectionStatus result;
+  SelectionStatus result;
 
-    for (auto const& series : seriesSet)
+  for (auto const& series : seriesSet)
+  {
+    result.status.emplace_back();
+    for (auto const& photo : *series)
     {
-        result.status.emplace_back();
-        for (auto const& photo : *series)
-        {
-            switch(photo->state())
-            {
-            case pcontainer::ItemState::SELECTED:
-                result.status.back().selected.push_back(photo->fileName());
-                break;
-            case pcontainer::ItemState::DISCARDED:
-                result.status.back().discarded.push_back(photo->fileName());
-                break;
-            default:
-                result.status.back().others.push_back(photo->fileName());
-                break;
-            }
-        }
+      switch(photo->state())
+      {
+      case pcontainer::ItemState::SELECTED:
+        result.status.back().selected.push_back(photo->fileName());
+        break;
+      default:
+        result.status.back().others.push_back(photo->fileName());
+        break;
+      }
     }
+  }
 
-    return result;
+  return result;
 }
 
 } // namespace phobos

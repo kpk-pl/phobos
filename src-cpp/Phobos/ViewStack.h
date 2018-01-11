@@ -25,13 +25,12 @@ class ViewStack : public QStackedWidget
 public:
     struct SelectionStatus
     {
-        struct SeriesSelectionStatus
-        {
-            std::vector<QString> selected;
-            std::vector<QString> discarded;
-            std::vector<QString> others;
-        };
-        std::vector<SeriesSelectionStatus> status;
+      struct SeriesSelectionStatus
+      {
+        std::vector<QString> selected;
+        std::vector<QString> others;
+      };
+      std::vector<SeriesSelectionStatus> status;
     };
 
     explicit ViewStack(pcontainer::Set const& seriesSet, icache::Cache & cache);

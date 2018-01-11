@@ -7,7 +7,7 @@ namespace phobos { namespace processwiz {
 
 namespace {
 using ItemState = pcontainer::ItemState;
-static ItemState const allStates[] = { ItemState::SELECTED, ItemState::DISCARDED, ItemState::UNKNOWN };
+static ItemState const allStates[] = { ItemState::SELECTED, ItemState::UNKNOWN };
 
 struct Counter
 {
@@ -32,9 +32,7 @@ struct Counter
 
     if (counts.size() == 1)
     {
-      if (counts.begin()->first == ItemState::DISCARDED)
-        ++seriesCounts.seriesCompletelyDiscarded;
-      else if (counts.begin()->first == ItemState::UNKNOWN)
+      if (counts.begin()->first == ItemState::UNKNOWN)
         ++seriesCounts.seriesCompletelyUnknown;
     }
   }
@@ -57,7 +55,6 @@ SeriesCounts countPhotos(pcontainer::Set const& seriesSet)
     LOG(INFO) << "[processing] Found " << counts.types[state].photos << " " << state << " photos in "
               << counts.types[state].series << " series";
 
-  LOG(INFO) << "[processing] Found " << counts.seriesCompletelyDiscarded << " completely discarded series";
   LOG(INFO) << "[processing] Found " << counts.seriesCompletelyUnknown << " completely unchecked series";
 
   return counts;

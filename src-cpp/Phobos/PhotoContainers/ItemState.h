@@ -11,7 +11,6 @@ namespace phobos { namespace pcontainer {
 enum class ItemState
 {
   SELECTED,
-  DISCARDED,
   UNKNOWN
 };
 

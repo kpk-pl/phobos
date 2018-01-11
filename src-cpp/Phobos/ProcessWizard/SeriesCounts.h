@@ -18,7 +18,6 @@ struct SeriesCounts
   TypeCounts all;
   std::map<pcontainer::ItemState, TypeCounts> types;
 
-  std::size_t seriesCompletelyDiscarded = 0;
   std::size_t seriesCompletelyUnknown = 0;
 };
 

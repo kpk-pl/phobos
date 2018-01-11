@@ -7,11 +7,10 @@ namespace phobos {
 
 enum class PhotoBulkAction
 {
-    SELECT_BEST,
-    SELECT_UNCHECKED,
-    DISCARD_UNCHECKED,
-    INVERT,
-    CLEAR
+  SELECT_BEST,
+  SELECT_ALL,
+  INVERT,
+  CLEAR
 };
 
 } // namespace phobos

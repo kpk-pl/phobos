@@ -34,10 +34,8 @@ signals:
 
 public slots:
   void select() const;
-  void discard() const;
   void deselect() const;
   void invert() const;
-  void toggleSelection() const;
   void setState(ItemState state) const;
 
 private:

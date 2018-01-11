@@ -59,7 +59,7 @@ PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem,
   setToolTip(photoItem->fileName());
   installEventFilter(this);
 
-  QObject::connect(this, &ImageWidget::clicked, _photoItem.get(), &pcontainer::Item::toggleSelection);
+  QObject::connect(this, &ImageWidget::clicked, _photoItem.get(), &pcontainer::Item::invert);
   QObject::connect(_photoItem.get(), &pcontainer::Item::stateChanged,
                    this, static_cast<void (QWidget::*)()>(&QWidget::update));
 }
@@ -252,8 +252,6 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
   QMenu* photoMenu = menu.addMenu("Photo");
   if (_photoItem->state() != pcontainer::ItemState::SELECTED)
     photoMenu->addAction(tr("Select"), _photoItem.get(), &pcontainer::Item::select);
-  if (_photoItem->state() != pcontainer::ItemState::DISCARDED)
-    photoMenu->addAction(tr("Discard"), _photoItem.get(), &pcontainer::Item::discard);
   if (_photoItem->state() != pcontainer::ItemState::UNKNOWN)
     photoMenu->addAction(tr("Deselect"), _photoItem.get(), &pcontainer::Item::deselect);
 
@@ -265,7 +263,6 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
 
   QMenu* seriesMenu = menu.addMenu("Series");
   seriesMenu->addAction(tr("Select all"), [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::SELECTED); });
-  seriesMenu->addAction(tr("Discard all"), [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::DISCARDED); });
   seriesMenu->addAction(tr("Deselect all"), [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::UNKNOWN); });
 
   if (capabilities.has(CapabilityType::REMOVE_SERIES))
@@ -314,10 +311,10 @@ bool PhotoItem::eventFilter(QObject* object, QEvent* event)
 
 void PhotoItem::keyPressEvent(QKeyEvent* event)
 {
-    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
-        _photoItem->toggleSelection();
-    else
-        ImageWidget::keyPressEvent(event);
+  if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
+    _photoItem->invert();
+  else
+    ImageWidget::keyPressEvent(event);
 }
 
 }}} // namespace phobos::widgets::pitem
