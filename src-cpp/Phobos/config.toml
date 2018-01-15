@@ -119,17 +119,18 @@ visibleItems = 2
 default = true
 
 [navigationBar]
-allSeriesIcon = ":icons/all_grid.png"
-numSeriesIcon = ":icons/num_grid.png"
-oneSeriesIcon = ":icons/scroll_grid.png"
-prevSeriesIcon = ":icons/awesome/png/left-arrow.png"
-nextSeriesIcon = ":icons/awesome/png/arrowhead-pointing-to-the-right.png"
-prevItemIcon = ":icons/awesome/png/chevron-pointing-to-the-left.png"
-nextItemIcon = ":icons/awesome/png/right-chevron.png"
-iconColor = "blue"
+allSeries = { icon = ":icons/all_grid.png", color = "#006FE8", margin = 4 }
+numSeries = { icon = ":icons/num_grid.png", color = "#006FE8", margin = 4 }
+oneSeries = { icon = ":icons/scroll_grid.png", color = "#006FE8", margin = 4 }
+prevSeries = { icon = ":icons/awesome/png/left-arrow.png", color = "#006FE8" }
+nextSeries = { icon = ":icons/awesome/png/arrowhead-pointing-to-the-right.png", color = "#006FE8" }
+prevItem =  { icon = ":icons/awesome/png/chevron-pointing-to-the-left.png", color = "#006FE8" }
+nextItem = { icon = ":icons/awesome/png/right-chevron.png", color = "#006FE8" }
+movePhotos = { icon = ":icons/awesome/png/move-document.png", color = "darkorange"} 
+deletePhotos = { icon = ":icons/awesome/png/trash.png", color = "red" }
 spacing = 2
-buttonSize = [40, 40]
-buttonMargin = 4
+buttonSize = [48, 48]
+buttonMargin = 10
 
 [imageCache]
 preloadSize = { width = 320, height = 240 }

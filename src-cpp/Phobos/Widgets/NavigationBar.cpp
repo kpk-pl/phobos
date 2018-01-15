@@ -1,6 +1,7 @@
 #include "ConfigExtension.h"
 #include "ConfigPath.h"
 #include "Widgets/NavigationBar.h"
+#include "Widgets/HVLine.h"
 #include "ImageProcessing/Utils/ColoredPixmap.h"
 #include "Utils/Asserted.h"
 #include <QHBoxLayout>
@@ -12,34 +13,34 @@
 namespace phobos { namespace widgets {
 
 namespace {
-  config::ConfigPath const basePath("navigationBar");
+config::ConfigPath const basePath("navigationBar");
 
-  QIcon makeIcon(std::string const& configName)
+QIcon makeIcon(config::ConfigPath const& path)
+{
+  std::string const iconPath = config::qualified(path("icon"), std::string{});
+  QColor const color = config::qColor(path("color"), Qt::black);
+  return iprocess::utils::coloredPixmap(iconPath, color, QSize(64, 64));
+}
+
+class IconButton : public QPushButton
+{
+public:
+  IconButton(config::ConfigPath const& path, QWidget* parent = nullptr) :
+    QPushButton(makeIcon(path), "", parent),
+    margin(config::qualified(path("margin"), config::qualified(basePath("buttonMargin"), 5u)))
   {
-    std::string const path = config::qualified(basePath(configName), std::string{});
-    QColor const color = config::qColor(basePath("iconColor"), Qt::black);
-    return iprocess::utils::coloredPixmap(path, color, QSize(64, 64));
+    auto const btnSize = config::qSize(basePath("buttonSize"), QSize(40, 40));
+    setIconSize(btnSize - 2*QSize(margin, margin));
+    setContentsMargins(margin, margin, margin, margin);
   }
 
-  class IconButton : public QPushButton
+  QSize sizeHint() const override
   {
-  public:
-    IconButton(QIcon const& icon, QWidget* parent = nullptr) :
-        QPushButton(icon, "", parent),
-        margin(config::qualified(basePath("buttonMargin"), 5u))
-    {
-      setIconSize(config::qSize(basePath("buttonSize"), QSize(40, 40)));
-      setContentsMargins(margin, margin, margin, margin);
-    }
-
-    QSize sizeHint() const override
-    {
-      QSize iSize = iconSize();
-      return QSize(iSize.width() + 2*margin, iSize.height() + 2*margin);
-    }
-  private:
-    std::size_t const margin;
-  };
+    return QSize(iconSize() + 2*QSize(margin, margin));
+  }
+private:
+  std::size_t const margin;
+};
 } // unnamed namespace
 
 NavigationBar::NavigationBar() :
@@ -60,13 +61,13 @@ QPushButton* NavigationBar::button(std::string const& name) const
   return utils::asserted::fromMap(_buttons, name);
 }
 
-QPushButton* NavigationBar::addButton(std::string const& name, std::string const& icon)
+QPushButton* NavigationBar::addButton(std::string const& name)
 {
   QPushButton* &button = _buttons[name];
 
   if (!button)
   {
-    button = new IconButton(makeIcon(icon));
+    button = new IconButton(basePath(name));
     _layout->addWidget(button);
   }
 
@@ -98,7 +99,9 @@ void NavigationBar::addStretch()
 
 void NavigationBar::addSeparator()
 {
-
+  HVLine *line = new HVLine(Qt::Vertical);
+  line->setMinimumWidth(10);
+  _layout->addWidget(line);
 }
 
 }} // namespace phobos::widgets

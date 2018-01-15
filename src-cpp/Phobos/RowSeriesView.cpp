@@ -18,11 +18,11 @@ RowSeriesView::RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
 {
   widgets::NavigationBar* navigationBar = new widgets::NavigationBar();
 
-  navigationBar->addButton("all", "allSeriesIcon")->setToolTip(tr("Return to main view with all series displayed"));
-  navigationBar->addButton("num", "numSeriesIcon")->setToolTip(tr("Switch to view with photos side by side"));
+  navigationBar->addButton("allSeries")->setToolTip(tr("Return to main view with all series displayed"));
+  navigationBar->addButton("numSeries")->setToolTip(tr("Switch to view with photos side by side"));
   navigationBar->addSlider()->setToolTip(tr("Zoom in / zoom out"));
-  navigationBar->addButton("prev", "prevSeriesIcon")->setToolTip(tr("Previous series"));
-  navigationBar->addButton("next", "nextSeriesIcon")->setToolTip(tr("Next series"));
+  navigationBar->addButton("prevSeries")->setToolTip(tr("Previous series"));
+  navigationBar->addButton("nextSeries")->setToolTip(tr("Next series"));
 
   scroll = new widgets::HorizontalScrollArea();
   scroll->boxLayout()->setContentsMargins(0, 0, 0, 0);
@@ -35,17 +35,17 @@ RowSeriesView::RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
   layout->addStretch(0);
   setLayout(layout);
 
-  QObject::connect(navigationBar->button("all"), &QPushButton::clicked,
+  QObject::connect(navigationBar->button("allSeries"), &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::ALL_SERIES, currentSeriesUuid)); });
-  QObject::connect(navigationBar->button("num"), &QPushButton::clicked,
+  QObject::connect(navigationBar->button("numSeries"), &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES, currentSeriesUuid)); });
 
   QObject::connect(navigationBar->slider(), &QSlider::valueChanged,
                    this, &RowSeriesView::resizeImages);
 
-  QObject::connect(navigationBar->button("prev"), &QPushButton::clicked,
+  QObject::connect(navigationBar->button("prevSeries"), &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES, currentSeriesUuid, -1)); });
-  QObject::connect(navigationBar->button("next"), &QPushButton::clicked,
+  QObject::connect(navigationBar->button("nextSeries"), &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES, currentSeriesUuid, +1)); });
 }
 

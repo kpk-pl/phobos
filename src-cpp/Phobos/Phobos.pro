@@ -70,7 +70,6 @@ SOURCES += Phobos.cpp\
     Widgets/PhotoItem/Recovery.cpp \
     Widgets/PhotoItem/DetailsDialog.cpp \
     Widgets/PhotoItem/AddonRenderer.cpp \
-    Widgets/HorizontalLine.cpp \
     Widgets/FilenameEntry.cpp \
     Widgets/ClickableLabel.cpp \
     ImageCache/Cache.cpp \
@@ -97,7 +96,8 @@ SOURCES += Phobos.cpp\
     ProcessWizard/ActionTab/RenameActionTab.cpp \
     ProcessWizard/ActionTab/CopyMoveActionTab.cpp \
     ProcessWizard/Execution/ExecutionImpl.cpp \
-    ProcessWizard/Execution/Execute.cpp
+    ProcessWizard/Execution/Execute.cpp \
+    Widgets/HVLine.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -183,7 +183,6 @@ HEADERS  += MainWindow.h \
     Widgets/PhotoItem/Recovery.h \
     Widgets/PhotoItem/DetailsDialog.h \
     Widgets/PhotoItem/AddonRenderer.h \
-    Widgets/HorizontalLine.h \
     Widgets/FilenameEntry.h \
     Widgets/ClickableLabel.h \
     ImageCache/Cache.h \
@@ -217,7 +216,8 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution/Execution.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
-    ProcessWizard/Execution/Execute.h
+    ProcessWizard/Execution/Execute.h \
+    Widgets/HVLine.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

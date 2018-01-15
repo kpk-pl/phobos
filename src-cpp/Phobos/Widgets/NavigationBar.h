@@ -18,7 +18,7 @@ public:
 
   void setContentsMargins(int left, int top, int right, int bottom) const;
 
-  QPushButton* addButton(std::string const& name, std::string const& icon);
+  QPushButton* addButton(std::string const& name);
   QSlider* addSlider();
   void addSeparator();
   void addStretch();

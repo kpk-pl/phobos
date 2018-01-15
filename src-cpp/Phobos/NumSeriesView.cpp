@@ -21,13 +21,13 @@ NumSeriesView::NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
 {
   widgets::NavigationBar* navigationBar = new widgets::NavigationBar();
 
-  navigationBar->addButton("all", "allSeriesIcon")->setToolTip(tr("Return to main view with all series displayed"));
-  navigationBar->addButton("one", "oneSeriesIcon")->setToolTip(tr("Switch to view with whole series in one row"));
+  navigationBar->addButton("allSeries")->setToolTip(tr("Return to main view with all series displayed"));
+  navigationBar->addButton("oneSeries")->setToolTip(tr("Switch to view with whole series in one row"));
   navigationBar->addStretch();
-  navigationBar->addButton("prevS", "prevSeriesIcon")->setToolTip(tr("Previous series"));
-  navigationBar->addButton("left", "prevItemIcon")->setToolTip(tr("Previous photo"));
-  navigationBar->addButton("right", "nextItemIcon")->setToolTip(tr("Next photo"));
-  navigationBar->addButton("nextS", "nextSeriesIcon")->setToolTip(tr("Next series"));
+  navigationBar->addButton("prevSeries")->setToolTip(tr("Previous series"));
+  navigationBar->addButton("prevItem")->setToolTip(tr("Previous photo"));
+  navigationBar->addButton("nextItem")->setToolTip(tr("Next photo"));
+  navigationBar->addButton("nextSeries")->setToolTip(tr("Next series"));
   navigationBar->setContentsMargins(0, 0, 0, 0);
 
   layoutForItems = new QHBoxLayout();
@@ -39,16 +39,16 @@ NumSeriesView::NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
 
   setLayout(vlayout);
 
-  QObject::connect(navigationBar->button("all"), &QPushButton::clicked,
+  QObject::connect(navigationBar->button("allSeries"), &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::ALL_SERIES, currentSeriesUuid)); });
-  QObject::connect(navigationBar->button("one"), &QPushButton::clicked,
+  QObject::connect(navigationBar->button("oneSeries"), &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES, currentSeriesUuid)); });
-  QObject::connect(navigationBar->button("prevS"), &QPushButton::clicked,
+  QObject::connect(navigationBar->button("prevSeries"), &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES, currentSeriesUuid, -1)); });
-  QObject::connect(navigationBar->button("nextS"), &QPushButton::clicked,
+  QObject::connect(navigationBar->button("nextSeries"), &QPushButton::clicked,
                    this, [this](){ switchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES, currentSeriesUuid, +1)); });
-  QObject::connect(navigationBar->button("left"), &QPushButton::clicked, this, &NumSeriesView::showPrevItem);
-  QObject::connect(navigationBar->button("right"), &QPushButton::clicked, this, &NumSeriesView::showNextItem);
+  QObject::connect(navigationBar->button("prevItem"), &QPushButton::clicked, this, &NumSeriesView::showPrevItem);
+  QObject::connect(navigationBar->button("nextItem"), &QPushButton::clicked, this, &NumSeriesView::showNextItem);
 }
 
 NumSeriesView::~NumSeriesView()

@@ -2,7 +2,7 @@
 #include "ImportWizard/ImageOpenDialog.h"
 #include "ImportWizard/DivisionOps.h"
 #include "ImportWizard/FileInfoProvider.h"
-#include "Widgets/HorizontalLine.h"
+#include "Widgets/HVLine.h"
 #include "Utils/Comparators.h"
 #include <easylogging++.h>
 #include <QPushButton>
@@ -48,7 +48,7 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     layout->setColumnStretch(1, 1);
     layout->addWidget(numImportedLabel, 0, 0, 1, 2);
     layout->addWidget(importMoreButton, 0, 2);
-    layout->addWidget(new widgets::HorizontalLine(), 1, 0, 1, -1);
+    layout->addWidget(new widgets::HVLine(Qt::Horizontal), 1, 0, 1, -1);
     layout->addWidget(fixedNumChoice, 2, 0, 1, 2);
     layout->addWidget(fixedNumParam, 2, 2);
     layout->addWidget(metadataAutoChoice, 3, 0, 1, 2);

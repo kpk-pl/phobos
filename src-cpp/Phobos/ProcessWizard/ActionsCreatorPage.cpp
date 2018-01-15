@@ -37,7 +37,9 @@ ActionsCreatorPage::ActionsCreatorPage(OperationType const& defaultOperation) :
   addStatusRow(mainLayout);
   setLayout(mainLayout);
 
-  TypeActionTab *currentTab = utils::asserted::fromMap(actionTabs, ItemState::SELECTED);
+  TypeActionTab *currentTab =
+      utils::asserted::fromMap(actionTabs, (defaultOperation == OperationType::Delete) ? ItemState::UNKNOWN : ItemState::SELECTED);
+
   actionTabsWidget->setCurrentWidget(currentTab);
 
   selectedActionsChanged();

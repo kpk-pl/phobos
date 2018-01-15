@@ -5,6 +5,7 @@
 #include "Widgets/PhotoItem/Addon.h"
 #include "Widgets/PhotoItem/Capability.h"
 #include "Widgets/PhotoItem/Recovery.h"
+#include "Widgets/NavigationBar.h"
 #include "Utils/Algorithm.h"
 #include "Utils/Focused.h"
 #include "Utils/Asserted.h"
@@ -17,6 +18,7 @@
 #include <QEvent>
 #include <QKeyEvent>
 #include <QPixmap>
+#include <QPushButton>
 
 namespace phobos {
 
@@ -56,13 +58,6 @@ struct AllSeriesView::Coords
     int row, col;
 };
 
-// TODO: Need navigation bar with some UI icons:
-// Import photos
-// show whole series (num/row)
-// select best photos
-// delete/move/copy/rename photos
-// also, counters of selected, discarded and unselected photos
-
 AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
   seriesSet(seriesSet), imageCache(imageCache), scroll(nullptr), grid(nullptr)
 {
@@ -95,8 +90,26 @@ void AllSeriesView::prepareUI()
   scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   scroll->setWidget(scrollWidget);
 
+  widgets::NavigationBar *navigationBar = new widgets::NavigationBar();
+
+  navigationBar->addButton("import")->setToolTip("Import photos");
+  navigationBar->addSeparator();
+  navigationBar->addButton("numSeries")->setToolTip("Switch to view with photos side by side");
+  navigationBar->addButton("oneSeries")->setToolTip("Switch to view with whole series in one row");
+  navigationBar->addButton("singlePhoto")->setToolTip("Open a preview window with only one photo");
+  navigationBar->addSeparator();
+  navigationBar->addButton("selectBest")->setToolTip("Automatically select best photos");
+  navigationBar->addSeparator();
+  navigationBar->addButton("movePhotos")->setToolTip("Move selected photos to another folder");
+  navigationBar->addButton("deletePhotos")->setToolTip("Remove unselected photos from hard drive");
+  navigationBar->addStretch();
+  // TODO: counter of selected, unselected photos, series
+  navigationBar->setContentsMargins(5, 5, 5, 0);
+  // TODO: allow hiding navigationBar to get more space
+
   QVBoxLayout* newLayout = new QVBoxLayout();
   newLayout->setContentsMargins(5, 5, 0, 0);
+  newLayout->addWidget(navigationBar);
   newLayout->addWidget(scroll);
 
   setLayout(newLayout);
