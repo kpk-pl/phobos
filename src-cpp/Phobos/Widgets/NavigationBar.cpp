@@ -1,10 +1,13 @@
+#include "ConfigExtension.h"
+#include "ConfigPath.h"
+#include "Widgets/NavigationBar.h"
+#include "ImageProcessing/Utils/ColoredPixmap.h"
+#include "Utils/Asserted.h"
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QSize>
-#include "NavigationBar.h"
-#include "ConfigExtension.h"
-#include "ConfigPath.h"
-#include "ImageProcessing/Utils/ColoredPixmap.h"
+#include <QPushButton>
+#include <QSlider>
 
 namespace phobos { namespace widgets {
 
@@ -39,62 +42,63 @@ namespace {
   };
 } // unnamed namespace
 
-NavigationBar::NavigationBar(bool includeSlider) :
-  leftButton(new IconButton(makeIcon("prevItemIcon"))),
-  rightButton(new IconButton(makeIcon("nextItemIcon"))),
-  prevSeriesButton(new IconButton(makeIcon("prevSeriesIcon"))),
-  nextSeriesButton(new IconButton(makeIcon("nextSeriesIcon"))),
-  allSeriesButton(new IconButton(makeIcon("allSeriesIcon"))),
-  numSeriesButton(new IconButton(makeIcon("numSeriesIcon"))),
-  oneSeriesButton(new IconButton(makeIcon("oneSeriesIcon"))),
+NavigationBar::NavigationBar() :
   _slider(nullptr)
 {
-  leftButton->setToolTip(tr("Previous photo"));
-  rightButton->setToolTip(tr("Next photo"));
-  prevSeriesButton->setToolTip(tr("Previous series"));
-  nextSeriesButton->setToolTip(tr("Next series"));
-  allSeriesButton->setToolTip(tr("Return to main view with all series displayed"));
-  numSeriesButton->setToolTip(tr("Switch to view with photos side by side"));
-  oneSeriesButton->setToolTip(tr("Switch to view with whole series in one row"));
-
-  QHBoxLayout* layout = new QHBoxLayout();
-  layout->setSpacing(config::qualified(basePath("spacing"), 2u));
-  setLayout(layout);
-
-  layout->addWidget(allSeriesButton);
-  layout->addWidget(numSeriesButton);
-  layout->addWidget(oneSeriesButton);
-
-  if (includeSlider)
-  {
-    _slider = new QSlider(Qt::Horizontal);
-    _slider->setMaximum(100);
-    _slider->setValue(100);
-    _slider->setToolTip(tr("Zoom in / zoom out"));
-
-    QWidget* lSpacing = new QWidget();
-    lSpacing->setMinimumWidth(15);
-    QWidget* rSpacing = new QWidget();
-    rSpacing->setMinimumWidth(15);
-
-    layout->addWidget(lSpacing);
-    layout->addWidget(_slider);
-    layout->addWidget(rSpacing);
-  }
-  else
-  {
-    layout->addStretch();
-  }
-
-  layout->addWidget(prevSeriesButton);
-  layout->addWidget(leftButton);
-  layout->addWidget(rightButton);
-  layout->addWidget(nextSeriesButton);
+  _layout = new QHBoxLayout();
+  _layout->setSpacing(config::qualified(basePath("spacing"), 2u));
+  setLayout(_layout);
 }
 
 void NavigationBar::setContentsMargins(int left, int top, int right, int bottom) const
 {
   layout()->setContentsMargins(left, top, right, bottom);
+}
+
+QPushButton* NavigationBar::button(std::string const& name) const
+{
+  return utils::asserted::fromMap(_buttons, name);
+}
+
+QPushButton* NavigationBar::addButton(std::string const& name, std::string const& icon)
+{
+  QPushButton* &button = _buttons[name];
+
+  if (!button)
+  {
+    button = new IconButton(makeIcon(icon));
+    _layout->addWidget(button);
+  }
+
+  return button;
+}
+
+QSlider* NavigationBar::addSlider()
+{
+  _slider = new QSlider(Qt::Horizontal);
+  _slider->setMaximum(100);
+  _slider->setValue(100);
+
+  QWidget* lSpacing = new QWidget();
+  lSpacing->setMinimumWidth(15);
+  QWidget* rSpacing = new QWidget();
+  rSpacing->setMinimumWidth(15);
+
+  _layout->addWidget(lSpacing);
+  _layout->addWidget(_slider);
+  _layout->addWidget(rSpacing);
+
+  return _slider;
+}
+
+void NavigationBar::addStretch()
+{
+  _layout->addStretch();
+}
+
+void NavigationBar::addSeparator()
+{
+
 }
 
 }} // namespace phobos::widgets
