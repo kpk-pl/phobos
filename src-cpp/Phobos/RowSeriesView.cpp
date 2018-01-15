@@ -1,5 +1,5 @@
 #include "RowSeriesView.h"
-#include "NavigationBar.h"
+#include "Widgets/NavigationBar.h"
 #include "Widgets/PhotoItem/PhotoItem.h"
 #include "Widgets/PhotoItem/Recovery.h"
 #include "Utils/LayoutClear.h"
@@ -13,7 +13,7 @@ namespace phobos {
 RowSeriesView::RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
   SeriesViewBase(seriesSet, imageCache)
 {
-  NavigationBar* navigationBar = new NavigationBar(true);
+  widgets::NavigationBar* navigationBar = new widgets::NavigationBar(true);
   navigationBar->oneSeriesButton->hide();
   navigationBar->leftButton->hide();
   navigationBar->rightButton->hide();

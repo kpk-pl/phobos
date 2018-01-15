@@ -26,7 +26,6 @@ SOURCES += Phobos.cpp\
     ConfigExtension.cpp \
     SeriesViewBase.cpp \
     NumSeriesView.cpp \
-    NavigationBar.cpp \
     RowSeriesView.cpp \
     ImageProcessing/Metrics.cpp \
     ImageProcessing/MetricsIO.cpp \
@@ -63,6 +62,7 @@ SOURCES += Phobos.cpp\
     ImportWizard/SeriesDisplayPage.cpp \
     ImportWizard/FileInfoProvider.cpp \
     Widgets/IconLabel.cpp \
+    Widgets/NavigationBar.cpp \
     Widgets/HorizontalScrollArea.cpp \
     Widgets/ImageWidget.cpp \
     Widgets/PhotoItem/PhotoItem.cpp \
@@ -108,7 +108,6 @@ HEADERS  += MainWindow.h \
     ConfigExtension.h \
     SeriesViewBase.h \
     NumSeriesView.h \
-    NavigationBar.h \
     RowSeriesView.h \
     ViewDescription.h \
     PhotoBulkAction.h \
@@ -175,6 +174,7 @@ HEADERS  += MainWindow.h \
     ImportWizard/FileInfoProvider.h \
     Widgets/HeightResizeableInterface.h \
     Widgets/IconLabel.h \
+    Widgets/NavigationBar.h \
     Widgets/HorizontalScrollArea.h \
     Widgets/ImageWidget.h \
     Widgets/PhotoItem/PhotoItem.h \

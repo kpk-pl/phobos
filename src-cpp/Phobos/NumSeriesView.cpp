@@ -1,5 +1,5 @@
 #include "NumSeriesView.h"
-#include "NavigationBar.h"
+#include "Widgets/NavigationBar.h"
 #include "Widgets/PhotoItem/PhotoItem.h"
 #include "Config.h"
 #include "Utils/LayoutClear.h"
@@ -18,7 +18,7 @@ NumSeriesView::NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
     visibleItems(config::get()->get_qualified_as<unsigned>("seriesView.num.visibleItems").value_or(2)),
     currentItem(0)
 {
-  NavigationBar* navigationBar = new NavigationBar(false);
+  widgets::NavigationBar* navigationBar = new widgets::NavigationBar(false);
   navigationBar->numSeriesButton->hide();
 
   navigationBar->setContentsMargins(0, 0, 0, 0);

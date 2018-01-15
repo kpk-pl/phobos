@@ -5,7 +5,7 @@
 #include <QPushButton>
 #include <QSlider>
 
-namespace phobos {
+namespace phobos { namespace widgets {
 
 class NavigationBar : public QWidget
 {
@@ -24,6 +24,6 @@ private:
   QSlider *_slider;
 };
 
-} // namespace phobos
+}} // namespace phobos::widgets
 
 #endif // NAVIGATIONBAR_H

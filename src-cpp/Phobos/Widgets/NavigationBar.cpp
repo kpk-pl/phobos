@@ -6,7 +6,7 @@
 #include "ConfigPath.h"
 #include "ImageProcessing/Utils/ColoredPixmap.h"
 
-namespace phobos {
+namespace phobos { namespace widgets {
 
 namespace {
   config::ConfigPath const basePath("navigationBar");
@@ -97,4 +97,4 @@ void NavigationBar::setContentsMargins(int left, int top, int right, int bottom)
   layout()->setContentsMargins(left, top, right, bottom);
 }
 
-} // namespace phobos
+}} // namespace phobos::widgets
