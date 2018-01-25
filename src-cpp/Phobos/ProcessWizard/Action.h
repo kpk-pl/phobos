@@ -35,6 +35,9 @@ protected:
   pcontainer::ItemState const matchedState;
 };
 
+// TODO: Delete action to trash takes a lot of time.
+// Prifile if this is a pure winapi call time or something else
+// Maybe winapi allows deleting more than one item at once?
 class DeleteAction : public Action
 {
 public:

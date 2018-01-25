@@ -58,6 +58,9 @@ struct AllSeriesView::Coords
     int row, col;
 };
 
+// TODO: When only single photo series are present the pictures are too wide
+// Implement some sort of limit on height/width of a photo when drawn in allseriesview
+
 AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
   seriesSet(seriesSet), imageCache(imageCache), scroll(nullptr), grid(nullptr)
 {

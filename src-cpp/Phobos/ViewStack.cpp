@@ -112,7 +112,7 @@ namespace {
       for (auto const& item : *series)
       {
         auto const& itemMetrics = cache.metrics().get(item->id());
-        if (itemMetrics && itemMetrics->seriesScores->bestQuality)
+        if (itemMetrics && itemMetrics->seriesScores && itemMetrics->seriesScores->bestQuality)
         {
           item->select();
           break; // inner loop, continue to next series
