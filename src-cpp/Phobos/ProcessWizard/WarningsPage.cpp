@@ -32,6 +32,7 @@ WarningsPage::WarningsPage(SeriesCounts const& counts)
 
   // TODO: display how many selected, unknown photos are there
   // TODO: span color tags with colors for discarded, uncheched ?
+  // TODO: completely uncheched == without any selected photos. Those 2 warnings are equivalent
   bool warningsPresent = false;
   warningsPresent |= maker(tr("Found %1 completely unchecked series"), counts.seriesCompletelyUnknown);
   warningsPresent |= maker(tr("Found %1 series without any selected photo"),

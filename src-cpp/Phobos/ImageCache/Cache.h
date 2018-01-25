@@ -18,6 +18,8 @@
 
 namespace phobos { namespace icache {
 
+// TODO: Opening a series view while there are pictures still being loaded does not cause those pictures to be loaded
+// with priority. This needs to be fixed
 class Cache : public QObject
 {
   Q_OBJECT

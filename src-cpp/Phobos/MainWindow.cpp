@@ -17,8 +17,6 @@
 #include <QKeySequence>
 #include <cstdio>
 
-// TODO: Allow changing toggle order, so user can prefer removing (red) instead of selecting (green).
-// Allow to disable some choices
 namespace phobos {
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -104,6 +102,9 @@ void MainWindow::createMenus()
     execMenu->addAction(tr("&Move"),   this, [this]{processAction(processwiz::OperationType::Move);  })->setStatusTip(tr("Move selected files from hard drive"));
     execMenu->addAction(tr("&Copy"),   this, [this]{processAction(processwiz::OperationType::Copy);  })->setStatusTip(tr("Copy selected files from hard drive"));
     execMenu->addAction(tr("&Rename"), this, [this]{processAction(processwiz::OperationType::Rename);})->setStatusTip(tr("Rename selected files from hard drive"));
+
+    // TODO: By default an action should call only the basic dialog window with only confirmation because usual actions are very simple and limited.
+    // Add another menuitem with Advanced usage which will open the current more complicated dialog
 
     QMenu* helpMenu = menuBar()->addMenu(tr("Help"));
     helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);

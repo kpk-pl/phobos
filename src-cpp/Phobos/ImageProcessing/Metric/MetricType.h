@@ -23,6 +23,11 @@ inline double score(double const value, double const min, double const max, comp
 }
 } // namespace _detail
 
+// TODO: Each metric should be a base class
+// Then there should be another class deriving from T - the metric
+// It can then implement all the methods needed here (score and operators)
+// as well as static_assert on features inside the metric class
+
 template<typename Derived>
 struct MetricType
 {
