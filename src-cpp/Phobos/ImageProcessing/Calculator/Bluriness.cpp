@@ -27,7 +27,7 @@ metric::Blur Bluriness<blur::Sobel>::calculate(cv::Mat const& cvImage) const
 template<>
 metric::Blur Bluriness<blur::Laplace>::calculate(cv::Mat const& cvImage) const
 {
-  constexpr static double scalingValue = 16384.0;
+  constexpr static double scalingValue = 16384.0 / metric::Blur::maximum;
 
   cv::Mat lap;
   cv::Laplacian(cvImage, lap, _depth);
