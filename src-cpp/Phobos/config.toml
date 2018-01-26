@@ -109,6 +109,7 @@ icon = ":icons/awesome/png/checked-symbol.png"
 [allSeriesView]
 seriesSpacing = 10
 photosSpacing = 2
+maxPhotoHeight = 400
 enabledAddons = ["focus", "best", "score"]
 
 [seriesView]

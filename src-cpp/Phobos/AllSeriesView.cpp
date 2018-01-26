@@ -58,9 +58,6 @@ struct AllSeriesView::Coords
     int row, col;
 };
 
-// TODO: When only single photo series are present the pictures are too wide
-// Implement some sort of limit on height/width of a photo when drawn in allseriesview
-
 AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
   seriesSet(seriesSet), imageCache(imageCache), scroll(nullptr), grid(nullptr)
 {
@@ -109,6 +106,10 @@ void AllSeriesView::prepareUI()
   // TODO: counter of selected, unselected photos, series
   navigationBar->setContentsMargins(5, 5, 5, 0);
   // TODO: allow hiding navigationBar to get more space
+
+  // TODO: Add some sort of stretch so when each series has one photo and maxHeightLimit takes precedense,
+  // photos are aligned to left. The obvious solution to add stretch right to grid layout does not work
+  // since stretch has equal precedense to grid and photos are rendered either size 0 or half available space
 
   QVBoxLayout* newLayout = new QVBoxLayout();
   newLayout->setContentsMargins(5, 5, 0, 0);
@@ -238,6 +239,9 @@ void AllSeriesView::addItemToGrid(int const row, int const col, pcontainer::Item
     }).thumbnail().persistent().execute();
 
   item->setBorder(config::qualified("photoItemWidget.border.width", 0));
+
+  if (auto h = config::qualified<std::size_t>("allSeriesView.maxPhotoHeight"))
+    item->setMaximumHeight(*h);
   item->setImage(thumbnail.image);
   item->setMetrics(imageCache.metrics().get(itemId));
 
