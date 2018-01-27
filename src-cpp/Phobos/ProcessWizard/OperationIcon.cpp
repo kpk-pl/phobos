@@ -26,9 +26,7 @@ QPixmap operationIcon(OperationType const& operation, QSize const& size)
     break;
   };
 
-  auto const iconFile = config::qualified(path("icon"), std::string());
-  auto const color = config::qColor(path("color"), Qt::black);
-  return iprocess::utils::coloredPixmap(iconFile, color, size);
+  return iprocess::utils::coloredPixmap(path, size);
 }
 
 }} // namespace phobos::processwiz

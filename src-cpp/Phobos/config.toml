@@ -38,7 +38,7 @@ color = "orange"
 sizePercent = 0.15
 minSize = [20, 20]
 maxSize = [80, 80]
-path = ":icons/focus.png"
+icon = ":icons/focus.png"
 
 [photoItemWidget.focusBorder]
 enabled = true
@@ -53,7 +53,7 @@ color = "red"
 font = { family = "Courier", pointSize = 10, weight = 75 }
 
 [photoItemWidget.bestMarkIcon]
-path = ":icons/star.png"
+icon = ":icons/star.png"
 opacity = 0.5
 color = "yellow"
 sizePercent = 0.2

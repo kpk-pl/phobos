@@ -12,10 +12,7 @@ namespace phobos { namespace utils {
 QPixmap itemStateIcon(pcontainer::ItemState const& state, QSize const& size)
 {
   auto const configPath = config::ConfigPath("category")(utils::lexicalCast(state));
-  auto const path = config::qualified(configPath("icon"), std::string{});
-  auto const color = config::qColor(configPath("color"), Qt::black);
-
-  return iprocess::utils::coloredPixmap(path, color, size);
+  return iprocess::utils::coloredPixmap(configPath, size);
 }
 
 }} // namespace phobos::utils

@@ -15,6 +15,11 @@ ConfigPath::operator std::string() const
   return path;
 }
 
+std::string const& ConfigPath::toString() const
+{
+  return path;
+}
+
 ConfigPath ConfigPath::operator+(std::string const& rhs) const
 {
   ConfigPath result = *this;

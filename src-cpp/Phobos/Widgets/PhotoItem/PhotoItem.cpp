@@ -200,6 +200,8 @@ private:
 
     QPixmap coloredIcon(config::ConfigPath const& configTable)
     {
+      double const opacity = config::qualified(configTable("opacity"), 0.5);
+
       QSize const minSize = config::qSize(configTable("minSize"), QSize());
       QSize const maxSize = config::qSize(configTable("maxSize"), QSize());
       QSize iconSize = withBorderSize * config::qualified(configTable("sizePercent"), 0.2);
@@ -208,18 +210,12 @@ private:
       else if (maxSize.isValid() && (maxSize.width() < iconSize.width() || maxSize.height() < iconSize.height()))
         iconSize = iconSize.scaled(maxSize, Qt::KeepAspectRatio);
 
-      QColor const color = config::qColor(configTable("color"), Qt::black);
-      double const opacity = config::qualified(configTable("opacity"), 0.5);
-      std::string const path = config::qualified(configTable("path"), std::string{});
-
-      QString const cacheKey = QString("%1-%2-%3-%4x%5")
-          .arg(path.c_str()).arg(color.name()).arg(opacity)
-          .arg(iconSize.width()).arg(iconSize.height());
+      QString const cacheKey = QString::fromStdString(configTable) + QString("%2x%3").arg(iconSize.width()).arg(iconSize.height());
 
       QPixmap result;
       if (!QPixmapCache::find(cacheKey, &result) || result.isNull())
       {
-        result = iprocess::utils::coloredPixmap(path, color, iconSize, opacity);
+        result = iprocess::utils::coloredPixmap(configTable, iconSize, opacity);
         QPixmapCache::insert(cacheKey, result);
       }
       return result;

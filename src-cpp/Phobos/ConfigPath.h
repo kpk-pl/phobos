@@ -14,6 +14,8 @@ public:
   operator std::string const&() const&;
   operator std::string() const;
 
+  std::string const& toString() const;
+
   ConfigPath operator+(std::string const& rhs) const;
   ConfigPath operator+(const char* rhs) const;
 
