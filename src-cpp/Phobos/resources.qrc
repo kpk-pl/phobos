@@ -16,5 +16,7 @@
         <file>icons/awesome/png/right-chevron.png</file>
         <file>icons/awesome/png/arrowhead-pointing-to-the-right.png</file>
         <file>icons/awesome/png/left-arrow.png</file>
+        <file>icons/awesome/png/open-folder.png</file>
+        <file>icons/preview_window.png</file>
     </qresource>
 </RCC>

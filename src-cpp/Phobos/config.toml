@@ -129,12 +129,15 @@ default = true
 allSeries = { icon = ":icons/all_grid.png", color = "#006FE8", margin = 4 }
 numSeries = { icon = ":icons/num_grid.png", color = "#006FE8", margin = 4 }
 oneSeries = { icon = ":icons/scroll_grid.png", color = "#006FE8", margin = 4 }
+singlePhoto = { icon = ":icons/preview_window.png", color = "#006FE8", margin = 4 }
 prevSeries = { icon = ":icons/awesome/png/left-arrow.png", color = "#006FE8" }
 nextSeries = { icon = ":icons/awesome/png/arrowhead-pointing-to-the-right.png", color = "#006FE8" }
 prevItem =  { icon = ":icons/awesome/png/chevron-pointing-to-the-left.png", color = "#006FE8" }
 nextItem = { icon = ":icons/awesome/png/right-chevron.png", color = "#006FE8" }
-movePhotos = { icon = ":icons/awesome/png/move-document.png", color = "darkorange"} 
+movePhotos = { icon = ":icons/awesome/png/move-document.png", color = "darkorange" } 
 deletePhotos = { icon = ":icons/awesome/png/trash.png", color = "red" }
+openFolder = { icon = ":icons/awesome/png/open-folder.png", color="orange" }
+selectBest = { icon = ":icons/star.png", color="yellow" }
 spacing = 2
 buttonSize = [48, 48]
 buttonMargin = 10

@@ -92,7 +92,7 @@ void AllSeriesView::prepareUI()
 
   widgets::NavigationBar *navigationBar = new widgets::NavigationBar();
 
-  navigationBar->addButton("import")->setToolTip("Import photos");
+  navigationBar->addButton("openFolder")->setToolTip("Import photos");
   navigationBar->addSeparator();
   navigationBar->addButton("numSeries")->setToolTip("Switch to view with photos side by side");
   navigationBar->addButton("oneSeries")->setToolTip("Switch to view with whole series in one row");
