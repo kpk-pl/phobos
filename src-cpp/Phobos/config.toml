@@ -136,6 +136,8 @@ prevItem =  { icon = ":icons/awesome/png/chevron-pointing-to-the-left.png", colo
 nextItem = { icon = ":icons/awesome/png/right-chevron.png", color = "#006FE8" }
 movePhotos = { icon = ":icons/awesome/png/move-document.png", color = "darkorange" } 
 deletePhotos = { icon = ":icons/awesome/png/trash.png", color = "red" }
+renamePhotos = { icon = ":icons/awesome/png/pencil.png", color = "green" }
+copyPhotos = { icon = ":icons/awesome/png/copy-document.png", color = "blue" }
 openFolder = { icon = ":icons/awesome/png/open-folder.png", color="orange" }
 selectBest = { icon = ":icons/star.png", color="yellow" }
 spacing = 2

@@ -1,4 +1,5 @@
 #include "ImageProcessing/Utils/ColoredPixmap.h"
+#include "ConfigExtension.h"
 #include <QPainter>
 
 namespace phobos { namespace iprocess { namespace utils {
@@ -24,6 +25,14 @@ QPixmap coloredPixmap(std::string const& fileName, QColor const& color,
     painter.end();
 
     return pixmap;
+}
+
+QPixmap coloredPixmap(config::ConfigPath const& path,
+                      QSize const& size, double const opacity)
+{
+  std::string const iconPath = config::qualified(path("icon"), std::string{});
+  QColor const color = config::qColor(path("color"), Qt::black);
+  return coloredPixmap(iconPath, color, size, opacity);
 }
 
 }}} // namespace phobos::iprocess::utils

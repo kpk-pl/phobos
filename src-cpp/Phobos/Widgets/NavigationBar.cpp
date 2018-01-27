@@ -15,18 +15,11 @@ namespace phobos { namespace widgets {
 namespace {
 config::ConfigPath const basePath("navigationBar");
 
-QIcon makeIcon(config::ConfigPath const& path)
-{
-  std::string const iconPath = config::qualified(path("icon"), std::string{});
-  QColor const color = config::qColor(path("color"), Qt::black);
-  return iprocess::utils::coloredPixmap(iconPath, color, QSize(64, 64));
-}
-
 class IconButton : public QPushButton
 {
 public:
   IconButton(config::ConfigPath const& path, QWidget* parent = nullptr) :
-    QPushButton(makeIcon(path), "", parent),
+    QPushButton(iprocess::utils::coloredPixmap(path, QSize(64, 64)), "", parent),
     margin(config::qualified(path("margin"), config::qualified(basePath("buttonMargin"), 5u)))
   {
     auto const btnSize = config::qSize(basePath("buttonSize"), QSize(40, 40));
