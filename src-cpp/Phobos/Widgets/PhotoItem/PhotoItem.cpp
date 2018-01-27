@@ -46,8 +46,6 @@ namespace phobos { namespace widgets { namespace pitem {
 // TODO: color border is not enough. need to add a triangle in one of the corners in color
 // or color ord number
 // or use some ico like questionmark, tick and a cross
-//
-// TODO: instead of an eye icon, use one pixel wide additional border in the picture. Eye icon on the switch
 
 PhotoItem::PhotoItem(pcontainer::ItemPtr const& photoItem,
                      Addons const& addons,
@@ -87,7 +85,19 @@ public:
 
     void focusMark()
     {
-      alignedIcon(baseConfig("focusIcon"), Qt::AlignRight | Qt::AlignTop);
+      if (config::qualified(baseConfig("focusIcon")("enabled"), true))
+        alignedIcon(baseConfig("focusIcon"), Qt::AlignRight | Qt::AlignTop);
+
+      if (config::qualified(baseConfig("focusBorder")("enabled"), true))
+      {
+        auto const cfg = baseConfig("focusBorder");
+        unsigned const width = config::qualified(cfg("width"), 1u);
+        painter.save();
+        painter.setPen(QPen(config::qColor(cfg("color"), Qt::black), width, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
+        painter.setRenderHint(QPainter::Antialiasing, false);
+        painter.drawRect(QRect(QPoint(width/2, width/2), withBorderSize - QSize(width, width)));
+        painter.restore();
+      }
     }
 
     void bestMark()
@@ -100,7 +110,7 @@ public:
       if (!scorePercent)
         return;
 
-      auto const textConfig = baseConfig + "qualityText";
+      auto const textConfig = baseConfig("qualityText");
       painter.save();
       painter.setOpacity(config::qualified(textConfig("opacity"), 1u));
       painter.setPen(config::qColor(textConfig("color"), Qt::black));

@@ -31,6 +31,7 @@ saturation = 1
 complementary = 1
 
 [photoItemWidget.focusIcon]
+enabled = true
 padding = 7
 opacity = 0.5
 color = "orange"
@@ -38,6 +39,11 @@ sizePercent = 0.15
 minSize = [20, 20]
 maxSize = [80, 80]
 path = ":icons/focus.png"
+
+[photoItemWidget.focusBorder]
+enabled = true
+color = "orange"
+width = 3
 
 [photoItemWidget.qualityText]
 padding = 7
