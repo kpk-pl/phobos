@@ -11,6 +11,7 @@
 #include <QSpinBox>
 #include <QRadioButton>
 #include <QCheckBox>
+#include <QComboBox>
 
 namespace phobos { namespace importwiz {
 
@@ -39,10 +40,9 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     noopChoice = new QRadioButton(tr("Don't divide photos - create one series"));
     QObject::connect(noopChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::DontDivide); });
 
-    // TODO: radio choice: "Sort by filenames", "Sort by dates (less accurate)"
-    // add some helptext of some sort
-    notSortedPhotosBox = new QCheckBox(tr("My photos cannot be sorted by file names"));
-    notSortedPhotosBox->setToolTip(tr("Check if your photos have irregular naming pattern, you renamed them or they come from several different cameras."));
+    sortingMethod = new QComboBox;
+    sortingMethod->addItems({"Sort by filename (preferred)", "Sort by date"});
+    sortingMethod->setToolTip(tr("Sort by date if photos have irregular naming pattern, are renamed or come from several different cameras"));
 
     QGridLayout *layout = new QGridLayout();
     layout->setColumnStretch(1, 1);
@@ -54,7 +54,7 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     layout->addWidget(metadataAutoChoice, 3, 0, 1, 2);
     layout->addWidget(noopChoice, 4, 0, 1, 2);
     layout->setRowStretch(5, 1);
-    layout->addWidget(notSortedPhotosBox, 5, 0, 1, 3, Qt::AlignBottom | Qt::AlignLeft);
+    layout->addWidget(sortingMethod, 5, 0, 1, 3, Qt::AlignBottom | Qt::AlignLeft);
     setLayout(layout);
 
     registerField("dividedSeries", this, "dividedSeries", SIGNAL(seriesChanged(PhotoSeriesVec)));
@@ -83,7 +83,7 @@ bool DivisionMethodPage::validatePage()
 {
   std::vector<Photo> sortedPhotos = _selectedFiles;
 
-  if (notSortedPhotosBox->isChecked())
+  if (sortingMethod->currentIndex() > 0)
   {
     LOG(INFO) << "Sorting photos based on time before division";
     std::sort(sortedPhotos.begin(), sortedPhotos.end(), utils::less().on([](auto const& p){return p.info.timestamp;}));
