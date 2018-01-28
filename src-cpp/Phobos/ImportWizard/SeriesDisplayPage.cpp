@@ -37,6 +37,10 @@ SeriesDisplayPage::SeriesDisplayPage(QWidget *parent) :
   loadedStatusLabel = new QLabel();
 
   multipleLengthsInfo = new widgets::TextIconLabel(widgets::IconLabel::Icon::Information);
+
+  suggestedSplitInfo = new widgets::TextIconLabel(widgets::IconLabel::Icon::Information, tr("Some series might not have been correctly splitted"));
+  suggestedSplitButton = new QPushButton(tr("Split now"));
+
   lengthOneWarning = new widgets::TextIconLabel(widgets::IconLabel::Icon::Warning);
   selectLengthOneButton = new QPushButton(tr("Select back"));
 
@@ -44,25 +48,35 @@ SeriesDisplayPage::SeriesDisplayPage(QWidget *parent) :
   grid->setColumnStretch(1, 1);
   grid->addWidget(loadedStatusLabel, 0, 0, 1, -1);
   grid->addWidget(multipleLengthsInfo, 1, 0, 1, 2);
-  grid->addWidget(lengthOneWarning, 2, 0, 1, 2);
-  grid->addWidget(selectLengthOneButton, 2, 2);
-  grid->addWidget(tree, 3, 0, 1, -1);
+  grid->addWidget(suggestedSplitInfo, 2, 0, 1, 2);
+  grid->addWidget(suggestedSplitButton, 2, 2);
+  grid->addWidget(lengthOneWarning, 3, 0, 1, 2);
+  grid->addWidget(selectLengthOneButton, 3, 2);
+  grid->addWidget(tree, 4, 0, 1, -1);
   setLayout(grid);
 
+  QObject::connect(suggestedSplitButton, &QPushButton::clicked, this, &SeriesDisplayPage::splitSuggestedSeries);
   QObject::connect(selectLengthOneButton, &QPushButton::clicked, this, &SeriesDisplayPage::selectBackSeriesWithOnePhoto);
   QObject::connect(tree, &QTreeWidget::customContextMenuRequested, this, &SeriesDisplayPage::treeContextMenu);
 
   registerField("chosenSeries", this, "chosenSeries", SIGNAL(seriesChanged(PhotoSeriesVec)));
 }
 
-void SeriesDisplayPage::initializeInfoLabels()
+std::map<std::size_t, unsigned> SeriesDisplayPage::countSeriesLengths() const
 {
   std::map<std::size_t, unsigned> lengthsCount;
   for (auto const& series : _dividedSeries)
     lengthsCount[series.size()]++;
 
-  auto const oneIt = lengthsCount.find(1);
-  if (oneIt != lengthsCount.end())
+  return lengthsCount;
+}
+
+void SeriesDisplayPage::initializeInfoLabels()
+{
+  auto const lenghtsCount = countSeriesLengths();
+
+  auto const oneIt = lenghtsCount.find(1);
+  if (oneIt != lenghtsCount.end())
     initializeLengthOneWarning(oneIt->second);
   else
   {
@@ -70,7 +84,7 @@ void SeriesDisplayPage::initializeInfoLabels()
     selectLengthOneButton->hide();
   }
 
-  initializeMultipleLengthsInfo(lengthsCount);
+  initializeMultipleLengthsInfo(lenghtsCount);
 }
 
 void SeriesDisplayPage::initializeLengthOneWarning(std::size_t const count)
@@ -86,23 +100,48 @@ void SeriesDisplayPage::initializeLengthOneWarning(std::size_t const count)
 
 void SeriesDisplayPage::initializeMultipleLengthsInfo()
 {
-  std::map<std::size_t, unsigned> lengthsCount;
-  for (auto const& series : _dividedSeries)
-    lengthsCount[series.size()]++;
-
-  initializeMultipleLengthsInfo(lengthsCount);
+  initializeMultipleLengthsInfo(countSeriesLengths());
 }
+
+namespace {
+std::set<std::size_t> keysFromMap(std::map<std::size_t, unsigned> const& map)
+{
+  std::set<std::size_t> result;
+
+  for (auto const& lc : map)
+    result.insert(lc.first);
+
+  return result;
+}
+
+std::set<std::pair<std::size_t, std::size_t>> dividingPairs(std::set<std::size_t> const& nums)
+{
+  std::set<std::pair<std::size_t, std::size_t>> result;
+  if (nums.size() < 2)
+    return result;
+
+  for (auto rightIt = std::next(nums.begin()); rightIt != nums.end(); ++rightIt)
+    for (auto leftIt = nums.begin(); leftIt != rightIt; ++leftIt)
+      if (*rightIt % *leftIt == 0)
+      {
+        result.emplace(*rightIt, *leftIt);
+        break;
+      }
+
+  return result;
+}
+} // unnamed namespace
 
 void SeriesDisplayPage::initializeMultipleLengthsInfo(std::map<std::size_t, unsigned> const& lengthsCount)
 {
-  std::set<std::size_t> lengths;
-  for (auto const& lc : lengthsCount)
-    if (lc.first != 1)
-      lengths.insert(lc.first);
+  std::set<std::size_t> lengths = keysFromMap(lengthsCount);
+  lengths.erase(1);
 
   if (lengths.size() < 2)
   {
     multipleLengthsInfo->hide();
+    suggestedSplitInfo->hide();
+    suggestedSplitButton->hide();
     return;
   }
 
@@ -111,11 +150,20 @@ void SeriesDisplayPage::initializeMultipleLengthsInfo(std::map<std::size_t, unsi
 
   LOG(INFO) << "Detected series with multiple different lengths: " << sLengthList;
 
-  multipleLengthsInfo->show();
   multipleLengthsInfo->label()->setText(tr("Found series with different lengths: %1 photos").arg(sLengthList.c_str()));
+  multipleLengthsInfo->show();
 
-  // TODO: Some series might be splitted in half
-  // Add controls for that
+  auto const possibleDivs = dividingPairs(lengths);
+  if (!possibleDivs.empty())
+  {
+    suggestedSplitButton->show();
+    suggestedSplitInfo->show();
+  }
+  else
+  {
+    suggestedSplitButton->hide();
+    suggestedSplitInfo->hide();
+  }
 }
 
 namespace {
@@ -213,6 +261,12 @@ void SeriesDisplayPage::selectBackSeriesWithOnePhoto()
 
   lengthOneWarning->hide();
   selectLengthOneButton->hide();
+}
+
+void SeriesDisplayPage::splitSuggestedSeries()
+{
+  // TODO: implement splitting
+  initializeMultipleLengthsInfo();
 }
 
 void SeriesDisplayPage::treeContextMenu(QPoint const& point)

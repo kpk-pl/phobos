@@ -37,6 +37,7 @@ protected:
 
 private slots:
   void selectBackSeriesWithOnePhoto();
+  void splitSuggestedSeries();
   void treeContextMenu(QPoint const& point);
 
 private:
@@ -44,7 +45,9 @@ private:
   QTreeWidget *tree;
   QLabel *loadedStatusLabel;
 
+  std::map<std::size_t, unsigned> countSeriesLengths() const;
   void initializeInfoLabels();
+
   void initializeLengthOneWarning(std::size_t const count);
   widgets::TextIconLabel *lengthOneWarning;
   QPushButton *selectLengthOneButton;
@@ -52,6 +55,8 @@ private:
   void initializeMultipleLengthsInfo();
   void initializeMultipleLengthsInfo(std::map<std::size_t, unsigned> const& lengthsCount);
   widgets::TextIconLabel *multipleLengthsInfo;
+  widgets::TextIconLabel *suggestedSplitInfo;
+  QPushButton *suggestedSplitButton;
 
   PhotoSeriesVec _dividedSeries;
   PhotoSeriesVec _chosenSeries;
