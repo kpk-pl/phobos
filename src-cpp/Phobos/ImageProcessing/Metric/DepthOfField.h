@@ -7,14 +7,19 @@
 
 namespace phobos { namespace iprocess { namespace metric {
 
-struct DepthOfField : public MetricType<DepthOfField>
+namespace trait {
+struct DepthOfField
 {
   static constexpr double minimum = 0.0;
   static constexpr double maximum = 7.0;
 
   using Comparing = comparing::SmallerIsBetter;
   using Aggregation = aggregation::Relative;
+};
+} // namespace trait
 
+struct DepthOfField : public MetricType<trait::DepthOfField>
+{
   DepthOfField() = default;
   DepthOfField(double const low, double const median, double const high)
     : MetricType(std::log2(high/median)), low(low), median(median), high(high)

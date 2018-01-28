@@ -5,10 +5,9 @@
 
 namespace phobos { namespace iprocess { namespace metric {
 
-struct Contrast : public MetricType<Contrast>
+namespace trait {
+struct Contrast
 {
-  using MetricType::MetricType;
-
   // for 256 bins 0-1 normalized histogram
   static constexpr double minimum = 0.0625;
   static constexpr double maximum = 0.5;
@@ -16,6 +15,9 @@ struct Contrast : public MetricType<Contrast>
   using Comparing = comparing::BiggerIsBetter;
   using Aggregation = aggregation::Relative;
 };
+} // namespace trait
+
+using Contrast = MetricType<trait::Contrast>;
 
 }}} // namespace phobos::iprocess::metric
 

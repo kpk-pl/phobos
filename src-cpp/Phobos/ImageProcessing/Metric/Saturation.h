@@ -5,15 +5,20 @@
 
 namespace phobos { namespace iprocess { namespace metric {
 
-struct Saturation : public MetricType<Saturation>
+namespace trait {
+struct Saturation
 {
-  using MetricType::MetricType;
-
   static constexpr double minimum = 0.0;
   static constexpr double maximum = 255.0;
 
   using Comparing = comparing::BiggerIsBetter;
   using Aggregation = aggregation::Relative;
+};
+} // namespace trait
+
+struct Saturation : public MetricType<trait::Saturation>
+{
+  using MetricType<trait::Saturation>::MetricType;
 
   bool isGrayscale() const
   {

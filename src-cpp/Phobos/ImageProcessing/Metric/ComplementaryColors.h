@@ -5,16 +5,18 @@
 
 namespace phobos { namespace iprocess { namespace metric {
 
-struct ComplementaryColors : public MetricType<ComplementaryColors>
+namespace trait {
+struct ComplementaryColors
 {
-  using MetricType::MetricType;
-
   static constexpr double minimum = 0.0;
   static constexpr double maximum = 1.0;
 
   using Comparing = comparing::BiggerIsBetter;
   using Aggregation = aggregation::Relative;
 };
+} // namespace trait
+
+using ComplementaryColors = MetricType<trait::ComplementaryColors>;
 
 }}} // namespace phobos::iprocess::metric
 

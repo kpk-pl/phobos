@@ -3,6 +3,7 @@
 
 #include "ImageProcessing/Metric/Traits.h"
 #include <boost/optional.hpp>
+#include <type_traits>
 
 namespace phobos { namespace iprocess { namespace metric {
 
@@ -17,20 +18,21 @@ inline double score(double const value, double const min, double const max, comp
     return 1.0;
   return (value - min) / (max - min);
 }
+
 inline double score(double const value, double const min, double const max, comparing::SmallerIsBetter)
 {
   return score(-value, -max, -min, comparing::BiggerIsBetter{});
 }
 } // namespace _detail
 
-// TODO: Each metric should be a base class
-// Then there should be another class deriving from T - the metric
-// It can then implement all the methods needed here (score and operators)
-// as well as static_assert on features inside the metric class
-
-template<typename Derived>
-struct MetricType
+template<typename Trait>
+struct MetricType : public Trait
 {
+  static_assert(std::is_arithmetic<decltype(Trait::minimum)>::value, "Metric trait must define arithmetic minimum");
+  static_assert(std::is_arithmetic<decltype(Trait::maximum)>::value, "Metric trait must define arithmetic maximum");
+  static_assert(std::is_class<typename Trait::Comparing>::value, "Metric trait must define a Comparing type");
+  static_assert(std::is_class<typename Trait::Aggregation>::value, "Metric trait must define an Aggregation type");
+
   MetricType() = default;
   MetricType(double const v) : value(v)
   {}
@@ -50,7 +52,7 @@ struct MetricType
     if (!value)
       return boost::none;
 
-    return _detail::score(*value, Derived::minimum, Derived::maximum, typename Derived::Comparing{});
+    return _detail::score(*value, Trait::minimum, Trait::maximum, typename Trait::Comparing{});
   }
 
   boost::optional<double> value;

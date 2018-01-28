@@ -5,16 +5,18 @@
 
 namespace phobos { namespace iprocess { namespace metric {
 
-struct Noise : public MetricType<Noise>
+namespace trait {
+struct Noise
 {
-  using MetricType::MetricType;
-
   static constexpr double minimum = 0.0;
   static constexpr double maximum = 7.0;
 
   using Comparing = comparing::SmallerIsBetter;
   using Aggregation = aggregation::Relative;
 };
+} // namespace trait
+
+using Noise = MetricType<trait::Noise>;
 
 }}} // namespace phobos::iprocess::metric
 
