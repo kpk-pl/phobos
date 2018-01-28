@@ -126,6 +126,8 @@ visibleItems = 2
 default = true
 
 [navigationBar]
+hideNavigation = { icon = ":icons/awesome/png/chevron-arrow-up.png", color = "black", margin = 2 }
+showNavigation = { icon = ":icons/awesome/png/chevron-arrow-down.png", color = "black", margin = 2 }
 allSeries = { icon = ":icons/all_grid.png", color = "#006FE8", margin = 4 }
 numSeries = { icon = ":icons/num_grid.png", color = "#006FE8", margin = 4 }
 oneSeries = { icon = ":icons/scroll_grid.png", color = "#006FE8", margin = 4 }

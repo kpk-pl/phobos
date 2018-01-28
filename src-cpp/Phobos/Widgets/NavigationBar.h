@@ -26,10 +26,19 @@ public:
   QPushButton* button(std::string const& name) const;
   QSlider* slider() const { return _slider; }
 
+  void showButtons();
+  void hideButtons();
+
+private slots:
+  void showHideAction();
+
 private:
   std::map<std::string, QPushButton*> _buttons;
   QSlider *_slider;
   QHBoxLayout *_layout;
+
+  QPushButton *_showHideButton;
+  bool hidden;
 };
 
 }} // namespace phobos::widgets

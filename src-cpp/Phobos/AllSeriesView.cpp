@@ -107,7 +107,7 @@ void AllSeriesView::prepareUI()
 void AllSeriesView::prepareNavigation()
 {
   navigationBar = new widgets::NavigationBar();
-  navigationBar->setContentsMargins(5, 5, 5, 0);
+  navigationBar->setContentsMargins(5, 5, 10, 0);
 
   auto const addButton = [this](std::string const& name, QString const& tooltip, auto && handler)
   {
@@ -134,7 +134,6 @@ void AllSeriesView::prepareNavigation()
 
   navigationBar->addStretch();
   // TODO: counter of selected, unselected photos, series
-  // TODO: allow hiding navigationBar to get more space
 }
 
 std::size_t AllSeriesView::maxNumberOfPhotosInRow() const

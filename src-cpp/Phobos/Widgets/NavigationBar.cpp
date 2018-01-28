@@ -18,11 +18,12 @@ config::ConfigPath const basePath("navigationBar");
 class IconButton : public QPushButton
 {
 public:
-  IconButton(config::ConfigPath const& path, QWidget* parent = nullptr) :
+  IconButton(config::ConfigPath const& path, QSize const& size = QSize(), QWidget* parent = nullptr) :
     QPushButton(iprocess::utils::coloredPixmap(path, QSize(64, 64)), "", parent),
     margin(config::qualified(path("margin"), config::qualified(basePath("buttonMargin"), 5u)))
   {
-    auto const btnSize = config::qSize(basePath("buttonSize"), QSize(40, 40));
+    setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    auto const btnSize = size.isEmpty() ? config::qSize(basePath("buttonSize"), QSize(40, 40)) : size;
     setIconSize(btnSize - 2*QSize(margin, margin));
     setContentsMargins(margin, margin, margin, margin);
   }
@@ -37,11 +38,20 @@ private:
 } // unnamed namespace
 
 NavigationBar::NavigationBar() :
-  _slider(nullptr)
+  _slider(nullptr), hidden(false)
 {
-  _layout = new QHBoxLayout();
+  _layout = new QHBoxLayout;
+  _layout->setContentsMargins(0, 0, 0, 0);
   _layout->setSpacing(config::qualified(basePath("spacing"), 2u));
-  setLayout(_layout);
+
+  _showHideButton = new IconButton(basePath("hideNavigation"), QSize(15, 15));
+
+  QHBoxLayout *mainLayout = new QHBoxLayout;
+  mainLayout->addLayout(_layout);
+  mainLayout->addWidget(_showHideButton, 0, Qt::AlignTop | Qt::AlignRight);
+  QObject::connect(_showHideButton, &QPushButton::clicked, this, &NavigationBar::showHideAction);
+
+  setLayout(mainLayout);
 }
 
 void NavigationBar::setContentsMargins(int left, int top, int right, int bottom) const
@@ -95,6 +105,33 @@ void NavigationBar::addSeparator()
   HVLine *line = new HVLine(Qt::Vertical);
   line->setMinimumWidth(10);
   _layout->addWidget(line);
+}
+
+void NavigationBar::showHideAction()
+{
+  hidden ? showButtons() : hideButtons();
+}
+
+void NavigationBar::showButtons()
+{
+  for (int i = 0; i < _layout->count(); ++i)
+    if (QWidget* wgt = _layout->itemAt(i)->widget())
+      wgt->show();
+
+  _showHideButton->setIcon(iprocess::utils::coloredPixmap(basePath("hideNavigation"), QSize(64, 64)));
+
+  hidden = false;
+}
+
+void NavigationBar::hideButtons()
+{
+  for (int i = 0; i < _layout->count(); ++i)
+    if (QWidget* wgt = _layout->itemAt(i)->widget())
+      wgt->hide();
+
+  _showHideButton->setIcon(iprocess::utils::coloredPixmap(basePath("showNavigation"), QSize(64, 64)));
+
+  hidden = true;
 }
 
 }} // namespace phobos::widgets

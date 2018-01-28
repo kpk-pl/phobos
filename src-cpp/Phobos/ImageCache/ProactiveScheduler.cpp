@@ -147,6 +147,6 @@ LoadingJobVec ProactiveScheduler::scheduleOrganic(Transaction const& transaction
 }
 
 // TODO: use generations to start as priorities. Handle persistent flag from transaction.
-// Don't start loading proactively when there is no more cache space left for given generation
+// TODO: Don't start loading proactively when there is no more cache space left for given generation
 
 }} // namespace phobos::icache
