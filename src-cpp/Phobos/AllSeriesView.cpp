@@ -90,22 +90,7 @@ void AllSeriesView::prepareUI()
   scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   scroll->setWidget(scrollWidget);
 
-  widgets::NavigationBar *navigationBar = new widgets::NavigationBar();
-
-  navigationBar->addButton("openFolder")->setToolTip("Import photos");
-  navigationBar->addSeparator();
-  navigationBar->addButton("numSeries")->setToolTip("Switch to view with photos side by side");
-  navigationBar->addButton("oneSeries")->setToolTip("Switch to view with whole series in one row");
-  navigationBar->addButton("singlePhoto")->setToolTip("Open a preview window with only one photo");
-  navigationBar->addSeparator();
-  navigationBar->addButton("selectBest")->setToolTip("Automatically select best photos");
-  navigationBar->addSeparator();
-  navigationBar->addButton("movePhotos")->setToolTip("Move selected photos to another folder");
-  navigationBar->addButton("deletePhotos")->setToolTip("Remove unselected photos from hard drive");
-  navigationBar->addStretch();
-  // TODO: counter of selected, unselected photos, series
-  navigationBar->setContentsMargins(5, 5, 5, 0);
-  // TODO: allow hiding navigationBar to get more space
+  prepareNavigation();
 
   // TODO: Add some sort of stretch so when each series has one photo and maxHeightLimit takes precedense,
   // photos are aligned to left. The obvious solution to add stretch right to grid layout does not work
@@ -117,6 +102,39 @@ void AllSeriesView::prepareUI()
   newLayout->addWidget(scroll);
 
   setLayout(newLayout);
+}
+
+void AllSeriesView::prepareNavigation()
+{
+  navigationBar = new widgets::NavigationBar();
+  navigationBar->setContentsMargins(5, 5, 5, 0);
+
+  auto const addButton = [this](std::string const& name, QString const& tooltip, auto && handler)
+  {
+    auto const btn = navigationBar->addButton(name);
+    btn->setToolTip(tooltip);
+    QObject::connect(btn, &QPushButton::clicked, this, std::forward<decltype(handler)>(handler));
+  };
+
+  addButton("openFolder", tr("Import photos"), &AllSeriesView::importPhotosRequest);
+  navigationBar->addSeparator();
+
+  addButton("numSeries", tr("Show side by side photos from one series"),
+            [this](){ emit switchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES)); });
+  addButton("oneSeries", tr("Show one series on a single page"),
+            [this](){ emit switchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES)); });
+  navigationBar->addButton("singlePhoto")->setToolTip("Open a preview window with only one photo");
+  navigationBar->addSeparator();
+
+  addButton("selectBest", tr("Automatically select best photosn each series"), &AllSeriesView::selectBestPhotosRequest);
+  navigationBar->addSeparator();
+
+  navigationBar->addButton("movePhotos")->setToolTip("Move selected photos to another folder");
+  navigationBar->addButton("deletePhotos")->setToolTip("Remove unselected photos from hard drive");
+
+  navigationBar->addStretch();
+  // TODO: counter of selected, unselected photos, series
+  // TODO: allow hiding navigationBar to get more space
 }
 
 std::size_t AllSeriesView::maxNumberOfPhotosInRow() const

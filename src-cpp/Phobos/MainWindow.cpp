@@ -21,17 +21,18 @@
 namespace phobos {
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    seriesSet(),
-    imageCache(seriesSet),
-    viewStack(new ViewStack(seriesSet, imageCache))
+  QMainWindow(parent),
+  seriesSet(),
+  imageCache(seriesSet),
+  viewStack(new ViewStack(seriesSet, imageCache))
 {
-    setCentralWidget(viewStack);
-    createMenus();
+  setCentralWidget(viewStack);
+  createMenus();
+  connectNavigations();
 
-    setWindowTitle(config::qualified<std::string>("mainWindow.title", "Phobos").c_str());
-    setMinimumSize(config::qSize("mainWindow.minimumSize", QSize(480, 360)));
-    resize(config::qSize("mainWindow.defaultSize", QSize(1024, 768)));
+  setWindowTitle(config::qualified<std::string>("mainWindow.title", "Phobos").c_str());
+  setMinimumSize(config::qSize("mainWindow.minimumSize", QSize(480, 360)));
+  resize(config::qSize("mainWindow.defaultSize", QSize(1024, 768)));
 }
 
 void MainWindow::closeEvent(QCloseEvent *ev)
@@ -60,7 +61,7 @@ void MainWindow::createMenus()
 
   QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
   fileMenu->addAction(makeIcon("openFolder"), tr("&Open"),
-                      this, &MainWindow::loadPhotos, QKeySequence("Ctrl+O"))->setStatusTip(tr("Load new photos"));
+                      this, &MainWindow::loadPhotos, QKeySequence("Ctrl+O"))->setStatusTip(tr("Import photos"));
   // TODO: save option, with possibility to save scaled pixmaps as well, with metrics etc
   // TODO: Load saved config from file, initialize all series, pixmaps, metrics, selections etc, remember to fix UUIDs for series as those will change (or maybe can construct QUuid back from text?
   fileMenu->addSeparator();
@@ -73,13 +74,13 @@ void MainWindow::createMenus()
   QMenu* viewMenu = menuBar()->addMenu(tr("&View"));
   viewMenu->addAction(makeIcon("allSeries"), tr("&All series"),
                       [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::ALL_SERIES)); },
-                      QKeySequence("Alt+1"))->setStatusTip(tr("Show all series in one view"));
+                      QKeySequence("Alt+1"))->setStatusTip(tr("Show all series on one page"));
   viewMenu->addAction(makeIcon("oneSeries"), tr("&One series"),
                       [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES)); },
                       QKeySequence("Alt+2"))->setStatusTip(tr("Show one series on a single page"));
   viewMenu->addAction(makeIcon("numSeries"), tr("&Separate photos"),
                       [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES)); },
-                      QKeySequence("Alt+3"))->setStatusTip(tr("Show separate photos from one series on a single page"));
+                      QKeySequence("Alt+3"))->setStatusTip(tr("Show side by side photos from one series"));
   viewMenu->addSeparator();
   viewMenu->addAction(makeIcon("nextSeries"), tr("&Next series"),
                       [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::CURRENT, boost::none, +1)); },
@@ -95,7 +96,7 @@ void MainWindow::createMenus()
   // TODO: Action: Report -> show dialog with number of series / num selected photos, num unchecked series etc
   QMenu* actionMenu = menuBar()->addMenu(tr("&Action"));
   actionMenu->addAction(makeIcon("selectBest"), tr("Select &best"),
-                        [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_BEST); })->setStatusTip(tr("Select best photos in each series"));
+                        [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_BEST); })->setStatusTip(tr("Automatically select best photos in each series"));
   actionMenu->addAction(tr("Select &all"), [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_ALL); })
           ->setStatusTip(tr("Select all photos"));
   actionMenu->addAction(tr("&Invert selection"), [this](){ viewStack->bulkSelect(PhotoBulkAction::INVERT); })
@@ -118,6 +119,11 @@ void MainWindow::createMenus()
 
   QMenu* helpMenu = menuBar()->addMenu(tr("Help"));
   helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
+}
+
+void MainWindow::connectNavigations()
+{
+  QObject::connect(viewStack, &ViewStack::importPhotosRequest, this, &MainWindow::loadPhotos);
 }
 
 void MainWindow::processAction(processwiz::OperationType const operation)

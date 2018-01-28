@@ -177,6 +177,9 @@ void ViewStack::connectSignals()
   QObject::connect(rowSeriesView, &RowSeriesView::switchView, this, &ViewStack::handleSwitchView);
   QObject::connect(numSeriesView, &RowSeriesView::switchView, this, &ViewStack::handleSwitchView);
 
+  QObject::connect(allSeriesView, &AllSeriesView::importPhotosRequest, this, &ViewStack::importPhotosRequest);
+  QObject::connect(allSeriesView, &AllSeriesView::selectBestPhotosRequest, [this](){ bulkSelect(PhotoBulkAction::SELECT_BEST); } );
+
   QObject::connect(&seriesSet, &pcontainer::Set::newSeries, this, &ViewStack::welcomeScreenSwitch);
   QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &ViewStack::welcomeScreenSwitch);
 }

@@ -14,6 +14,9 @@ class QScrollArea;
 
 namespace phobos {
 
+namespace widgets {
+class NavigationBar;
+} // namespace widgets
 namespace widgets { namespace pitem {
 class PhotoItem;
 }} // namespace widgets::pitem
@@ -33,6 +36,8 @@ public:
 
 signals:
     void switchView(ViewDescriptionPtr viewDesc);
+    void importPhotosRequest();
+    void selectBestPhotosRequest();
 
 public slots:
     void addNewSeries(pcontainer::SeriesPtr series);
@@ -59,10 +64,12 @@ private:
     void addNumberingToGrid(int const row);
 
     void prepareUI();
+    void prepareNavigation();
 
     pcontainer::Set const& seriesSet;
     icache::Cache & imageCache;
     std::map<QUuid, std::size_t> seriesUuidToRow;
+    widgets::NavigationBar* navigationBar;
     QScrollArea* scroll;
     QGridLayout* grid;
 };

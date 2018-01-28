@@ -36,6 +36,9 @@ public:
     explicit ViewStack(pcontainer::Set const& seriesSet, icache::Cache & cache);
     SelectionStatus getSelectionStatus() const;
 
+signals:
+    void importPhotosRequest();
+
 public slots:
     void handleSwitchView(ViewDescriptionPtr viewDesc);
     void bulkSelect(PhotoBulkAction const action);

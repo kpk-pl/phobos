@@ -27,6 +27,7 @@ private slots:
 private:
   void loadPhotos();
   void createMenus();
+  void connectNavigations();
 
   pcontainer::Set seriesSet;
   icache::Cache imageCache;
