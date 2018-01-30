@@ -47,6 +47,8 @@ private:
 
   std::map<std::size_t, unsigned> countSeriesLengths() const;
   void initializeInfoLabels();
+  void initializeNewSeries();
+  void silentCleanup();
 
   void initializeLengthOneWarning(std::size_t const count);
   widgets::TextIconLabel *lengthOneWarning;

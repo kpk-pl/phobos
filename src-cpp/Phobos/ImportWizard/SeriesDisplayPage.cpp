@@ -114,9 +114,9 @@ std::set<std::size_t> keysFromMap(std::map<std::size_t, unsigned> const& map)
   return result;
 }
 
-std::set<std::pair<std::size_t, std::size_t>> dividingPairs(std::set<std::size_t> const& nums)
+std::map<std::size_t, std::size_t> dividingPairs(std::set<std::size_t> const& nums)
 {
-  std::set<std::pair<std::size_t, std::size_t>> result;
+  std::map<std::size_t, std::size_t> result;
   if (nums.size() < 2)
     return result;
 
@@ -192,6 +192,14 @@ void SeriesDisplayPage::initializePage()
   _dividedSeries = field("dividedSeries").value<PhotoSeriesVec>();
   LOG(DEBUG) << "Read " << _dividedSeries.size() << " series from previous dialog";
 
+  initializeNewSeries();
+
+  if (wizard()->button(QWizard::FinishButton))
+    wizard()->button(QWizard::FinishButton)->setFocus();
+}
+
+void SeriesDisplayPage::initializeNewSeries()
+{
   std::size_t photoCount = 0;
 
   for (PhotoSeries const& series : _dividedSeries)
@@ -204,9 +212,6 @@ void SeriesDisplayPage::initializePage()
   LOG(INFO) << "Displayed " << photoCount  << " photos in " << _dividedSeries.size() << " series";
 
   initializeInfoLabels();
-
-  if (wizard()->button(QWizard::FinishButton))
-    wizard()->button(QWizard::FinishButton)->setFocus();
 }
 
 bool SeriesDisplayPage::validatePage()
@@ -243,13 +248,18 @@ bool SeriesDisplayPage::validatePage()
 
 void SeriesDisplayPage::cleanupPage()
 {
+  silentCleanup();
+  emit seriesChanged(_chosenSeries);
+}
+
+void SeriesDisplayPage::silentCleanup()
+{
   QTreeWidgetItem *item;
   while ((item = tree->takeTopLevelItem(0)))
     delete item;
 
   _dividedSeries.clear();
   _chosenSeries.clear();
-  emit seriesChanged(_chosenSeries);
 }
 
 void SeriesDisplayPage::selectBackSeriesWithOnePhoto()
@@ -265,8 +275,36 @@ void SeriesDisplayPage::selectBackSeriesWithOnePhoto()
 
 void SeriesDisplayPage::splitSuggestedSeries()
 {
-  // TODO: implement splitting
-  initializeMultipleLengthsInfo();
+  LOG(INFO) << "Splitting series by suggestions";
+
+  std::set<std::size_t> lengths = keysFromMap(countSeriesLengths());
+  lengths.erase(1);
+  auto const possibleDivs = dividingPairs(lengths);
+
+  PhotoSeriesVec newSeries;
+
+  for (auto oldSeries : _dividedSeries)
+  {
+    auto const rule = possibleDivs.find(oldSeries.length());
+    if (rule == possibleDivs.end())
+    {
+      newSeries.push_back(std::move(oldSeries));
+      continue;
+    }
+
+    for (auto it = oldSeries.begin(); it != oldSeries.end(); )
+    {
+      auto const endIt = std::next(it, rule->second);
+      newSeries.push_back(PhotoSeries{});
+      utils::moveFromRange(newSeries.back(), it, endIt);
+      it = endIt;
+    }
+  }
+
+  silentCleanup();
+
+  _dividedSeries = newSeries;
+  initializeNewSeries();
 }
 
 void SeriesDisplayPage::treeContextMenu(QPoint const& point)
