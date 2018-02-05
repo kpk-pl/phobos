@@ -217,7 +217,8 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
     ProcessWizard/Execution/Execute.h \
-    Widgets/HVLine.h
+    Widgets/HVLine.h \
+    Utils/PainterFrame.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

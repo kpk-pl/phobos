@@ -9,6 +9,7 @@
 #include "Utils/Algorithm.h"
 #include "Utils/Asserted.h"
 #include "Utils/ItemStateColor.h"
+#include "Utils/PainterFrame.h"
 #include <easylogging++.h>
 #include <QMenu>
 #include <QAction>
@@ -93,7 +94,8 @@ public:
         auto const cfg = baseConfig("focusBorder");
         unsigned const width = config::qualified(cfg("width"), 1u);
         QColor const color = config::qColor(cfg("color"), Qt::black);
-        painter.save();
+
+        utils::PainterFrame frame(painter);
         painter.setRenderHint(QPainter::Antialiasing, false);
 
         if (config::qualified(cfg("bottomOnly"), true))
@@ -107,8 +109,6 @@ public:
           painter.setPen(QPen(config::qColor(cfg("color"), Qt::black), width, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
           painter.drawRect(QRect(QPoint(width/2, width/2), withBorderSize - QSize(width, width)));
         }
-
-        painter.restore();
       }
     }
 
@@ -123,7 +123,8 @@ public:
         return;
 
       auto const textConfig = baseConfig("qualityText");
-      painter.save();
+
+      utils::PainterFrame frame(painter);
       painter.setOpacity(config::qualified(textConfig("opacity"), 1u));
       painter.setPen(config::qColor(textConfig("color"), Qt::black));
       painter.setFont(config::qFont(textConfig("font")));
@@ -133,8 +134,6 @@ public:
 
       unsigned const padding = config::qualified(textConfig("padding"), 7u);
       painter.drawText(drawStartPoint(Qt::AlignLeft | Qt::AlignBottom, padding), text);
-
-      painter.restore();
     }
 
     void ordNum(unsigned const ordNumber, bool best)
@@ -149,7 +148,7 @@ public:
 
       if (backgroundColor != Qt::transparent)
       {
-        painter.save();
+        utils::PainterFrame frame(painter);
         painter.setPen(backgroundColor);
         painter.setBrush(backgroundColor);
         painter.setOpacity(config::qualified(bgConfig("opacity"), 1.0));
@@ -157,16 +156,13 @@ public:
           painter.drawEllipse(startPoint.x(), startPoint.y(), width, width);
         else
           painter.drawRect(startPoint.x(), startPoint.y(), width, width);
-        painter.restore();
       }
 
-      painter.save();
+      utils::PainterFrame frame(painter);
       painter.setFont(config::qFont(ordConfig("font")));
       painter.setOpacity(config::qualified(ordConfig("font")("opacity"), 1.0));
       painter.setPen(config::qColor(ordConfig("font")("color"), Qt::black));
       painter.drawText(QRect(startPoint, size), Qt::AlignCenter, QString::number(ordNumber));
-
-      painter.restore();
     }
 
     void histogram(iprocess::feature::Histogram const& histogram)
