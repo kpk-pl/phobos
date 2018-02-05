@@ -43,7 +43,8 @@ icon = ":icons/focus.png"
 [photoItemWidget.focusBorder]
 enabled = true
 color = "orange"
-width = 3
+width = 2
+bottomOnly = true
 
 [photoItemWidget.qualityText]
 padding = 7

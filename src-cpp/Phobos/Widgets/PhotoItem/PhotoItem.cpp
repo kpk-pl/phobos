@@ -92,10 +92,22 @@ public:
       {
         auto const cfg = baseConfig("focusBorder");
         unsigned const width = config::qualified(cfg("width"), 1u);
+        QColor const color = config::qColor(cfg("color"), Qt::black);
         painter.save();
-        painter.setPen(QPen(config::qColor(cfg("color"), Qt::black), width, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
         painter.setRenderHint(QPainter::Antialiasing, false);
-        painter.drawRect(QRect(QPoint(width/2, width/2), withBorderSize - QSize(width, width)));
+
+        if (config::qualified(cfg("bottomOnly"), true))
+        {
+          painter.setPen(color);
+          painter.setBrush(color);
+          painter.drawRect(0, withBorderSize.height()-width, withBorderSize.width()-1, withBorderSize.height());
+        }
+        else
+        {
+          painter.setPen(QPen(config::qColor(cfg("color"), Qt::black), width, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
+          painter.drawRect(QRect(QPoint(width/2, width/2), withBorderSize - QSize(width, width)));
+        }
+
         painter.restore();
       }
     }
