@@ -72,6 +72,8 @@ SOURCES += Phobos.cpp\
     Widgets/PhotoItem/AddonRenderer.cpp \
     Widgets/FilenameEntry.cpp \
     Widgets/ClickableLabel.cpp \
+    Widgets/HVLine.cpp \
+    Widgets/ImageShowDialog.cpp \
     ImageCache/Cache.cpp \
     ImageCache/MetricCache.cpp \
     ImageCache/LimitedMap.cpp \
@@ -96,8 +98,7 @@ SOURCES += Phobos.cpp\
     ProcessWizard/ActionTab/RenameActionTab.cpp \
     ProcessWizard/ActionTab/CopyMoveActionTab.cpp \
     ProcessWizard/Execution/ExecutionImpl.cpp \
-    ProcessWizard/Execution/Execute.cpp \
-    Widgets/HVLine.cpp
+    ProcessWizard/Execution/Execute.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -163,6 +164,7 @@ HEADERS  += MainWindow.h \
     Utils/Filesystem/Portable.h \
     Utils/Filesystem/Trash.h \
     Utils/Circulator.h \
+    Utils/PainterFrame.h \
     easyloggingpp/src/easylogging++.h \
     qt_ext/qexifimageheader.h \
     ImportWizard/ImageOpenDialog.h \
@@ -185,6 +187,8 @@ HEADERS  += MainWindow.h \
     Widgets/PhotoItem/AddonRenderer.h \
     Widgets/FilenameEntry.h \
     Widgets/ClickableLabel.h \
+    Widgets/HVLine.h \
+    Widgets/ImageShowDialog.h \
     ImageCache/Cache.h \
     ImageCache/MetricCache.h \
     ImageCache/CacheFwd.h \
@@ -216,9 +220,7 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution/Execution.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
-    ProcessWizard/Execution/Execute.h \
-    Widgets/HVLine.h \
-    Utils/PainterFrame.h
+    ProcessWizard/Execution/Execute.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

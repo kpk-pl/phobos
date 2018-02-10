@@ -35,6 +35,7 @@ signals:
 
 public slots:
     void openDetailsDialog() const;
+    void showInFullDialog() const;
 
 private:
     class PixmapRenderer;

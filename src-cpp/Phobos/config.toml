@@ -10,6 +10,9 @@ title = "Phobos"
 minimumSize = { width = 480, height = 360 }
 defaultSize = { width = 1024, height = 600 }
 
+[fullscreenWindow]
+defaultSize = [1024, 768]
+
 [photoSet]
 minimumPhotosInSeries = 3
 allowedSecondDriftInSeries = 2.0

@@ -1,6 +1,7 @@
 #include "Widgets/PhotoItem/PhotoItem.h"
 #include "Widgets/PhotoItem/DetailsDialog.h"
 #include "Widgets/PhotoItem/AddonRenderer.h"
+#include "Widgets/ImageShowDialog.h"
 #include "Config.h"
 #include "ConfigExtension.h"
 #include "ConfigPath.h"
@@ -287,11 +288,15 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
     seriesMenu->addAction(tr("Remove"), [this](){ emit removeAllSeries(_photoItem->seriesUuid()) ;});
   }
 
+  if (capabilities.has(CapabilityType::OPEN_SERIES))
+  {
+    menu.addSeparator();
+    menu.addAction(tr("View series"), [this]{ emit openInSeries(_photoItem->seriesUuid()); });
+  }
+
   menu.addSeparator();
   menu.addAction(tr("Show details"), this, &PhotoItem::openDetailsDialog);
-
-  if (capabilities.has(CapabilityType::OPEN_SERIES))
-    menu.addAction(tr("View series"), [this]{ emit openInSeries(_photoItem->seriesUuid()); });
+  menu.addAction(tr("Fullscreen"), this, &PhotoItem::showInFullDialog);
 
   LOG(INFO) << "Displayed context menu for " << _photoItem->id().toString();
   menu.exec(mapToGlobal(QPoint(event->x(), event->y())));
@@ -302,14 +307,21 @@ void PhotoItem::openDetailsDialog() const
   showDetailsDialog(window(), *_photoItem, image(), metrics());
 }
 
+void PhotoItem::showInFullDialog() const
+{
+  fulldialog::showImage(window(), image(), *_photoItem);
+}
+
 void PhotoItem::focusInEvent(QFocusEvent*)
 {
-    update();
+  update();
+  if (fulldialog::exists())
+    showInFullDialog();
 }
 
 void PhotoItem::focusOutEvent(QFocusEvent*)
 {
-    update();
+  update();
 }
 
 bool PhotoItem::eventFilter(QObject* object, QEvent* event)
