@@ -20,6 +20,7 @@
 
 namespace phobos {
 
+//TODO: Use statusBar with addPermanentWidget to display QSlider instead of showing it on NavigationBar
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   seriesSet(),
