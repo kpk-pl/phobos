@@ -38,6 +38,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::closeEvent(QCloseEvent *ev)
 {
+  if (seriesSet.empty())
+  {
+    ev->accept();
+    return;
+  }
+
   auto const resButton = QMessageBox::question(this, windowTitle(), tr("Are you sure you want to quit?\n"),
                                                QMessageBox::Cancel | QMessageBox::Yes,
                                                QMessageBox::Yes);
