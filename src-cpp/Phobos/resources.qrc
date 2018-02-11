@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>icons/focus.png</file>
-        <file>icons/star.png</file>
         <file>icons/num_grid.png</file>
         <file>icons/scroll_grid.png</file>
         <file>icons/all_grid.png</file>
@@ -20,5 +19,11 @@
         <file>icons/preview_window.png</file>
         <file>icons/awesome/png/chevron-arrow-down.png</file>
         <file>icons/awesome/png/chevron-arrow-up.png</file>
+        <file>icons/awesome/png/bar-graph-on-a-rectangle.png</file>
+        <file>icons/awesome/png/star.png</file>
+        <file>icons/awesome/png/couple-of-arrows-changing-places.png</file>
+        <file>icons/awesome/png/check.png</file>
+        <file>icons/awesome/png/undo-arrow.png</file>
+        <file>icons/awesome/png/text-file.png</file>
     </qresource>
 </RCC>

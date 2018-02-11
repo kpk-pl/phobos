@@ -14,7 +14,7 @@ namespace phobos { namespace widgets {
 class NavigationBar : public QWidget
 {
 public:
-  explicit NavigationBar();
+  explicit NavigationBar(QWidget *parent = nullptr);
 
   void setContentsMargins(int left, int top, int right, int bottom) const;
 

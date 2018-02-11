@@ -37,8 +37,8 @@ private:
 };
 } // unnamed namespace
 
-NavigationBar::NavigationBar() :
-  _slider(nullptr), hidden(false)
+NavigationBar::NavigationBar(QWidget *parent) :
+  QWidget(parent), _slider(nullptr), hidden(false)
 {
   _layout = new QHBoxLayout;
   _layout->setContentsMargins(0, 0, 0, 0);

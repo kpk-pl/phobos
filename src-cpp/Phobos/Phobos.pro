@@ -98,7 +98,8 @@ SOURCES += Phobos.cpp\
     ProcessWizard/ActionTab/RenameActionTab.cpp \
     ProcessWizard/ActionTab/CopyMoveActionTab.cpp \
     ProcessWizard/Execution/ExecutionImpl.cpp \
-    ProcessWizard/Execution/Execute.cpp
+    ProcessWizard/Execution/Execute.cpp \
+    MainToolbar.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -220,7 +221,8 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution/Execution.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
-    ProcessWizard/Execution/Execute.h
+    ProcessWizard/Execution/Execute.h \
+    MainToolbar.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

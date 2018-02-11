@@ -9,6 +9,8 @@ metrics = false
 title = "Phobos"
 minimumSize = { width = 480, height = 360 }
 defaultSize = { width = 1024, height = 600 }
+enableToolbar = true
+enableMenu = false
 
 [fullscreenWindow]
 defaultSize = [1024, 768]
@@ -57,7 +59,7 @@ color = "red"
 font = { family = "Courier", pointSize = 10, weight = 75 }
 
 [photoItemWidget.bestMarkIcon]
-icon = ":icons/star.png"
+icon = ":icons/awesome/png/star.png"
 opacity = 0.5
 color = "yellow"
 sizePercent = 0.2
@@ -130,25 +132,38 @@ visibleItems = 2
 default = true
 
 [navigationBar]
-hideNavigation = { icon = ":icons/awesome/png/chevron-arrow-up.png", color = "black", margin = 2 }
-showNavigation = { icon = ":icons/awesome/png/chevron-arrow-down.png", color = "black", margin = 2 }
-allSeries = { icon = ":icons/all_grid.png", color = "#006FE8", margin = 4 }
-numSeries = { icon = ":icons/num_grid.png", color = "#006FE8", margin = 4 }
-oneSeries = { icon = ":icons/scroll_grid.png", color = "#006FE8", margin = 4 }
-singlePhoto = { icon = ":icons/preview_window.png", color = "#006FE8", margin = 4 }
-prevSeries = { icon = ":icons/awesome/png/left-arrow.png", color = "#006FE8" }
-nextSeries = { icon = ":icons/awesome/png/arrowhead-pointing-to-the-right.png", color = "#006FE8" }
+fileImport = { icon = ":icons/awesome/png/open-folder.png", color="orange" }
+
+viewAllSeries = { icon = ":icons/all_grid.png", color = "#006FE8" }
+viewSingleSeries = { icon = ":icons/num_grid.png", color = "#006FE8" }
+viewScrollable = { icon = ":icons/scroll_grid.png", color = "#006FE8" }
+viewFullscreenPreview = { icon = ":icons/preview_window.png", color = "#006FE8" }
+viewPhotoDetails = { icon = ":icons/awesome/png/bar-graph-on-a-rectangle.png", color = "#22c036" }
+viewPreviousSeries = { icon = ":icons/awesome/png/left-arrow.png", color = "#006FE8" }
+viewNextSeries = { icon = ":icons/awesome/png/arrowhead-pointing-to-the-right.png", color = "#006FE8" }
+
+selectBest = { icon = ":icons/awesome/png/star.png", color="#fce700" }
+selectInvert = { icon = ":icons/awesome/png/couple-of-arrows-changing-places.png", color="red" }
+selectAll = { icon=":icons/awesome/png/check.png", color="red" }
+selectClear = { icon=":icons/awesome/png/undo-arrow.png", color="red" }
+
+processMove = { icon = ":icons/awesome/png/move-document.png", color = "darkorange" } 
+processDelete = { icon = ":icons/awesome/png/trash.png", color = "red" }
+processRename = { icon = ":icons/awesome/png/pencil.png", color = "green" }
+processCopy = { icon = ":icons/awesome/png/copy-document.png", color = "blue" }
+
+helpLicense = { icon=":icons/awesome/png/text-file.png", color="black" }
+
+hideNavigation = { icon = ":icons/awesome/png/chevron-arrow-up.png", color = "gray" }
+showNavigation = { icon = ":icons/awesome/png/chevron-arrow-down.png", color = "gray" }
+
 prevItem =  { icon = ":icons/awesome/png/chevron-pointing-to-the-left.png", color = "#006FE8" }
 nextItem = { icon = ":icons/awesome/png/right-chevron.png", color = "#006FE8" }
-movePhotos = { icon = ":icons/awesome/png/move-document.png", color = "darkorange" } 
-deletePhotos = { icon = ":icons/awesome/png/trash.png", color = "red" }
-renamePhotos = { icon = ":icons/awesome/png/pencil.png", color = "green" }
-copyPhotos = { icon = ":icons/awesome/png/copy-document.png", color = "blue" }
-openFolder = { icon = ":icons/awesome/png/open-folder.png", color="orange" }
-selectBest = { icon = ":icons/star.png", color="yellow" }
+buttonSize = [34, 34]
+inlineButtonSize = [15, 15]
+hideButtonSize = [10, 10]
 spacing = 2
-buttonSize = [48, 48]
-buttonMargin = 10
+separatorMargin = 2
 
 [imageCache]
 preloadSize = { width = 320, height = 240 }

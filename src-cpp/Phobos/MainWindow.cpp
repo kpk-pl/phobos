@@ -1,8 +1,10 @@
 #include "MainWindow.h"
+#include "ViewStack.h"
 #include "Config.h"
 #include "ConfigExtension.h"
 #include "ViewDescription.h"
 #include "PhotoBulkAction.h"
+#include "MainToolbar.h"
 #include "ImportWizard/ImportWizard.h"
 #include "ProcessWizard/ProcessWizard.h"
 #include "ProcessWizard/Execution/Execution.h"
@@ -16,6 +18,8 @@
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QKeySequence>
+#include <QVBoxLayout>
+#include <QToolButton>
 #include <cstdio>
 
 namespace phobos {
@@ -25,10 +29,29 @@ MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   seriesSet(),
   imageCache(seriesSet),
-  viewStack(new ViewStack(seriesSet, imageCache))
+  viewStack(new ViewStack(seriesSet, imageCache)),
+  mainToolbar(config::qualified("mainWindow.enableToolbar", true) ? new MainToolbar : nullptr)
 {
-  setCentralWidget(viewStack);
+  if (mainToolbar)
+  {
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->addWidget(mainToolbar);
+    mainLayout->addWidget(viewStack);
+
+    QWidget *mainWidget = new QWidget;
+    mainWidget->setLayout(mainLayout);
+    setCentralWidget(mainWidget);
+  }
+  else
+  {
+    setCentralWidget(viewStack);
+  }
+
   createMenus();
+  if (!config::qualified("mainWindow.enableMenu", false))
+    menuBar()->hide();
+
   connectNavigations();
 
   setWindowTitle(config::qualified<std::string>("mainWindow.title", "Phobos").c_str());
@@ -62,70 +85,134 @@ void MainWindow::loadPhotos()
 
 void MainWindow::createMenus()
 {
-  auto const makeIcon = [path = config::ConfigPath("navigationBar"), size = QSize(64,64)](std::string const& name){
-    return iprocess::utils::coloredPixmap(path(name), size);
-  };
+  createFileMenu();
+  createViewMenu();
+  createSelectMenu();
+  createProcessMenu();
+  createHelpMenu();
+}
 
+namespace {
+QPixmap quickIcon(std::string const& configName)
+{
+  return iprocess::utils::coloredPixmap(config::ConfigPath("navigationBar")(configName), QSize(64, 64));
+}
+
+struct ActionConfigurator
+{
+  ActionConfigurator(QMenu *menu, MainToolbar *toolbar = nullptr) : menu(menu), toolbar(toolbar)
+  {}
+
+  template<typename Object, typename Method>
+  void operator()(QString const& menuName,
+                  QKeySequence const& shortcut,
+                  QString const& tooltip,
+                  std::string const& configName,
+                  Object *object,
+                  Method && method)
+  {
+    if (configName.empty())
+      menu->addAction(menuName, object, method, shortcut)->setStatusTip(tooltip);
+    else
+      menu->addAction(quickIcon(configName), menuName, object, method, shortcut)->setStatusTip(tooltip);
+
+    if (toolbar && !configName.empty())
+    {
+      QToolButton *button = toolbar->getButton(configName);
+      if (button)
+      {
+        button->setToolTip(tooltip);
+        button->setShortcut(shortcut);
+        QObject::connect(button, &QToolButton::clicked, object, method);
+      }
+    }
+  }
+
+private:
+  QMenu *menu;
+  MainToolbar *toolbar;
+};
+
+} // unnamed namespace
+
+// TODO: save option, with possibility to save scaled pixmaps as well, with metrics etc
+// TODO: Load saved config from file, initialize all series, pixmaps, metrics, selections etc, remember to fix UUIDs for series as those will change (or maybe can construct QUuid back from text?
+void MainWindow::createFileMenu()
+{
   QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
-  fileMenu->addAction(makeIcon("openFolder"), tr("&Open"),
-                      this, &MainWindow::loadPhotos, QKeySequence("Ctrl+O"))->setStatusTip(tr("Import photos"));
-  // TODO: save option, with possibility to save scaled pixmaps as well, with metrics etc
-  // TODO: Load saved config from file, initialize all series, pixmaps, metrics, selections etc, remember to fix UUIDs for series as those will change (or maybe can construct QUuid back from text?
+  ActionConfigurator conf(fileMenu, mainToolbar);
+
+  conf(tr("&Open"), QKeySequence("Ctrl+O"), tr("Import photos"), "fileImport", this, &MainWindow::loadPhotos);
   fileMenu->addSeparator();
-  fileMenu->addAction(tr("&Exit"), this, &MainWindow::close, QKeySequence("Ctrl+Q"))->setStatusTip(tr("Exit the application"));
 
-  // TODO: to viewMenubar add selectable options to enable/disable addons on photoitemwidgets
-  //
-  // TODO: Select only best phtoos to clear selection and select best photos
+  conf(tr("&Exit"), QKeySequence("Ctrl+Q"), tr("Exit the application"), "", this, &MainWindow::close);
+}
 
+// TODO: to viewMenubar add selectable options to enable/disable addons on photoitemwidgets
+// TODO: Select only best phtoos to clear selection and select best photos
+void MainWindow::createViewMenu()
+{
   QMenu* viewMenu = menuBar()->addMenu(tr("&View"));
-  viewMenu->addAction(makeIcon("allSeries"), tr("&All series"),
-                      [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::ALL_SERIES)); },
-                      QKeySequence("Alt+1"))->setStatusTip(tr("Show all series on one page"));
-  viewMenu->addAction(makeIcon("oneSeries"), tr("&One series"),
-                      [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES)); },
-                      QKeySequence("Alt+2"))->setStatusTip(tr("Show one series on a single page"));
-  viewMenu->addAction(makeIcon("numSeries"), tr("&Separate photos"),
-                      [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES)); },
-                      QKeySequence("Alt+3"))->setStatusTip(tr("Show side by side photos from one series"));
-  viewMenu->addSeparator();
-  viewMenu->addAction(makeIcon("nextSeries"), tr("&Next series"),
-                      [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::CURRENT, boost::none, +1)); },
-                      QKeySequence("Shift+Right"))->setStatusTip(tr("Jump to next series"));
-  viewMenu->addAction(makeIcon("prevSeries"), tr("&Previous series"),
-                      [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::CURRENT, boost::none, -1)); },
-                      QKeySequence("Shift+Left"))->setStatusTip(tr("Jump to previous series"));
-  viewMenu->addSeparator();
-  viewMenu->addAction(tr("&Details"),
-                      this, &MainWindow::openDetailsDialog,
-                      QKeySequence("Ctrl+D"))->setStatusTip(tr("Show details for selected photo"));
+  ActionConfigurator conf(viewMenu, mainToolbar);
 
-  // TODO: Action: Report -> show dialog with number of series / num selected photos, num unchecked series etc
-  QMenu* actionMenu = menuBar()->addMenu(tr("&Action"));
-  actionMenu->addAction(makeIcon("selectBest"), tr("Select &best"),
-                        [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_BEST); })->setStatusTip(tr("Automatically select best photos in each series"));
-  actionMenu->addAction(tr("Select &all"), [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_ALL); })
-          ->setStatusTip(tr("Select all photos"));
-  actionMenu->addAction(tr("&Invert selection"), [this](){ viewStack->bulkSelect(PhotoBulkAction::INVERT); })
-          ->setStatusTip(tr("Invert selection"));
-  actionMenu->addAction(tr("&Clear selection"), [this](){ viewStack->bulkSelect(PhotoBulkAction::CLEAR); })
-          ->setStatusTip(tr("Clear selection"));
+  conf(tr("&All series"), QKeySequence("Alt+1"), tr("Show all series on one page"), "viewAllSeries", this,
+       [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::ALL_SERIES)); });
+  conf(tr("&Single series"), QKeySequence("Alt+2"), tr("Show side by side photos from one series"), "viewSingleSeries", this,
+       [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES)); });
+  conf(tr("S&crollable"), QKeySequence("Alt+3"), tr("Show one series with zoomed photos on a single page with horizontal scrolling capability"), "viewScrollable", this,
+       [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES)); });
+  viewMenu->addSeparator();
 
+  conf(tr("&Fullscreen preview"), QKeySequence("Shift+F"), tr("Open a separate preview dialog with a single fullscreen photo"), "viewFullscreenPreview", this, &MainWindow::openFullscreenDialog);
+  conf(tr("&Details"), QKeySequence("Shift+D"), tr("Show details for selected photo"), "viewPhotoDetails", this, &MainWindow::openDetailsDialog);
+  viewMenu->addSeparator();
+
+  conf(tr("&Next series"), QKeySequence("Shift+Right"), tr("Jump to next series"), "viewNextSeries", this,
+       [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::CURRENT, boost::none, +1)); });
+  conf(tr("&Previous series"), QKeySequence("Shift+Left"), tr("Jump to previous series"), "viewPreviousSeries", this,
+       [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::CURRENT, boost::none, -1)); });
+}
+
+// TODO: Action: Report -> show dialog with number of series / num selected photos, num unchecked series etc
+void MainWindow::createSelectMenu()
+{
+  QMenu* selectMenu = menuBar()->addMenu(tr("&Select"));
+  ActionConfigurator conf(selectMenu, mainToolbar);
+
+  conf(tr("Select &best"), QKeySequence(), tr("Automatically select best photos in each series"), "selectBest", this,
+       [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_BEST); });
+  conf(tr("Select &all"), QKeySequence(), tr("Select all photos"), "selectAll", this,
+       [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_ALL); });
+  conf(tr("&Invert selection"), QKeySequence(), tr("Invert selection"), "selectInvert", this,
+       [this](){ viewStack->bulkSelect(PhotoBulkAction::INVERT); });
+  conf(tr("&Clear selection"), QKeySequence(), tr("Clear selection"), "selectClear", this,
+       [this](){ viewStack->bulkSelect(PhotoBulkAction::CLEAR); });
+}
+
+// TODO: By default an action should call only the basic dialog window with only confirmation because usual actions are very simple and limited.
+// Add another menuitem with Advanced usage which will open the current more complicated dialog
+void MainWindow::createProcessMenu()
+{
   QMenu* execMenu = menuBar()->addMenu(tr("&Process"));
-  execMenu->addAction(makeIcon("deletePhotos"), tr("&Delete"),
-                      this, [this]{processAction(processwiz::OperationType::Delete);})->setStatusTip(tr("Delete selected files from hard drive"));
-  execMenu->addAction(makeIcon("movePhotos"), tr("&Move"),
-                      this, [this]{processAction(processwiz::OperationType::Move);  })->setStatusTip(tr("Move selected files from hard drive"));
-  execMenu->addAction(makeIcon("copyPhotos"), tr("&Copy"),
-                      this, [this]{processAction(processwiz::OperationType::Copy);  })->setStatusTip(tr("Copy selected files from hard drive"));
-  execMenu->addAction(makeIcon("renamePhotos"), tr("&Rename"),
-                      this, [this]{processAction(processwiz::OperationType::Rename);})->setStatusTip(tr("Rename selected files from hard drive"));
+  ActionConfigurator conf(execMenu, mainToolbar);
 
-  // TODO: By default an action should call only the basic dialog window with only confirmation because usual actions are very simple and limited.
-  // Add another menuitem with Advanced usage which will open the current more complicated dialog
+  conf(tr("&Delete"), QKeySequence(), tr("Delete selected files from hard drive"), "processDelete", this,
+       [this]{ processAction(processwiz::OperationType::Delete); });
+  conf(tr("&Move"), QKeySequence(), tr("Move selected files from hard drive"), "processMove", this,
+       [this]{ processAction(processwiz::OperationType::Move); });
+  conf(tr("&Copy"), QKeySequence(), tr("Copy selected files from hard drive"), "processCopy", this,
+       [this]{ processAction(processwiz::OperationType::Copy); });
+  conf(tr("&Rename"), QKeySequence(), tr("Rename selected files from hard drive"), "processRename", this,
+       [this]{ processAction(processwiz::OperationType::Rename); });
+}
 
+void MainWindow::createHelpMenu()
+{
   QMenu* helpMenu = menuBar()->addMenu(tr("Help"));
-  helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
+  ActionConfigurator conf(helpMenu, mainToolbar);
+
+//  conf(tr("Credits"), QKeySequence(), tr("Show licensing and credits information"), "helpLicense", this, ???)
+//  helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
 }
 
 void MainWindow::connectNavigations()
@@ -143,7 +230,7 @@ void MainWindow::processAction(processwiz::OperationType const operation)
 
 void MainWindow::openDetailsDialog()
 {
-  LOG(INFO) << "Showing details dialog for focused photo";
+  LOG(INFO) << "Requested details dialog for focused item";
   auto const focusedItem = utils::focusedPhotoItemWidget();
   if (!focusedItem)
   {
@@ -152,6 +239,23 @@ void MainWindow::openDetailsDialog()
   }
 
   focusedItem->openDetailsDialog();
+}
+
+void MainWindow::openFullscreenDialog()
+{
+  LOG(INFO) << "Requested fullscreen dialog for focused item";
+  auto photoItem = utils::focusedPhotoItemWidget();
+  if (!photoItem)
+  {
+// TODO: Find first possible item?
+  }
+  if (!photoItem)
+  {
+    LOG(INFO) << "Unable to show fullscreen dialog";
+    return;
+  }
+
+  photoItem->showInFullDialog();
 }
 
 // TODO: Status bar should display percent and fraction of photos(series) viewed, especially in series view
