@@ -1,5 +1,4 @@
 #include "RowSeriesView.h"
-#include "Widgets/NavigationBar.h"
 #include "Widgets/PhotoItem/PhotoItem.h"
 #include "Widgets/PhotoItem/Recovery.h"
 #include "Utils/LayoutClear.h"
@@ -16,21 +15,15 @@ namespace phobos {
 RowSeriesView::RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
   SeriesViewBase(seriesSet, imageCache)
 {
-  widgets::NavigationBar* navigationBar = new widgets::NavigationBar();
-  navigationBar->addSlider()->setToolTip(tr("Zoom in / zoom out"));
-
   scroll = new widgets::HorizontalScrollArea();
   scroll->boxLayout()->setContentsMargins(0, 0, 0, 0);
 
   QVBoxLayout* layout = new QVBoxLayout();
-  layout->addWidget(navigationBar);
   layout->addWidget(scroll, 100);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   layout->addStretch(0);
   setLayout(layout);
-
-  QObject::connect(navigationBar->slider(), &QSlider::valueChanged, this, &RowSeriesView::resizeImages);
 }
 
 QLayout* RowSeriesView::getLayoutForItems() const
@@ -40,10 +33,11 @@ QLayout* RowSeriesView::getLayoutForItems() const
 
 void RowSeriesView::resizeImages(int percent)
 {
+  LOG(DEBUG) << percent;
   assert(percent >= 0 && percent <= 100);
   QVBoxLayout* vl = dynamic_cast<QVBoxLayout*>(layout());
-  vl->setStretch(1, percent);
-  vl->setStretch(2, 100-percent);
+  vl->setStretch(0, percent);
+  vl->setStretch(1, 100-percent);
 }
 
 void RowSeriesView::clear()

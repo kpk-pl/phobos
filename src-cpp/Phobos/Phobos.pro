@@ -99,7 +99,8 @@ SOURCES += Phobos.cpp\
     ProcessWizard/ActionTab/CopyMoveActionTab.cpp \
     ProcessWizard/Execution/ExecutionImpl.cpp \
     ProcessWizard/Execution/Execute.cpp \
-    MainToolbar.cpp
+    MainToolbar.cpp \
+    Widgets/StatusBarSlider.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -222,7 +223,9 @@ HEADERS  += MainWindow.h \
     ProcessWizard/Execution/ExecutionFwd.h \
     ProcessWizard/Execution/ExecutionImpl.h \
     ProcessWizard/Execution/Execute.h \
-    MainToolbar.h
+    MainToolbar.h \
+    Widgets/StatusBarSlider.h \
+    SharedWidgets.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

@@ -6,6 +6,7 @@
 #include <QUuid>
 #include "ViewDescription.h"
 #include "PhotoBulkAction.h"
+#include "SharedWidgets.h"
 #include "ImportWizard/Types.h"
 #include "PhotoContainers/Fwd.h"
 #include "ImageCache/CacheFwd.h"
@@ -33,8 +34,12 @@ public:
       std::vector<SeriesSelectionStatus> status;
     };
 
-    explicit ViewStack(pcontainer::Set const& seriesSet, icache::Cache & cache);
+    explicit ViewStack(pcontainer::Set const& seriesSet,
+                       icache::Cache &cache,
+                       SharedWidgets const& sharedWidgets);
+
     SelectionStatus getSelectionStatus() const;
+    void setCurrentWidget(QWidget *widget);
 
 signals:
     void importPhotosRequest();
@@ -54,6 +59,7 @@ private:
 
     pcontainer::Set const& seriesSet;
     icache::Cache & imageCache;
+    SharedWidgets const& sharedWidgets;
     boost::optional<QUuid> currentSeriesInView;
 
     WelcomeView* welcomeView;

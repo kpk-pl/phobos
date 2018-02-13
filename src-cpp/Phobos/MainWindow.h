@@ -5,6 +5,7 @@
 #include "PhotoContainers/Set.h"
 #include "ImageCache/Cache.h"
 #include "ProcessWizard/Operation.h"
+#include "SharedWidgets.h"
 
 class QCloseEvent;
 
@@ -37,10 +38,14 @@ private:
   void createProcessMenu();
   void createHelpMenu();
 
+  void configureStatusBar();
   void connectNavigations();
 
   pcontainer::Set seriesSet;
   icache::Cache imageCache;
+
+  SharedWidgets const sharedWidgets;
+
   ViewStack* viewStack;
   MainToolbar* mainToolbar;
 };

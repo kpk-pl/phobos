@@ -38,7 +38,7 @@ private:
 } // unnamed namespace
 
 NavigationBar::NavigationBar(QWidget *parent) :
-  QWidget(parent), _slider(nullptr), hidden(false)
+  QWidget(parent), hidden(false)
 {
   _layout = new QHBoxLayout;
   _layout->setContentsMargins(0, 0, 0, 0);
@@ -75,24 +75,6 @@ QPushButton* NavigationBar::addButton(std::string const& name)
   }
 
   return button;
-}
-
-QSlider* NavigationBar::addSlider()
-{
-  _slider = new QSlider(Qt::Horizontal);
-  _slider->setMaximum(100);
-  _slider->setValue(100);
-
-  QWidget* lSpacing = new QWidget();
-  lSpacing->setMinimumWidth(15);
-  QWidget* rSpacing = new QWidget();
-  rSpacing->setMinimumWidth(15);
-
-  _layout->addWidget(lSpacing);
-  _layout->addWidget(_slider);
-  _layout->addWidget(rSpacing);
-
-  return _slider;
 }
 
 void NavigationBar::addStretch()

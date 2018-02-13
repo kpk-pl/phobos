@@ -25,5 +25,7 @@
         <file>icons/awesome/png/check.png</file>
         <file>icons/awesome/png/undo-arrow.png</file>
         <file>icons/awesome/png/text-file.png</file>
+        <file>icons/awesome/png/plus-black-symbol.png</file>
+        <file>icons/awesome/png/minus-symbol.png</file>
     </qresource>
 </RCC>

@@ -5,7 +5,6 @@
 #include <map>
 #include <string>
 
-class QSlider;
 class QPushButton;
 class QHBoxLayout;
 
@@ -19,12 +18,10 @@ public:
   void setContentsMargins(int left, int top, int right, int bottom) const;
 
   QPushButton* addButton(std::string const& name);
-  QSlider* addSlider();
   void addSeparator();
   void addStretch();
 
   QPushButton* button(std::string const& name) const;
-  QSlider* slider() const { return _slider; }
 
   void showButtons();
   void hideButtons();
@@ -34,7 +31,6 @@ private slots:
 
 private:
   std::map<std::string, QPushButton*> _buttons;
-  QSlider *_slider;
   QHBoxLayout *_layout;
 
   QPushButton *_showHideButton;

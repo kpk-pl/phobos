@@ -10,6 +10,7 @@
 #include "ProcessWizard/Execution/Execution.h"
 #include "ProcessWizard/Execution/Execute.h"
 #include "ImageProcessing/Utils/ColoredPixmap.h"
+#include "Widgets/StatusBarSlider.h"
 #include "Utils/Focused.h"
 #include <easylogging++.h>
 #include <QApplication>
@@ -20,16 +21,17 @@
 #include <QKeySequence>
 #include <QVBoxLayout>
 #include <QToolButton>
+#include <QStatusBar>
 #include <cstdio>
 
 namespace phobos {
 
-//TODO: Use statusBar with addPermanentWidget to display QSlider instead of showing it on NavigationBar
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   seriesSet(),
   imageCache(seriesSet),
-  viewStack(new ViewStack(seriesSet, imageCache)),
+  sharedWidgets({new widgets::StatusBarSlider}),
+  viewStack(new ViewStack(seriesSet, imageCache, sharedWidgets)),
   mainToolbar(config::qualified("mainWindow.enableToolbar", true) ? new MainToolbar : nullptr)
 {
   if (mainToolbar)
@@ -52,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
   if (!config::qualified("mainWindow.enableMenu", false))
     menuBar()->hide();
 
+  configureStatusBar();
   connectNavigations();
 
   setWindowTitle(config::qualified<std::string>("mainWindow.title", "Phobos").c_str());
@@ -213,6 +216,13 @@ void MainWindow::createHelpMenu()
 
 //  conf(tr("Credits"), QKeySequence(), tr("Show licensing and credits information"), "helpLicense", this, ???)
 //  helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
+}
+
+void MainWindow::configureStatusBar()
+{
+  statusBar()->addPermanentWidget(sharedWidgets.slider);
+
+  sharedWidgets.slider->hide();
 }
 
 void MainWindow::connectNavigations()

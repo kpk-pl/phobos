@@ -16,7 +16,7 @@ public:
 
   void clear() override;
 
-private slots:
+public slots:
   void resizeImages(int percent);
 
 protected:

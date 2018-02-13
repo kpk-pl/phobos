@@ -165,6 +165,14 @@ hideButtonSize = [10, 10]
 spacing = 2
 separatorMargin = 2
 
+[statusBar.slider]
+buttonSize = [15, 15]
+iconSize = [10, 10]
+plusIcon = { icon = ":icons/awesome/png/plus-black-symbol.png", color = "gray" }
+minusIcon = { icon = ":icons/awesome/png/minus-symbol.png", color = "gray" }
+sliderSize = { width = 150, height = 15 }
+sliderStyle = "QSlider::groove:horizontal{border:0;height:2px;background:gray;margin:0;} QSlider::handle:horizontal{border:0;width:5px;background:darkgray;margin:-6px 0;}"
+
 [imageCache]
 preloadSize = { width = 320, height = 240 }
 fullSize = { width = 1920, height = 1080 }
