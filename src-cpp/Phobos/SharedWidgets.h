@@ -5,11 +5,15 @@ namespace phobos {
 
 namespace widgets {
 class StatusBarSlider;
+class StatusBarLeftRightNavigation;
 } // namespace widgets
 
 struct SharedWidgets
 {
+  explicit SharedWidgets();
+
   widgets::StatusBarSlider *slider;
+  widgets::StatusBarLeftRightNavigation *leftRightNav;
 };
 
 } // namespace phobos

@@ -18,6 +18,10 @@ public:
 
   void keyPressEvent(QKeyEvent* keyEvent) override;
 
+public slots:
+  void showNextItem();
+  void showPrevItem();
+
 protected:
   void addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemWidget) override;
   void changeSeriesState(pcontainer::ItemState const state) const override;
@@ -28,9 +32,6 @@ protected:
   QLayout* getLayoutForItems() const override;
 
 private:
-  void showNextItem();
-  void showPrevItem();
-
   using VisibleRange = std::pair<int, int>;
   VisibleRange visibleRange() const;
   void setCurrentView(VisibleRange const& range);

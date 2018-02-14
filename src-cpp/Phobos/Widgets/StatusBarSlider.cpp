@@ -1,7 +1,6 @@
 #include "Widgets/StatusBarSlider.h"
 #include "Widgets/StatusBarButton.h"
 #include "ConfigExtension.h"
-#include "ConfigPath.h"
 #include <QSlider>
 #include <QString>
 #include <QHBoxLayout>
@@ -13,8 +12,6 @@
 namespace phobos { namespace widgets {
 
 namespace {
-config::ConfigPath const configPath("statusBar.slider");
-
 struct TooltipSlider : public QSlider
 {
   explicit TooltipSlider(Qt::Orientation orientation) : QSlider(orientation)
@@ -36,7 +33,7 @@ struct TooltipSlider : public QSlider
 };
 } // unnamed namespace
 
-StatusBarSlider::StatusBarSlider() :
+StatusBarSlider::StatusBarSlider(config::ConfigPath const& configPath) :
   slider(new TooltipSlider(Qt::Horizontal)),
   minus(new StatusBarButton(configPath("plusButton"))),
   plus(new StatusBarButton(configPath("minusButton")))

@@ -62,7 +62,6 @@ SOURCES += Phobos.cpp\
     ImportWizard/SeriesDisplayPage.cpp \
     ImportWizard/FileInfoProvider.cpp \
     Widgets/IconLabel.cpp \
-    Widgets/NavigationBar.cpp \
     Widgets/HorizontalScrollArea.cpp \
     Widgets/ImageWidget.cpp \
     Widgets/PhotoItem/PhotoItem.cpp \
@@ -101,7 +100,9 @@ SOURCES += Phobos.cpp\
     ProcessWizard/Execution/Execute.cpp \
     MainToolbar.cpp \
     Widgets/StatusBarSlider.cpp \
-    Widgets/StatusBarButton.cpp
+    Widgets/StatusBarButton.cpp \
+    SharedWidgets.cpp \
+    Widgets/StatusBarLeftRightNavigation.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -179,7 +180,6 @@ HEADERS  += MainWindow.h \
     ImportWizard/FileInfoProvider.h \
     Widgets/HeightResizeableInterface.h \
     Widgets/IconLabel.h \
-    Widgets/NavigationBar.h \
     Widgets/HorizontalScrollArea.h \
     Widgets/ImageWidget.h \
     Widgets/PhotoItem/PhotoItem.h \
@@ -227,7 +227,8 @@ HEADERS  += MainWindow.h \
     MainToolbar.h \
     Widgets/StatusBarSlider.h \
     SharedWidgets.h \
-    Widgets/StatusBarButton.h
+    Widgets/StatusBarButton.h \
+    Widgets/StatusBarLeftRightNavigation.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

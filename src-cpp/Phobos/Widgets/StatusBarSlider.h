@@ -1,6 +1,7 @@
 #ifndef STATUSBARSLIDER_H
 #define STATUSBARSLIDER_H
 
+#include "ConfigPath.h"
 #include <QWidget>
 
 class QSlider;
@@ -12,7 +13,7 @@ class StatusBarSlider : public QWidget
 {
   Q_OBJECT
 public:
-  explicit StatusBarSlider();
+  explicit StatusBarSlider(config::ConfigPath const& configPath);
 
 signals:
   void valueChanged(int value);

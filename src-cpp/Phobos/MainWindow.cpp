@@ -11,6 +11,7 @@
 #include "ProcessWizard/Execution/Execute.h"
 #include "ImageProcessing/Utils/ColoredPixmap.h"
 #include "Widgets/StatusBarSlider.h"
+#include "Widgets/StatusBarLeftRightNavigation.h"
 #include "Utils/Focused.h"
 #include <easylogging++.h>
 #include <QApplication>
@@ -30,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   seriesSet(),
   imageCache(seriesSet),
-  sharedWidgets({new widgets::StatusBarSlider}),
+  sharedWidgets(),
   viewStack(new ViewStack(seriesSet, imageCache, sharedWidgets)),
   mainToolbar(config::qualified("mainWindow.enableToolbar", true) ? new MainToolbar : nullptr)
 {
@@ -221,8 +222,10 @@ void MainWindow::createHelpMenu()
 void MainWindow::configureStatusBar()
 {
   statusBar()->addPermanentWidget(sharedWidgets.slider);
+  statusBar()->addPermanentWidget(sharedWidgets.leftRightNav);
 
   sharedWidgets.slider->hide();
+  sharedWidgets.leftRightNav->hide();
 }
 
 void MainWindow::connectNavigations()

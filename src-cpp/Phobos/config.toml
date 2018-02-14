@@ -157,8 +157,6 @@ helpLicense = { icon=":icons/awesome/png/text-file.png", color="black" }
 hideNavigation = { icon = ":icons/awesome/png/chevron-arrow-up.png", color = "gray" }
 showNavigation = { icon = ":icons/awesome/png/chevron-arrow-down.png", color = "gray" }
 
-prevItem =  { icon = ":icons/awesome/png/chevron-pointing-to-the-left.png", color = "#006FE8" }
-nextItem = { icon = ":icons/awesome/png/right-chevron.png", color = "#006FE8" }
 buttonSize = [34, 34]
 inlineButtonSize = [15, 15]
 hideButtonSize = [10, 10]
@@ -166,10 +164,14 @@ spacing = 2
 separatorMargin = 2
 
 [statusBar.slider]
-plusButton = { icon = ":icons/awesome/png/plus-black-symbol.png", color = "gray", iconSize = [10,10], size = [15,15] }
-minusButton = { icon = ":icons/awesome/png/minus-symbol.png", color = "gray", iconSize = [10,10], size = [15,15]  }
+plusButton = { icon = ":icons/awesome/png/plus-black-symbol.png", color = "red", iconSize = [10,10], size = [15,15] }
+minusButton = { icon = ":icons/awesome/png/minus-symbol.png", color = "red", iconSize = [10,10], size = [15,15]  }
 sliderSize = { width = 150, height = 15 }
 sliderStyle = "QSlider::groove:horizontal{border:0;height:2px;background:gray;margin:0;} QSlider::handle:horizontal{border:0;width:5px;background:darkgray;margin:-6px 0;}"
+
+[statusBar.leftRightNav]
+leftButton = { icon = ":icons/awesome/png/chevron-pointing-to-the-left.png", color = "red", iconSize = [10,10], size = [15,15] }
+rightButton = { icon = ":icons/awesome/png/right-chevron.png", color = "red", iconSize = [10,10], size = [15,15] }
 
 [imageCache]
 preloadSize = { width = 320, height = 240 }

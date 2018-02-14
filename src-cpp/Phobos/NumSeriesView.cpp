@@ -1,5 +1,4 @@
 #include "NumSeriesView.h"
-#include "Widgets/NavigationBar.h"
 #include "Widgets/PhotoItem/PhotoItem.h"
 #include "Config.h"
 #include "Utils/LayoutClear.h"
@@ -19,24 +18,13 @@ NumSeriesView::NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
     visibleItems(config::get()->get_qualified_as<unsigned>("seriesView.num.visibleItems").value_or(2)),
     currentItem(0)
 {
-  widgets::NavigationBar* navigationBar = new widgets::NavigationBar();
-
-  navigationBar->addStretch();
-  navigationBar->addButton("prevItem")->setToolTip(tr("Previous photo"));
-  navigationBar->addButton("nextItem")->setToolTip(tr("Next photo"));
-  navigationBar->setContentsMargins(0, 0, 0, 0);
-
   layoutForItems = new QHBoxLayout();
 
   QVBoxLayout* vlayout = new QVBoxLayout();
-  vlayout->addWidget(navigationBar);
   vlayout->addLayout(layoutForItems);
   vlayout->addStretch();
 
   setLayout(vlayout);
-
-  QObject::connect(navigationBar->button("prevItem"), &QPushButton::clicked, this, &NumSeriesView::showPrevItem);
-  QObject::connect(navigationBar->button("nextItem"), &QPushButton::clicked, this, &NumSeriesView::showNextItem);
 }
 
 NumSeriesView::~NumSeriesView()

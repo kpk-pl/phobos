@@ -8,6 +8,7 @@
 #include "PhotoContainers/Set.h"
 #include "ImageCache/Cache.h"
 #include "Widgets/StatusBarSlider.h"
+#include "Widgets/StatusBarLeftRightNavigation.h"
 #include "Utils/Asserted.h"
 #include <easylogging++.h>
 
@@ -63,6 +64,7 @@ void ViewStack::welcomeScreenSwitch()
 void ViewStack::setCurrentWidget(QWidget *widget)
 {
   sharedWidgets.slider->setVisible(widget == rowSeriesView);
+  sharedWidgets.leftRightNav->setVisible(widget == numSeriesView);
 
   QStackedWidget::setCurrentWidget(widget);
 }
@@ -188,6 +190,11 @@ void ViewStack::connectSignals()
   QObject::connect(numSeriesView, &RowSeriesView::switchView, this, &ViewStack::handleSwitchView);
 
   QObject::connect(sharedWidgets.slider, &widgets::StatusBarSlider::valueChanged, rowSeriesView, &RowSeriesView::resizeImages);
+
+  QObject::connect(sharedWidgets.leftRightNav, &widgets::StatusBarLeftRightNavigation::leftClicked,
+                   numSeriesView, &NumSeriesView::showPrevItem);
+  QObject::connect(sharedWidgets.leftRightNav, &widgets::StatusBarLeftRightNavigation::rightClicked,
+                   numSeriesView, &NumSeriesView::showNextItem);
 
   QObject::connect(&seriesSet, &pcontainer::Set::newSeries, this, &ViewStack::welcomeScreenSwitch);
   QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &ViewStack::welcomeScreenSwitch);
