@@ -57,6 +57,10 @@ StatusBarSlider::StatusBarSlider(config::ConfigPath const& configPath) :
   slider->setValue(100);
   slider->setPageStep(10);
 
+  slider->setToolTip(tr("Zoom out / zoom in"));
+  minus->setToolTip(tr("Zoom out"));
+  plus->setToolTip(tr("Zoom in"));
+
   QObject::connect(minus, &QPushButton::clicked, [this](){ slider->setValue(slider->value() - slider->pageStep()); });
   QObject::connect(plus, &QPushButton::clicked, [this](){ slider->setValue(slider->value() + slider->pageStep()); });
   QObject::connect(slider, &QSlider::valueChanged, this, &StatusBarSlider::valueChanged);

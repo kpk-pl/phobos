@@ -16,6 +16,9 @@ StatusBarLeftRightNavigation::StatusBarLeftRightNavigation(config::ConfigPath co
 
   setLayout(layout);
 
+  leftButton->setToolTip(tr("Previous photo"));
+  rightButton->setToolTip(tr("Next photo"));
+
   QObject::connect(leftButton, &QPushButton::clicked, this, &StatusBarLeftRightNavigation::leftClicked);
   QObject::connect(rightButton, &QPushButton::clicked, this, &StatusBarLeftRightNavigation::rightClicked);
 }
