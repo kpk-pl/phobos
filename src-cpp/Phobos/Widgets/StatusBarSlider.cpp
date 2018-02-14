@@ -1,7 +1,7 @@
 #include "Widgets/StatusBarSlider.h"
+#include "Widgets/StatusBarButton.h"
 #include "ConfigExtension.h"
 #include "ConfigPath.h"
-#include "ImageProcessing/Utils/ColoredPixmap.h"
 #include <QSlider>
 #include <QString>
 #include <QHBoxLayout>
@@ -14,20 +14,6 @@ namespace phobos { namespace widgets {
 
 namespace {
 config::ConfigPath const configPath("statusBar.slider");
-
-struct FlatButton : public QPushButton
-{
-  explicit FlatButton(config::ConfigPath const& path)
-  {
-    QSize const maxSize = config::qSize(configPath("buttonSize"), QSize(15, 15));
-    QSize const iconSize = config::qSize(configPath("iconSize"), QSize(12, 12));
-
-    setIcon(iprocess::utils::coloredPixmap(path, iconSize));
-
-    setFlat(true);
-    setFixedSize(maxSize);
-  }
-};
 
 struct TooltipSlider : public QSlider
 {
@@ -52,8 +38,8 @@ struct TooltipSlider : public QSlider
 
 StatusBarSlider::StatusBarSlider() :
   slider(new TooltipSlider(Qt::Horizontal)),
-  minus(new FlatButton(configPath("minusIcon"))),
-  plus(new FlatButton(configPath("plusIcon")))
+  minus(new StatusBarButton(configPath("plusButton"))),
+  plus(new StatusBarButton(configPath("minusButton")))
 {
   QSize const sliderSize = config::qSize(configPath("sliderSize"), QSize(150, 15));
 

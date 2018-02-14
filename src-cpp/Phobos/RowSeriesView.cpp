@@ -33,7 +33,6 @@ QLayout* RowSeriesView::getLayoutForItems() const
 
 void RowSeriesView::resizeImages(int percent)
 {
-  LOG(DEBUG) << percent;
   assert(percent >= 0 && percent <= 100);
   QVBoxLayout* vl = dynamic_cast<QVBoxLayout*>(layout());
   vl->setStretch(0, percent);
