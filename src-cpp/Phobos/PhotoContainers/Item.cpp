@@ -19,10 +19,9 @@ void Item::select() const
   emit stateChanged();
 }
 
-// TODO: Change to "reset"
-void Item::deselect() const
+void Item::reset() const
 {
-  LOG(INFO) << "Deselected item " << _id.toString();
+  LOG(INFO) << "Reset item " << _id.toString();
   _state = ItemState::UNKNOWN;
   emit stateChanged();
 }
@@ -35,7 +34,7 @@ void Item::setState(ItemState state) const
     select();
     break;
   case ItemState::UNKNOWN:
-    deselect();
+    reset();
     break;
   }
 }
@@ -45,7 +44,7 @@ void Item::invert() const
   switch(_state)
   {
   case ItemState::SELECTED:
-    deselect();
+    reset();
     break;
   case ItemState::UNKNOWN:
     select();

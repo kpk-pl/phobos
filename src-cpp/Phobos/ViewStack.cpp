@@ -156,7 +156,7 @@ namespace {
   {
     for (auto const& series : seriesSet)
       for (auto const& item : *series)
-        item->deselect();
+        item->reset();
   }
 } // unnamed namespace
 

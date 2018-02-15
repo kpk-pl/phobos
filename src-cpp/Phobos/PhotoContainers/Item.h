@@ -34,7 +34,7 @@ signals:
 
 public slots:
   void select() const;
-  void deselect() const;
+  void reset() const;
   void invert() const;
   void setState(ItemState state) const;
 

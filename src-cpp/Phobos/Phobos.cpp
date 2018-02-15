@@ -17,14 +17,6 @@
 INITIALIZE_EASYLOGGINGPP
 
 // TODO: My app has no icon - add one
-
-// TODO: Add a separate dialog window with the ability to display zommed full-size image.
-// The dialog should be resizeable and should be updated once another photo is selected to be displayed
-// use setObjectName with topLevelWidgets to implement a singleton-like solution to obtain
-// handle to this dialog when it exists. Create new if does not exists.
-
-// TODO: Every UI element should have tooltip saying what it does (buttons and sliders on navigation bar)
-//
 // TODO: Need to add a lot of helper tests to be displayed in the status bar of the application
 // Possibility to disable status bar entirely
 // Every screen and page should say what is expected of the user

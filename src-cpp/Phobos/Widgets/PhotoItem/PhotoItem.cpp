@@ -270,7 +270,7 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
   if (_photoItem->state() != pcontainer::ItemState::SELECTED)
     photoMenu->addAction(tr("Select"), _photoItem.get(), &pcontainer::Item::select);
   if (_photoItem->state() != pcontainer::ItemState::UNKNOWN)
-    photoMenu->addAction(tr("Deselect"), _photoItem.get(), &pcontainer::Item::deselect);
+    photoMenu->addAction(tr("Deselect"), _photoItem.get(), &pcontainer::Item::reset);
 
   if (capabilities.has(CapabilityType::REMOVE_PHOTO))
   {

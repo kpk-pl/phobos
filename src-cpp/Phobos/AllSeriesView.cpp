@@ -5,7 +5,6 @@
 #include "Widgets/PhotoItem/Addon.h"
 #include "Widgets/PhotoItem/Capability.h"
 #include "Widgets/PhotoItem/Recovery.h"
-#include "Widgets/NavigationBar.h"
 #include "Utils/Algorithm.h"
 #include "Utils/Focused.h"
 #include "Utils/Asserted.h"
