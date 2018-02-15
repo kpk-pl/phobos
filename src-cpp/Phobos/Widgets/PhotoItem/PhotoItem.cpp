@@ -307,6 +307,9 @@ void PhotoItem::openDetailsDialog() const
   showDetailsDialog(window(), *_photoItem, image(), metrics());
 }
 
+// TODO: Need to load full quality screen resolution and display it.
+// If full resolution is available in cache, load it from cache
+// if not update with the best resolution when cache is loaded
 void PhotoItem::showInFullDialog() const
 {
   fulldialog::showImage(window(), image(), *_photoItem);

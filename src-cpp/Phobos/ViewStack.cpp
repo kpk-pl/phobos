@@ -14,6 +14,15 @@
 
 namespace phobos {
 
+// TODO: Another view is needed for laboratory. This should hide some widgets from navigation bar
+// Top quality photo should be processed and displayed (maybe from cache)
+// Allow displaying original and processed photo
+// Allow undo
+// Allow at least white balance, hist value equalization, HSV stretch.
+// Possibly allow all channels from HSV/RGB to be independently equalized with some offset from sides as in white balance algorithm
+// Allow rotating and clipping
+// Allow save -> if override this should probably replace image stored in cache as well as metrics
+// If possible, display current metrics for processed image in realtime to see improvements made
 ViewStack::ViewStack(pcontainer::Set const& seriesSet,
                      icache::Cache & cache,
                      SharedWidgets const& sharedWidgets) :

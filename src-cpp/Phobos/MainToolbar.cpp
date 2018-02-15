@@ -14,6 +14,10 @@ namespace {
 config::ConfigPath const basePath("navigationBar");
 } // unnamed namespace
 
+// TODO: Need to move navigation to a separate group
+// Need to add another commands to ViewStack handleSwitchView to handle single photo change
+// This way, next photo and prev photo can be handled along with next series and prev series
+// This widget may be hidden on allSeriesView as not really necessary
 MainToolbar::MainToolbar(QWidget *parent) :
   QWidget(parent), _hidden(false)
 {
