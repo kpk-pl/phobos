@@ -6,6 +6,7 @@
 
 class QToolButton;
 class QHBoxLayout;
+class QWidget;
 class QBoxLayout;
 
 namespace phobos {
@@ -20,19 +21,19 @@ public:
 
 public slots:
   void setHidden(bool hide);
+  void setGroupVisible(std::string const& group, bool visible);
 
 private:
-  void addSeparator();
-
-  void setupFileGroup();
-  void setupViewGroup();
-  void setupSelectGroup();
-  void setupProcessGroup();
-  void setupHelpGroup();
+  QWidget* setupFileGroup();
+  QWidget* setupViewGroup();
+  QWidget* setupSelectGroup();
+  QWidget* setupProcessGroup();
+  QWidget* setupHelpGroup();
 
   void setupHideButton(QBoxLayout *target);
 
   std::map<std::string, QToolButton*> _buttons;
+  std::map<std::string, QWidget*> _groups;
   QToolButton* registerButton(std::string const& key, QToolButton *button);
 
   QHBoxLayout *_layout;
