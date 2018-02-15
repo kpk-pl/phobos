@@ -1,9 +1,7 @@
 #ifndef PROCESSWIZARD_SERIESCOUNTS_H
 #define PROCESSWIZARD_SERIESCOUNTS_H
 
-#include "PhotoContainers/ItemState.h"
 #include "PhotoContainers/Fwd.h"
-#include <map>
 
 namespace phobos { namespace processwiz {
 
@@ -13,12 +11,12 @@ struct SeriesCounts
   {
     std::size_t photos = 0;
     std::size_t series = 0;
+    void add(std::size_t const photosInSeries);
   };
 
   TypeCounts all;
-  std::map<pcontainer::ItemState, TypeCounts> types;
-
-  std::size_t seriesCompletelyUnknown = 0;
+  TypeCounts selected;
+  TypeCounts unknown;
 };
 
 SeriesCounts countPhotos(pcontainer::Set const& seriesSet);

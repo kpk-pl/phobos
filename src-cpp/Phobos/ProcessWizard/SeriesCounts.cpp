@@ -5,6 +5,15 @@
 
 namespace phobos { namespace processwiz {
 
+void SeriesCounts::TypeCounts::add(std::size_t const photosInSeries)
+{
+  if (photosInSeries == 0)
+    return;
+
+  photos += photosInSeries;
+  series += 1;
+}
+
 namespace {
 using ItemState = pcontainer::ItemState;
 static ItemState const allStates[] = { ItemState::SELECTED, ItemState::UNKNOWN };
@@ -17,24 +26,13 @@ struct Counter
 
   void operator()(pcontainer::SeriesPtr const& series) const
   {
-    seriesCounts.all.series += 1;
-    seriesCounts.all.photos += series->size();
+    auto const match = [](pcontainer::ItemState state){ return [state](auto const& photo){ return photo->state() == state; }; };
+    std::size_t const selectedCount = std::count_if(series->begin(), series->end(), match(pcontainer::ItemState::SELECTED));
+    std::size_t const unknownCount = std::count_if(series->begin(), series->end(), match(pcontainer::ItemState::UNKNOWN));
 
-    std::map<ItemState, std::size_t> counts;
-    for (auto const& photo : *series)
-      ++counts[photo->state()];
-
-    for (auto const& group : counts)
-    {
-      seriesCounts.types[group.first].photos += group.second;
-      ++seriesCounts.types[group.first].series;
-    }
-
-    if (counts.size() == 1)
-    {
-      if (counts.begin()->first == ItemState::UNKNOWN)
-        ++seriesCounts.seriesCompletelyUnknown;
-    }
+    seriesCounts.all.add(series->size());
+    seriesCounts.selected.add(selectedCount);
+    seriesCounts.unknown.add(unknownCount);
   }
 
 private:
@@ -49,13 +47,8 @@ SeriesCounts countPhotos(pcontainer::Set const& seriesSet)
   std::for_each(seriesSet.begin(), seriesSet.end(), std::ref(counter));
 
   LOG(INFO) << "[processing] Found " << counts.all.photos << " photos in " << counts.all.series << " series in total";
-
-  // Accessing counts with [] creates all possible states
-  for (pcontainer::ItemState const state : allStates)
-    LOG(INFO) << "[processing] Found " << counts.types[state].photos << " " << state << " photos in "
-              << counts.types[state].series << " series";
-
-  LOG(INFO) << "[processing] Found " << counts.seriesCompletelyUnknown << " completely unchecked series";
+  LOG(INFO) << "[processing] Found " << counts.selected.photos << " selected photos in " << counts.selected.series << " series";
+  LOG(INFO) << "[processing] Found " << counts.unknown.photos << " unknown photos in " << counts.unknown.series << " series";
 
   return counts;
 }

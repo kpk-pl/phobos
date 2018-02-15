@@ -1,6 +1,5 @@
 #include "ProcessWizard/WarningsPage.h"
 #include "Widgets/IconLabel.h"
-#include "Utils/Asserted.h"
 #include "PhotoContainers/ItemState.h"
 #include <QString>
 #include <QVBoxLayout>
@@ -32,11 +31,8 @@ WarningsPage::WarningsPage(SeriesCounts const& counts)
 
   // TODO: display how many selected, unknown photos are there
   // TODO: span color tags with colors for discarded, uncheched ?
-  // TODO: completely uncheched == without any selected photos. Those 2 warnings are equivalent
   bool warningsPresent = false;
-  warningsPresent |= maker(tr("Found %1 completely unchecked series"), counts.seriesCompletelyUnknown);
-  warningsPresent |= maker(tr("Found %1 series without any selected photo"),
-        counts.all.series - utils::asserted::fromMap(counts.types, pcontainer::ItemState::SELECTED).series);
+  warningsPresent |= maker(tr("Found %1 series without any selected photo"), counts.all.series - counts.selected.series);
 
   layout->addStretch();
   layout->addWidget(new QLabel(tr("Continue to next page")));
