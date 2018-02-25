@@ -212,7 +212,7 @@ void AllSeriesView::addItemToGrid(int const row, int const col, pcontainer::Item
   using namespace widgets::pitem;
   static auto const capabilities = CapabilityType::OPEN_SERIES | CapabilityType::REMOVE_PHOTO | CapabilityType::REMOVE_SERIES;
 
-  auto const widgetAddons = Addons(config::get()->get_qualified_array_of<std::string>("allSeriesView.enabledAddons").value_or({}));
+  auto const widgetAddons = Addons(config::qualified("allSeriesView.enabledAddons", std::vector<std::string>{}));
   auto const& itemId = itemPtr->id();
 
   auto item = std::make_unique<PhotoItem>(itemPtr, widgetAddons, capabilities);

@@ -25,7 +25,7 @@ std::unique_ptr<widgets::pitem::PhotoItem> SeriesViewBase::createConnectedItem(p
 {
   using namespace widgets::pitem;
 
-  auto const& addons = Addons(config::get()->get_qualified_array_of<std::string>("seriesView.enabledAddons").value_or({}));
+  auto const& addons = Addons(config::qualified("seriesView.enabledAddons", std::vector<std::string>{}));
   auto const& itemId = item->id();
   auto widget = std::make_unique<PhotoItem>(item, addons, CapabilityType::REMOVE_PHOTO);
 

@@ -19,6 +19,7 @@ class RowSeriesView;
 class LaboratoryView;
 class WelcomeView;
 class SeriesViewBase;
+class MainToolbar;
 
 class ViewStack : public QStackedWidget
 {
@@ -37,7 +38,8 @@ public:
 
   explicit ViewStack(pcontainer::Set const& seriesSet,
                      icache::Cache &cache,
-                     SharedWidgets const& sharedWidgets);
+                     SharedWidgets const& sharedWidgets,
+                     MainToolbar *MainToolbar);
 
   SelectionStatus getSelectionStatus() const;
   void setCurrentWidget(QWidget *widget);
@@ -62,6 +64,7 @@ private:
   pcontainer::Set const& seriesSet;
   icache::Cache & imageCache;
   SharedWidgets const& sharedWidgets;
+  MainToolbar* const mainToolbar;
 
   WelcomeView* welcomeView;
   AllSeriesView* allSeriesView;

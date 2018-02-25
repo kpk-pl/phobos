@@ -40,8 +40,8 @@ private:
 
   SharedWidgets const sharedWidgets;
 
-  ViewStack* viewStack;
   MainToolbar* mainToolbar;
+  ViewStack* viewStack;
 };
 
 } // namespace phobos

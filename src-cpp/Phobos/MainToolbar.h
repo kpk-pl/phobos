@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <map>
+#include <set>
 
 class QToolButton;
 class QHBoxLayout;
@@ -18,6 +19,7 @@ public:
 
   void setContentsMargins(int left, int top, int right, int bottom) const;
   QToolButton* getButton(std::string const& key) const;
+  std::set<std::string> const& buttonGroups() const { return _groupNames; }
 
 public slots:
   void setHidden(bool hide);
@@ -35,6 +37,7 @@ private:
 
   std::map<std::string, QToolButton*> _buttons;
   std::map<std::string, QWidget*> _groups;
+  std::set<std::string> _groupNames;
   QToolButton* registerButton(std::string const& key, QToolButton *button);
 
   QHBoxLayout *_layout;

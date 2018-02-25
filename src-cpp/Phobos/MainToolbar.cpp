@@ -12,6 +12,7 @@
 namespace phobos {
 namespace {
 config::ConfigPath const basePath("navigationBar");
+config::ConfigPath const iconPath = basePath("icon");
 } // unnamed namespace
 
 // TODO: Need to move navigation to a separate group
@@ -21,10 +22,10 @@ config::ConfigPath const basePath("navigationBar");
 MainToolbar::MainToolbar(QWidget *parent) :
   QWidget(parent), _hidden(false)
 {
-  auto const separatorMargin = config::qualified(basePath("separatorMargin"), 2u);
+  auto const separatorMargin = config::qualified(basePath("config")("separatorMargin"), 2u);
   _layout = new QHBoxLayout;
   _layout->setContentsMargins(separatorMargin, 0, separatorMargin, 0);
-  _layout->setSpacing(config::qualified(basePath("spacing"), 2u));
+  _layout->setSpacing(config::qualified(basePath("config")("spacing"), 2u));
 
   setupFileGroup();
   setupViewGroup();
@@ -60,7 +61,7 @@ void MainToolbar::setHidden(bool hide)
     if (QWidget* wgt = _layout->itemAt(i)->widget())
       wgt->setVisible(!hide);
 
-  _hideButton->setIcon(iprocess::utils::coloredPixmap(basePath(hide ? "showNavigation" : "hideNavigation"), QSize(64, 64)));
+  _hideButton->setIcon(iprocess::utils::coloredPixmap(iconPath(hide ? "showNavigation" : "hideNavigation"), QSize(64, 64)));
 }
 
 void MainToolbar::setGroupVisible(std::string const& group, bool visible)
@@ -117,7 +118,7 @@ public:
     ToolButton(label, configPath)
   {
     setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    setIconSize(config::qSize(basePath("buttonSize"), QSize(40, 40)));
+    setIconSize(config::qSize(basePath("config")("buttonSize"), QSize(40, 40)));
     setContentsMargins(0, 0, 0, 0);
   }
 };
@@ -129,7 +130,7 @@ public:
     ToolButton(label, configPath)
   {
     setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    setIconSize(config::qSize(basePath("inlineButtonSize"), QSize(14, 14)));
+    setIconSize(config::qSize(basePath("config")("inlineButtonSize"), QSize(14, 14)));
     setContentsMargins(0, 0, 0, 0);
   }
 
@@ -137,7 +138,7 @@ public:
     ToolButton(configPath)
   {
     setToolButtonStyle(Qt::ToolButtonIconOnly);
-    setIconSize(config::qSize(basePath("inlineButtonSize"), QSize(14, 14)));
+    setIconSize(config::qSize(basePath("config")("inlineButtonSize"), QSize(14, 14)));
     setContentsMargins(0, 0, 0, 0);
   }
 };
@@ -145,7 +146,7 @@ public:
 QWidget* makeGroupSeparator()
 {
   widgets::HVLine *line = new widgets::HVLine(Qt::Vertical);
-  line->setMinimumWidth(config::qualified(basePath("separatorMargin"), 2u));
+  line->setMinimumWidth(config::qualified(basePath("config")("separatorMargin"), 2u));
   return line;
 }
 
@@ -257,7 +258,11 @@ public:
   }
 };
 
-QWidget* addGroupWithSeparator(VisibleBuddy *group, std::string const& name, QHBoxLayout *layout, std::map<std::string, QWidget*> & mapping)
+QWidget* addGroupWithSeparator(VisibleBuddy *group,
+                               std::string const& name,
+                               QHBoxLayout *layout,
+                               std::map<std::string, QWidget*> & mapping,
+                               std::set<std::string> & groupNames)
 {
   QWidget *separator = makeGroupSeparator();
   group->setVisibleBuddy(separator);
@@ -266,6 +271,7 @@ QWidget* addGroupWithSeparator(VisibleBuddy *group, std::string const& name, QHB
   layout->addWidget(separator);
 
   mapping.emplace(name, group);
+  groupNames.emplace(name);
 
   return group;
 }
@@ -274,20 +280,20 @@ QWidget* addGroupWithSeparator(VisibleBuddy *group, std::string const& name, QHB
 // TODO: Need to fix alignment issues because big buttons in different groups are rather vertically centered instead being top-aligned
 QWidget* MainToolbar::setupFileGroup()
 {
-  QToolButton *importButton = registerButton("fileImport", new BigToolButton(tr("Import"), basePath("fileImport")));
+  QToolButton *importButton = registerButton("fileImport", new BigToolButton(tr("Import"), iconPath("fileImport")));
 
   NamedHorizontalButtonGroup *group = NamedHorizontalButtonGroup::create(tr("File"), importButton);
-  return addGroupWithSeparator(group, "file", _layout, _groups);
+  return addGroupWithSeparator(group, "file", _layout, _groups, _groupNames);
 }
 
 QWidget* MainToolbar::setupViewGroup()
 {
-  QToolButton *allSeriesButton = registerButton("viewAllSeries", new InlineToolButton(tr("All series"), basePath("viewAllSeries")));
-  QToolButton *numSeriesButton = registerButton("viewSingleSeries", new InlineToolButton(tr("Single series"), basePath("viewSingleSeries")));
-  QToolButton *rowSeriesButton = registerButton("viewScrollable", new InlineToolButton(tr("Scrollable"), basePath("viewScrollable")));
-  QToolButton *previewButton = registerButton("viewFullscreenPreview", new BigToolButton(tr("Fullscreen\npreview"), basePath("viewFullscreenPreview")));
-  QToolButton *labButton = registerButton("viewLaboratory", new BigToolButton(tr("Enhance\nphotos"), basePath("viewLaboratory")));
-  QToolButton *detailsButton = registerButton("viewPhotoDetails", new BigToolButton(tr("Photo\ndetails"), basePath("viewPhotoDetails")));
+  QToolButton *allSeriesButton = registerButton("viewAllSeries", new InlineToolButton(tr("All series"), iconPath("viewAllSeries")));
+  QToolButton *numSeriesButton = registerButton("viewSingleSeries", new InlineToolButton(tr("Single series"), iconPath("viewSingleSeries")));
+  QToolButton *rowSeriesButton = registerButton("viewScrollable", new InlineToolButton(tr("Scrollable"), iconPath("viewScrollable")));
+  QToolButton *previewButton = registerButton("viewFullscreenPreview", new BigToolButton(tr("Fullscreen\npreview"), iconPath("viewFullscreenPreview")));
+  QToolButton *labButton = registerButton("viewLaboratory", new BigToolButton(tr("Enhance\nphotos"), iconPath("viewLaboratory")));
+  QToolButton *detailsButton = registerButton("viewPhotoDetails", new BigToolButton(tr("Photo\ndetails"), iconPath("viewPhotoDetails")));
 
   NamedHorizontalButtonGroup *group = NamedHorizontalButtonGroup::create(tr("View"),
         VerticalButtonGroup::create(allSeriesButton, numSeriesButton, rowSeriesButton),
@@ -295,61 +301,61 @@ QWidget* MainToolbar::setupViewGroup()
         labButton,
         detailsButton);
 
-  return addGroupWithSeparator(group, "view", _layout, _groups);
+  return addGroupWithSeparator(group, "view", _layout, _groups, _groupNames);
 }
 
 QWidget* MainToolbar::setupSeriesGroup()
 {
-  QToolButton *previousSeries = registerButton("seriesPrevious", new InlineToolButton(tr("Previous"), basePath("seriesPrevious")));
-  QToolButton *nextSeries = registerButton("seriesNext", new InlineToolButton(tr("Next"), basePath("seriesNext")));
+  QToolButton *previousSeries = registerButton("seriesPrevious", new InlineToolButton(tr("Previous"), iconPath("seriesPrevious")));
+  QToolButton *nextSeries = registerButton("seriesNext", new InlineToolButton(tr("Next"), iconPath("seriesNext")));
 
   NamedHorizontalButtonGroup *group = NamedHorizontalButtonGroup::create(tr("Series"),
         VerticalButtonGroup::create(nextSeries, previousSeries));
 
-  return addGroupWithSeparator(group, "series", _layout, _groups);
+  return addGroupWithSeparator(group, "series", _layout, _groups, _groupNames);
 }
 
 QWidget* MainToolbar::setupSelectGroup()
 {
-  QToolButton *bestButton = registerButton("selectBest", new BigToolButton(tr("Best"), basePath("selectBest")));
-  QToolButton *allButton = registerButton("selectAll", new InlineToolButton(tr("All"), basePath("selectAll")));
-  QToolButton *invertButton = registerButton("selectInvert", new InlineToolButton(tr("Invert"), basePath("selectInvert")));
-  QToolButton *clearButton = registerButton("selectClear", new InlineToolButton(tr("Clear"), basePath("selectClear")));
+  QToolButton *bestButton = registerButton("selectBest", new BigToolButton(tr("Best"), iconPath("selectBest")));
+  QToolButton *allButton = registerButton("selectAll", new InlineToolButton(tr("All"), iconPath("selectAll")));
+  QToolButton *invertButton = registerButton("selectInvert", new InlineToolButton(tr("Invert"), iconPath("selectInvert")));
+  QToolButton *clearButton = registerButton("selectClear", new InlineToolButton(tr("Clear"), iconPath("selectClear")));
 
   NamedHorizontalButtonGroup *group = NamedHorizontalButtonGroup::create(tr("Select"),
         bestButton,
         VerticalButtonGroup::create(allButton, invertButton, clearButton));
 
-  return addGroupWithSeparator(group, "select", _layout, _groups);
+  return addGroupWithSeparator(group, "select", _layout, _groups, _groupNames);
 }
 
 QWidget* MainToolbar::setupProcessGroup()
 {
-  QToolButton *deleteButton = registerButton("processDelete", new BigToolButton(tr("Delete"), basePath("processDelete")));
-  QToolButton *moveButton = registerButton("processMove", new InlineToolButton(tr("Move"), basePath("processMove")));
-  QToolButton *copyButton = registerButton("processCopy", new InlineToolButton(tr("Copy"), basePath("processCopy")));
-  QToolButton *renameButton = registerButton("processRename", new InlineToolButton(tr("Rename"), basePath("processRename")));
+  QToolButton *deleteButton = registerButton("processDelete", new BigToolButton(tr("Delete"), iconPath("processDelete")));
+  QToolButton *moveButton = registerButton("processMove", new InlineToolButton(tr("Move"), iconPath("processMove")));
+  QToolButton *copyButton = registerButton("processCopy", new InlineToolButton(tr("Copy"), iconPath("processCopy")));
+  QToolButton *renameButton = registerButton("processRename", new InlineToolButton(tr("Rename"), iconPath("processRename")));
 
   NamedHorizontalButtonGroup *group = NamedHorizontalButtonGroup::create(tr("Process"),
         deleteButton,
         VerticalButtonGroup::create(moveButton, copyButton, renameButton));
 
-  return addGroupWithSeparator(group, "process", _layout, _groups);
+  return addGroupWithSeparator(group, "process", _layout, _groups, _groupNames);
 }
 
 QWidget* MainToolbar::setupHelpGroup()
 {
-  QToolButton *licenseButton = registerButton("helpLicense", new InlineToolButton(basePath("helpLicense")));
+  QToolButton *licenseButton = registerButton("helpLicense", new InlineToolButton(iconPath("helpLicense")));
 
   HorizontalButtonGroup *group = HorizontalButtonGroup::create(licenseButton);
 
-  return addGroupWithSeparator(group, "help", _layout, _groups);
+  return addGroupWithSeparator(group, "help", _layout, _groups, _groupNames);
 }
 
 void MainToolbar::setupHideButton(QBoxLayout *target)
 {
-  _hideButton = new InlineToolButton(basePath("hideNavigation"));
-  _hideButton->setIconSize(config::qSize(basePath("hideButtonSize"), QSize(12, 12)));
+  _hideButton = new InlineToolButton(iconPath("hideNavigation"));
+  _hideButton->setIconSize(config::qSize(basePath("config")("hideButtonSize"), QSize(12, 12)));
   QObject::connect(_hideButton, &QToolButton::clicked, [this](){ setHidden(!_hidden); });
   target->addWidget(_hideButton, 0, Qt::AlignBottom);
 }

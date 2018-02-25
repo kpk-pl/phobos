@@ -30,8 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
   seriesSet(),
   imageCache(seriesSet),
   sharedWidgets(),
-  viewStack(new ViewStack(seriesSet, imageCache, sharedWidgets)),
-  mainToolbar(new MainToolbar)
+  mainToolbar(new MainToolbar),
+  viewStack(new ViewStack(seriesSet, imageCache, sharedWidgets, mainToolbar))
 {
   QVBoxLayout *mainLayout = new QVBoxLayout;
   mainLayout->setContentsMargins(0, 0, 0, 0);

@@ -1,4 +1,5 @@
 #include "ViewStack.h"
+#include "MainToolbar.h"
 #include "WelcomeView.h"
 #include "AllSeriesView.h"
 #include "NumSeriesView.h"
@@ -26,18 +27,21 @@ namespace phobos {
 // If possible, display current metrics for processed image in realtime to see improvements made
 ViewStack::ViewStack(pcontainer::Set const& seriesSet,
                      icache::Cache & cache,
-                     SharedWidgets const& sharedWidgets) :
-  QStackedWidget(), seriesSet(seriesSet), imageCache(cache), sharedWidgets(sharedWidgets)
+                     SharedWidgets const& sharedWidgets,
+                     MainToolbar *mainToolbar) :
+  QStackedWidget(), seriesSet(seriesSet), imageCache(cache), sharedWidgets(sharedWidgets), mainToolbar(mainToolbar)
 {
-    setupUI();
-    connectSignals();
+  setupUI();
+  connectSignals();
 
-    if (config::qualified("seriesView.num.default", false))
-        currentSeriesWidget = numSeriesView;
-    else if (config::qualified("seriesView.row.default", false))
-        currentSeriesWidget = rowSeriesView;
-    else
-        currentSeriesWidget = numSeriesView;
+  if (config::qualified("seriesView.num.default", false))
+    currentSeriesWidget = numSeriesView;
+  else if (config::qualified("seriesView.row.default", false))
+    currentSeriesWidget = rowSeriesView;
+  else
+    currentSeriesWidget = numSeriesView;
+
+  setCurrentWidget(welcomeView);
 }
 
 pcontainer::Series const& ViewStack::findRequestedSeries(boost::optional<QUuid> const& requestedSeries, int const seriesOffset) const
@@ -99,10 +103,30 @@ void ViewStack::welcomeScreenSwitch()
   }
 }
 
+namespace {
+void setToolbarVisibility(MainToolbar * toolbar, config::ConfigPath const& configPath)
+{
+  auto const supported = config::qualified(configPath("toolbarSupport"), std::set<std::string>{});
+  for (auto const& group : toolbar->buttonGroups())
+    toolbar->setGroupVisible(group, supported.find(group) != supported.end());
+}
+} // unnamed namespace
+
 void ViewStack::setCurrentWidget(QWidget *widget)
 {
   sharedWidgets.slider->setVisible(widget == rowSeriesView);
   sharedWidgets.leftRightNav->setVisible(widget == numSeriesView);
+
+  if (widget == welcomeView)
+    setToolbarVisibility(mainToolbar, config::ConfigPath("welcomeView"));
+  else if (widget == allSeriesView)
+    setToolbarVisibility(mainToolbar, config::ConfigPath("allSeriesView"));
+  else if (widget == rowSeriesView)
+    setToolbarVisibility(mainToolbar, config::ConfigPath("seriesView.row"));
+  else if (widget == numSeriesView)
+    setToolbarVisibility(mainToolbar, config::ConfigPath("seriesView.num"));
+  else if (widget == laboratoryView)
+    setToolbarVisibility(mainToolbar, config::ConfigPath("laboratoryView"));
 
   QStackedWidget::setCurrentWidget(widget);
 }

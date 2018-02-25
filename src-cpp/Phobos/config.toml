@@ -116,11 +116,15 @@ icon = ":icons/awesome/png/question-mark-on-a-circular-black-background.png"
 color = "#8cff66"
 icon = ":icons/awesome/png/checked-symbol.png"
 
+[welcomeView]
+toolbarSupport = ["file", "help"]
+
 [allSeriesView]
 seriesSpacing = 10
 photosSpacing = 2
 maxPhotoHeight = 400
 enabledAddons = ["focus", "best", "score"]
+toolbarSupport = ["file", "view", "select", "process", "help"]
 
 [seriesView]
 enabledAddons = ["focus", "best", "score", "histogram", "ord"]
@@ -128,8 +132,15 @@ enabledAddons = ["focus", "best", "score", "histogram", "ord"]
 [seriesView.num]
 visibleItems = 2
 default = true
+toolbarSupport = ["file", "view", "series", "select", "process", "help"]
 
-[navigationBar]
+[seriesView.row]
+toolbarSupport = ["file", "view", "series", "select", "process", "help"]
+
+[laboratoryView]
+toolbarSupport = ["view", "series", "help"]
+
+[navigationBar.icon]
 fileImport = { icon = ":icons/awesome/png/open-folder.png", color="orange" }
 
 viewAllSeries = { icon = ":icons/all_grid.png", color = "#006FE8" }
@@ -157,6 +168,7 @@ helpLicense = { icon=":icons/awesome/png/text-file.png", color="black" }
 hideNavigation = { icon = ":icons/awesome/png/chevron-arrow-up.png", color = "gray" }
 showNavigation = { icon = ":icons/awesome/png/chevron-arrow-down.png", color = "gray" }
 
+[navigationBar.config]
 buttonSize = [34, 34]
 inlineButtonSize = [15, 15]
 hideButtonSize = [10, 10]
