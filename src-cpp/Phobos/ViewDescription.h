@@ -22,9 +22,9 @@ namespace phobos
 
   struct ViewDescription
   {
-    static ViewDescriptionPtr switchTo(ViewType type, boost::optional<QUuid> uuid = boost::none)
+    static ViewDescriptionPtr switchTo(ViewType type, boost::optional<QUuid> uuid = boost::none, int seriesOffset = 0, int photoOffset = 0)
     {
-      return std::make_shared<ViewDescription>(ViewDescription{type, uuid, 0, 0});
+      return std::make_shared<ViewDescription>(ViewDescription{type, uuid, seriesOffset, photoOffset});
     }
 
     static ViewDescriptionPtr moveNextSeries()

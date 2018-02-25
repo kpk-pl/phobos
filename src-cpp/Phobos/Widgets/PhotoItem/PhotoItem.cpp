@@ -289,7 +289,7 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
   if (capabilities.has(CapabilityType::OPEN_SERIES))
   {
     menu.addSeparator();
-    menu.addAction(tr("View series"), [this]{ emit openInSeries(_photoItem->seriesUuid()); });
+    menu.addAction(tr("View series"), this, &PhotoItem::openInSeries);
   }
 
   menu.addSeparator();

@@ -53,7 +53,7 @@ private slots:
   void welcomeScreenSwitch();
 
 private:
-  pcontainer::Series const& findRequestedSeries(ViewDescriptionPtr const& viewDesc) const;
+  pcontainer::Series const& findRequestedSeries(boost::optional<QUuid> const& requestedSeries, int const seriesOffset) const;
   pcontainer::Item const& findRequestedPhoto(pcontainer::Series const& requestedSeries, int const photoOffset);
 
   void switchToAllSeries(pcontainer::Series const& series);
@@ -65,7 +65,6 @@ private:
   pcontainer::Set const& seriesSet;
   icache::Cache & imageCache;
   SharedWidgets const& sharedWidgets;
-  boost::optional<QUuid> currentSeriesInView;
 
   WelcomeView* welcomeView;
   AllSeriesView* allSeriesView;

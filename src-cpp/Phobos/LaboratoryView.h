@@ -20,12 +20,15 @@ public:
   explicit LaboratoryView(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
 
   void showItem(pcontainer::Item const& item);
+  boost::optional<pcontainer::ItemId> const& currentItem() const { return currentId; }
 
 private:
   pcontainer::Set const& seriesSet;
   icache::Cache & imageCache;
 
   widgets::ImageWidget *imageWidget;
+
+  boost::optional<pcontainer::ItemId> currentId;
 };
 
 } // namespace phobos

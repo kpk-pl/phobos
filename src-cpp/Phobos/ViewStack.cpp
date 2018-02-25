@@ -42,18 +42,30 @@ ViewStack::ViewStack(pcontainer::Set const& seriesSet,
         currentSeriesWidget = numSeriesView;
 }
 
-pcontainer::Series const& ViewStack::findRequestedSeries(ViewDescriptionPtr const& viewDesc) const
+pcontainer::Series const& ViewStack::findRequestedSeries(boost::optional<QUuid> const& requestedSeries, int const seriesOffset) const
 {
-  if (viewDesc->seriesUuid)
-    return seriesSet.findNonEmptySeries(*viewDesc->seriesUuid, viewDesc->seriesOffset);
+  if (requestedSeries)
+    return seriesSet.findNonEmptySeries(*requestedSeries, seriesOffset);
 
-  auto const focused = utils::focusedPhotoItemWidget();
-  if (focused)
-    return seriesSet.findNonEmptySeries(focused->photoItem().seriesUuid(), viewDesc->seriesOffset);
-  else if (!seriesSet.empty())
+  if (currentWidget() == rowSeriesView)
+    if (auto const& currentSeries = rowSeriesView->seriesUuid())
+      return seriesSet.findNonEmptySeries(*currentSeries, seriesOffset);
+
+  if (currentWidget() == numSeriesView)
+    if (auto const& currentSeries = numSeriesView->seriesUuid())
+      return seriesSet.findNonEmptySeries(*currentSeries, seriesOffset);
+
+  if (currentWidget() == laboratoryView)
+    if (auto const& currentItem = laboratoryView->currentItem())
+      return seriesSet.findNonEmptySeries(currentItem->seriesUuid, seriesOffset);
+
+  if (auto focused = utils::focusedPhotoItemWidget())
+    return seriesSet.findNonEmptySeries(focused->photoItem().seriesUuid(), seriesOffset);
+
+  if (!seriesSet.empty())
     return seriesSet.front();
-  else
-    return utils::asserted::always;
+
+  return utils::asserted::always;
 }
 
 pcontainer::Item const& ViewStack::findRequestedPhoto(pcontainer::Series const& requestedSeries, int const photoOffset)
@@ -97,7 +109,7 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
   if (!seriesSet.hasPhotos())
     return; // return NO-OP
 
-  pcontainer::Series const& targetSeries = findRequestedSeries(viewDesc);
+  pcontainer::Series const& targetSeries = findRequestedSeries(viewDesc->seriesUuid, viewDesc->seriesOffset);
 
   if ((viewDesc->type == ViewType::ALL_SERIES) ||
       ((viewDesc->type == ViewType::CURRENT) && currentWidget() == allSeriesView))
@@ -106,7 +118,6 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
     return;
   }
 
-  // Switching by +1/-1 does not work because code depends on currently focused item instead of currentSeriesInView at least
   if ((viewDesc->type == ViewType::LABORATORY) ||
       ((viewDesc->type == ViewType::CURRENT) && currentWidget() == laboratoryView))
   {
@@ -114,33 +125,26 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
     return;
   }
 
-  if (currentSeriesInView == targetSeries.uuid())
+  if (viewDesc->type == ViewType::NUM_SINGLE_SERIES)
   {
-    if (viewDesc->type == ViewType::NUM_SINGLE_SERIES && currentSeriesWidget == rowSeriesView)
+    if (currentSeriesWidget != numSeriesView)
     {
       rowSeriesView->clear();
       rowSeriesView->update();
-      numSeriesView->showSeries(targetSeries);
-      currentSeriesWidget = numSeriesView;
     }
-    else if (viewDesc->type == ViewType::ROW_SINGLE_SERIES && currentSeriesWidget == numSeriesView)
+    currentSeriesWidget = numSeriesView;
+  }
+  else if (viewDesc->type == ViewType::ROW_SINGLE_SERIES)
+  {
+    if (currentSeriesWidget != rowSeriesView)
     {
       numSeriesView->clear();
       numSeriesView->update();
-      rowSeriesView->showSeries(targetSeries);
-      currentSeriesWidget = rowSeriesView;
     }
+    currentSeriesWidget = rowSeriesView;
   }
-  else
-  {
-    if (viewDesc->type == ViewType::ROW_SINGLE_SERIES)
-      currentSeriesWidget = rowSeriesView;
-    else if (viewDesc->type == ViewType::NUM_SINGLE_SERIES)
-      currentSeriesWidget = numSeriesView;
 
-    currentSeriesInView = targetSeries.uuid();
-    currentSeriesWidget->showSeries(targetSeries);
-  }
+  currentSeriesWidget->showSeries(targetSeries);
 
   LOG(INFO) << "Switching to " << (currentSeriesWidget == numSeriesView ? "num" : "row") << " series view";
   setCurrentWidget(currentSeriesWidget);

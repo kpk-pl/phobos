@@ -28,7 +28,7 @@ public:
     void paintEvent(QPaintEvent*) override;
 
 signals:
-    void openInSeries(QUuid const seriesUuid);
+    void openInSeries();
     void changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState);
     void removeFromSeries(pcontainer::ItemId itemId);
     void removeAllSeries(QUuid const seriesUuid);

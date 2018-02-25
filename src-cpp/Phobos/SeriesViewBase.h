@@ -23,13 +23,15 @@ class PhotoItem;
 
 class SeriesViewBase : public QWidget
 {
-    Q_OBJECT
+Q_OBJECT
 public:
-    explicit SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
-    virtual ~SeriesViewBase() = default;
+  explicit SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
+  virtual ~SeriesViewBase() = default;
 
-    virtual void showSeries(pcontainer::Series const& series);
-    virtual void clear();
+  virtual void showSeries(pcontainer::Series const& series);
+  virtual void clear();
+
+  boost::optional<QUuid> const& seriesUuid() const { return currentSeriesUuid; }
 
 signals:
     void switchView(ViewDescriptionPtr viewDesc);

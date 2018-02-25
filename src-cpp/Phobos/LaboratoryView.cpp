@@ -21,6 +21,8 @@ LaboratoryView::LaboratoryView(pcontainer::Set const& seriesSet, icache::Cache &
 
 void LaboratoryView::showItem(pcontainer::Item const& item)
 {
+  currentId = item.id();
+
   auto const cacheResult = imageCache.transaction().callback([lt=imageWidget->lifetime()](auto && result){
     auto item = lt.lock();
     if (item)

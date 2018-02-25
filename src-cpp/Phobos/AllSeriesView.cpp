@@ -225,8 +225,9 @@ void AllSeriesView::addItemToGrid(int const row, int const col, pcontainer::Item
   item->setImage(thumbnail.image);
   item->setMetrics(imageCache.metrics().get(itemId));
 
-  QObject::connect(item.get(), &PhotoItem::openInSeries,
-    [this](QUuid const& uuid){ switchView(ViewDescription::switchTo(ViewType::ANY_SINGLE_SERIES, uuid)); });
+  QObject::connect(item.get(), &PhotoItem::openInSeries, [id = itemPtr->id(), ord = itemPtr->ord(), this](){
+    switchView(ViewDescription::switchTo(ViewType::ANY_SINGLE_SERIES, id.seriesUuid, 0, ord));
+  });
 
   QObject::connect(item.get(), &PhotoItem::changeSeriesState, this, &AllSeriesView::changeSeriesState);
   QObject::connect(item.get(), &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
