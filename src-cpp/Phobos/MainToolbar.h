@@ -31,6 +31,7 @@ private:
   QWidget* setupSeriesGroup();
   QWidget* setupSelectGroup();
   QWidget* setupProcessGroup();
+  QWidget* setupEnhanceGroup();
   QWidget* setupHelpGroup();
 
   void setupHideButton(QBoxLayout *target);

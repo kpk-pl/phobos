@@ -103,7 +103,10 @@ SOURCES += Phobos.cpp\
     Widgets/StatusBarButton.cpp \
     SharedWidgets.cpp \
     Widgets/StatusBarLeftRightNavigation.cpp \
-    LaboratoryView.cpp
+    LaboratoryView.cpp \
+    ImageProcessing/Enhance/OperationType.cpp \
+    ImageProcessing/Enhance/AutoWhiteBalance.cpp \
+    ImageProcessing/Enhance/Executor.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -231,7 +234,10 @@ HEADERS  += MainWindow.h \
     Widgets/StatusBarButton.h \
     Widgets/StatusBarLeftRightNavigation.h \
     LaboratoryView.h \
-    Widgets/Layout/Raw.h
+    Widgets/Layout/Raw.h \
+    ImageProcessing/Enhance/OperationType.h \
+    ImageProcessing/Enhance/AutoWhiteBalance.h \
+    ImageProcessing/Enhance/Executor.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

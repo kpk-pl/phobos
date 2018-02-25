@@ -4,6 +4,7 @@ disableExecutionOperations = true
 [logging]
 config = "logging.conf"
 metrics = false
+enhancements = true
 
 [mainWindow]
 title = "Phobos"
@@ -138,7 +139,7 @@ toolbarSupport = ["file", "view", "series", "select", "process", "help"]
 toolbarSupport = ["file", "view", "series", "select", "process", "help"]
 
 [laboratoryView]
-toolbarSupport = ["view", "series", "help"]
+toolbarSupport = ["view", "series", "enhance", "help"]
 
 [navigationBar.icon]
 fileImport = { icon = ":icons/awesome/png/open-folder.png", color="orange" }

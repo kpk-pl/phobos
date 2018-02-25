@@ -3,6 +3,7 @@
 
 #include "PhotoContainers/Item.h"
 #include "ImageCache/CacheFwd.h"
+#include "ImageProcessing/Enhance/OperationType.h"
 #include <QWidget>
 
 namespace phobos {
@@ -19,8 +20,11 @@ Q_OBJECT
 public:
   explicit LaboratoryView(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
 
-  void showItem(pcontainer::Item const& item);
+  void changePhoto(pcontainer::Item const& item);
   boost::optional<pcontainer::ItemId> const& currentItem() const { return currentId; }
+
+public slots:
+  void process(iprocess::enhance::OperationType const operation);
 
 private:
   pcontainer::Set const& seriesSet;

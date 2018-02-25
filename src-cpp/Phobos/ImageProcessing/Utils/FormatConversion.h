@@ -7,6 +7,7 @@
 namespace phobos { namespace iprocess { namespace utils {
 
 QImage convCvToImage(cv::Mat const& cvImage);
+cv::Mat convImageToCv(QImage const& qImage, bool clone = true);
 
 }}} // namespace phobos::iprocess::utils
 

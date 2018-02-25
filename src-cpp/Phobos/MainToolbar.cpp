@@ -29,6 +29,7 @@ MainToolbar::MainToolbar(QWidget *parent) :
   setupSeriesGroup();
   setupSelectGroup();
   setupProcessGroup();
+  setupEnhanceGroup();
   _layout->addStretch();
   setupHelpGroup();
 
@@ -340,6 +341,16 @@ QWidget* MainToolbar::setupProcessGroup()
         VerticalButtonGroup::create(moveButton, copyButton, renameButton));
 
   return addGroupWithSeparator(group, "process", _layout, _groups, _groupNames);
+}
+
+QWidget* MainToolbar::setupEnhanceGroup()
+{
+  QToolButton *whiteBalance = registerButton("enhanceWhiteBalance", new BigToolButton(tr("White\nbalance"), iconPath("enhanceWhiteBalance")));
+
+  NamedHorizontalButtonGroup *group = NamedHorizontalButtonGroup::create(tr("Enhance"),
+        whiteBalance);
+
+  return addGroupWithSeparator(group, "enhance", _layout, _groups, _groupNames);
 }
 
 QWidget* MainToolbar::setupHelpGroup()

@@ -10,6 +10,7 @@
 #include "ImportWizard/Types.h"
 #include "PhotoContainers/Fwd.h"
 #include "ImageCache/CacheFwd.h"
+#include "ImageProcessing/Enhance/OperationType.h"
 
 namespace phobos {
 
@@ -47,6 +48,7 @@ public:
 public slots:
   void handleSwitchView(ViewDescriptionPtr viewDesc);
   void bulkSelect(PhotoBulkAction const action);
+  void photoEnhancement(iprocess::enhance::OperationType const operation);
 
 private slots:
   void welcomeScreenSwitch();

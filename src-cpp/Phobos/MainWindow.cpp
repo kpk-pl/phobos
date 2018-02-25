@@ -11,6 +11,7 @@
 #include "ProcessWizard/Execution/Execute.h"
 #include "Widgets/StatusBarSlider.h"
 #include "Widgets/StatusBarLeftRightNavigation.h"
+#include "ImageProcessing/Enhance/OperationType.h"
 #include "Utils/Focused.h"
 #include <easylogging++.h>
 #include <QApplication>
@@ -157,6 +158,9 @@ void MainWindow::connectToolbar()
        [this]{ processAction(processwiz::OperationType::Copy); });
   conf(QKeySequence(), tr("Rename selected files from hard drive"), "processRename", this,
        [this]{ processAction(processwiz::OperationType::Rename); });
+
+  conf(QKeySequence(), tr("Automatically adjust white balance"), "enhanceWhiteBalance", this,
+       [this]{ emit viewStack->photoEnhancement(iprocess::enhance::OperationType::AutoWhiteBalance); });
 }
 
 void MainWindow::configureStatusBar()

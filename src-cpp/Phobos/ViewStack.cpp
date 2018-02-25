@@ -188,7 +188,7 @@ void ViewStack::switchToLaboratory(pcontainer::Item const& item)
 {
   LOG(INFO) << "Switching to laboratory view";
   setCurrentWidget(laboratoryView);
-  laboratoryView->showItem(item);
+  laboratoryView->changePhoto(item);
 }
 
 namespace {
@@ -298,6 +298,14 @@ ViewStack::SelectionStatus ViewStack::getSelectionStatus() const
   }
 
   return result;
+}
+
+void ViewStack::photoEnhancement(iprocess::enhance::OperationType const operation)
+{
+  if (currentWidget() != laboratoryView)
+    LOG(INFO) << "Ignoring photo enhancement operation because not in laboratory view";
+
+  laboratoryView->process(operation);
 }
 
 } // namespace phobos

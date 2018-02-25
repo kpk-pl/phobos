@@ -1,5 +1,6 @@
 #include "LaboratoryView.h"
 #include "Widgets/ImageWidget.h"
+#include "ImageProcessing/Enhance/Executor.h"
 #include "ImageCache/Cache.h"
 #include <easylogging++.h>
 #include <QHBoxLayout>
@@ -19,7 +20,7 @@ LaboratoryView::LaboratoryView(pcontainer::Set const& seriesSet, icache::Cache &
   setLayout(hlayout);
 }
 
-void LaboratoryView::showItem(pcontainer::Item const& item)
+void LaboratoryView::changePhoto(pcontainer::Item const& item)
 {
   currentId = item.id();
 
@@ -32,6 +33,18 @@ void LaboratoryView::showItem(pcontainer::Item const& item)
   imageWidget->setImage(cacheResult.image);
   imageWidget->setMaximumSize(item.info().size);
   imageWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+
+  LOG(INFO) << "Set up new photo in laboratory: " << item.id();
+}
+
+void LaboratoryView::process(iprocess::enhance::OperationType const operation)
+{
+  using namespace iprocess::enhance;
+
+  LOG(INFO) << "Laboratory processing operation " << toString(operation);
+
+  QImage result = execute(operation, imageWidget->image());
+  imageWidget->setImage(result);
 }
 
 } // namespace phobos
