@@ -33,14 +33,12 @@ MainToolbar::MainToolbar(QWidget *parent) :
   _layout->addStretch();
   setupHelpGroup();
 
-  QHBoxLayout *mainLayout = new QHBoxLayout;
-  mainLayout->setContentsMargins(0, 0, 0, 0);
-  mainLayout->setSpacing(0);
-
+  QHBoxLayout *mainLayout = widgets::layout::makeRaw<QHBoxLayout>();
   mainLayout->addLayout(_layout);
   setupHideButton(mainLayout);
 
   setLayout(mainLayout);
+  setMinimumHeight(config::qualified(basePath("config")("minimumHeight"), 0u));
 }
 
 void MainToolbar::setContentsMargins(int left, int top, int right, int bottom) const

@@ -175,6 +175,7 @@ inlineButtonSize = [15, 15]
 hideButtonSize = [10, 10]
 spacing = 1
 separatorMargin = 0
+minimumHeight = 83
 
 [statusBar.slider]
 plusButton = { icon = ":icons/awesome/png/plus-black-symbol.png", color = "red", iconSize = [10,10], size = [15,15] }
