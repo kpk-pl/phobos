@@ -24,8 +24,6 @@ namespace phobos {
 // Allow rotating and clipping
 // Allow save -> if override this should probably replace image stored in cache as well as metrics
 // If possible, display current metrics for processed image in realtime to see improvements made
-
-//TODO: After first load, set focus on first item
 ViewStack::ViewStack(pcontainer::Set const& seriesSet,
                      icache::Cache & cache,
                      SharedWidgets const& sharedWidgets) :

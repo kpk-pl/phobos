@@ -42,9 +42,6 @@ public:
   SelectionStatus getSelectionStatus() const;
   void setCurrentWidget(QWidget *widget);
 
-signals:
-  void importPhotosRequest();
-
 public slots:
   void handleSwitchView(ViewDescriptionPtr viewDesc);
   void bulkSelect(PhotoBulkAction const action);

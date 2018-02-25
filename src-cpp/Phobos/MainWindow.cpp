@@ -44,7 +44,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
   connectToolbar();
   configureStatusBar();
-  connectNavigations();
 
   setWindowTitle(config::qualified<std::string>("mainWindow.title", "Phobos").c_str());
   setMinimumSize(config::qSize("mainWindow.minimumSize", QSize(480, 360)));
@@ -167,11 +166,6 @@ void MainWindow::configureStatusBar()
 
   sharedWidgets.slider->hide();
   sharedWidgets.leftRightNav->hide();
-}
-
-void MainWindow::connectNavigations()
-{
-  QObject::connect(viewStack, &ViewStack::importPhotosRequest, this, &MainWindow::loadPhotos);
 }
 
 void MainWindow::processAction(processwiz::OperationType const operation)

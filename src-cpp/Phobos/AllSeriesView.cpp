@@ -141,6 +141,7 @@ void AllSeriesView::focusSeries(QUuid const seriesUuid)
 
 void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
 {
+  bool const firstOne = seriesUuidToRow.empty();
   seriesUuidToRow.emplace(series->uuid(), series->ord());
 
   if (series->empty())
@@ -153,6 +154,9 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
     pcontainer::ItemPtr const photo = series->item(col);
     addItemToGrid(series->ord(), col, photo);
   }
+
+  if (firstOne)
+    photoInGridAt(series->ord(), 0)->setFocus();
 }
 
 namespace {
