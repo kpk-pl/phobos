@@ -230,7 +230,8 @@ HEADERS  += MainWindow.h \
     SharedWidgets.h \
     Widgets/StatusBarButton.h \
     Widgets/StatusBarLeftRightNavigation.h \
-    LaboratoryView.h
+    LaboratoryView.h \
+    Widgets/Layout/Raw.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

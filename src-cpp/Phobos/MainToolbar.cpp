@@ -2,6 +2,7 @@
 #include "ConfigExtension.h"
 #include "ConfigPath.h"
 #include "Widgets/HVLine.h"
+#include "Widgets/Layout/Raw.h"
 #include "ImageProcessing/Utils/ColoredPixmap.h"
 
 #include <QToolButton>
@@ -15,10 +16,6 @@ config::ConfigPath const basePath("navigationBar");
 config::ConfigPath const iconPath = basePath("icon");
 } // unnamed namespace
 
-// TODO: Need to move navigation to a separate group
-// Need to add another commands to ViewStack handleSwitchView to handle single photo change
-// This way, next photo and prev photo can be handled along with next series and prev series
-// This widget may be hidden on allSeriesView as not really necessary
 MainToolbar::MainToolbar(QWidget *parent) :
   QWidget(parent), _hidden(false)
 {
@@ -91,7 +88,7 @@ class GroupLabel : public QLabel
 public:
   explicit GroupLabel(QString const& label, QWidget *parent = nullptr) : QLabel(label, parent)
   {
-    setAlignment(Qt::AlignCenter | Qt::AlignBottom);
+    setAlignment(Qt::AlignHCenter | Qt::AlignBottom);
   }
 };
 
@@ -176,7 +173,7 @@ public:
   {
     buttonLayout = new QHBoxLayout;
     buttonLayout->setContentsMargins(0, 0, 0, 0);
-    buttonLayout->setAlignment(Qt::AlignCenter | Qt::AlignTop);
+    buttonLayout->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
     setLayout(buttonLayout);
   }
 
@@ -190,7 +187,10 @@ public:
 
   void addWidget(QWidget *widget)
   {
-    buttonLayout->addWidget(widget);
+    QVBoxLayout *lt = widgets::layout::makeRaw<QVBoxLayout>();
+    lt->addWidget(widget, 1);
+    lt->addStretch();
+    buttonLayout->addLayout(lt);
   }
 
 private:
@@ -200,16 +200,13 @@ private:
 class NamedHorizontalButtonGroup : public VisibleBuddy
 {
 public:
-  void setVisible();
   explicit NamedHorizontalButtonGroup(QString const& name)
   {
     buttonLayout = new QHBoxLayout;
     buttonLayout->setContentsMargins(0, 0, 0, 0);
-    buttonLayout->setAlignment(Qt::AlignCenter | Qt::AlignTop);
+    buttonLayout->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
 
-    QVBoxLayout *group = new QVBoxLayout;
-    group->setContentsMargins(0, 0, 0, 0);
-    group->setSpacing(0);
+    QVBoxLayout *group = widgets::layout::makeRaw<QVBoxLayout>();
     group->addLayout(buttonLayout);
     group->addWidget(new GroupLabel(name));
     setLayout(group);
@@ -225,7 +222,10 @@ public:
 
   void addWidget(QWidget *widget)
   {
-    buttonLayout->insertWidget(buttonLayout->count(), widget);
+    QVBoxLayout *lt = widgets::layout::makeRaw<QVBoxLayout>();
+    lt->addWidget(widget, 1);
+    lt->addStretch();
+    buttonLayout->insertLayout(buttonLayout->count(), lt);
   }
 
 private:
@@ -277,7 +277,6 @@ QWidget* addGroupWithSeparator(VisibleBuddy *group,
 }
 } // unnamed namespace
 
-// TODO: Need to fix alignment issues because big buttons in different groups are rather vertically centered instead being top-aligned
 QWidget* MainToolbar::setupFileGroup()
 {
   QToolButton *importButton = registerButton("fileImport", new BigToolButton(tr("Import"), iconPath("fileImport")));

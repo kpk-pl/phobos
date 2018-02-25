@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
   QVBoxLayout *mainLayout = new QVBoxLayout;
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->addWidget(mainToolbar);
-  mainLayout->addWidget(viewStack);
+  mainLayout->addWidget(viewStack, 1);
 
   QWidget *mainWidget = new QWidget;
   mainWidget->setLayout(mainLayout);

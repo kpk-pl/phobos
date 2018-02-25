@@ -14,7 +14,7 @@ LaboratoryView::LaboratoryView(pcontainer::Set const& seriesSet, icache::Cache &
 
   QHBoxLayout* hlayout = new QHBoxLayout;
   hlayout->setContentsMargins(0, 0, 0, 0);
-  hlayout->addWidget(imageWidget, Qt::AlignCenter | Qt::AlignTop);
+  hlayout->addWidget(imageWidget, Qt::AlignHCenter | Qt::AlignTop);
 
   setLayout(hlayout);
 }
