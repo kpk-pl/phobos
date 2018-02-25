@@ -16,58 +16,64 @@ namespace phobos {
 class AllSeriesView;
 class NumSeriesView;
 class RowSeriesView;
+class LaboratoryView;
 class WelcomeView;
 class SeriesViewBase;
 
 class ViewStack : public QStackedWidget
 {
-    Q_OBJECT
+Q_OBJECT
 
 public:
-    struct SelectionStatus
+  struct SelectionStatus
+  {
+    struct SeriesSelectionStatus
     {
-      struct SeriesSelectionStatus
-      {
-        std::vector<QString> selected;
-        std::vector<QString> others;
-      };
-      std::vector<SeriesSelectionStatus> status;
+      std::vector<QString> selected;
+      std::vector<QString> others;
     };
+    std::vector<SeriesSelectionStatus> status;
+  };
 
-    explicit ViewStack(pcontainer::Set const& seriesSet,
-                       icache::Cache &cache,
-                       SharedWidgets const& sharedWidgets);
+  explicit ViewStack(pcontainer::Set const& seriesSet,
+                     icache::Cache &cache,
+                     SharedWidgets const& sharedWidgets);
 
-    SelectionStatus getSelectionStatus() const;
-    void setCurrentWidget(QWidget *widget);
+  SelectionStatus getSelectionStatus() const;
+  void setCurrentWidget(QWidget *widget);
 
 signals:
-    void importPhotosRequest();
+  void importPhotosRequest();
 
 public slots:
-    void handleSwitchView(ViewDescriptionPtr viewDesc);
-    void bulkSelect(PhotoBulkAction const action);
+  void handleSwitchView(ViewDescriptionPtr viewDesc);
+  void bulkSelect(PhotoBulkAction const action);
 
 private slots:
-    void welcomeScreenSwitch();
+  void welcomeScreenSwitch();
 
 private:
-    pcontainer::Series const& findRequestedSeries(ViewDescriptionPtr const& viewDesc) const;
+  pcontainer::Series const& findRequestedSeries(ViewDescriptionPtr const& viewDesc) const;
+  pcontainer::Item const& findRequestedPhoto(pcontainer::Series const& requestedSeries, int const photoOffset);
 
-    void setupUI();
-    void connectSignals();
+  void switchToAllSeries(pcontainer::Series const& series);
+  void switchToLaboratory(pcontainer::Item const& item);
 
-    pcontainer::Set const& seriesSet;
-    icache::Cache & imageCache;
-    SharedWidgets const& sharedWidgets;
-    boost::optional<QUuid> currentSeriesInView;
+  void setupUI();
+  void connectSignals();
 
-    WelcomeView* welcomeView;
-    AllSeriesView* allSeriesView;
-    RowSeriesView* rowSeriesView;
-    NumSeriesView* numSeriesView;
+  pcontainer::Set const& seriesSet;
+  icache::Cache & imageCache;
+  SharedWidgets const& sharedWidgets;
+  boost::optional<QUuid> currentSeriesInView;
 
-    SeriesViewBase* currentSeriesWidget;
+  WelcomeView* welcomeView;
+  AllSeriesView* allSeriesView;
+  RowSeriesView* rowSeriesView;
+  NumSeriesView* numSeriesView;
+  LaboratoryView* laboratoryView;
+
+  SeriesViewBase* currentSeriesWidget;
 };
 
 } // namespace phobos

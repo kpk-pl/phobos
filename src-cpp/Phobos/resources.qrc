@@ -27,5 +27,6 @@
         <file>icons/awesome/png/text-file.png</file>
         <file>icons/awesome/png/plus-black-symbol.png</file>
         <file>icons/awesome/png/minus-symbol.png</file>
+        <file>icons/awesome/png/beaker.png</file>
     </qresource>
 </RCC>

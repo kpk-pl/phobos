@@ -270,6 +270,7 @@ QWidget* addGroupWithSeparator(VisibleBuddy *group, std::string const& name, QHB
 }
 } // unnamed namespace
 
+// TODO: Need to fix alignment issues because big buttons in different groups are rather vertically centered instead being top-aligned
 QWidget* MainToolbar::setupFileGroup()
 {
   QToolButton *importButton = registerButton("fileImport", new BigToolButton(tr("Import"), basePath("fileImport")));
@@ -284,6 +285,7 @@ QWidget* MainToolbar::setupViewGroup()
   QToolButton *numSeriesButton = registerButton("viewSingleSeries", new InlineToolButton(tr("Single series"), basePath("viewSingleSeries")));
   QToolButton *rowSeriesButton = registerButton("viewScrollable", new InlineToolButton(tr("Scrollable"), basePath("viewScrollable")));
   QToolButton *previewButton = registerButton("viewFullscreenPreview", new BigToolButton(tr("Fullscreen\npreview"), basePath("viewFullscreenPreview")));
+  QToolButton *labButton = registerButton("viewLaboratory", new BigToolButton(tr("Enhance\nphotos"), basePath("viewLaboratory")));
   QToolButton *detailsButton = registerButton("viewPhotoDetails", new BigToolButton(tr("Photo\ndetails"), basePath("viewPhotoDetails")));
   QToolButton *previousSeries = registerButton("viewPreviousSeries", new InlineToolButton(basePath("viewPreviousSeries")));
   QToolButton *nextSeries = registerButton("viewNextSeries", new InlineToolButton(basePath("viewNextSeries")));
@@ -291,6 +293,7 @@ QWidget* MainToolbar::setupViewGroup()
   NamedHorizontalButtonGroup *group = NamedHorizontalButtonGroup::create(tr("View"),
         VerticalButtonGroup::create(allSeriesButton, numSeriesButton, rowSeriesButton),
         previewButton,
+        labButton,
         detailsButton,
         VerticalButtonGroup::create(previousSeries, nextSeries));
 

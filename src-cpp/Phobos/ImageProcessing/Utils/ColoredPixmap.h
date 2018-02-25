@@ -11,6 +11,9 @@ namespace phobos { namespace iprocess { namespace utils {
 QPixmap coloredPixmap(std::string const& fileName, QColor const& color,
                       QSize const& size = QSize(), double const opacity = 1.0);
 
+QPixmap coloredPixmap(std::string const& fileName,
+                      QSize const& size = QSize(), double const opacity = 1.0);
+
 QPixmap coloredPixmap(config::ConfigPath const& path,
                       QSize const& size = QSize(), double const opacity = 1.0);
 

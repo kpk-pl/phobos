@@ -8,31 +8,51 @@
 
 namespace phobos
 {
-    enum class ViewType
+  enum class ViewType
+  {
+    CURRENT,
+    ALL_SERIES,
+    ANY_SINGLE_SERIES,
+    ROW_SINGLE_SERIES,
+    NUM_SINGLE_SERIES,
+    LABORATORY
+  };
+
+  using ViewDescriptionPtr = std::shared_ptr<struct ViewDescription>;
+
+  struct ViewDescription
+  {
+    static ViewDescriptionPtr switchTo(ViewType type, boost::optional<QUuid> uuid = boost::none)
     {
-        CURRENT,
-        ALL_SERIES,
-        ANY_SINGLE_SERIES,
-        ROW_SINGLE_SERIES,
-        NUM_SINGLE_SERIES
-    };
+      return std::make_shared<ViewDescription>(ViewDescription{type, uuid, 0, 0});
+    }
 
-    struct ViewDescription
+    static ViewDescriptionPtr moveNextSeries()
     {
-        static std::shared_ptr<ViewDescription> make(ViewType type,
-                                                     boost::optional<QUuid> uuid = boost::none,
-                                                     boost::optional<int> offset = boost::none)
-        {
-            ViewDescription desc{type, uuid, offset};
-            return std::make_shared<ViewDescription>(std::move(desc));
-        }
+      return std::make_shared<ViewDescription>(ViewDescription{ViewType::CURRENT, boost::none, 1, 0});
+    }
 
-        ViewType type;
-        boost::optional<QUuid> seriesUuid;
-        boost::optional<int> seriesOffset;
-    };
+    static ViewDescriptionPtr movePreviousSeries()
+    {
+      return std::make_shared<ViewDescription>(ViewDescription{ViewType::CURRENT, boost::none, -1, 0});
+    }
 
-    typedef std::shared_ptr<ViewDescription> ViewDescriptionPtr;
+    static ViewDescriptionPtr moveNextPhoto()
+    {
+      return std::make_shared<ViewDescription>(ViewDescription{ViewType::CURRENT, boost::none, 0, 1});
+    }
+
+    static ViewDescriptionPtr movePreviousPhoto()
+    {
+      return std::make_shared<ViewDescription>(ViewDescription{ViewType::CURRENT, boost::none, 0, -1});
+    }
+
+    ViewType type;
+    boost::optional<QUuid> seriesUuid;
+    int seriesOffset;
+    int photoOffset;
+  };
+
 } // namespace phobos
 
 Q_DECLARE_METATYPE(phobos::ViewDescriptionPtr)

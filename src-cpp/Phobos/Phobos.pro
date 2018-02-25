@@ -102,7 +102,8 @@ SOURCES += Phobos.cpp\
     Widgets/StatusBarSlider.cpp \
     Widgets/StatusBarButton.cpp \
     SharedWidgets.cpp \
-    Widgets/StatusBarLeftRightNavigation.cpp
+    Widgets/StatusBarLeftRightNavigation.cpp \
+    LaboratoryView.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -228,7 +229,8 @@ HEADERS  += MainWindow.h \
     Widgets/StatusBarSlider.h \
     SharedWidgets.h \
     Widgets/StatusBarButton.h \
-    Widgets/StatusBarLeftRightNavigation.h
+    Widgets/StatusBarLeftRightNavigation.h \
+    LaboratoryView.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

@@ -154,27 +154,31 @@ void MainWindow::createFileMenu()
 
 // TODO: to viewMenubar add selectable options to enable/disable addons on photoitemwidgets
 // TODO: Select only best phtoos to clear selection and select best photos
+
+// TODO: Add shortcut representation to tooltips!
 void MainWindow::createViewMenu()
 {
   QMenu* viewMenu = menuBar()->addMenu(tr("&View"));
   ActionConfigurator conf(viewMenu, mainToolbar);
 
   conf(tr("&All series"), QKeySequence("Alt+1"), tr("Show all series on one page"), "viewAllSeries", this,
-       [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::ALL_SERIES)); });
+       [this](){ viewStack->handleSwitchView(ViewDescription::switchTo(ViewType::ALL_SERIES)); });
   conf(tr("&Single series"), QKeySequence("Alt+2"), tr("Show side by side photos from one series"), "viewSingleSeries", this,
-       [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::NUM_SINGLE_SERIES)); });
+       [this](){ viewStack->handleSwitchView(ViewDescription::switchTo(ViewType::NUM_SINGLE_SERIES)); });
   conf(tr("S&crollable"), QKeySequence("Alt+3"), tr("Show one series with zoomed photos on a single page with horizontal scrolling capability"), "viewScrollable", this,
-       [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::ROW_SINGLE_SERIES)); });
+       [this](){ viewStack->handleSwitchView(ViewDescription::switchTo(ViewType::ROW_SINGLE_SERIES)); });
   viewMenu->addSeparator();
 
+  conf(tr("&Enhance photos"), QKeySequence("Alt+4"), tr("Switch to enhancements and editing workspace"), "viewLaboratory", this,
+       [this](){ viewStack->handleSwitchView(ViewDescription::switchTo(ViewType::LABORATORY)); });
   conf(tr("&Fullscreen preview"), QKeySequence("Shift+F"), tr("Open a separate preview dialog with a single fullscreen photo"), "viewFullscreenPreview", this, &MainWindow::openFullscreenDialog);
   conf(tr("&Details"), QKeySequence("Shift+D"), tr("Show details for selected photo"), "viewPhotoDetails", this, &MainWindow::openDetailsDialog);
   viewMenu->addSeparator();
 
   conf(tr("&Next series"), QKeySequence("Shift+Right"), tr("Jump to next series"), "viewNextSeries", this,
-       [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::CURRENT, boost::none, +1)); });
+       [this](){ viewStack->handleSwitchView(ViewDescription::moveNextSeries()); });
   conf(tr("&Previous series"), QKeySequence("Shift+Left"), tr("Jump to previous series"), "viewPreviousSeries", this,
-       [this](){ viewStack->handleSwitchView(ViewDescription::make(ViewType::CURRENT, boost::none, -1)); });
+       [this](){ viewStack->handleSwitchView(ViewDescription::movePreviousSeries()); });
 }
 
 // TODO: Action: Report -> show dialog with number of series / num selected photos, num unchecked series etc
@@ -254,6 +258,7 @@ void MainWindow::openDetailsDialog()
   focusedItem->openDetailsDialog();
 }
 
+// TODO: Disable buttons for fullscreen and details when there is no photos loaded and those functions fail
 void MainWindow::openFullscreenDialog()
 {
   LOG(INFO) << "Requested fullscreen dialog for focused item";

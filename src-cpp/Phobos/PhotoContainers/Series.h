@@ -28,7 +28,9 @@ public:
   std::size_t ord() const { return _ord; }
 
   ItemPtrVec::const_reference operator[](std::size_t i) const { return _photoItems[i]; }
-  ItemPtrVec::const_reference item(std::size_t i) const { return (*this)[i]; }
+  ItemPtrVec::const_reference item(std::size_t i) const { return _photoItems[i]; }
+  ItemPtrVec::const_reference front() const { return _photoItems.front(); }
+  ItemPtrVec::const_reference back() const { return _photoItems.back(); }
   ItemPtrVec::const_iterator begin() const { return _photoItems.begin(); }
   ItemPtrVec::const_iterator end() const { return _photoItems.end(); }
 

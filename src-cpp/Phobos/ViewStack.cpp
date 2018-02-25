@@ -3,6 +3,7 @@
 #include "AllSeriesView.h"
 #include "NumSeriesView.h"
 #include "RowSeriesView.h"
+#include "LaboratoryView.h"
 #include "Utils/Focused.h"
 #include "ConfigExtension.h"
 #include "PhotoContainers/Set.h"
@@ -23,6 +24,8 @@ namespace phobos {
 // Allow rotating and clipping
 // Allow save -> if override this should probably replace image stored in cache as well as metrics
 // If possible, display current metrics for processed image in realtime to see improvements made
+
+//TODO: After first load, set focus on first item
 ViewStack::ViewStack(pcontainer::Set const& seriesSet,
                      icache::Cache & cache,
                      SharedWidgets const& sharedWidgets) :
@@ -42,15 +45,26 @@ ViewStack::ViewStack(pcontainer::Set const& seriesSet,
 pcontainer::Series const& ViewStack::findRequestedSeries(ViewDescriptionPtr const& viewDesc) const
 {
   if (viewDesc->seriesUuid)
-    return seriesSet.findNonEmptySeries(*viewDesc->seriesUuid, viewDesc->seriesOffset.value_or(0));
+    return seriesSet.findNonEmptySeries(*viewDesc->seriesUuid, viewDesc->seriesOffset);
 
   auto const focused = utils::focusedPhotoItemWidget();
   if (focused)
-    return seriesSet.findNonEmptySeries(focused->photoItem().seriesUuid(), viewDesc->seriesOffset.value_or(0));
+    return seriesSet.findNonEmptySeries(focused->photoItem().seriesUuid(), viewDesc->seriesOffset);
   else if (!seriesSet.empty())
     return seriesSet.front();
   else
     return utils::asserted::always;
+}
+
+pcontainer::Item const& ViewStack::findRequestedPhoto(pcontainer::Series const& requestedSeries, int const photoOffset)
+{
+  if (photoOffset < 0)
+    return *seriesSet.findNonEmptySeries(requestedSeries.uuid(), -1).item(0);
+
+  if (static_cast<unsigned>(photoOffset) >= requestedSeries.size())
+    return *seriesSet.findNonEmptySeries(requestedSeries.uuid(), 1).back();
+
+  return *requestedSeries[photoOffset];
 }
 
 void ViewStack::welcomeScreenSwitch()
@@ -88,9 +102,15 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
   if ((viewDesc->type == ViewType::ALL_SERIES) ||
       ((viewDesc->type == ViewType::CURRENT) && currentWidget() == allSeriesView))
   {
-    LOG(INFO) << "Switching to all series view";
-    setCurrentWidget(allSeriesView);
-    allSeriesView->focusSeries(targetSeries.uuid());
+    switchToAllSeries(targetSeries);
+    return;
+  }
+
+  // Switching by +1/-1 does not work because code depends on currently focused item instead of currentSeriesInView at least
+  if ((viewDesc->type == ViewType::LABORATORY) ||
+      ((viewDesc->type == ViewType::CURRENT) && currentWidget() == laboratoryView))
+  {
+    switchToLaboratory(findRequestedPhoto(targetSeries, viewDesc->photoOffset));
     return;
   }
 
@@ -124,6 +144,20 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
 
   LOG(INFO) << "Switching to " << (currentSeriesWidget == numSeriesView ? "num" : "row") << " series view";
   setCurrentWidget(currentSeriesWidget);
+}
+
+void ViewStack::switchToAllSeries(pcontainer::Series const& targetSeries)
+{
+  LOG(INFO) << "Switching to all series view";
+  setCurrentWidget(allSeriesView);
+  allSeriesView->focusSeries(targetSeries.uuid());
+}
+
+void ViewStack::switchToLaboratory(pcontainer::Item const& item)
+{
+  LOG(INFO) << "Switching to laboratory view";
+  setCurrentWidget(laboratoryView);
+  laboratoryView->showItem(item);
 }
 
 namespace {
@@ -185,11 +219,13 @@ void ViewStack::setupUI()
   allSeriesView = new AllSeriesView(seriesSet, imageCache);
   rowSeriesView = new RowSeriesView(seriesSet, imageCache);
   numSeriesView = new NumSeriesView(seriesSet, imageCache);
+  laboratoryView = new LaboratoryView(seriesSet, imageCache);
 
   addWidget(welcomeView);
   addWidget(allSeriesView);
   addWidget(numSeriesView);
   addWidget(rowSeriesView);
+  addWidget(laboratoryView);
 }
 
 void ViewStack::connectSignals()

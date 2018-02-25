@@ -138,6 +138,7 @@ viewAllSeries = { icon = ":icons/all_grid.png", color = "#006FE8" }
 viewSingleSeries = { icon = ":icons/num_grid.png", color = "#006FE8" }
 viewScrollable = { icon = ":icons/scroll_grid.png", color = "#006FE8" }
 viewFullscreenPreview = { icon = ":icons/preview_window.png", color = "#006FE8" }
+viewLaboratory = { icon = ":icons/awesome/png/beaker.png", color = "purple" }
 viewPhotoDetails = { icon = ":icons/awesome/png/bar-graph-on-a-rectangle.png", color = "#22c036" }
 viewPreviousSeries = { icon = ":icons/awesome/png/left-arrow.png", color = "#006FE8" }
 viewNextSeries = { icon = ":icons/awesome/png/arrowhead-pointing-to-the-right.png", color = "#006FE8" }
