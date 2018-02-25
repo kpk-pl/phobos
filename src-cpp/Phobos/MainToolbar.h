@@ -26,6 +26,7 @@ public slots:
 private:
   QWidget* setupFileGroup();
   QWidget* setupViewGroup();
+  QWidget* setupSeriesGroup();
   QWidget* setupSelectGroup();
   QWidget* setupProcessGroup();
   QWidget* setupHelpGroup();

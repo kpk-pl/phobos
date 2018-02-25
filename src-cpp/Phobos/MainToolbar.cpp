@@ -28,6 +28,7 @@ MainToolbar::MainToolbar(QWidget *parent) :
 
   setupFileGroup();
   setupViewGroup();
+  setupSeriesGroup();
   setupSelectGroup();
   setupProcessGroup();
   _layout->addStretch();
@@ -287,17 +288,25 @@ QWidget* MainToolbar::setupViewGroup()
   QToolButton *previewButton = registerButton("viewFullscreenPreview", new BigToolButton(tr("Fullscreen\npreview"), basePath("viewFullscreenPreview")));
   QToolButton *labButton = registerButton("viewLaboratory", new BigToolButton(tr("Enhance\nphotos"), basePath("viewLaboratory")));
   QToolButton *detailsButton = registerButton("viewPhotoDetails", new BigToolButton(tr("Photo\ndetails"), basePath("viewPhotoDetails")));
-  QToolButton *previousSeries = registerButton("viewPreviousSeries", new InlineToolButton(basePath("viewPreviousSeries")));
-  QToolButton *nextSeries = registerButton("viewNextSeries", new InlineToolButton(basePath("viewNextSeries")));
 
   NamedHorizontalButtonGroup *group = NamedHorizontalButtonGroup::create(tr("View"),
         VerticalButtonGroup::create(allSeriesButton, numSeriesButton, rowSeriesButton),
         previewButton,
         labButton,
-        detailsButton,
-        VerticalButtonGroup::create(previousSeries, nextSeries));
+        detailsButton);
 
   return addGroupWithSeparator(group, "view", _layout, _groups);
+}
+
+QWidget* MainToolbar::setupSeriesGroup()
+{
+  QToolButton *previousSeries = registerButton("seriesPrevious", new InlineToolButton(tr("Previous"), basePath("seriesPrevious")));
+  QToolButton *nextSeries = registerButton("seriesNext", new InlineToolButton(tr("Next"), basePath("seriesNext")));
+
+  NamedHorizontalButtonGroup *group = NamedHorizontalButtonGroup::create(tr("Series"),
+        VerticalButtonGroup::create(nextSeries, previousSeries));
+
+  return addGroupWithSeparator(group, "series", _layout, _groups);
 }
 
 QWidget* MainToolbar::setupSelectGroup()

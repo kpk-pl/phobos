@@ -175,9 +175,9 @@ void MainWindow::createViewMenu()
   conf(tr("&Details"), QKeySequence("Shift+D"), tr("Show details for selected photo"), "viewPhotoDetails", this, &MainWindow::openDetailsDialog);
   viewMenu->addSeparator();
 
-  conf(tr("&Next series"), QKeySequence("Shift+Right"), tr("Jump to next series"), "viewNextSeries", this,
+  conf(tr("&Next series"), QKeySequence("Shift+Right"), tr("Jump to next series"), "seriesNext", this,
        [this](){ viewStack->handleSwitchView(ViewDescription::moveNextSeries()); });
-  conf(tr("&Previous series"), QKeySequence("Shift+Left"), tr("Jump to previous series"), "viewPreviousSeries", this,
+  conf(tr("&Previous series"), QKeySequence("Shift+Left"), tr("Jump to previous series"), "seriesPrevious", this,
        [this](){ viewStack->handleSwitchView(ViewDescription::movePreviousSeries()); });
 }
 

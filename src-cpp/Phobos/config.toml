@@ -140,8 +140,9 @@ viewScrollable = { icon = ":icons/scroll_grid.png", color = "#006FE8" }
 viewFullscreenPreview = { icon = ":icons/preview_window.png", color = "#006FE8" }
 viewLaboratory = { icon = ":icons/awesome/png/beaker.png", color = "purple" }
 viewPhotoDetails = { icon = ":icons/awesome/png/bar-graph-on-a-rectangle.png", color = "#22c036" }
-viewPreviousSeries = { icon = ":icons/awesome/png/left-arrow.png", color = "#006FE8" }
-viewNextSeries = { icon = ":icons/awesome/png/arrowhead-pointing-to-the-right.png", color = "#006FE8" }
+
+seriesPrevious = { icon = ":icons/awesome/png/left-arrow.png", color = "#006FE8" }
+seriesNext = { icon = ":icons/awesome/png/arrowhead-pointing-to-the-right.png", color = "#006FE8" }
 
 selectBest = { icon = ":icons/awesome/png/star.png", color="#fce700" }
 selectInvert = { icon = ":icons/awesome/png/couple-of-arrows-changing-places.png", color="red" }
@@ -161,8 +162,8 @@ showNavigation = { icon = ":icons/awesome/png/chevron-arrow-down.png", color = "
 buttonSize = [34, 34]
 inlineButtonSize = [15, 15]
 hideButtonSize = [10, 10]
-spacing = 2
-separatorMargin = 2
+spacing = 1
+separatorMargin = 0
 
 [statusBar.slider]
 plusButton = { icon = ":icons/awesome/png/plus-black-symbol.png", color = "red", iconSize = [10,10], size = [15,15] }

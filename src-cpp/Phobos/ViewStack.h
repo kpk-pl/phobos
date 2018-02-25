@@ -54,7 +54,7 @@ private slots:
 
 private:
   pcontainer::Series const& findRequestedSeries(boost::optional<QUuid> const& requestedSeries, int const seriesOffset) const;
-  pcontainer::Item const& findRequestedPhoto(pcontainer::Series const& requestedSeries, int const photoOffset);
+  pcontainer::Item const& findRequestedPhoto(pcontainer::Series const& requestedSeries, int photoOffset);
 
   void switchToAllSeries(pcontainer::Series const& series);
   void switchToLaboratory(pcontainer::Item const& item);

@@ -68,8 +68,13 @@ pcontainer::Series const& ViewStack::findRequestedSeries(boost::optional<QUuid> 
   return utils::asserted::always;
 }
 
-pcontainer::Item const& ViewStack::findRequestedPhoto(pcontainer::Series const& requestedSeries, int const photoOffset)
+pcontainer::Item const& ViewStack::findRequestedPhoto(pcontainer::Series const& requestedSeries, int photoOffset)
 {
+  if (currentWidget() == laboratoryView)
+    if (auto const& currentItem = laboratoryView->currentItem())
+      // TODO: Add current ord to photoOffset
+      ;
+
   if (photoOffset < 0)
     return *seriesSet.findNonEmptySeries(requestedSeries.uuid(), -1).item(0);
 
