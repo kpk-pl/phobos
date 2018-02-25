@@ -9,8 +9,6 @@ metrics = false
 title = "Phobos"
 minimumSize = { width = 480, height = 360 }
 defaultSize = { width = 1024, height = 600 }
-enableToolbar = true
-enableMenu = false
 
 [fullscreenWindow]
 defaultSize = [1024, 768]

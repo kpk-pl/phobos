@@ -31,13 +31,7 @@ private slots:
 private:
   void loadPhotos();
 
-  void createMenus();
-  void createFileMenu();
-  void createViewMenu();
-  void createSelectMenu();
-  void createProcessMenu();
-  void createHelpMenu();
-
+  void connectToolbar();
   void configureStatusBar();
   void connectNavigations();
 
