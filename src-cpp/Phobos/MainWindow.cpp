@@ -91,8 +91,16 @@ struct ActionConfigurator
     QToolButton *button = toolbar.getButton(configName);
     if (button)
     {
-      button->setToolTip(tooltip);
-      button->setShortcut(shortcut);
+      if (shortcut.isEmpty())
+      {
+        button->setToolTip(tooltip);
+      }
+      else
+      {
+        button->setShortcut(shortcut);
+        button->setToolTip(tooltip + " (<b>" + shortcut.toString() + "</b>)");
+      }
+
       QObject::connect(button, &QToolButton::clicked, object, method);
     }
   }
@@ -102,7 +110,6 @@ private:
 };
 } // unnamed namespace
 
-// TODO: Add shortcut representation to tooltips!
 void MainWindow::connectToolbar()
 {
   ActionConfigurator conf(*mainToolbar);
