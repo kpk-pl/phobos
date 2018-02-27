@@ -106,7 +106,12 @@ SOURCES += Phobos.cpp\
     LaboratoryView.cpp \
     ImageProcessing/Enhance/OperationType.cpp \
     ImageProcessing/Enhance/AutoWhiteBalance.cpp \
-    ImageProcessing/Enhance/Executor.cpp
+    ImageProcessing/Enhance/Executor.cpp \
+    Widgets/Toolbar/VerticalGroup.cpp \
+    Widgets/Toolbar/HorizontalGroup.cpp \
+    Widgets/Toolbar/ToolButton.cpp \
+    Widgets/Toolbar/BigToolButton.cpp \
+    Widgets/Toolbar/InlineToolButton.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -237,7 +242,12 @@ HEADERS  += MainWindow.h \
     Widgets/Layout/Raw.h \
     ImageProcessing/Enhance/OperationType.h \
     ImageProcessing/Enhance/AutoWhiteBalance.h \
-    ImageProcessing/Enhance/Executor.h
+    ImageProcessing/Enhance/Executor.h \
+    Widgets/Toolbar/VerticalGroup.h \
+    Widgets/Toolbar/HorizontalGroup.h \
+    Widgets/Toolbar/ToolButton.h \
+    Widgets/Toolbar/BigToolButton.h \
+    Widgets/Toolbar/InlineToolButton.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost
