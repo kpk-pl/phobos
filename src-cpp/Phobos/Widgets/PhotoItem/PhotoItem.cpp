@@ -100,8 +100,7 @@ public:
         {
           painter.setPen(color);
           painter.setBrush(color);
-          // TODO: In numseriesview with 2 photos when width of app is very small, focused bottom is drawn on invisible space and very thick
-          painter.drawRect(0, withBorderSize.height()-width, withBorderSize.width()-1, withBorderSize.height());
+          painter.drawRect(0, withBorderSize.height()-width, withBorderSize.width()-1, width);
         }
         else
         {
