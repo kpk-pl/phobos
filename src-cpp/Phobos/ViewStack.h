@@ -57,7 +57,7 @@ private slots:
   void welcomeScreenSwitch();
 
 private:
-  pcontainer::Series const& findRequestedSeries(boost::optional<QUuid> const& requestedSeries, int const seriesOffset) const;
+  pcontainer::Series const& findRequestedSeries(ViewDescriptionPtr const& viewDesc) const;
   pcontainer::Item const& findRequestedPhoto(pcontainer::Series const& requestedSeries, int photoOffset);
 
   void switchToAllSeries(pcontainer::Series const& series);

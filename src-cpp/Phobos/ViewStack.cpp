@@ -44,25 +44,28 @@ ViewStack::ViewStack(pcontainer::Set const& seriesSet,
   setCurrentWidget(welcomeView);
 }
 
-pcontainer::Series const& ViewStack::findRequestedSeries(boost::optional<QUuid> const& requestedSeries, int const seriesOffset) const
+pcontainer::Series const& ViewStack::findRequestedSeries(ViewDescriptionPtr const& viewDesc) const
 {
-  if (requestedSeries)
-    return seriesSet.findNonEmptySeries(*requestedSeries, seriesOffset);
+  if (viewDesc->seriesUuid)
+    return seriesSet.findNonEmptySeries(*viewDesc->seriesUuid, viewDesc->seriesOffset);
 
   if (currentWidget() == rowSeriesView)
     if (auto const& currentSeries = rowSeriesView->seriesUuid())
-      return seriesSet.findNonEmptySeries(*currentSeries, seriesOffset);
+      return seriesSet.findNonEmptySeries(*currentSeries, viewDesc->seriesOffset);
 
   if (currentWidget() == numSeriesView)
     if (auto const& currentSeries = numSeriesView->seriesUuid())
-      return seriesSet.findNonEmptySeries(*currentSeries, seriesOffset);
+      return seriesSet.findNonEmptySeries(*currentSeries, viewDesc->seriesOffset);
 
   if (currentWidget() == laboratoryView)
     if (auto const& currentItem = laboratoryView->currentItem())
-      return seriesSet.findNonEmptySeries(currentItem->seriesUuid, seriesOffset);
+      return seriesSet.findNonEmptySeries(currentItem->seriesUuid, viewDesc->seriesOffset);
 
   if (auto focused = utils::focusedPhotoItemWidget())
-    return seriesSet.findNonEmptySeries(focused->photoItem().seriesUuid(), seriesOffset);
+  {
+    viewDesc->photoOffset += focused->photoItem().ord();
+    return seriesSet.findNonEmptySeries(focused->photoItem().seriesUuid(), viewDesc->seriesOffset);
+  }
 
   if (!seriesSet.empty())
     return seriesSet.front();
@@ -136,7 +139,7 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
   if (!seriesSet.hasPhotos())
     return; // return NO-OP
 
-  pcontainer::Series const& targetSeries = findRequestedSeries(viewDesc->seriesUuid, viewDesc->seriesOffset);
+  pcontainer::Series const& targetSeries = findRequestedSeries(viewDesc);
 
   if ((viewDesc->type == ViewType::ALL_SERIES) ||
       ((viewDesc->type == ViewType::CURRENT) && currentWidget() == allSeriesView))
