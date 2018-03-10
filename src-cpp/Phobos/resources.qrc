@@ -28,5 +28,6 @@
         <file>icons/awesome/png/plus-black-symbol.png</file>
         <file>icons/awesome/png/minus-symbol.png</file>
         <file>icons/awesome/png/beaker.png</file>
+        <file>icons/awesome/png/save-file-option.png</file>
     </qresource>
 </RCC>

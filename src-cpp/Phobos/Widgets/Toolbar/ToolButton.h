@@ -2,6 +2,7 @@
 #define WIDGETS_TOOLBAR_TOOLBUTTON_H
 
 #include "ConfigPath.h"
+#include "Widgets/Toolbar/Signal.h"
 #include <QToolButton>
 #include <QString>
 
@@ -13,7 +14,10 @@ public:
   explicit ToolButton(config::ConfigPath const& configPath);
   explicit ToolButton(QString const& label, config::ConfigPath const& configPath);
 
-  virtual QString property(QString const& propName) const;
+  virtual Signal const* getSignal(std::string const& name) const;
+
+protected:
+  Signal const _clickedSignal;
 };
 
 }}} // namespace phobos::widgets::toolbar

@@ -9,21 +9,19 @@
 namespace phobos { namespace utils { namespace asserted {
 
 template<typename T, typename U, typename V>
-auto fromMap(std::map<U, V> const& m, T const& key)
-  -> decltype(m.begin()->second)
+V const& fromMap(std::map<U, V> const& m, T const& key)
 {
-    auto const it = m.find(key);
-    assert(it != m.end());
-    return it->second;
+  auto const it = m.find(key);
+  assert(it != m.end());
+  return it->second;
 }
 
 template<typename T, typename U, typename V>
-auto fromMap(std::unordered_map<U, V> const& m, T const& key)
-  -> decltype(m.begin()->second)
+V const& fromMap(std::unordered_map<U, V> const& m, T const& key)
 {
-    auto const it = m.find(key);
-    assert(it != m.end());
-    return it->second;
+  auto const it = m.find(key);
+  assert(it != m.end());
+  return it->second;
 }
 
 template<typename T>

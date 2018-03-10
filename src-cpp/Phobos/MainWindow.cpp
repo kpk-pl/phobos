@@ -11,6 +11,7 @@
 #include "ProcessWizard/Execution/Execute.h"
 #include "Widgets/StatusBarSlider.h"
 #include "Widgets/StatusBarLeftRightNavigation.h"
+#include "Widgets/Toolbar/Signal.h"
 #include "ImageProcessing/Enhance/OperationType.h"
 #include "Utils/Focused.h"
 #include <easylogging++.h>
@@ -37,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
   QVBoxLayout *mainLayout = new QVBoxLayout;
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->addWidget(mainToolbar);
-  mainLayout->addWidget(viewStack, 1);
+  mainLayout->addWidget(viewStack);
 
   QWidget *mainWidget = new QWidget;
   mainWidget->setLayout(mainLayout);
@@ -82,27 +83,11 @@ struct ActionConfigurator
   {}
 
   template<typename Object, typename Method>
-  void operator()(QKeySequence const& shortcut,
-                  QString const& tooltip,
-                  std::string const& configName,
-                  Object *object,
-                  Method && method)
+  void operator()(std::string const& configName, Object *object, Method && method)
   {
-    QToolButton *button = toolbar.getButton(configName);
-    if (button)
-    {
-      if (shortcut.isEmpty())
-      {
-        button->setToolTip(tooltip);
-      }
-      else
-      {
-        button->setShortcut(shortcut);
-        button->setToolTip(tooltip + " (<b>" + shortcut.toString() + "</b>)");
-      }
-
-      QObject::connect(button, &QToolButton::clicked, object, method);
-    }
+    widgets::toolbar::Signal const* buttonSig = toolbar.getSignal(configName);
+    if (buttonSig)
+      QObject::connect(buttonSig, &widgets::toolbar::Signal::activated, object, method);
   }
 
 private:
@@ -116,51 +101,38 @@ void MainWindow::connectToolbar()
 
 // TODO: save option, with possibility to save scaled pixmaps as well, with metrics etc
 // TODO: Load saved config from file, initialize all series, pixmaps, metrics, selections etc, remember to fix UUIDs for series as those will change (or maybe can construct QUuid back from text?
-  conf(QKeySequence("Ctrl+O"), tr("Import photos"), "fileImport", this, &MainWindow::loadPhotos);
-  conf(QKeySequence("Ctrl+Q"), tr("Exit the application"), "", this, &MainWindow::close);
+  conf("fileImport", this, &MainWindow::loadPhotos);
+// TODO" configure Ctrl+Q event!
+//(QKeySequence("Ctrl+Q"), tr("Exit the application"), "", this, &MainWindow::close);
 
 // TODO: to viewMenubar add selectable options to enable/disable addons on photoitemwidgets
 // TODO: Action: Report -> show dialog with number of series / num selected photos, num unchecked series etc
-  conf(QKeySequence("Alt+1"), tr("Show all series on one page"), "viewAllSeries", this,
-       [this](){ viewStack->handleSwitchView(ViewDescription::switchTo(ViewType::ALL_SERIES)); });
-  conf(QKeySequence("Alt+2"), tr("Show side by side photos from one series"), "viewSingleSeries", this,
-       [this](){ viewStack->handleSwitchView(ViewDescription::switchTo(ViewType::NUM_SINGLE_SERIES)); });
-  conf(QKeySequence("Alt+3"), tr("Show one series with zoomed photos on a single page with horizontal scrolling capability"), "viewScrollable", this,
-       [this](){ viewStack->handleSwitchView(ViewDescription::switchTo(ViewType::ROW_SINGLE_SERIES)); });
+  conf("viewAllSeries", this, [this](){ viewStack->handleSwitchView(ViewDescription::switchTo(ViewType::ALL_SERIES)); });
+  conf("viewSingleSeries", this, [this](){ viewStack->handleSwitchView(ViewDescription::switchTo(ViewType::NUM_SINGLE_SERIES)); });
+  conf("viewScrollable", this, [this](){ viewStack->handleSwitchView(ViewDescription::switchTo(ViewType::ROW_SINGLE_SERIES)); });
 
-  conf(QKeySequence("Alt+4"), tr("Switch to enhancements and editing workspace"), "viewLaboratory", this,
-       [this](){ viewStack->handleSwitchView(ViewDescription::switchTo(ViewType::LABORATORY)); });
-  conf(QKeySequence("Shift+F"), tr("Open a separate preview dialog with a single fullscreen photo"), "viewFullscreenPreview", this, &MainWindow::openFullscreenDialog);
-  conf(QKeySequence("Shift+D"), tr("Show details for selected photo"), "viewPhotoDetails", this, &MainWindow::openDetailsDialog);
+  conf("viewLaboratory", this, [this](){ viewStack->handleSwitchView(ViewDescription::switchTo(ViewType::LABORATORY)); });
+  conf("viewFullscreenPreview", this, &MainWindow::openFullscreenDialog);
+  conf("viewPhotoDetails", this, &MainWindow::openDetailsDialog);
 
-  conf(QKeySequence("Shift+Right"), tr("Jump to next series"), "seriesNext", this,
-       [this](){ viewStack->handleSwitchView(ViewDescription::moveNextSeries()); });
-  conf(QKeySequence("Shift+Left"), tr("Jump to previous series"), "seriesPrevious", this,
-       [this](){ viewStack->handleSwitchView(ViewDescription::movePreviousSeries()); });
+  conf("seriesNext", this, [this](){ viewStack->handleSwitchView(ViewDescription::moveNextSeries()); });
+  conf("seriesPrevious", this, [this](){ viewStack->handleSwitchView(ViewDescription::movePreviousSeries()); });
 
 // TODO: Select only best phtoos to clear selection and select best photos
-  conf(QKeySequence(), tr("Automatically select best photos in each series"), "selectBest", this,
-       [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_BEST); });
-  conf(QKeySequence(), tr("Select all photos"), "selectAll", this,
-       [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_ALL); });
-  conf(QKeySequence(), tr("Invert selection"), "selectInvert", this,
-       [this](){ viewStack->bulkSelect(PhotoBulkAction::INVERT); });
-  conf(QKeySequence(), tr("Clear selection"), "selectClear", this,
-       [this](){ viewStack->bulkSelect(PhotoBulkAction::CLEAR); });
+  conf("selectBest", this, [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_BEST); });
+  conf("selectAll", this, [this](){ viewStack->bulkSelect(PhotoBulkAction::SELECT_ALL); });
+  conf("selectInvert", this, [this](){ viewStack->bulkSelect(PhotoBulkAction::INVERT); });
+  conf("selectClear", this, [this](){ viewStack->bulkSelect(PhotoBulkAction::CLEAR); });
 
 // TODO: By default an action should call only the basic dialog window with only confirmation because usual actions are very simple and limited.
 // Add another menuitem with Advanced usage which will open the current more complicated dialog
-  conf(QKeySequence(), tr("Delete selected files from hard drive"), "processDelete", this,
-       [this]{ processAction(processwiz::OperationType::Delete); });
-  conf(QKeySequence(), tr("Move selected files from hard drive"), "processMove", this,
-       [this]{ processAction(processwiz::OperationType::Move); });
-  conf(QKeySequence(), tr("Copy selected files from hard drive"), "processCopy", this,
-       [this]{ processAction(processwiz::OperationType::Copy); });
-  conf(QKeySequence(), tr("Rename selected files from hard drive"), "processRename", this,
-       [this]{ processAction(processwiz::OperationType::Rename); });
+  conf("processDelete", this, [this]{ processAction(processwiz::OperationType::Delete); });
+  conf("processMove", this, [this]{ processAction(processwiz::OperationType::Move); });
+  conf("processCopy", this, [this]{ processAction(processwiz::OperationType::Copy); });
+  conf("processRename", this, [this]{ processAction(processwiz::OperationType::Rename); });
 
-  conf(QKeySequence(), tr("Automatically adjust white balance"), "enhanceWhiteBalance", this,
-       [this]{ emit viewStack->photoEnhancement(iprocess::enhance::OperationType::AutoWhiteBalance); });
+  conf("enhanceWhiteBalance", this, [this]{ emit viewStack->photoEnhancement(iprocess::enhance::OperationType::AutoWhiteBalance); });
+  // TODO: handle enhance save signals
 }
 
 void MainWindow::configureStatusBar()

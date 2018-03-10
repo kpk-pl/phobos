@@ -7,6 +7,7 @@
 #include "Widgets/Toolbar/HorizontalGroup.h"
 #include "Widgets/Toolbar/InlineToolButton.h"
 #include "Widgets/Toolbar/BigToolButton.h"
+#include "Widgets/Toolbar/BigMenuToolButton.h"
 #include "ImageProcessing/Utils/ColoredPixmap.h"
 #include <QToolButton>
 #include <QHBoxLayout>
@@ -14,7 +15,7 @@
 namespace phobos {
 namespace {
 config::ConfigPath const basePath("navigationBar");
-config::ConfigPath const iconPath = basePath("icon");
+config::ConfigPath const buttonPath = basePath("button");
 } // unnamed namespace
 
 MainToolbar::MainToolbar(QWidget *parent) :
@@ -39,7 +40,7 @@ MainToolbar::MainToolbar(QWidget *parent) :
   setupHideButton(mainLayout);
 
   setLayout(mainLayout);
-  setMinimumHeight(config::qualified(basePath("config")("minimumHeight"), 0u));
+  setFixedHeight(sizeHint().height());
 }
 
 void MainToolbar::setContentsMargins(int left, int top, int right, int bottom) const
@@ -58,7 +59,7 @@ void MainToolbar::setHidden(bool hide)
     if (QWidget* wgt = _layout->itemAt(i)->widget())
       wgt->setVisible(!hide);
 
-  _hideButton->setIcon(iprocess::utils::coloredPixmap(iconPath(hide ? "showNavigation" : "hideNavigation"), QSize(64, 64)));
+  _hideButton->setIcon(iprocess::utils::coloredPixmap(buttonPath(hide ? "showNavigation" : "hideNavigation"), QSize(64, 64)));
 }
 
 void MainToolbar::setGroupVisible(std::string const& group, bool visible)
@@ -68,18 +69,12 @@ void MainToolbar::setGroupVisible(std::string const& group, bool visible)
     it->second->setVisible(visible);
 }
 
-QToolButton* MainToolbar::getButton(std::string const& key) const
+widgets::toolbar::Signal const* MainToolbar::getSignal(std::string const& key) const
 {
-  auto const it = _buttons.find(key);
-  if (it == _buttons.end())
+  auto const it = _buttonSignals.find(key);
+  if (it == _buttonSignals.end())
     return nullptr;
   return it->second;
-}
-
-QToolButton* MainToolbar::registerButton(std::string const& key, QToolButton *button)
-{
-  _buttons.emplace(key, button);
-  return button;
 }
 
 namespace {
@@ -107,34 +102,75 @@ QWidget* addGroupWithSeparator(widgets::toolbar::detail::HorizontalGroupBase *gr
 
   return group;
 }
+
+struct ButtonCreator
+{
+  ButtonCreator(std::map<std::string, widgets::toolbar::Signal const*> & signalMap) : signalMap(signalMap)
+  {}
+
+  template<typename T>
+  T* make(std::string const& name, QString const& textLabel, QString const& tooltip) const
+  {
+    T* button = new T(textLabel, buttonPath(name));
+    configure(button, name, tooltip);
+    return button;
+  }
+
+  template<typename T>
+  T* make(std::string const& name, QString const& tooltip) const
+  {
+    T* button = new T(buttonPath(name));
+    configure(button, name, tooltip);
+    return button;
+  }
+
+private:
+  void configure(widgets::toolbar::ToolButton *button, std::string const& name, QString const& tooltip) const
+  {
+    if (auto const& shortcut = config::qualified<std::string>(buttonPath(name)("shortcut")))
+    {
+      button->setShortcut(QString::fromStdString(*shortcut));
+      button->setToolTip(tooltip + " (<b>" + button->shortcut().toString() + "</b>)");
+    }
+    else
+    {
+      button->setToolTip(tooltip);
+    }
+
+    signalMap.emplace(name, button->getSignal("clicked"));
+  }
+
+  std::map<std::string, widgets::toolbar::Signal const*> & signalMap;
+};
 } // unnamed namespace
 
 QWidget* MainToolbar::setupFileGroup()
 {
   using namespace widgets::toolbar;
+  ButtonCreator creator(_buttonSignals);
 
-  QToolButton *importButton = registerButton("fileImport", new BigToolButton(tr("Import"), iconPath("fileImport")));
+  NamedHorizontalGroup *group = NamedHorizontalGroup::create(tr("File"),
+      creator.make<BigToolButton>("fileImport", tr("Import"), tr("Import photos"))
+  );
 
-  NamedHorizontalGroup *group = NamedHorizontalGroup::create(tr("File"), importButton);
   return addGroupWithSeparator(group, "file", _layout, _groups, _groupNames);
 }
 
 QWidget* MainToolbar::setupViewGroup()
 {
   using namespace widgets::toolbar;
-
-  QToolButton *allSeriesButton = registerButton("viewAllSeries", new InlineToolButton(tr("All series"), iconPath("viewAllSeries")));
-  QToolButton *numSeriesButton = registerButton("viewSingleSeries", new InlineToolButton(tr("Single series"), iconPath("viewSingleSeries")));
-  QToolButton *rowSeriesButton = registerButton("viewScrollable", new InlineToolButton(tr("Scrollable"), iconPath("viewScrollable")));
-  QToolButton *previewButton = registerButton("viewFullscreenPreview", new BigToolButton(tr("Fullscreen\npreview"), iconPath("viewFullscreenPreview")));
-  QToolButton *labButton = registerButton("viewLaboratory", new BigToolButton(tr("Enhance\nphotos"), iconPath("viewLaboratory")));
-  QToolButton *detailsButton = registerButton("viewPhotoDetails", new BigToolButton(tr("Photo\ndetails"), iconPath("viewPhotoDetails")));
+  ButtonCreator creator(_buttonSignals);
 
   NamedHorizontalGroup *group = NamedHorizontalGroup::create(tr("View"),
-        VerticalGroup::create(allSeriesButton, numSeriesButton, rowSeriesButton),
-        previewButton,
-        labButton,
-        detailsButton);
+      VerticalGroup::create(
+          creator.make<InlineToolButton>("viewAllSeries", tr("All series"), tr("Show all series on one page")),
+          creator.make<InlineToolButton>("viewSingleSeries", tr("Single series"), tr("Show side by side photos from one series")),
+          creator.make<InlineToolButton>("viewScrollable", tr("Scrollable"), tr("Show one series with zoomed photos on a single page with horizontal scrolling capability"))
+      ),
+      creator.make<BigToolButton>("viewFullscreenPreview", tr("Fullscreen\npreview"), tr("Open a separate preview dialog with a single fullscreen photo")),
+      creator.make<BigToolButton>("viewLaboratory", tr("Enhance\nphotos"), tr("Switch to enhancements and editing workspace")),
+      creator.make<BigToolButton>("viewPhotoDetails", tr("Photo\ndetails"), tr("Show details for selected photo"))
+  );
 
   return addGroupWithSeparator(group, "view", _layout, _groups, _groupNames);
 }
@@ -142,12 +178,14 @@ QWidget* MainToolbar::setupViewGroup()
 QWidget* MainToolbar::setupSeriesGroup()
 {
   using namespace widgets::toolbar;
-
-  QToolButton *previousSeries = registerButton("seriesPrevious", new InlineToolButton(tr("Previous"), iconPath("seriesPrevious")));
-  QToolButton *nextSeries = registerButton("seriesNext", new InlineToolButton(tr("Next"), iconPath("seriesNext")));
+  ButtonCreator creator(_buttonSignals);
 
   NamedHorizontalGroup *group = NamedHorizontalGroup::create(tr("Series"),
-        VerticalGroup::create(nextSeries, previousSeries));
+      VerticalGroup::create(
+          creator.make<InlineToolButton>("seriesPrevious", tr("Previous"), tr("Jump to previous series")),
+          creator.make<InlineToolButton>("seriesNext", tr("Next"), tr("Jump to next series"))
+      )
+  );
 
   return addGroupWithSeparator(group, "series", _layout, _groups, _groupNames);
 }
@@ -155,15 +193,16 @@ QWidget* MainToolbar::setupSeriesGroup()
 QWidget* MainToolbar::setupSelectGroup()
 {
   using namespace widgets::toolbar;
-
-  QToolButton *bestButton = registerButton("selectBest", new BigToolButton(tr("Best"), iconPath("selectBest")));
-  QToolButton *allButton = registerButton("selectAll", new InlineToolButton(tr("All"), iconPath("selectAll")));
-  QToolButton *invertButton = registerButton("selectInvert", new InlineToolButton(tr("Invert"), iconPath("selectInvert")));
-  QToolButton *clearButton = registerButton("selectClear", new InlineToolButton(tr("Clear"), iconPath("selectClear")));
+  ButtonCreator creator(_buttonSignals);
 
   NamedHorizontalGroup *group = NamedHorizontalGroup::create(tr("Select"),
-        bestButton,
-        VerticalGroup::create(allButton, invertButton, clearButton));
+      creator.make<BigToolButton>("selectBest", tr("Best"), tr("Automatically select best photos in each series")),
+      VerticalGroup::create(
+          creator.make<InlineToolButton>("selectAll", tr("All"), tr("Select all photos")),
+          creator.make<InlineToolButton>("selectInvert", tr("Invert"), tr("Invert selection")),
+          creator.make<InlineToolButton>("selectClear", tr("Clear"), tr("Clear selection"))
+      )
+  );
 
   return addGroupWithSeparator(group, "select", _layout, _groups, _groupNames);
 }
@@ -171,15 +210,16 @@ QWidget* MainToolbar::setupSelectGroup()
 QWidget* MainToolbar::setupProcessGroup()
 {
   using namespace widgets::toolbar;
-
-  QToolButton *deleteButton = registerButton("processDelete", new BigToolButton(tr("Delete"), iconPath("processDelete")));
-  QToolButton *moveButton = registerButton("processMove", new InlineToolButton(tr("Move"), iconPath("processMove")));
-  QToolButton *copyButton = registerButton("processCopy", new InlineToolButton(tr("Copy"), iconPath("processCopy")));
-  QToolButton *renameButton = registerButton("processRename", new InlineToolButton(tr("Rename"), iconPath("processRename")));
+  ButtonCreator creator(_buttonSignals);
 
   NamedHorizontalGroup *group = NamedHorizontalGroup::create(tr("Process"),
-        deleteButton,
-        VerticalGroup::create(moveButton, copyButton, renameButton));
+      creator.make<BigToolButton>("processDelete", tr("Delete"), tr("Delete selected files from hard drive")),
+      VerticalGroup::create(
+          creator.make<InlineToolButton>("processMove", tr("Move"), tr("Move selected files")),
+          creator.make<InlineToolButton>("processCopy", tr("Copy"), tr("Copy selected files")),
+          creator.make<InlineToolButton>("processRename", tr("Rename"), tr("Rename selected files"))
+      )
+  );
 
   return addGroupWithSeparator(group, "process", _layout, _groups, _groupNames);
 }
@@ -187,11 +227,19 @@ QWidget* MainToolbar::setupProcessGroup()
 QWidget* MainToolbar::setupEnhanceGroup()
 {
   using namespace widgets::toolbar;
+  ButtonCreator creator(_buttonSignals);
 
-  QToolButton *whiteBalance = registerButton("enhanceWhiteBalance", new BigToolButton(tr("White\nbalance"), iconPath("enhanceWhiteBalance")));
+  BigMenuToolButton *save = creator.make<BigMenuToolButton>("enhanceSave", tr("Save enhanced photo"));
+  save->addOption(tr("Save"), "save");
+  save->addOption(tr("Save as"), "saveAs");
+
+  _buttonSignals.emplace("enhanceSave.save", save->getSignal("save"));
+  _buttonSignals.emplace("enhanceSave.saveAs", save->getSignal("saveAs"));
 
   NamedHorizontalGroup *group = NamedHorizontalGroup::create(tr("Enhance"),
-        whiteBalance);
+      creator.make<BigToolButton>("enhanceWhiteBalance", tr("White\nbalance"), tr("Automatically adjust white balance")),
+      save
+  );
 
   return addGroupWithSeparator(group, "enhance", _layout, _groups, _groupNames);
 }
@@ -199,10 +247,11 @@ QWidget* MainToolbar::setupEnhanceGroup()
 QWidget* MainToolbar::setupHelpGroup()
 {
   using namespace widgets::toolbar;
+  ButtonCreator creator(_buttonSignals);
 
-  QToolButton *licenseButton = registerButton("helpLicense", new InlineToolButton(iconPath("helpLicense")));
-
-  HorizontalGroup *group = HorizontalGroup::create(licenseButton);
+  HorizontalGroup *group = HorizontalGroup::create(
+      creator.make<InlineToolButton>("helpLicense", tr("Help"))
+  );
 
   return addGroupWithSeparator(group, "help", _layout, _groups, _groupNames);
 }
@@ -211,7 +260,7 @@ void MainToolbar::setupHideButton(QBoxLayout *target)
 {
   using namespace widgets::toolbar;
 
-  _hideButton = new InlineToolButton(iconPath("hideNavigation"));
+  _hideButton = new InlineToolButton(buttonPath("hideNavigation"));
   _hideButton->setIconSize(config::qSize(basePath("config")("hideButtonSize"), QSize(12, 12)));
   QObject::connect(_hideButton, &QToolButton::clicked, [this](){ setHidden(!_hidden); });
   target->addWidget(_hideButton, 0, Qt::AlignBottom);

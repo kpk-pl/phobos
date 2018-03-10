@@ -141,18 +141,18 @@ toolbarSupport = ["file", "view", "series", "select", "process", "help"]
 [laboratoryView]
 toolbarSupport = ["view", "series", "enhance", "help"]
 
-[navigationBar.icon]
-fileImport = { icon = ":icons/awesome/png/open-folder.png", color="orange" }
+[navigationBar.button]
+fileImport = { icon = ":icons/awesome/png/open-folder.png", color="orange", shortcut="Ctrl+O" }
 
-viewAllSeries = { icon = ":icons/all_grid.png", color = "#006FE8" }
-viewSingleSeries = { icon = ":icons/num_grid.png", color = "#006FE8" }
-viewScrollable = { icon = ":icons/scroll_grid.png", color = "#006FE8" }
-viewFullscreenPreview = { icon = ":icons/preview_window.png", color = "#006FE8" }
-viewLaboratory = { icon = ":icons/awesome/png/beaker.png", color = "purple" }
-viewPhotoDetails = { icon = ":icons/awesome/png/bar-graph-on-a-rectangle.png", color = "#22c036" }
+viewAllSeries = { icon = ":icons/all_grid.png", color = "#006FE8", shortcut="Alt+1" }
+viewSingleSeries = { icon = ":icons/num_grid.png", color = "#006FE8", shortcut="Alt+2" }
+viewScrollable = { icon = ":icons/scroll_grid.png", color = "#006FE8", shortcut="Alt+3" }
+viewLaboratory = { icon = ":icons/awesome/png/beaker.png", color = "purple", shortcut="Alt+4" }
+viewFullscreenPreview = { icon = ":icons/preview_window.png", color = "#006FE8", shortcut="Shift+F" }
+viewPhotoDetails = { icon = ":icons/awesome/png/bar-graph-on-a-rectangle.png", color = "#22c036", shortcut="Shift+D" }
 
-seriesPrevious = { icon = ":icons/awesome/png/left-arrow.png", color = "#006FE8" }
-seriesNext = { icon = ":icons/awesome/png/arrowhead-pointing-to-the-right.png", color = "#006FE8" }
+seriesPrevious = { icon = ":icons/awesome/png/left-arrow.png", color = "#006FE8", shortcut="Shift+Left" }
+seriesNext = { icon = ":icons/awesome/png/arrowhead-pointing-to-the-right.png", color = "#006FE8", shortcut="Shift+Right" }
 
 selectBest = { icon = ":icons/awesome/png/star.png", color="#fce700" }
 selectInvert = { icon = ":icons/awesome/png/couple-of-arrows-changing-places.png", color="red" }
@@ -163,6 +163,8 @@ processMove = { icon = ":icons/awesome/png/move-document.png", color = "darkoran
 processDelete = { icon = ":icons/awesome/png/trash.png", color = "red" }
 processRename = { icon = ":icons/awesome/png/pencil.png", color = "green" }
 processCopy = { icon = ":icons/awesome/png/copy-document.png", color = "blue" }
+
+enhanceSave = { save = { icon = ":icons/awesome/png/save-file-option.png", color = "brown" }, saveAs = { icon = ":icons/awesome/png/save-file-option.png", color = "brown" } }
 
 helpLicense = { icon=":icons/awesome/png/text-file.png", color="black" }
 
@@ -175,7 +177,6 @@ inlineButtonSize = [15, 15]
 hideButtonSize = [10, 10]
 spacing = 1
 separatorMargin = 0
-minimumHeight = 83
 
 [statusBar.slider]
 plusButton = { icon = ":icons/awesome/png/plus-black-symbol.png", color = "red", iconSize = [10,10], size = [15,15] }

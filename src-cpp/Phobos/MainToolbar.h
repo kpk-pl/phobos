@@ -12,13 +12,18 @@ class QBoxLayout;
 
 namespace phobos {
 
+namespace widgets { namespace toolbar {
+class ToolButton;
+class Signal;
+}} // namespace widgets::toolbar
+
 class MainToolbar : public QWidget
 {
 public:
   explicit MainToolbar(QWidget *parent = nullptr);
 
   void setContentsMargins(int left, int top, int right, int bottom) const;
-  QToolButton* getButton(std::string const& key) const;
+  widgets::toolbar::Signal const* getSignal(std::string const& key) const;
   std::set<std::string> const& buttonGroups() const { return _groupNames; }
 
 public slots:
@@ -36,10 +41,9 @@ private:
 
   void setupHideButton(QBoxLayout *target);
 
-  std::map<std::string, QToolButton*> _buttons;
+  std::map<std::string, widgets::toolbar::Signal const*> _buttonSignals;
   std::map<std::string, QWidget*> _groups;
   std::set<std::string> _groupNames;
-  QToolButton* registerButton(std::string const& key, QToolButton *button);
 
   QHBoxLayout *_layout;
   QToolButton *_hideButton;

@@ -8,6 +8,8 @@ ToolButton::ToolButton(config::ConfigPath const& configPath)
 {
   setIcon(iprocess::utils::coloredPixmap(configPath, QSize(64, 64)));
   setAutoRaise(true);
+
+  QObject::connect(this, &ToolButton::clicked, &_clickedSignal, &Signal::activated);
 }
 
 ToolButton::ToolButton(QString const& label, config::ConfigPath const& configPath) :
@@ -16,9 +18,9 @@ ToolButton::ToolButton(QString const& label, config::ConfigPath const& configPat
   setText(label);
 }
 
-QString ToolButton::property(QString const&) const
+Signal const* ToolButton::getSignal(std::string const& name) const
 {
-  return QString{};
+  return name == "clicked" ? &_clickedSignal : nullptr;
 }
 
 }}} // namespace phobos::widgets::toolbar

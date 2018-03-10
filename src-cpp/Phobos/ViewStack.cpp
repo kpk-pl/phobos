@@ -303,9 +303,20 @@ ViewStack::SelectionStatus ViewStack::getSelectionStatus() const
 void ViewStack::photoEnhancement(iprocess::enhance::OperationType const operation)
 {
   if (currentWidget() != laboratoryView)
+  {
     LOG(INFO) << "Ignoring photo enhancement operation because not in laboratory view";
+    return;
+  }
 
   laboratoryView->process(operation);
+}
+
+boost::optional<pcontainer::ItemId> ViewStack::currentItemInLaboratory() const
+{
+  if (currentWidget() != laboratoryView)
+    return boost::none;
+
+  return laboratoryView->currentItem();
 }
 
 } // namespace phobos

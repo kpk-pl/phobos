@@ -14,6 +14,9 @@ namespace phobos {
 class ViewStack;
 class MainToolbar;
 
+// TODO: https://stackoverflow.com/questions/4795757/is-there-a-better-way-to-wordwrap-text-in-qtooltip-than-just-using-regexp
+// use last answer and install global filter
+
 class MainWindow : public QMainWindow
 {
   Q_OBJECT

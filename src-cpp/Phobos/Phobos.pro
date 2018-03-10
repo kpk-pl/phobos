@@ -111,7 +111,8 @@ SOURCES += Phobos.cpp\
     Widgets/Toolbar/HorizontalGroup.cpp \
     Widgets/Toolbar/ToolButton.cpp \
     Widgets/Toolbar/BigToolButton.cpp \
-    Widgets/Toolbar/InlineToolButton.cpp
+    Widgets/Toolbar/InlineToolButton.cpp \
+    Widgets/Toolbar/BigMenuToolButton.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -247,7 +248,10 @@ HEADERS  += MainWindow.h \
     Widgets/Toolbar/HorizontalGroup.h \
     Widgets/Toolbar/ToolButton.h \
     Widgets/Toolbar/BigToolButton.h \
-    Widgets/Toolbar/InlineToolButton.h
+    Widgets/Toolbar/InlineToolButton.h \
+    Utils/EnumToString.h \
+    Widgets/Toolbar/Signal.h \
+    Widgets/Toolbar/BigMenuToolButton.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

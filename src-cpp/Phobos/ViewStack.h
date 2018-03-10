@@ -9,6 +9,7 @@
 #include "SharedWidgets.h"
 #include "ImportWizard/Types.h"
 #include "PhotoContainers/Fwd.h"
+#include "PhotoContainers/ItemId.h"
 #include "ImageCache/CacheFwd.h"
 #include "ImageProcessing/Enhance/OperationType.h"
 
@@ -44,6 +45,8 @@ public:
 
   SelectionStatus getSelectionStatus() const;
   void setCurrentWidget(QWidget *widget);
+
+  boost::optional<pcontainer::ItemId> currentItemInLaboratory() const;
 
 public slots:
   void handleSwitchView(ViewDescriptionPtr viewDesc);
