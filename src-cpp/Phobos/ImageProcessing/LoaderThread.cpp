@@ -65,7 +65,7 @@ void LoaderThread::runWithoutMetrics() const
 {
   TIMED_FUNC(id);
 
-  QImageReader reader(itemId.fileName.toStdString().c_str());
+  QImageReader reader(itemId.fileName);
   reader.setAutoTransform(true);
   reader.setAutoDetectImageFormat(true);
 

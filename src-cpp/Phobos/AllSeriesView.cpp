@@ -279,8 +279,10 @@ void AllSeriesView::keyPressEvent(QKeyEvent* keyEvent)
     auto const focusCoords = focusGridCoords();
     if (focusCoords)
     {
+      // TODO: This should account for removed photos and series somehow - see below
       Coords const jump = findValidProposal(nextJumpProposals(*focusCoords, keyEvent->key()));
       utils::asserted::fromPtr(photoInGridAt(jump.row, jump.col)).setFocus();
+      // TODO: Adjust scrollar so this photo stays on the screen
     }
     else
       focusSeries();
@@ -313,10 +315,15 @@ std::vector<AllSeriesView::Coords>
 {
   unsigned const row = coords.row;
   unsigned const col = coords.col;
+  // TODO: arrow-move BUG - maxRow should account for some series from the end begin removed (not visible)
   unsigned const maxRow = grid->rowCount()-1;
 
   switch(directionKey)
   {
+  // TODO: arrow-move BUG - probably should select next/previous VISIBLE row (not only +1/-1)
+  // TODO: arrow-move BUG - probably should skip  select next/previous VISIBLE row (not only +1/-1)
+  // Maybe it is not a good idea to return coords, but rather an increments ?
+  // Or transform from visible coords to grid coords
   case Qt::Key_Right:
     return {{row, col+1}, {row+1, 0}, {0, 0}};
   case Qt::Key_Down:
