@@ -58,6 +58,8 @@ private:
     void addItemToGrid(int const row, int const col, pcontainer::ItemPtr const& itemPtr);
     void addNumberingToGrid(int const row);
 
+    void setFocusedWidget(QWidget *widget) const;
+
     void prepareUI();
 
     pcontainer::Set const& seriesSet;

@@ -130,18 +130,12 @@ void AllSeriesView::addNumberingToGrid(int const number)
 
 void AllSeriesView::focusSeries()
 {
-  if (QWidget *wgt = photoInGridAt(0, 0))
-    wgt->setFocus();
-  else
-    LOG(WARNING) << "Cannot focus first photo";
+  setFocusedWidget(photoInGridAt(seriesSet.nonEmpty(0, 0).ord(), 0));
 }
 
 void AllSeriesView::focusSeries(QUuid const seriesUuid)
 {
-  if (QWidget *wgt = photoInGridAt(utils::asserted::fromMap(seriesUuidToRow, seriesUuid), 0))
-    wgt->setFocus();
-  else
-    LOG(WARNING) << "Cannot focus series " << seriesUuid.toString();
+  setFocusedWidget(photoInGridAt(utils::asserted::fromMap(seriesUuidToRow, seriesUuid), 0));
 }
 
 void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
@@ -161,7 +155,7 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
   }
 
   if (firstOne)
-    utils::asserted::fromPtr(photoInGridAt(series->ord(), 0)).setFocus();
+    setFocusedWidget(photoInGridAt(series->ord(), 0));
 }
 
 namespace {
@@ -286,8 +280,7 @@ void AllSeriesView::keyPressEvent(QKeyEvent* keyEvent)
       Coords const jump = findValidProposal(nextJumpProposals(*focusCoords, keyEvent->key()));
       LOG(INFO) << "Key press focusing (" << jump.row << ", " << jump.col << ") from ("
                 << focusCoords->row << ", " << focusCoords->col << ")";
-      utils::asserted::fromPtr(photoInGridAt(jump.row, jump.col)).setFocus();
-      // TODO: Adjust scrollar so this photo stays on the screen
+      setFocusedWidget(photoInGridAt(jump.row, jump.col));
     }
     else
     {
@@ -409,6 +402,14 @@ void AllSeriesView::changeSeriesState(QUuid const seriesUuid, pcontainer::ItemSt
 
     photoWidget->photoItem().setState(state);
   }
+}
+
+void AllSeriesView::setFocusedWidget(QWidget *widget) const
+{
+  if (!widget)
+    return;
+  widget->setFocus();
+  scroll->ensureWidgetVisible(widget);
 }
 
 } // namespace phobos
