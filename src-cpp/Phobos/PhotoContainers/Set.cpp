@@ -32,6 +32,10 @@ namespace {
       val += mod;
     return val;
   }
+  int sign(int val)
+  {
+    return val < 0 ? -1 : 1;
+  }
 }
 
 SeriesPtr const& Set::findSeriesImpl(QUuid const& seriesUuid, int const offset) const
@@ -50,20 +54,29 @@ Series const& Set::findSeries(QUuid const& seriesUuid, int const offset) const
 
 Series const& Set::findNonEmptySeries(QUuid const& seriesUuid, int const offset) const
 {
-  for (std::size_t i = 0; i<_photoSeries.size(); ++i)
-    if (_photoSeries[i]->uuid() == seriesUuid)
-    {
-      std::size_t const startIdx = posModulo(int(i)+offset, _photoSeries.size());
-      std::size_t searchIdx = startIdx;
-      do
-      {
-        SeriesPtr const& series = _photoSeries[searchIdx];
-        if (!series->empty())
-          return *series;
-        searchIdx = (searchIdx + 1) % _photoSeries.size();
-      } while (searchIdx != startIdx);
-      break;
-    }
+  return nonEmpty(findSeriesImpl(seriesUuid, offset)->ord());
+}
+
+Series const& Set::nonEmpty(std::size_t const n, int const offset) const
+{
+  std::size_t const startIdx = posModulo(int(n)+offset, _photoSeries.size());
+  std::size_t searchIdx = startIdx;
+  do
+  {
+    SeriesPtr const& series = _photoSeries[searchIdx];
+    if (!series->empty())
+      return *series;
+    searchIdx = posModulo(int(searchIdx) + sign(offset), _photoSeries.size());
+  } while (searchIdx != startIdx);
+
+  return utils::asserted::always;
+}
+
+Series const& Set::lastNonEmpty() const
+{
+  for (auto it = _photoSeries.rbegin(); it != _photoSeries.rend(); ++it)
+    if (!(*it)->empty())
+      return **it;
 
   return utils::asserted::always;
 }

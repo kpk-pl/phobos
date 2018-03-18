@@ -130,13 +130,18 @@ void AllSeriesView::addNumberingToGrid(int const number)
 
 void AllSeriesView::focusSeries()
 {
-  if (numberOfSeries() > 0)
-    photoInGridAt(0, 0)->setFocus();
+  if (QWidget *wgt = photoInGridAt(0, 0))
+    wgt->setFocus();
+  else
+    LOG(WARNING) << "Cannot focus first photo";
 }
 
 void AllSeriesView::focusSeries(QUuid const seriesUuid)
 {
-  photoInGridAt(utils::asserted::fromMap(seriesUuidToRow, seriesUuid), 0)->setFocus();
+  if (QWidget *wgt = photoInGridAt(utils::asserted::fromMap(seriesUuidToRow, seriesUuid), 0))
+    wgt->setFocus();
+  else
+    LOG(WARNING) << "Cannot focus series " << seriesUuid.toString();
 }
 
 void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
@@ -156,7 +161,7 @@ void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
   }
 
   if (firstOne)
-    photoInGridAt(series->ord(), 0)->setFocus();
+    utils::asserted::fromPtr(photoInGridAt(series->ord(), 0)).setFocus();
 }
 
 namespace {
@@ -276,16 +281,19 @@ void AllSeriesView::keyPressEvent(QKeyEvent* keyEvent)
   if (keyEvent->type() == QEvent::KeyPress &&
         utils::valueIn(keyEvent->key(), {Qt::Key_Left, Qt::Key_Right, Qt::Key_Up, Qt::Key_Down}))
   {
-    auto const focusCoords = focusGridCoords();
-    if (focusCoords)
+    if (auto const focusCoords = focusGridCoords())
     {
-      // TODO: This should account for removed photos and series somehow - see below
       Coords const jump = findValidProposal(nextJumpProposals(*focusCoords, keyEvent->key()));
+      LOG(INFO) << "Key press focusing (" << jump.row << ", " << jump.col << ") from ("
+                << focusCoords->row << ", " << focusCoords->col << ")";
       utils::asserted::fromPtr(photoInGridAt(jump.row, jump.col)).setFocus();
       // TODO: Adjust scrollar so this photo stays on the screen
     }
     else
+    {
+      LOG(INFO) << "Key press focusing first photo of first series by default";
       focusSeries();
+    }
   }
 
   QWidget::keyPressEvent(keyEvent);
@@ -298,8 +306,6 @@ boost::optional<AllSeriesView::Coords> AllSeriesView::focusGridCoords() const
     return boost::none;
 
   QUuid const& focusSeries = focusItem->photoItem().seriesUuid();
-  assert(utils::valueIn(focusSeries, seriesUuidToRow));
-
   unsigned const focusRow = utils::asserted::fromMap(seriesUuidToRow, focusSeries);
   for (std::size_t i = 0; i < maxNumberOfPhotosInRow(); ++i)
   {
@@ -315,23 +321,34 @@ std::vector<AllSeriesView::Coords>
 {
   unsigned const row = coords.row;
   unsigned const col = coords.col;
-  // TODO: arrow-move BUG - maxRow should account for some series from the end begin removed (not visible)
-  unsigned const maxRow = grid->rowCount()-1;
 
+  // need to account for empty rows that should be skipped
   switch(directionKey)
   {
-  // TODO: arrow-move BUG - probably should select next/previous VISIBLE row (not only +1/-1)
-  // TODO: arrow-move BUG - probably should skip  select next/previous VISIBLE row (not only +1/-1)
-  // Maybe it is not a good idea to return coords, but rather an increments ?
-  // Or transform from visible coords to grid coords
-  case Qt::Key_Right:
-    return {{row, col+1}, {row+1, 0}, {0, 0}};
-  case Qt::Key_Down:
-    return {{row+1, col}, {row+1, Coords::MAX}, {0, col}, {0, Coords::MAX}};
-  case Qt::Key_Left:
-    return {{row, col-1}, {row-1, Coords::MAX}, {maxRow, Coords::MAX}};
-  case Qt::Key_Up:
-    return {{row-1, col}, {row-1, Coords::MAX}, {maxRow, col}, {maxRow, Coords::MAX}};
+    case Qt::Key_Right:
+    {
+      auto const nextRow = seriesSet.nonEmpty(row, 1).ord();
+      auto const firstRow = seriesSet.nonEmpty(0, 0).ord();
+      return {{row, col+1}, {nextRow, 0}, {firstRow, 0}};
+    }
+    case Qt::Key_Down:
+    {
+      auto const nextRow = seriesSet.nonEmpty(row, 1).ord();
+      auto const firstRow = seriesSet.nonEmpty(0, 0).ord();
+      return {{nextRow, col}, {nextRow, Coords::MAX}, {firstRow, col}, {firstRow, Coords::MAX}};
+    }
+    case Qt::Key_Left:
+    {
+      auto const prevRow = seriesSet.nonEmpty(row, -1).ord();
+      auto const lastRow = seriesSet.lastNonEmpty().ord();
+      return {{row, col-1}, {prevRow, Coords::MAX}, {lastRow, Coords::MAX}};
+    }
+    case Qt::Key_Up:
+    {
+      auto const prevRow = seriesSet.nonEmpty(row, -1).ord();
+      auto const lastRow = seriesSet.lastNonEmpty().ord();
+      return {{prevRow, col}, {prevRow, Coords::MAX}, {lastRow, col}, {lastRow, Coords::MAX}};
+    }
   }
 
   return utils::asserted::always;

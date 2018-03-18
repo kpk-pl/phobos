@@ -27,6 +27,8 @@ public:
   bool empty() const { return _photoSeries.empty(); }
   bool hasPhotos() const;
   Series const& front() const;
+  Series const& nonEmpty(std::size_t const n, int const offset = 0) const;
+  Series const& lastNonEmpty() const;
 
   SeriesPtrVec::const_iterator begin() const { return _photoSeries.begin(); }
   SeriesPtrVec::const_iterator end() const { return _photoSeries.end(); }
