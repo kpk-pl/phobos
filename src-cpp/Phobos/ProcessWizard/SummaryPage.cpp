@@ -71,17 +71,17 @@ void SummaryPage::updateExecutioners(ConstActionPtrVec const& currentActions)
 
 void SummaryPage::initializePage()
 {
-  LOG(INFO) << "Initializing summary page";
+  LOG(DEBUG) << "Initializing summary page";
 
   auto const& selectedActions = field("chosenActions").value<ConstActionPtrVec>();
-  LOG(INFO) << "Displaying summary for " << selectedActions.size() << " selected actions";
+  LOG(TRACE) << "Displaying summary for " << selectedActions.size() << " selected actions";
 
   updateExecutioners(selectedActions);
 
   for (auto const& action : actionExecs)
   {
     auto const actionStr = action.first->toString();
-    LOG(INFO) << "Enabled: " << actionStr;
+    LOG(TRACE) << "Enabled action: " << actionStr;
 
     QTreeWidgetItem *topItem = new QTreeWidgetItem(actionTree);
     topItem->setIcon(0, operationIcon(action.first->operation()));
@@ -124,7 +124,7 @@ bool SummaryPage::validatePage()
 {
   auto const execs = executions();
 
-  LOG(INFO) << "Finishing process wizard. Returning " << execs.size()
+  LOG(TRACE) << "Finishing process wizard. Returning " << execs.size()
             << " executions for " << actionExecs.size() << " actions";
 
   emit executionsChanged(execs);

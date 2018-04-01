@@ -15,7 +15,7 @@ void ActionsCreatorResources::showRenameSyntaxHelp()
 {
   createRenameSyntaxDialog();
 
-  LOG(INFO) << "Displaying rename syntax dialog";
+  LOG(TRACE) << "Displaying rename syntax dialog";
   renameSyntaxDialog->show();
   renameSyntaxDialog->raise();
   renameSyntaxDialog->activateWindow();
@@ -26,7 +26,7 @@ void ActionsCreatorResources::createRenameSyntaxDialog()
   if (renameSyntaxDialog)
     return;
 
-  LOG(INFO) << "Creating rename syntax dialog";
+  LOG(DEBUG) << "Creating rename syntax dialog";
   renameSyntaxDialog = new QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint);
   renameSyntaxDialog->setWindowTitle(tr("File rename syntax help"));
 

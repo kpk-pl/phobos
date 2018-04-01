@@ -94,14 +94,10 @@ void ViewStack::welcomeScreenSwitch()
   if (seriesSet.hasPhotos())
   {
     if (currentWidget() == welcomeView)
-    {
-      LOG(INFO) << "Switching to all series view from welcome screen";
       setCurrentWidget(allSeriesView);
-    }
   }
   else
   {
-    LOG(INFO) << "Switching to welcome screen";
     setCurrentWidget(welcomeView);
   }
 }
@@ -121,15 +117,30 @@ void ViewStack::setCurrentWidget(QWidget *widget)
   sharedWidgets.leftRightNav->setVisible(widget == numSeriesView);
 
   if (widget == welcomeView)
+  {
+    LOG(TRACE) << "Switching to welcome view";
     setToolbarVisibility(mainToolbar, config::ConfigPath("welcomeView"));
+  }
   else if (widget == allSeriesView)
+  {
+    LOG(TRACE) << "Switching to all series view";
     setToolbarVisibility(mainToolbar, config::ConfigPath("allSeriesView"));
+  }
   else if (widget == rowSeriesView)
+  {
+    LOG(TRACE) << "Switching to row series view";
     setToolbarVisibility(mainToolbar, config::ConfigPath("seriesView.row"));
+  }
   else if (widget == numSeriesView)
+  {
+    LOG(TRACE) << "Switching to num series view";
     setToolbarVisibility(mainToolbar, config::ConfigPath("seriesView.num"));
+  }
   else if (widget == laboratoryView)
+  {
+    LOG(TRACE) << "Switching to laboratory view";
     setToolbarVisibility(mainToolbar, config::ConfigPath("laboratoryView"));
+  }
 
   QStackedWidget::setCurrentWidget(widget);
 }
@@ -176,20 +187,20 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
 
   currentSeriesWidget->showSeries(targetSeries);
 
-  LOG(INFO) << "Switching to " << (currentSeriesWidget == numSeriesView ? "num" : "row") << " series view";
+  LOG(TRACE) << "Switching to " << (currentSeriesWidget == numSeriesView ? "num" : "row") << " series view";
   setCurrentWidget(currentSeriesWidget);
 }
 
 void ViewStack::switchToAllSeries(pcontainer::Series const& targetSeries)
 {
-  LOG(INFO) << "Switching to all series view";
+  LOG(TRACE) << "Switching to all series view";
   setCurrentWidget(allSeriesView);
   allSeriesView->focusSeries(targetSeries.uuid());
 }
 
 void ViewStack::switchToLaboratory(pcontainer::Item const& item)
 {
-  LOG(INFO) << "Switching to laboratory view";
+  LOG(TRACE) << "Switching to laboratory view";
   setCurrentWidget(laboratoryView);
   laboratoryView->changePhoto(item);
 }
@@ -307,7 +318,7 @@ void ViewStack::photoEnhancement(iprocess::enhance::OperationType const operatio
 {
   if (currentWidget() != laboratoryView)
   {
-    LOG(INFO) << "Ignoring photo enhancement operation because not in laboratory view";
+    LOG(TRACE) << "Ignoring photo enhancement operation because not in laboratory view";
     return;
   }
 

@@ -89,7 +89,7 @@ void SeriesDisplayPage::initializeInfoLabels()
 
 void SeriesDisplayPage::initializeLengthOneWarning(std::size_t const count)
 {
-  LOG(INFO) << count << " series have just one photo";
+  LOG(TRACE) << count << " series have just one photo";
 
   lengthOneWarning->show();
   lengthOneWarning->label()->setText(tr("%1 series with only one photo %2 been disabled")
@@ -148,7 +148,7 @@ void SeriesDisplayPage::initializeMultipleLengthsInfo(std::map<std::size_t, unsi
   std::string const sLengthList =
     boost::algorithm::join(lengths | boost::adaptors::transformed(static_cast<std::string(*)(std::size_t)>(std::to_string)), ", ");
 
-  LOG(INFO) << "Detected series with multiple different lengths: " << sLengthList;
+  LOG(TRACE) << "Detected series with multiple different lengths: " << sLengthList;
 
   multipleLengthsInfo->label()->setText(tr("Found series with different lengths: %1 photos").arg(sLengthList.c_str()));
   multipleLengthsInfo->show();
@@ -209,7 +209,7 @@ void SeriesDisplayPage::initializeNewSeries()
   }
 
   loadedStatusLabel->setText(tr("Loaded %1 photos into %2 series").arg(photoCount).arg(_dividedSeries.size()));
-  LOG(INFO) << "Displayed " << photoCount  << " photos in " << _dividedSeries.size() << " series";
+  LOG(DEBUG) << "Displayed " << photoCount  << " photos in " << _dividedSeries.size() << " series";
 
   initializeInfoLabels();
 }
@@ -241,7 +241,7 @@ bool SeriesDisplayPage::validatePage()
     }
   }
 
-  LOG(INFO) << "User selected " << _chosenSeries.size() << " series to load";
+  LOG(TRACE) << "User selected " << _chosenSeries.size() << " series to load";
   emit seriesChanged(_chosenSeries);
   return true;
 }
@@ -264,7 +264,7 @@ void SeriesDisplayPage::silentCleanup()
 
 void SeriesDisplayPage::selectBackSeriesWithOnePhoto()
 {
-  LOG(DEBUG) << "Selecting back series with just one photo";
+  LOG(TRACE) << "Selecting back series with just one photo";
   for (int i = 0; i < tree->topLevelItemCount(); ++i)
     if (tree->topLevelItem(i)->type() == types::SERIES_ONEPHOTO)
       tree->topLevelItem(i)->setCheckState(0, Qt::Checked);
@@ -275,7 +275,7 @@ void SeriesDisplayPage::selectBackSeriesWithOnePhoto()
 
 void SeriesDisplayPage::splitSuggestedSeries()
 {
-  LOG(INFO) << "Splitting series by suggestions";
+  LOG(TRACE) << "Splitting series by suggestions";
 
   std::set<std::size_t> lengths = keysFromMap(countSeriesLengths());
   lengths.erase(1);
@@ -322,7 +322,7 @@ void SeriesDisplayPage::treeContextMenu(QPoint const& point)
   if (itemPosition > 0)
   {
     QObject::connect(menu.addAction(tr("Join with previous")), &QAction::triggered, [&]{
-      LOG(INFO) << "Manual joining series at position " << itemPosition << " with previous";
+      LOG(TRACE) << "Manual joining series at position " << itemPosition << " with previous";
 
       delete tree->takeTopLevelItem(itemPosition);
       delete tree->takeTopLevelItem(itemPosition-1);
@@ -341,7 +341,7 @@ void SeriesDisplayPage::treeContextMenu(QPoint const& point)
   if (_dividedSeries[itemPosition].size() > 1)
   {
     QObject::connect(menu.addAction(tr("Split in half")), &QAction::triggered, [&]{
-      LOG(INFO) << "Manual splitting series in half at position " << itemPosition;
+      LOG(TRACE) << "Manual splitting series in half at position " << itemPosition;
 
       delete tree->takeTopLevelItem(itemPosition);
 

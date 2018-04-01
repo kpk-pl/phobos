@@ -26,7 +26,7 @@ namespace {
 ActionsCreatorPage::ActionsCreatorPage(OperationType const& defaultOperation) :
   resources(this)
 {
-  LOG(DEBUG) << "Creating page";
+  LOG(TRACE) << "Creating page";
 
   setTitle(tr("Processing scheduler"));
 
@@ -69,7 +69,7 @@ void ActionsCreatorPage::selectedActionsChanged()
 
 void ActionsCreatorPage::initializePage()
 {
-  LOG(INFO) << "Initializing page to create actions";
+  LOG(TRACE) << "Initializing page to create actions";
 
   if (wizard()->button(QWizard::NextButton))
       wizard()->button(QWizard::NextButton)->setFocus();

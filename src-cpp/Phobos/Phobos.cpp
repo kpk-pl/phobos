@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<phobos::pcontainer::ItemId>();
 
     phobos::MainWindow w;
-    LOG(INFO) << "Application starting now...";
+    LOG(TRACE) << "Application starting now...";
     w.show();
 
     return a.exec();

@@ -34,12 +34,12 @@ public:
     setLayout(box);
     resize(config::qSize("fullscreenWindow.defaultSize", QSize(1024, 768)));
 
-    LOG(INFO) << "Showing separate image dialog for \"" << windowTitle() << '"';
+    LOG(TRACE) << "Showing separate image dialog for \"" << windowTitle() << '"';
   }
 
   ~ImageDialog()
   {
-    LOG(INFO) << "Closing separate image dialog for \"" << windowTitle() << '"';
+    LOG(TRACE) << "Closing separate image dialog for \"" << windowTitle() << '"';
   }
 
   QString const& getCurrentPath() const { return currentPath; }
@@ -49,13 +49,13 @@ public:
     currentPath = path;
     setWindowTitle(currentPath);
     imageWidget->setImage(image);
-    LOG(INFO) << "Updating separate image dialog for \"" << windowTitle() << '"';
+    LOG(TRACE) << "Updating separate image dialog for \"" << windowTitle() << '"';
   }
 
   void updateCurrent(QImage const& image)
   {
     imageWidget->setImage(image);
-    LOG(INFO) << "Updating current image in separate dialog for \"" << windowTitle() << '"';
+    LOG(TRACE) << "Updating current image in separate dialog for \"" << windowTitle() << '"';
   }
 
 private:

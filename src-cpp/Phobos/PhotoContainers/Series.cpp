@@ -27,7 +27,7 @@ void Series::remove(std::vector<pcontainer::ItemId> const& itemIds)
     auto const& itemId = (*itemIt)->id();
     if (std::find(itemIds.begin(), itemIds.end(), itemId) != itemIds.end())
     {
-      LOG(INFO) << "Removing from series: " << itemId.toString();
+      LOG(TRACE) << "Removing from series: " << itemId.toString();
       _removedItems.push_back(itemId);
       itemIt = _photoItems.erase(itemIt);
     }
@@ -38,12 +38,12 @@ void Series::remove(std::vector<pcontainer::ItemId> const& itemIds)
 
 void Series::removeAll()
 {
-  LOG(INFO) << "Removing all series: " << _uuid.toString();
+  LOG(TRACE) << "Removing all series: " << _uuid.toString();
 
   for (auto const& item : _photoItems)
   {
     _removedItems.push_back(item->id());
-    LOG(INFO) << "Removing from series: " << item->id().toString();
+    LOG(DEBUG) << "Removing from series: " << item->id().toString();
   }
 
   _photoItems.clear();

@@ -20,10 +20,10 @@ bool DeleteExecution::execute() const
   switch(method)
   {
   case DeleteAction::Method::Permanent:
-    LOG(INFO) << "Removing permanently \"" << file() << '"';
+    LOG(TRACE) << "Removing permanently \"" << file() << '"';
     return debugDisabled || QFile(file()).remove();
   case DeleteAction::Method::Trash:
-    LOG(INFO) << "Removing to trash \"" << file() << '"';
+    LOG(TRACE) << "Removing to trash \"" << file() << '"';
     return debugDisabled || utils::fs::moveToTrash(file());
   }
 
@@ -51,7 +51,7 @@ bool RenameExecution::execute() const
 {
   bool const debugDisabled = config::qualified("debug.disableExecutionOperations", false);
 
-  LOG(INFO) << "Renaming " << itemId().fileName << " to " << newFilename;
+  LOG(TRACE) << "Renaming " << itemId().fileName << " to " << newFilename;
   return debugDisabled || QFile::rename(itemId().fileName, newFilename);
 }
 
@@ -69,7 +69,7 @@ bool CopyExecution::execute() const
 {
   bool const debugDisabled = config::qualified("debug.disableExecutionOperations", false);
 
-  LOG(INFO) << "Copying " << itemId().fileName << " to " << destFilename;
+  LOG(TRACE) << "Copying " << itemId().fileName << " to " << destFilename;
   return debugDisabled || QFile::copy(itemId().fileName, destFilename);
 }
 

@@ -65,12 +65,12 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
 
 void DivisionMethodPage::initializePage()
 {
-    LOG(DEBUG) << "Initializing division method page";
-    if (_selectedFiles.empty())
-        importMoreFiles();
+  LOG(DEBUG) << "Initializing division method page";
+  if (_selectedFiles.empty())
+      importMoreFiles();
 
-    if (wizard()->button(QWizard::NextButton))
-        wizard()->button(QWizard::NextButton)->setFocus();
+  if (wizard()->button(QWizard::NextButton))
+      wizard()->button(QWizard::NextButton)->setFocus();
 }
 
 void DivisionMethodPage::cleanupPage()
@@ -85,27 +85,27 @@ bool DivisionMethodPage::validatePage()
 
   if (sortingMethod->currentIndex() > 0)
   {
-    LOG(INFO) << "Sorting photos based on time before division";
+    LOG(TRACE) << "Sorting photos based on time before division";
     std::sort(sortedPhotos.begin(), sortedPhotos.end(), utils::less().on([](auto const& p){return p.info.timestamp;}));
   }
 
   switch(currentSelection)
   {
   case Selection::DontDivide:
-    LOG(INFO) << "Dividing photos as noop";
+    LOG(TRACE) << "Dividing photos as noop";
     _dividedSeries = divideToSeriesNoop(std::move(sortedPhotos));
     break;
   case Selection::FixedNum:
-    LOG(INFO) << "Dividing photos to series with equal size of " << fixedNumParam->value();
+    LOG(TRACE) << "Dividing photos to series with equal size of " << fixedNumParam->value();
     _dividedSeries = divideToSeriesWithEqualSize(std::move(sortedPhotos), fixedNumParam->value());
     break;
   case Selection::Metadata:
-    LOG(INFO) << "Dividing photos based on metadata";
+    LOG(TRACE) << "Dividing photos based on metadata";
     _dividedSeries = divideToSeriesOnMetadata(std::move(sortedPhotos));
     break;
   }
 
-  LOG(INFO) << "Divided into " << _dividedSeries.size() << " series";
+  LOG(TRACE) << "Divided into " << _dividedSeries.size() << " series";
   emit seriesChanged(_dividedSeries);
   return true;
 }
@@ -134,10 +134,13 @@ struct PhotoNameView
 
 QStringList importMoreUniqueFiles(std::vector<Photo> const& currentSelection, QWidget *parent)
 {
-  LOG(INFO) << "Opening dialog to select additional photos to import";
+  LOG(TRACE) << "Opening dialog to select additional photos to import";
 
   QStringList newFiles = selectImagesInDialog(parent);
-  LOG(INFO) << "Selected " << newFiles.size() << " new files";
+  LOG(TRACE) << "Selected " << newFiles.size() << " new files";
+
+  if (newFiles.empty())
+    return {};
 
   QStringList newUniqueFiles;
   newUniqueFiles.reserve(newFiles.size());
@@ -148,7 +151,7 @@ QStringList importMoreUniqueFiles(std::vector<Photo> const& currentSelection, QW
                       std::back_inserter(newUniqueFiles),
                       [](PhotoNameView lhs, PhotoNameView const& rhs){ return lhs < rhs; });
 
-  LOG(INFO) << "Filtered selection to " << newUniqueFiles.size() << " unique new files";
+  LOG(TRACE) << "Filtered selection to " << newUniqueFiles.size() << " unique new files";
   return newUniqueFiles;
 }
 } // unnamed namespace
@@ -156,6 +159,9 @@ QStringList importMoreUniqueFiles(std::vector<Photo> const& currentSelection, QW
 void DivisionMethodPage::importMoreFiles()
 {
   QStringList newFiles = importMoreUniqueFiles(_selectedFiles, this);
+  if (newFiles.empty())
+    return;
+
   auto newPhotos = provideFileInfo(newFiles, this);
 
   std::size_t const previousSize = _selectedFiles.size();
@@ -168,7 +174,7 @@ void DivisionMethodPage::importMoreFiles()
   if (!fixedNumParamChanged)
     fixedNumParam->setValue(guessBestDivisionValue(_selectedFiles.size()));
 
-  LOG(INFO) << "Processing " << _selectedFiles.size() << " photos in total in current wizard";
+  LOG(TRACE) << "Processing " << _selectedFiles.size() << " photos in total in current wizard";
   numImportedLabel->setText(tr("Selected %1 photos").arg(_selectedFiles.size()));
   update();
 }

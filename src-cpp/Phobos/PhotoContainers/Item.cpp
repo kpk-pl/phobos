@@ -14,14 +14,14 @@ bool Item::isSelected() const
 
 void Item::select() const
 {
-  LOG(INFO) << "Selected item " << _id.toString();
+  LOG(TRACE) << "Selected item " << _id.toString();
   _state = ItemState::SELECTED;
   emit stateChanged();
 }
 
 void Item::reset() const
 {
-  LOG(INFO) << "Reset item " << _id.toString();
+  LOG(TRACE) << "Reset item " << _id.toString();
   _state = ItemState::UNKNOWN;
   emit stateChanged();
 }

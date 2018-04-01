@@ -11,7 +11,7 @@ namespace phobos { namespace processwiz {
 ProcessWizard::ProcessWizard(QWidget *parent, pcontainer::Set const& seriesSet, OperationType const defaultOperation) :
   QWizard(parent)
 {
-  LOG(INFO) << "Creating processing wizard with default operation \"" << defaultOperation << '"';
+  LOG(TRACE) << "Creating processing wizard with default operation \"" << defaultOperation << '"';
 
   SeriesCounts const counts = countPhotos(seriesSet);
 

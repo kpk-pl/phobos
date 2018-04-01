@@ -278,13 +278,13 @@ void AllSeriesView::keyPressEvent(QKeyEvent* keyEvent)
     if (auto const focusCoords = focusGridCoords())
     {
       Coords const jump = findValidProposal(nextJumpProposals(*focusCoords, keyEvent->key()));
-      LOG(INFO) << "Key press focusing (" << jump.row << ", " << jump.col << ") from ("
+      LOG(TRACE) << "Key press focusing (" << jump.row << ", " << jump.col << ") from ("
                 << focusCoords->row << ", " << focusCoords->col << ")";
       setFocusedWidget(photoInGridAt(jump.row, jump.col));
     }
     else
     {
-      LOG(INFO) << "Key press focusing first photo of first series by default";
+      LOG(TRACE) << "Key press focusing first photo of first series by default";
       focusSeries();
     }
   }

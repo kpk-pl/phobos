@@ -45,7 +45,7 @@ WarningsPage::WarningsPage(SeriesCounts const& counts)
 
 void WarningsPage::initializePage()
 {
-  LOG(INFO) << "Initializing warnings page";
+  LOG(TRACE) << "Initializing warnings page";
 
   if (wizard()->button(QWizard::NextButton))
       wizard()->button(QWizard::NextButton)->setFocus();
@@ -53,7 +53,7 @@ void WarningsPage::initializePage()
 
 bool WarningsPage::validatePage()
 {
-  LOG(INFO) << "Ignored warnings and moved forward";
+  LOG(TRACE) << "Ignored warnings and moved forward";
   return true;
 }
 

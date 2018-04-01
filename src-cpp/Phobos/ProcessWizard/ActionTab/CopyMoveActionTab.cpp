@@ -55,7 +55,7 @@ void CopyMoveActionTab::createAction() const
   QFileInfo const fInfo(selectedDirLabel->text());
   if (!fInfo.isDir())
   {
-    LOG(INFO) << "Attempted to create Copy/Move action with invalid destination \""
+    LOG(WARNING) << "Attempted to create Copy/Move action with invalid destination \""
               << selectedDirLabel->text() << "\"";
     return;
   }
@@ -71,7 +71,7 @@ void CopyMoveActionTab::createAction() const
   {
     if (!renameWithSyntax->fileNameEdit->hasAcceptableInput())
     {
-      LOG(INFO) << "Attempted to create Copy/Move action with unacceptable rename pattern \""
+      LOG(WARNING) << "Attempted to create Copy/Move action with unacceptable rename pattern \""
                 << renameWithSyntax->fileNameEdit->text() << '"';
       return;
     }
@@ -94,9 +94,9 @@ void CopyMoveActionTab::createAction() const
 
 void CopyMoveActionTab::selectDirectory()
 {
-  LOG(INFO) << "Displaying dialog to choose copy/move directory";
+  LOG(TRACE) << "Displaying dialog to choose copy/move directory";
   QString const dir = QFileDialog::getExistingDirectory(this, tr("Select destination directory"));
-  LOG(INFO) << "Selected directory: " << dir;
+  LOG(TRACE) << "Selected directory: " << dir;
 
   // TODO: If text is longer than 50 characters, shorten it like C:/Selected/...bug/etc/dir
   // Try to leave at least first parent dir (Selected) if possible

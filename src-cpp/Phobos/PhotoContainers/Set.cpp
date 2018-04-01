@@ -1,6 +1,7 @@
 #include "PhotoContainers/Set.h"
 #include "Utils/Comparators.h"
 #include "Utils/Asserted.h"
+#include <easylogging++.h>
 
 namespace phobos { namespace pcontainer {
 
@@ -11,10 +12,12 @@ Series const& Set::front() const
 
 void Set::addSeries(importwiz::PhotoSeriesVec const& newPhotoSeries)
 {
+  LOG(TRACE) << "Adding " << newPhotoSeries.size() << " new series to set";
   for (auto const& series : newPhotoSeries)
   {
     SeriesPtr seriesPtr = std::make_shared<Series>(_photoSeries.size(), series);
     _photoSeries.push_back(seriesPtr);
+    LOG(DEBUG) << "Added series #" << seriesPtr->ord() << " " << seriesPtr->uuid().toString();
     emit newSeries(seriesPtr);
   }
 }

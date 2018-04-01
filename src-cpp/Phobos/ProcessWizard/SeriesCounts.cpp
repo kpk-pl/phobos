@@ -46,9 +46,9 @@ SeriesCounts countPhotos(pcontainer::Set const& seriesSet)
   Counter const counter(counts);
   std::for_each(seriesSet.begin(), seriesSet.end(), std::ref(counter));
 
-  LOG(INFO) << "[processing] Found " << counts.all.photos << " photos in " << counts.all.series << " series in total";
-  LOG(INFO) << "[processing] Found " << counts.selected.photos << " selected photos in " << counts.selected.series << " series";
-  LOG(INFO) << "[processing] Found " << counts.unknown.photos << " unknown photos in " << counts.unknown.series << " series";
+  LOG(TRACE) << "Found " << counts.all.photos << " photos in " << counts.all.series << " series in total";
+  LOG(TRACE) << "Found " << counts.selected.photos << " selected photos in " << counts.selected.series << " series";
+  LOG(TRACE) << "Found " << counts.unknown.photos << " unknown photos in " << counts.unknown.series << " series";
 
   return counts;
 }

@@ -217,7 +217,7 @@ public:
 
   ~DetailsDialog()
   {
-    LOG(INFO) << "Closing details dialog for " << itemId.toString();
+    LOG(TRACE) << "Closing details dialog for " << itemId.toString();
   }
 
 private:
@@ -236,7 +236,7 @@ void showDetailsDialog(QWidget *parent,
   dialog->raise();
   dialog->activateWindow();
 
-  LOG(INFO) << "Showing details dialog for " << photoItem.id().toString();
+  LOG(TRACE) << "Showing details dialog for " << photoItem.id().toString();
 
   // leaking dialog because it will delete on close
 }

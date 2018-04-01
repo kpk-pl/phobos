@@ -71,9 +71,13 @@ void MainWindow::closeEvent(QCloseEvent *ev)
 
 void MainWindow::loadPhotos()
 {
+  LOG(TRACE) << "Loading more photos";
   importwiz::ImportWizard importWizard(this);
+
   if (importWizard.exec())
     seriesSet.addSeries(importWizard.selectedSeries());
+  else
+    LOG(TRACE) << "Loading canceled";
 }
 
 namespace {
@@ -154,11 +158,11 @@ void MainWindow::processAction(processwiz::OperationType const operation)
 
 void MainWindow::openDetailsDialog()
 {
-  LOG(INFO) << "Requested details dialog for focused item";
+  LOG(TRACE) << "Requested details dialog for focused item";
   auto const focusedItem = utils::focusedPhotoItemWidget();
   if (!focusedItem)
   {
-    LOG(INFO) << "No photo is focused";
+    LOG(TRACE) << "No photo is focused";
     return;
   }
 
@@ -168,7 +172,7 @@ void MainWindow::openDetailsDialog()
 // TODO: Disable buttons for fullscreen and details when there is no photos loaded and those functions fail
 void MainWindow::openFullscreenDialog()
 {
-  LOG(INFO) << "Requested fullscreen dialog for focused item";
+  LOG(TRACE) << "Requested fullscreen dialog for focused item";
   auto photoItem = utils::focusedPhotoItemWidget();
   if (!photoItem)
   {
@@ -176,7 +180,7 @@ void MainWindow::openFullscreenDialog()
   }
   if (!photoItem)
   {
-    LOG(INFO) << "Unable to show fullscreen dialog";
+    LOG(TRACE) << "Unable to show fullscreen dialog";
     return;
   }
 

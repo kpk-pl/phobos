@@ -85,7 +85,7 @@ void TypeActionTab::acceptNewAction(ConstActionPtr action)
   newItem->setFlags(newItem->flags() | Qt::ItemIsUserCheckable);
   newItem->setCheckState(Qt::Unchecked);
   listWidget->insertItem(newActionPos, newItem);
-  LOG(INFO) << "Created new action \"" << action->toString()
+  LOG(TRACE) << "Created new action \"" << action->toString()
             << "\" for " << action->matching() << " items on position " << newActionPos;
 
   selectivelyDisableActions();

@@ -9,7 +9,7 @@ namespace phobos { namespace importwiz {
 ImportWizard::ImportWizard(QWidget *parent) :
     QWizard(parent)
 {
-  LOG(INFO) << "Initializing import wizard";
+  LOG(DEBUG) << "Initializing import wizard";
 
   divisionPage = new DivisionMethodPage();
   displayPage = new SeriesDisplayPage();

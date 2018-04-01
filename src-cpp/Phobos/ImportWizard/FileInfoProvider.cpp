@@ -7,7 +7,7 @@ namespace phobos { namespace importwiz {
 
 std::vector<Photo> provideFileInfo(QStringList const& photos, QWidget *parent)
 {
-  LOG(INFO) << "Importing " << photos.size() << " new files";
+  LOG(DEBUG) << "Importing " << photos.size() << " new files";
   TIMED_SCOPE(scopeFunc, "provideFileInfo");
 
   std::vector<Photo> result;
@@ -22,7 +22,7 @@ std::vector<Photo> provideFileInfo(QStringList const& photos, QWidget *parent)
     progress.setValue(progress.value() + 1);
     if (progress.wasCanceled())
     {
-      LOG(INFO) << "Import was canceled by the user";
+      LOG(TRACE) << "Import was canceled by the user";
       result.clear();
       break;
     }
@@ -32,7 +32,7 @@ std::vector<Photo> provideFileInfo(QStringList const& photos, QWidget *parent)
 
   progress.setValue(progress.maximum());
 
-  LOG(INFO) << "Returning " << result.size() << " imported photos";
+  LOG(DEBUG) << "Returning " << result.size() << " imported photos";
   return result;
 }
 

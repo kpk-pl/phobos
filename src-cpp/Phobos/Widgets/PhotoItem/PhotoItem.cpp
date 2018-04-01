@@ -295,7 +295,7 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
   menu.addAction(tr("Show details"), this, &PhotoItem::openDetailsDialog);
   menu.addAction(tr("Fullscreen"), this, &PhotoItem::showInFullDialog);
 
-  LOG(INFO) << "Displayed context menu for " << _photoItem->id().toString();
+  LOG(TRACE) << "Displayed context menu for " << _photoItem->id().toString();
   menu.exec(mapToGlobal(QPoint(event->x(), event->y())));
 }
 

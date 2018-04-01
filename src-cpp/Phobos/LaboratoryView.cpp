@@ -34,14 +34,14 @@ void LaboratoryView::changePhoto(pcontainer::Item const& item)
   imageWidget->setMaximumSize(item.info().size);
   imageWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
-  LOG(INFO) << "Set up new photo in laboratory: " << item.id();
+  LOG(TRACE) << "Set up new photo in laboratory: " << item.id();
 }
 
 void LaboratoryView::process(iprocess::enhance::OperationType const operation)
 {
   using namespace iprocess::enhance;
 
-  LOG(INFO) << "Laboratory processing operation " << toString(operation);
+  LOG(TRACE) << "Laboratory processing operation " << toString(operation);
 
   QImage result = execute(operation, imageWidget->image());
   imageWidget->setImage(result);

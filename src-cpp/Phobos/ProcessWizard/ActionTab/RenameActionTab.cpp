@@ -31,7 +31,7 @@ void RenameActionTab::createAction() const
   if (renameWithSyntax->fileNameEdit->hasAcceptableInput())
     emit newAction(std::make_shared<RenameAction>(matchState, renameWithSyntax->unequivocalSyntax()));
   else
-    LOG(INFO) << "Attempted to create Rename action from unacceptable input \""
+    LOG(WARNING) << "Attempted to create Rename action from unacceptable input \""
               << renameWithSyntax->fileNameEdit->text() << '"';
 }
 

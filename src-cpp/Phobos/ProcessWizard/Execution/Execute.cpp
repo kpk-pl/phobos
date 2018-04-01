@@ -19,7 +19,7 @@ void displayFailures(ConstExecutionPtrVec const& failures)
 
   QMessageBox mBox(QMessageBox::Critical, "Some operations failed", message, QMessageBox::Ok);
 
-  LOG(INFO) << "Displaying dialog showing " <<  failures.size() << " failed operations";
+  LOG(TRACE) << "Displaying dialog showing " <<  failures.size() << " failed operations";
   mBox.exec();
 }
 }
@@ -29,7 +29,7 @@ void execute(pcontainer::Set &photoSet, ConstExecutionPtrVec const& executions)
   ConstExecutionPtrVec failed;
   std::vector<pcontainer::ItemId> destroyed;
 
-  LOG(INFO) << "Executing " << executions.size() << " operations";
+  LOG(TRACE) << "Executing " << executions.size() << " operations";
   for (auto const& exec : executions)
   {
     if (!exec->execute())
