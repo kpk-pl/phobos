@@ -34,7 +34,7 @@ void LaboratoryView::changePhoto(pcontainer::Item const& item)
   imageWidget->setMaximumSize(item.info().size);
   imageWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
-  LOG(TRACE) << "Set up new photo in laboratory: " << item.id();
+  LOG(TRACE) << "Set up new photo in laboratory: " << item.id().toString();
 }
 
 void LaboratoryView::process(iprocess::enhance::OperationType const operation)

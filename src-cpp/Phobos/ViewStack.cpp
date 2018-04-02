@@ -186,21 +186,17 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
   }
 
   currentSeriesWidget->showSeries(targetSeries);
-
-  LOG(TRACE) << "Switching to " << (currentSeriesWidget == numSeriesView ? "num" : "row") << " series view";
   setCurrentWidget(currentSeriesWidget);
 }
 
 void ViewStack::switchToAllSeries(pcontainer::Series const& targetSeries)
 {
-  LOG(TRACE) << "Switching to all series view";
   setCurrentWidget(allSeriesView);
   allSeriesView->focusSeries(targetSeries.uuid());
 }
 
 void ViewStack::switchToLaboratory(pcontainer::Item const& item)
 {
-  LOG(TRACE) << "Switching to laboratory view";
   setCurrentWidget(laboratoryView);
   laboratoryView->changePhoto(item);
 }
