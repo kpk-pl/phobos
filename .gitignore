@@ -7,3 +7,7 @@ src-cpp/Phobos/icons/awesome/svg/*
 src-cpp/Phobos/icons/awesome/psd/*
 src-cpp/Phobos/icons/awesome/eps/*
 src-cpp/Phobos/icons/awesome/font/*
+src-cpp/Phobos/icons/essential/svg/*
+src-cpp/Phobos/icons/essential/psd/*
+src-cpp/Phobos/icons/essential/eps/*
+src-cpp/Phobos/icons/essential/font/*

@@ -1,0 +1,35 @@
+<svg width="59" height="59" xmlns="http://www.w3.org/2000/svg">
+
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="402" width="514" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <polygon id="svg_1" fill="#e2dbbf" points="48.99999971687794,20 33.99999971687794,5 10.999999716877937,5 10.999999716877937,55 48.99999971687794,55 "/>
+  <line id="svg_3" fill="none" stroke="#7383BF" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" y2="58" x2="52" y1="45.244" x1="39.244"/>
+  <polygon id="svg_6" fill="#c1bca4" points="11,5 34,5 44,15 44,0 6,0 6,50 11,50 "/>
+  <path id="svg_7" fill="#CEC9AE" d="m48.712,20l-14.712,0l0,-14.712c0,-0.106 0.129,-0.16 0.204,-0.084l14.592,14.592c0.075,0.075 0.022,0.204 -0.084,0.204z"/>
+  <g id="svg_8"/>
+  <g id="svg_9"/>
+  <g id="svg_10"/>
+  <g id="svg_11"/>
+  <g id="svg_12"/>
+  <g id="svg_13"/>
+  <g id="svg_14"/>
+  <g id="svg_15"/>
+  <g id="svg_16"/>
+  <g id="svg_17"/>
+  <g id="svg_18"/>
+  <g id="svg_19"/>
+  <g id="svg_20"/>
+  <g id="svg_21"/>
+  <g id="svg_22"/>
+  <ellipse stroke="#7383BF" stroke-linecap="round" ry="13.989148" rx="13.858781" id="svg_24" cy="35.010319" cx="29.331523" stroke-width="0" fill="#ffffff"/>
+  <rect stroke="#7383BF" id="svg_28" height="20.78745" width="3.494187" y="27.26073" x="24.98514" stroke-width="0" fill="#25ae88"/>
+  <rect stroke="#7383BF" id="svg_34" height="9.290851" width="3.494187" y="36.852569" x="19.747045" stroke-width="0" fill="#61b872"/>
+  <rect stroke="#7383BF" id="svg_35" height="5.753436" width="3.494187" y="40.458011" x="35.529357" stroke-width="0" fill="#35ad4b"/>
+  <rect stroke="#7383BF" id="svg_36" height="16.977925" width="3.494187" y="31.206309" x="30.223235" stroke-width="0" fill="#1a9172"/>
+  <circle stroke="#7383BF" fill-opacity="0" id="svg_2" fill="#ffffff" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" r="13.787183" cy="34.968867" cx="29.37817"/>
+ </g>
+</svg>

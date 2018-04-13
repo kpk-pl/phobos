@@ -58,7 +58,7 @@ color = "red"
 font = { family = "Courier", pointSize = 10, weight = 75 }
 
 [photoItemWidget.bestMarkIcon]
-icon = ":icons/awesome/png/star.png"
+icon = ":icons/essential/png/star.png"
 opacity = 0.5
 color = "yellow"
 sizePercent = 0.2
@@ -142,29 +142,30 @@ toolbarSupport = ["file", "view", "series", "select", "process", "help"]
 toolbarSupport = ["view", "series", "enhance", "help"]
 
 [navigationBar.button]
-fileImport = { icon = ":icons/awesome/png/open-folder.png", color="orange", shortcut="Ctrl+O" }
+fileImport = { icon = ":icons/essential/png/folder-10.png", shortcut="Ctrl+O" }
 
 viewAllSeries = { icon = ":icons/all_grid.png", color = "#006FE8", shortcut="Alt+1" }
 viewSingleSeries = { icon = ":icons/num_grid.png", color = "#006FE8", shortcut="Alt+2" }
 viewScrollable = { icon = ":icons/scroll_grid.png", color = "#006FE8", shortcut="Alt+3" }
-viewLaboratory = { icon = ":icons/awesome/png/beaker.png", color = "purple", shortcut="Alt+4" }
-viewFullscreenPreview = { icon = ":icons/preview_window.png", color = "#006FE8", shortcut="Shift+F" }
-viewPhotoDetails = { icon = ":icons/awesome/png/bar-graph-on-a-rectangle.png", color = "#22c036", shortcut="Shift+D" }
+viewLaboratory = { icon = ":icons/essential/derived/picture-edit.png", shortcut="Alt+4" }
+viewFullscreenPreview = { icon = ":icons/essential/derived/fullscreen-1.png", shortcut="Shift+F" }
+viewPhotoDetails = { icon = ":icons/essential/derived/file-details2.png", shortcut="Shift+D" }
 
 seriesPrevious = { icon = ":icons/awesome/png/left-arrow.png", color = "#006FE8", shortcut="Shift+Left" }
 seriesNext = { icon = ":icons/awesome/png/arrowhead-pointing-to-the-right.png", color = "#006FE8", shortcut="Shift+Right" }
 
-selectBest = { icon = ":icons/awesome/png/star.png", color="#fce700" }
+selectBest = { icon = ":icons/essential/png/star.png" }
 selectInvert = { icon = ":icons/awesome/png/couple-of-arrows-changing-places.png", color="red" }
 selectAll = { icon=":icons/awesome/png/check.png", color="red" }
 selectClear = { icon=":icons/awesome/png/undo-arrow.png", color="red" }
 
-processMove = { icon = ":icons/awesome/png/move-document.png", color = "darkorange" } 
-processDelete = { icon = ":icons/awesome/png/trash.png", color = "red" }
+processMove = { icon = ":icons/awesome/png/move-document.png", color = "darkorange"} 
+processDelete = { icon = ":icons/essential/png/garbage-2.png" }
 processRename = { icon = ":icons/awesome/png/pencil.png", color = "green" }
 processCopy = { icon = ":icons/awesome/png/copy-document.png", color = "blue" }
 
-enhanceSave = { save = { icon = ":icons/awesome/png/save-file-option.png", color = "brown" }, saveAs = { icon = ":icons/awesome/png/save-file-option.png", color = "brown" } }
+enhanceWhiteBalance = { icon = ":icons/essential/derived/whitebalance.png" }
+enhanceSave = { save = { icon = ":icons/essential/png/save.png" }, saveAs = { icon = ":icons/essential/png/save.png" } }
 
 helpLicense = { icon=":icons/awesome/png/text-file.png", color="black" }
 

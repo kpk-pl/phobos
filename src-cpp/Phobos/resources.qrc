@@ -15,19 +15,22 @@
         <file>icons/awesome/png/right-chevron.png</file>
         <file>icons/awesome/png/arrowhead-pointing-to-the-right.png</file>
         <file>icons/awesome/png/left-arrow.png</file>
-        <file>icons/awesome/png/open-folder.png</file>
-        <file>icons/preview_window.png</file>
         <file>icons/awesome/png/chevron-arrow-down.png</file>
         <file>icons/awesome/png/chevron-arrow-up.png</file>
         <file>icons/awesome/png/bar-graph-on-a-rectangle.png</file>
-        <file>icons/awesome/png/star.png</file>
         <file>icons/awesome/png/couple-of-arrows-changing-places.png</file>
         <file>icons/awesome/png/check.png</file>
         <file>icons/awesome/png/undo-arrow.png</file>
         <file>icons/awesome/png/text-file.png</file>
         <file>icons/awesome/png/plus-black-symbol.png</file>
         <file>icons/awesome/png/minus-symbol.png</file>
-        <file>icons/awesome/png/beaker.png</file>
-        <file>icons/awesome/png/save-file-option.png</file>
+        <file>icons/essential/png/folder-10.png</file>
+        <file>icons/essential/png/star.png</file>
+        <file>icons/essential/png/garbage-2.png</file>
+        <file>icons/essential/png/save.png</file>
+        <file>icons/essential/derived/picture-edit.png</file>
+        <file>icons/essential/derived/file-details2.png</file>
+        <file>icons/essential/derived/whitebalance.png</file>
+        <file>icons/essential/derived/fullscreen-1.png</file>
     </qresource>
 </RCC>
