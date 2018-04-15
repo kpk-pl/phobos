@@ -15,6 +15,11 @@ void LoadingManager::start(LoadingJobVec && jobs)
     startOne(std::move(job));
 }
 
+// TODO: Consider creating a separate thread for reading images from disk
+// That would do this serially, communicate over promise-future with processing
+// thread.
+// I believe that would serialize processing and maybe speed up reading from disk a bit
+// Probably it would be then a good idea to adjust number of processing threads
 void LoadingManager::startOne(LoadingJob && job)
 {
   pcontainer::ItemId const itemId = job.itemId;

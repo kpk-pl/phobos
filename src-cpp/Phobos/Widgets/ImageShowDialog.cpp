@@ -81,7 +81,9 @@ struct LoadingThread : public QRunnable
 
   LoadingThread(QString const& path) :
     _path(path)
-  {}
+  {
+    setAutoDelete(true);
+  }
 
   void run() override
   {
@@ -115,7 +117,6 @@ void showImage(QWidget *parent, QImage const& image, pcontainer::Item const& pho
   dialog->raise();
 
   QRunnable* loadingJob = new LoadingThread(photoItem.id().fileName);
-  loadingJob->setAutoDelete(true);
   QThreadPool::globalInstance()->start(loadingJob);
 }
 

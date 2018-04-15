@@ -1,5 +1,6 @@
 [debug]
 disableExecutionOperations = true
+disableEnhancingSaves = true
 
 [logging]
 config = "logging.conf"
@@ -165,7 +166,7 @@ processRename = { icon = ":icons/awesome/png/pencil.png", color = "green" }
 processCopy = { icon = ":icons/awesome/png/copy-document.png", color = "blue" }
 
 enhanceWhiteBalance = { icon = ":icons/essential/derived/whitebalance.png" }
-enhanceSave = { save = { icon = ":icons/essential/png/save.png" }, saveAs = { icon = ":icons/essential/png/save.png" } }
+enhanceSave = { save = { icon = ":icons/essential/png/save.png" }, saveAs = { icon = ":icons/essential/derived/save-as.png" } }
 
 helpLicense = { icon=":icons/awesome/png/text-file.png", color="black" }
 

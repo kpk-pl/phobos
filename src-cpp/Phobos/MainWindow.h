@@ -13,6 +13,9 @@ namespace phobos {
 
 class ViewStack;
 class MainToolbar;
+namespace utils {
+class FilenameChooser;
+} // namespace utils
 
 // TODO: https://stackoverflow.com/questions/4795757/is-there-a-better-way-to-wordwrap-text-in-qtooltip-than-just-using-regexp
 // use last answer and install global filter
@@ -30,6 +33,8 @@ private slots:
   void processAction(processwiz::OperationType const operation);
   void openDetailsDialog();
   void openFullscreenDialog();
+  void handleEnhanceSave();
+  void handleEnhanceSaveAs();
 
 private:
   void loadPhotos();
@@ -45,6 +50,8 @@ private:
 
   MainToolbar* mainToolbar;
   ViewStack* viewStack;
+
+  utils::FilenameChooser* enhanceFilenameChooser;
 };
 
 } // namespace phobos

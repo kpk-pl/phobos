@@ -47,6 +47,7 @@ public:
   void setCurrentWidget(QWidget *widget);
 
   boost::optional<pcontainer::ItemId> currentItemInLaboratory() const;
+  void saveItemInLaboratory(QString const& fileName) const;
 
 public slots:
   void handleSwitchView(ViewDescriptionPtr viewDesc);

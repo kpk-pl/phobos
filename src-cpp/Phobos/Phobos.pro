@@ -112,7 +112,9 @@ SOURCES += Phobos.cpp\
     Widgets/Toolbar/ToolButton.cpp \
     Widgets/Toolbar/BigToolButton.cpp \
     Widgets/Toolbar/InlineToolButton.cpp \
-    Widgets/Toolbar/BigMenuToolButton.cpp
+    Widgets/Toolbar/BigMenuToolButton.cpp \
+    Dialogs/ConfirmSave.cpp \
+    Utils/FilenameChooser.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -251,7 +253,9 @@ HEADERS  += MainWindow.h \
     Widgets/Toolbar/InlineToolButton.h \
     Utils/EnumToString.h \
     Widgets/Toolbar/Signal.h \
-    Widgets/Toolbar/BigMenuToolButton.h
+    Widgets/Toolbar/BigMenuToolButton.h \
+    Dialogs/ConfirmSave.h \
+    Utils/FilenameChooser.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

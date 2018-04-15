@@ -6,6 +6,11 @@ namespace phobos { namespace iprocess {
 
 namespace {
 
+// TODO: Allow indicating that loaded photos are not a series
+// In this case don't perform series aggregation (no best mark feature too)
+// But display the picture score only
+// Maybe such series can be distinguished on a label in first column in allseriesview
+
 namespace detail {
 template<typename M>
 auto source(MetricPtr const& metric, M Metric::*ptr)

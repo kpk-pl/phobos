@@ -32,5 +32,6 @@
         <file>icons/essential/derived/file-details2.png</file>
         <file>icons/essential/derived/whitebalance.png</file>
         <file>icons/essential/derived/fullscreen-1.png</file>
+        <file>icons/essential/derived/save-as.png</file>
     </qresource>
 </RCC>

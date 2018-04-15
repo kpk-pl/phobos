@@ -5,6 +5,7 @@
 #include "ImageCache/CacheFwd.h"
 #include "ImageProcessing/Enhance/OperationType.h"
 #include <QWidget>
+#include <vector>
 
 namespace phobos {
 
@@ -25,6 +26,8 @@ public:
 
 public slots:
   void process(iprocess::enhance::OperationType const operation);
+  void resetImage();
+  void saveItem(QString const fileName);
 
 private:
   pcontainer::Set const& seriesSet;
@@ -33,6 +36,7 @@ private:
   widgets::ImageWidget *imageWidget;
 
   boost::optional<pcontainer::ItemId> currentId;
+  std::vector<iprocess::enhance::OperationType> operationStack;
 };
 
 } // namespace phobos

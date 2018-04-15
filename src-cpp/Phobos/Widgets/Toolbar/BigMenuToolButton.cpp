@@ -14,6 +14,8 @@ BigMenuToolButton::BigMenuToolButton(config::ConfigPath const& configPath) :
 
   setMenu(optionsMenu);
   setPopupMode(QToolButton::MenuButtonPopup);
+
+  QObject::connect(this, &BigMenuToolButton::clicked, this, &BigMenuToolButton::clickedHandler);
 }
 
 void BigMenuToolButton::addOption(QString const& label, std::string const& configName)
@@ -47,7 +49,9 @@ void BigMenuToolButton::clickedHandler()
 {
   if (_currentSelection.empty())
     return;
+
   emit utils::asserted::fromMap(_signalMap, _currentSelection)->activated();
+  emit _clickedSignal.activated();
 }
 
 Signal const* BigMenuToolButton::getSignal(std::string const& name) const

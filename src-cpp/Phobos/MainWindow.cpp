@@ -14,6 +14,7 @@
 #include "Widgets/Toolbar/Signal.h"
 #include "ImageProcessing/Enhance/OperationType.h"
 #include "Utils/Focused.h"
+#include "Utils/FilenameChooser.h"
 #include <easylogging++.h>
 #include <QApplication>
 #include <QAction>
@@ -33,7 +34,8 @@ MainWindow::MainWindow(QWidget *parent) :
   imageCache(seriesSet),
   sharedWidgets(),
   mainToolbar(new MainToolbar),
-  viewStack(new ViewStack(seriesSet, imageCache, sharedWidgets, mainToolbar))
+  viewStack(new ViewStack(seriesSet, imageCache, sharedWidgets, mainToolbar)),
+  enhanceFilenameChooser(new utils::FilenameChooser(this))
 {
   QVBoxLayout *mainLayout = new QVBoxLayout;
   mainLayout->setContentsMargins(0, 0, 0, 0);
@@ -136,7 +138,8 @@ void MainWindow::connectToolbar()
   conf("processRename", this, [this]{ processAction(processwiz::OperationType::Rename); });
 
   conf("enhanceWhiteBalance", this, [this]{ emit viewStack->photoEnhancement(iprocess::enhance::OperationType::AutoWhiteBalance); });
-  // TODO: handle enhance save signals
+  conf("enhanceSave.save", this, &MainWindow::handleEnhanceSave);
+  conf("enhanceSave.saveAs", this, &MainWindow::handleEnhanceSaveAs);
 }
 
 void MainWindow::configureStatusBar()
@@ -185,6 +188,40 @@ void MainWindow::openFullscreenDialog()
   }
 
   photoItem->showInFullDialog();
+}
+
+void MainWindow::handleEnhanceSave()
+{
+  LOG(TRACE) << "Requested save in laboratory";
+  auto const processedPhoto = viewStack->currentItemInLaboratory();
+  if (!processedPhoto)
+  {
+    LOG(DEBUG) << "There is no currently processes photo in laboratory";
+    return;
+  }
+
+  QString result = enhanceFilenameChooser->confirm(processedPhoto->fileName);
+  if (result.isEmpty())
+    return;
+
+  viewStack->saveItemInLaboratory(result);
+}
+
+void MainWindow::handleEnhanceSaveAs()
+{
+  LOG(TRACE) << "Requested save as in laboratory";
+  auto const processedPhoto = viewStack->currentItemInLaboratory();
+  if (!processedPhoto)
+  {
+    LOG(DEBUG) << "There is no currently processes photo in laboratory";
+    return;
+  }
+
+  QString result = enhanceFilenameChooser->select(processedPhoto->fileName);
+  if (result.isEmpty())
+    return;
+
+  viewStack->saveItemInLaboratory(result);
 }
 
 // TODO: Status bar should display percent and fraction of photos(series) viewed, especially in series view

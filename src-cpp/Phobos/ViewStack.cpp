@@ -329,4 +329,12 @@ boost::optional<pcontainer::ItemId> ViewStack::currentItemInLaboratory() const
   return laboratoryView->currentItem();
 }
 
+void ViewStack::saveItemInLaboratory(QString const& fileName) const
+{
+  if (currentWidget() != laboratoryView)
+    return;
+
+  laboratoryView->saveItem(fileName);
+}
+
 } // namespace phobos
