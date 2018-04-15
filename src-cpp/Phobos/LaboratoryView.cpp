@@ -58,6 +58,9 @@ void LaboratoryView::process(iprocess::enhance::OperationType const operation)
   operationStack.push_back(operation);
 }
 
+// TODO: Need to handle when override happened
+// Clear or update cache
+// Update allSeriesView and series views
 void LaboratoryView::saveItem(QString const fileName)
 {
   if (!currentId)
