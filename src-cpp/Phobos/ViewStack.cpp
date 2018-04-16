@@ -11,6 +11,7 @@
 #include "ImageCache/Cache.h"
 #include "Widgets/StatusBarSlider.h"
 #include "Widgets/StatusBarLeftRightNavigation.h"
+#include "Widgets/ImageShowDialog.h"
 #include "Utils/Asserted.h"
 #include <easylogging++.h>
 
@@ -273,7 +274,11 @@ void ViewStack::connectSignals()
 {
   QObject::connect(allSeriesView, &AllSeriesView::switchView, this, &ViewStack::handleSwitchView);
   QObject::connect(rowSeriesView, &RowSeriesView::switchView, this, &ViewStack::handleSwitchView);
-  QObject::connect(numSeriesView, &RowSeriesView::switchView, this, &ViewStack::handleSwitchView);
+  QObject::connect(numSeriesView, &NumSeriesView::switchView, this, &ViewStack::handleSwitchView);
+
+  QObject::connect(allSeriesView, &AllSeriesView::showImageFullscreen, this, &ViewStack::showImageFullscreen);
+  QObject::connect(rowSeriesView, &RowSeriesView::showImageFullscreen, this, &ViewStack::showImageFullscreen);
+  QObject::connect(numSeriesView, &NumSeriesView::showImageFullscreen, this, &ViewStack::showImageFullscreen);
 
   QObject::connect(sharedWidgets.slider, &widgets::StatusBarSlider::valueChanged, rowSeriesView, &RowSeriesView::resizeImages);
 
@@ -335,6 +340,15 @@ void ViewStack::saveItemInLaboratory(QString const& fileName) const
     return;
 
   laboratoryView->saveItem(fileName);
+}
+
+void ViewStack::showImageFullscreen(pcontainer::ItemId const& itemId)
+{
+  auto earlyResult = imageCache.transaction().item(itemId).callback([itemId](auto const& result){
+      widgets::fulldialog::updateImage(result.image, itemId);
+  }).persistent().execute();
+
+  widgets::fulldialog::showImage(window(), earlyResult.image, itemId);
 }
 
 } // namespace phobos

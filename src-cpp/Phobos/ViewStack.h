@@ -51,6 +51,7 @@ public:
 
 public slots:
   void handleSwitchView(ViewDescriptionPtr viewDesc);
+  void showImageFullscreen(pcontainer::ItemId const& itemId);
   void bulkSelect(PhotoBulkAction const action);
   void photoEnhancement(iprocess::enhance::OperationType const operation);
 

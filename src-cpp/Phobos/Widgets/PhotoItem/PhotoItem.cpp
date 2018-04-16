@@ -293,7 +293,7 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
 
   menu.addSeparator();
   menu.addAction(tr("Show details"), this, &PhotoItem::openDetailsDialog);
-  menu.addAction(tr("Fullscreen"), this, &PhotoItem::showInFullDialog);
+  menu.addAction(tr("Fullscreen"), this, [this](){ emit showFullscreen(photoItem().id()); });
 
   LOG(TRACE) << "Displayed context menu for " << _photoItem->id().toString();
   menu.exec(mapToGlobal(QPoint(event->x(), event->y())));
@@ -304,19 +304,11 @@ void PhotoItem::openDetailsDialog() const
   showDetailsDialog(window(), *_photoItem, image(), metrics());
 }
 
-// TODO: Need to load full quality screen resolution and display it.
-// If full resolution is available in cache, load it from cache
-// if not update with the best resolution when cache is loaded
-void PhotoItem::showInFullDialog() const
-{
-  fulldialog::showImage(window(), image(), *_photoItem);
-}
-
 void PhotoItem::focusInEvent(QFocusEvent*)
 {
   update();
   if (fulldialog::exists())
-    showInFullDialog();
+    emit showFullscreen(photoItem().id());
 }
 
 void PhotoItem::focusOutEvent(QFocusEvent*)

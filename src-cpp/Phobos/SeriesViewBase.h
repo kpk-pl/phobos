@@ -35,6 +35,7 @@ public:
 
 signals:
     void switchView(ViewDescriptionPtr viewDesc);
+    void showImageFullscreen(pcontainer::ItemId);
 
 protected:
     virtual void addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemWidget);

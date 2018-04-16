@@ -33,6 +33,7 @@ public:
 
 signals:
     void switchView(ViewDescriptionPtr viewDesc);
+    void showImageFullscreen(pcontainer::ItemId);
 
 public slots:
     void addNewSeries(pcontainer::SeriesPtr series);

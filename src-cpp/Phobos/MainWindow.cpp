@@ -176,18 +176,22 @@ void MainWindow::openDetailsDialog()
 void MainWindow::openFullscreenDialog()
 {
   LOG(TRACE) << "Requested fullscreen dialog for focused item";
-  auto photoItem = utils::focusedPhotoItemWidget();
-  if (!photoItem)
+  if (auto photoItem = utils::focusedPhotoItemWidget())
   {
-// TODO: Find first possible item?
-  }
-  if (!photoItem)
-  {
-    LOG(TRACE) << "Unable to show fullscreen dialog";
+    LOG(TRACE) << "Showing " << photoItem->photoItem().id().toString() << " focused image fullscreen";
+    viewStack->showImageFullscreen(photoItem->photoItem().id());
     return;
   }
 
-  photoItem->showInFullDialog();
+  if (!seriesSet.empty())
+  {
+    auto const& series = seriesSet.findNonEmptySeries(seriesSet.front().uuid());
+    LOG(TRACE) << "Showing first image " << series.front()->id().toString() << " fullscreen";
+    viewStack->showImageFullscreen(series.front()->id());
+    return;
+  }
+
+  LOG(WARNING) << "Unable to show fullscreen dialog";
 }
 
 void MainWindow::handleEnhanceSaveAs()

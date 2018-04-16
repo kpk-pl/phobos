@@ -235,6 +235,7 @@ void AllSeriesView::addItemToGrid(int const row, int const col, pcontainer::Item
   QObject::connect(item.get(), &PhotoItem::changeSeriesState, this, &AllSeriesView::changeSeriesState);
   QObject::connect(item.get(), &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
   QObject::connect(item.get(), &PhotoItem::removeAllSeries, &seriesSet, &pcontainer::Set::removeSeries);
+  QObject::connect(item.get(), &PhotoItem::showFullscreen, this, &AllSeriesView::showImageFullscreen);
 
   addPhotoToGridAt(item.release(), row, col);
 }

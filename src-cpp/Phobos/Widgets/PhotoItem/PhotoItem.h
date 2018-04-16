@@ -29,13 +29,13 @@ public:
 
 signals:
     void openInSeries();
+    void showFullscreen(pcontainer::ItemId);
     void changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState);
     void removeFromSeries(pcontainer::ItemId itemId);
     void removeAllSeries(QUuid const seriesUuid);
 
 public slots:
     void openDetailsDialog() const;
-    void showInFullDialog() const;
 
 private:
     class PixmapRenderer;

@@ -40,6 +40,7 @@ std::unique_ptr<widgets::pitem::PhotoItem> SeriesViewBase::createConnectedItem(p
 
   QObject::connect(widget.get(), &PhotoItem::changeSeriesState, this, &SeriesViewBase::changeCurrentSeriesState);
   QObject::connect(widget.get(), &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
+  QObject::connect(widget.get(), &PhotoItem::showFullscreen, this, &SeriesViewBase::showImageFullscreen);
 
   return widget;
 }
