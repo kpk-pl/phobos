@@ -1,10 +1,12 @@
 #ifndef UTILS_FILENAMECHOOSER_H
 #define UTILS_FILENAMECHOOSER_H
 
+#include "PhotoContainers/Fwd.h"
 #include <QString>
 #include <QObject>
 
 class QWidget;
+class QFileInfo;
 
 namespace phobos { namespace utils {
 
@@ -12,17 +14,17 @@ class FilenameChooser : public QObject
 {
 Q_OBJECT
 public:
-  FilenameChooser(QWidget *parent = nullptr);
+  FilenameChooser(pcontainer::Set const& photoSet, QWidget *parent = nullptr);
 
-  QString confirm(QString const& path);
   QString select(QString const& suggestion);
 
 private:
-  bool askToOverride(QString const& path, bool& askAgain) const;
+  bool askToOverride(QString const& path);
+  bool checkPath(QFileInfo const& fileInfo);
 
+  pcontainer::Set const& photoSet;
   QWidget* const widgetParent;
-  bool askBeforeOverrideSave;
-  bool askBeforeOverrideSaveAs;
+  bool askBeforeOverride;
 };
 
 }} // namespace phobos::utils

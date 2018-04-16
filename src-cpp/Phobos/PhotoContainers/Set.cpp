@@ -97,6 +97,16 @@ ItemPtr Set::findItem(ItemId const& id) const
   return *it;
 }
 
+ItemPtr Set::findItem(QString const& fileName) const
+{
+  for (auto const& series : _photoSeries)
+   for (auto const& photo : *series)
+    if (photo->fileName() == fileName)
+     return photo;
+
+  return nullptr;
+}
+
 void Set::removeImage(pcontainer::ItemId const& itemId)
 {
   removeImagesImpl({itemId});

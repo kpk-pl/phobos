@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
   sharedWidgets(),
   mainToolbar(new MainToolbar),
   viewStack(new ViewStack(seriesSet, imageCache, sharedWidgets, mainToolbar)),
-  enhanceFilenameChooser(new utils::FilenameChooser(this))
+  enhanceFilenameChooser(new utils::FilenameChooser(seriesSet, this))
 {
   QVBoxLayout *mainLayout = new QVBoxLayout;
   mainLayout->setContentsMargins(0, 0, 0, 0);
@@ -138,7 +138,6 @@ void MainWindow::connectToolbar()
   conf("processRename", this, [this]{ processAction(processwiz::OperationType::Rename); });
 
   conf("enhanceWhiteBalance", this, [this]{ emit viewStack->photoEnhancement(iprocess::enhance::OperationType::AutoWhiteBalance); });
-  conf("enhanceSave.save", this, &MainWindow::handleEnhanceSave);
   conf("enhanceSave.saveAs", this, &MainWindow::handleEnhanceSaveAs);
 }
 
@@ -188,23 +187,6 @@ void MainWindow::openFullscreenDialog()
   }
 
   photoItem->showInFullDialog();
-}
-
-void MainWindow::handleEnhanceSave()
-{
-  LOG(TRACE) << "Requested save in laboratory";
-  auto const processedPhoto = viewStack->currentItemInLaboratory();
-  if (!processedPhoto)
-  {
-    LOG(DEBUG) << "There is no currently processes photo in laboratory";
-    return;
-  }
-
-  QString result = enhanceFilenameChooser->confirm(processedPhoto->fileName);
-  if (result.isEmpty())
-    return;
-
-  viewStack->saveItemInLaboratory(result);
 }
 
 void MainWindow::handleEnhanceSaveAs()

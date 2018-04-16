@@ -230,10 +230,8 @@ QWidget* MainToolbar::setupEnhanceGroup()
   ButtonCreator creator(_buttonSignals);
 
   BigMenuToolButton *save = creator.make<BigMenuToolButton>("enhanceSave", tr("Save enhanced photo"));
-  save->addOption(tr("Save"), "save");
   save->addOption(tr("Save as"), "saveAs");
 
-  _buttonSignals.emplace("enhanceSave.save", save->getSignal("save"));
   _buttonSignals.emplace("enhanceSave.saveAs", save->getSignal("saveAs"));
 
   NamedHorizontalGroup *group = NamedHorizontalGroup::create(tr("Enhance"),

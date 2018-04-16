@@ -33,7 +33,6 @@ private slots:
   void processAction(processwiz::OperationType const operation);
   void openDetailsDialog();
   void openFullscreenDialog();
-  void handleEnhanceSave();
   void handleEnhanceSaveAs();
 
 private:

@@ -1,25 +1,19 @@
 #include "Utils/FilenameChooser.h"
+#include "PhotoContainers/Set.h"
 #include "Dialogs/ConfirmSave.h"
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <easylogging++.h>
 
 namespace phobos { namespace utils {
 
-FilenameChooser::FilenameChooser(QWidget* parent) :
-  QObject(parent), widgetParent(parent), askBeforeOverrideSave(true), askBeforeOverrideSaveAs(true)
+FilenameChooser::FilenameChooser(pcontainer::Set const& photoSet, QWidget* parent) :
+  QObject(parent),
+  photoSet(photoSet),
+  widgetParent(parent),
+  askBeforeOverride(true)
 {}
-
-QString FilenameChooser::confirm(QString const& path)
-{
-  LOG(TRACE) << "Confirming path " << path;
-
-  if (askBeforeOverrideSave && !askToOverride(path, askBeforeOverrideSave))
-    return QString{};
-
-  LOG(TRACE) << "Confirmed " << path;
-  return path;
-}
 
 QString FilenameChooser::select(QString const& suggestion)
 {
@@ -46,12 +40,34 @@ QString FilenameChooser::select(QString const& suggestion)
     info.setFile(dialog.selectedFiles().front());
     LOG(TRACE) << "Selected " << info.absoluteFilePath();
 
-  } while (askBeforeOverrideSaveAs && info.exists() && !askToOverride(info.absoluteFilePath(), askBeforeOverrideSaveAs));
+  } while (!checkPath(info));
 
   return info.absoluteFilePath();
 }
 
-bool FilenameChooser::askToOverride(QString const& path, bool& askAgain) const
+bool FilenameChooser::checkPath(QFileInfo const& fileInfo)
+{
+  if (photoSet.findItem(fileInfo.absoluteFilePath()))
+  {
+    QMessageBox::information(widgetParent,
+        tr("Invalid file name"),
+        tr("Cannot save to this location because this photo is currently imported.\nChoose another location."),
+        QMessageBox::StandardButton::Ok,
+        QMessageBox::StandardButton::Ok);
+
+    return false;
+  }
+
+  if (!askBeforeOverride)
+    return true;
+
+  if (!fileInfo.exists())
+    return true;
+
+  return askToOverride(fileInfo.absoluteFilePath());
+}
+
+bool FilenameChooser::askToOverride(QString const& path)
 {
   LOG(TRACE) << "Asking for confirmation";
   dialog::ConfirmSave dialog(path, widgetParent);
@@ -62,7 +78,7 @@ bool FilenameChooser::askToOverride(QString const& path, bool& askAgain) const
     return false;
   }
 
-  askAgain = !dialog.dontAskAgain();
+  askBeforeOverride = !dialog.dontAskAgain();
   return true;
 }
 
