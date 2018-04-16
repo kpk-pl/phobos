@@ -8,11 +8,6 @@
 
 namespace phobos { namespace importwiz {
 
-
-// TODO: Enable selecting directory and process all photos from it
-// TODO: Without directory support, selecting image and directory together cause
-// that when accepting selection nothing happens (cannot exit dialog)
-// TODO: What happens when invalid files are selected?
 namespace {
 std::unique_ptr<QFileDialog> createLoadDialog(QWidget *parent)
 {
