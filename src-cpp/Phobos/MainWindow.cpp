@@ -21,6 +21,7 @@
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QKeySequence>
+#include <QShortcut>
 #include <QVBoxLayout>
 #include <QToolButton>
 #include <QStatusBar>
@@ -48,6 +49,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
   connectToolbar();
   configureStatusBar();
+
+  QObject::connect(new QShortcut(QKeySequence("Ctrl+Q"), this), &QShortcut::activated, this, &MainWindow::close);
 
   setWindowTitle(config::qualified<std::string>("mainWindow.title", "Phobos").c_str());
   setMinimumSize(config::qSize("mainWindow.minimumSize", QSize(480, 360)));
@@ -108,8 +111,6 @@ void MainWindow::connectToolbar()
 // TODO: save option, with possibility to save scaled pixmaps as well, with metrics etc
 // TODO: Load saved config from file, initialize all series, pixmaps, metrics, selections etc, remember to fix UUIDs for series as those will change (or maybe can construct QUuid back from text?
   conf("fileImport", this, &MainWindow::loadPhotos);
-// TODO" configure Ctrl+Q event!
-//(QKeySequence("Ctrl+Q"), tr("Exit the application"), "", this, &MainWindow::close);
 
 // TODO: to viewMenubar add selectable options to enable/disable addons on photoitemwidgets
 // TODO: Action: Report -> show dialog with number of series / num selected photos, num unchecked series etc
