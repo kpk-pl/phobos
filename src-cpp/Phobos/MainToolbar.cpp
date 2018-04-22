@@ -40,7 +40,8 @@ MainToolbar::MainToolbar(QWidget *parent) :
   setupHideButton(mainLayout);
 
   setLayout(mainLayout);
-  setFixedHeight(sizeHint().height());
+  _fixedSizeHint = sizeHint().height();
+  setFixedHeight(_fixedSizeHint);
 }
 
 void MainToolbar::setContentsMargins(int left, int top, int right, int bottom) const
@@ -55,9 +56,16 @@ void MainToolbar::setHidden(bool hide)
 
   _hidden = hide;
 
-  for (int i = 0; i < _layout->count(); ++i)
-    if (QWidget* wgt = _layout->itemAt(i)->widget())
-      wgt->setVisible(!hide);
+  for (auto const& group : _groups)
+    group.second.widget->setVisible(hide ? false : group.second.visibility);
+
+  if (hide)
+  {
+    setMinimumHeight(0);
+    setMaximumHeight(QWIDGETSIZE_MAX);
+  }
+  else
+    setFixedHeight(_fixedSizeHint);
 
   _hideButton->setIcon(iprocess::utils::coloredPixmap(buttonPath(hide ? "showNavigation" : "hideNavigation"), QSize(64, 64)));
 }
@@ -66,7 +74,12 @@ void MainToolbar::setGroupVisible(std::string const& group, bool visible)
 {
   auto const it = _groups.find(group);
   if (it != _groups.end())
-    it->second->setVisible(visible);
+  {
+    if (!_hidden)
+      it->second.widget->setVisible(visible);
+
+    it->second.visibility = visible;
+  }
 }
 
 widgets::toolbar::Signal const* MainToolbar::getSignal(std::string const& key) const
@@ -84,12 +97,11 @@ QWidget* makeGroupSeparator()
   line->setMinimumWidth(config::qualified(basePath("config")("separatorMargin"), 2u));
   return line;
 }
+} // unnamed namespace
 
-QWidget* addGroupWithSeparator(widgets::toolbar::detail::HorizontalGroupBase *group,
-                               std::string const& name,
-                               QHBoxLayout *layout,
-                               std::map<std::string, QWidget*> & mapping,
-                               std::set<std::string> & groupNames)
+QWidget* MainToolbar::addGroupWithSeparator(widgets::toolbar::detail::HorizontalGroupBase *group,
+                                            std::string const& name,
+                                            QHBoxLayout *layout)
 {
   QWidget *separator = makeGroupSeparator();
   group->setVisibleBuddy(separator);
@@ -97,12 +109,13 @@ QWidget* addGroupWithSeparator(widgets::toolbar::detail::HorizontalGroupBase *gr
   layout->addWidget(group);
   layout->addWidget(separator);
 
-  mapping.emplace(name, group);
-  groupNames.emplace(name);
+  _groups.emplace(name, GroupInfo{group, true});
+  _groupNames.emplace(name);
 
   return group;
 }
 
+namespace {
 struct ButtonCreator
 {
   ButtonCreator(std::map<std::string, widgets::toolbar::Signal const*> & signalMap) : signalMap(signalMap)
@@ -153,7 +166,7 @@ QWidget* MainToolbar::setupFileGroup()
       creator.make<BigToolButton>("fileImport", tr("Import"), tr("Import photos"))
   );
 
-  return addGroupWithSeparator(group, "file", _layout, _groups, _groupNames);
+  return addGroupWithSeparator(group, "file", _layout);
 }
 
 QWidget* MainToolbar::setupViewGroup()
@@ -172,7 +185,7 @@ QWidget* MainToolbar::setupViewGroup()
       creator.make<BigToolButton>("viewPhotoDetails", tr("Photo\ndetails"), tr("Show details for selected photo"))
   );
 
-  return addGroupWithSeparator(group, "view", _layout, _groups, _groupNames);
+  return addGroupWithSeparator(group, "view", _layout);
 }
 
 QWidget* MainToolbar::setupSeriesGroup()
@@ -187,7 +200,7 @@ QWidget* MainToolbar::setupSeriesGroup()
       )
   );
 
-  return addGroupWithSeparator(group, "series", _layout, _groups, _groupNames);
+  return addGroupWithSeparator(group, "series", _layout);
 }
 
 QWidget* MainToolbar::setupSelectGroup()
@@ -204,7 +217,7 @@ QWidget* MainToolbar::setupSelectGroup()
       )
   );
 
-  return addGroupWithSeparator(group, "select", _layout, _groups, _groupNames);
+  return addGroupWithSeparator(group, "select", _layout);
 }
 
 QWidget* MainToolbar::setupProcessGroup()
@@ -221,7 +234,7 @@ QWidget* MainToolbar::setupProcessGroup()
       )
   );
 
-  return addGroupWithSeparator(group, "process", _layout, _groups, _groupNames);
+  return addGroupWithSeparator(group, "process", _layout);
 }
 
 QWidget* MainToolbar::setupEnhanceGroup()
@@ -239,7 +252,7 @@ QWidget* MainToolbar::setupEnhanceGroup()
       save
   );
 
-  return addGroupWithSeparator(group, "enhance", _layout, _groups, _groupNames);
+  return addGroupWithSeparator(group, "enhance", _layout);
 }
 
 QWidget* MainToolbar::setupHelpGroup()
@@ -251,7 +264,7 @@ QWidget* MainToolbar::setupHelpGroup()
       creator.make<InlineToolButton>("helpLicense", tr("Help"))
   );
 
-  return addGroupWithSeparator(group, "help", _layout, _groups, _groupNames);
+  return addGroupWithSeparator(group, "help", _layout);
 }
 
 void MainToolbar::setupHideButton(QBoxLayout *target)

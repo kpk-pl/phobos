@@ -15,6 +15,9 @@ namespace phobos {
 namespace widgets { namespace toolbar {
 class ToolButton;
 class Signal;
+namespace detail {
+class HorizontalGroupBase;
+} // namespace detail
 }} // namespace widgets::toolbar
 
 class MainToolbar : public QWidget
@@ -39,14 +42,25 @@ private:
   QWidget* setupEnhanceGroup();
   QWidget* setupHelpGroup();
 
+  QWidget* addGroupWithSeparator(widgets::toolbar::detail::HorizontalGroupBase *group,
+                                 std::string const& name,
+                                 QHBoxLayout *layout);
+
   void setupHideButton(QBoxLayout *target);
 
+  struct GroupInfo
+  {
+    QWidget* widget;
+    bool visibility;
+  };
+
   std::map<std::string, widgets::toolbar::Signal const*> _buttonSignals;
-  std::map<std::string, QWidget*> _groups;
+  std::map<std::string, GroupInfo> _groups;
   std::set<std::string> _groupNames;
 
   QHBoxLayout *_layout;
   QToolButton *_hideButton;
+  std::size_t _fixedSizeHint;
   bool _hidden;
 };
 
