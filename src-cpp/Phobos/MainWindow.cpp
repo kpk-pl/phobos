@@ -50,6 +50,8 @@ MainWindow::MainWindow(QWidget *parent) :
   connectToolbar();
   configureStatusBar();
 
+  // TODO: SHortcuts for all toolbar actions does not work when toolbar is not visible
+  // This needs to be resolved somehow
   QObject::connect(new QShortcut(QKeySequence("Ctrl+Q"), this), &QShortcut::activated, this, &MainWindow::close);
 
   setWindowTitle(config::qualified<std::string>("mainWindow.title", "Phobos").c_str());
