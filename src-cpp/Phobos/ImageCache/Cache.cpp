@@ -20,29 +20,30 @@ Cache::Cache(pcontainer::Set const& photoSet) :
   QObject::connect(&loadingManager, &LoadingManager::metricsReady, &metricCache, &MetricCache::newLoadedFromThread);
 }
 
-Result Cache::execute(Transaction && transaction)
+Result Cache::execute(ConstTransactionPtr transaction)
 {
-  LOG(DEBUG) << transaction.toString();
+  LOG(DEBUG) << transaction->toString();
 
-  auto const& photoItem = photoSet.findItem(transaction.getItemId());
+  auto const& photoItem = photoSet.findItem(transaction->itemId);
   if (!photoItem)
     return {QImage{}, ImageQuality::None, false};
 
-  auto const result = executeImpl(transaction);
+  auto const result = executeImpl(*transaction);
 
   LoadingJobVec jobs = scheduler(std::move(transaction));
+
   auto const part = std::partition(jobs.begin(), jobs.end(), [this](LoadingJob const& job){
-    if (job.onlyThumbnail)
-      return thumbnailCache.find(job.itemId.fileName) == thumbnailCache.end();
-    return !fullImageCache.has(job.itemId.fileName);
+    if (job.transaction->imageSize == ImageSize::Thumbnail)
+      return thumbnailCache.find(job.transaction->itemId.fileName) == thumbnailCache.end();
+    return !fullImageCache.has(job.transaction->itemId.fileName);
   });
 
   std::for_each(part, jobs.end(), [this](LoadingJob const& job){
-    if (!job.onlyThumbnail)
-      fullImageCache.touch(job.itemId.fileName, job.generation);
+    if (job.transaction->imageSize == ImageSize::Full)
+      fullImageCache.touch(job.transaction->itemId.fileName, job.generation);
   });
-
   jobs.erase(part, jobs.end());
+
   loadingManager.start(std::move(jobs));
 
   return result;
@@ -93,7 +94,7 @@ Result getInitialThumbnail(pcontainer::Item const& item)
 
 Result Cache::executeImpl(Transaction const& transaction) const
 {
-  auto const& itemId = transaction.getItemId();
+  auto const& itemId = transaction.itemId;
   if (!itemId)
   {
     LOG(ERROR) << "[Cache] Invalid transaction";
@@ -101,7 +102,7 @@ Result Cache::executeImpl(Transaction const& transaction) const
   }
 
   bool sufficient = true;
-  if (!transaction.isThumbnail())
+  if (transaction.imageSize == ImageSize::Full)
   {
     QImage const fullImage = fullImageCache.find(itemId.fileName);
     if (!fullImage.isNull())

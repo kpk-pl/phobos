@@ -4,8 +4,8 @@
 #include "PhotoContainers/Series.h"
 #include "Utils/Asserted.h"
 #include "Utils/Circulator.h"
-#include <limits>
 #include <cassert>
+#include <limits>
 
 namespace phobos { namespace icache {
 
@@ -13,17 +13,18 @@ ProactiveScheduler::ProactiveScheduler(pcontainer::Set const& photoSet) :
   photoSet(photoSet), currentGeneration(0)
 {}
 
-LoadingJobVec ProactiveScheduler::operator()(Transaction && transaction)
+LoadingJobVec ProactiveScheduler::operator()(ConstTransactionPtr transaction)
 {
-  if (!transaction.loadingEnabled())
+  if (transaction->loadingMode == LoadingMode::Cached)
     return {};
 
-  if (transaction.isThumbnail() || !transaction.isProactive())
-    return scheduleOrganic(transaction);
-  else
-    return scheduleProactive(transaction);
+  if (transaction->imageSize == ImageSize::Thumbnail)
+    return scheduleOrganic(std::move(transaction));
 
-  return utils::asserted::always;
+  if (transaction->predictionMode == PredictionMode::None)
+    return scheduleOrganic(std::move(transaction));
+
+  return scheduleProactive(std::move(transaction));
 }
 
 namespace {
@@ -72,27 +73,25 @@ It regressNotEmpty(It it, It const& end)
 }
 } // unnamed namespace
 
-LoadingJobVec ProactiveScheduler::scheduleProactive(Transaction const& transaction)
+LoadingJobVec ProactiveScheduler::scheduleProactive(ConstTransactionPtr transaction)
 {
-  assert(transaction.isProactive());
-  assert(!transaction.isThumbnail());
+  assert(transaction->predictionMode == PredictionMode::Proactive);
+  assert(transaction->imageSize == ImageSize::Full);
 
-  auto const& mainItemId = transaction.getItemId();
+  auto const& mainItemId = transaction->itemId;
 
   LoadingJobVec jobs;
-  GenerationCounter cnt(currentGeneration, !transaction.isPersistent());
+  GenerationCounter cnt(currentGeneration, transaction->persistency == Persistency::No);
 
   if (lastProactiveSeries == mainItemId.seriesUuid)
   {
-    jobs.emplace_back(
-          LoadingJob{mainItemId, false, cnt(0), transaction.getCallback()});
+    jobs.push_back({std::move(transaction), cnt(0)});
     return jobs;
   }
 
   lastProactiveSeries = mainItemId.seriesUuid;
 
-  jobs.emplace_back(
-        LoadingJob{mainItemId, false, cnt(5), transaction.getCallback()});
+  jobs.push_back({std::move(transaction), cnt(5)});
 
   // main item for transaction
   auto const baseIt = utils::makeCirculator(photoSet.begin(), photoSet.end(),
@@ -101,10 +100,12 @@ LoadingJobVec ProactiveScheduler::scheduleProactive(Transaction const& transacti
                                                            return series->uuid() == mainItemId.seriesUuid;
                                                          }));
 
+  auto const parentTransaction = jobs.front().transaction;
+
   // series in which main item is located
   for (auto const& item : **baseIt)
     if (item->id() != mainItemId)
-      jobs.emplace_back(LoadingJob{item->id(), false, cnt(4), nullptr});
+      jobs.push_back({parentTransaction->cloneFor(item->id()), cnt(4)});
 
   // next series after main series
   auto nextIt = advanceNotEmpty(baseIt, baseIt);
@@ -112,7 +113,7 @@ LoadingJobVec ProactiveScheduler::scheduleProactive(Transaction const& transacti
     return jobs;
 
   for (auto const& item : **nextIt)
-    jobs.emplace_back(LoadingJob{item->id(), false, cnt(3), nullptr});
+    jobs.push_back({parentTransaction->cloneFor(item->id()), cnt(3)});
 
   // prev series before main series, cannot rollback next series
   auto prevIt = regressNotEmpty(baseIt, nextIt);
@@ -120,7 +121,7 @@ LoadingJobVec ProactiveScheduler::scheduleProactive(Transaction const& transacti
     return jobs;
 
   for (auto const& item : **prevIt)
-    jobs.emplace_back(LoadingJob{item->id(), false, cnt(2), nullptr});
+    jobs.push_back({parentTransaction->cloneFor(item->id()), cnt(2)});
 
   // second after next series, cannot rollback to prev series
   nextIt = advanceNotEmpty(nextIt, prevIt);
@@ -128,21 +129,18 @@ LoadingJobVec ProactiveScheduler::scheduleProactive(Transaction const& transacti
     return jobs;
 
   for (auto const& item : **nextIt)
-    jobs.emplace_back(LoadingJob{item->id(), false, cnt(1), nullptr});
+    jobs.push_back({parentTransaction->cloneFor(item->id()), cnt(1)});
 
   return jobs;
 }
 
-LoadingJobVec ProactiveScheduler::scheduleOrganic(Transaction const& transaction)
+LoadingJobVec ProactiveScheduler::scheduleOrganic(ConstTransactionPtr transaction)
 {
-  LoadingJobVec jobs;
-  GenerationCounter cnt(currentGeneration, !transaction.isPersistent());
-
-  jobs.emplace_back(
-        LoadingJob{transaction.getItemId(), transaction.isThumbnail(), cnt(1), transaction.getCallback()});
-
   lastProactiveSeries = QUuid();
+  GenerationCounter cnt(currentGeneration, transaction->persistency == Persistency::No);
 
+  LoadingJobVec jobs;
+  jobs.push_back({std::move(transaction), cnt(1)});
   return jobs;
 }
 

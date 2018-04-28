@@ -12,11 +12,11 @@ class ProactiveScheduler
 public:
   explicit ProactiveScheduler(pcontainer::Set const& photoSet);
 
-  LoadingJobVec operator()(Transaction && parent);
+  LoadingJobVec operator()(ConstTransactionPtr transaction);
 
 private:
-  LoadingJobVec scheduleProactive(Transaction const& transaction);
-  LoadingJobVec scheduleOrganic(Transaction const& transaction);
+  LoadingJobVec scheduleProactive(ConstTransactionPtr transaction);
+  LoadingJobVec scheduleOrganic(ConstTransactionPtr transaction);
 
   pcontainer::Set const& photoSet;
   Generation currentGeneration;

@@ -31,7 +31,7 @@ public:
   explicit Cache(pcontainer::Set const& photoSet);
 
   Transaction transaction() { return Transaction(*this); }
-  Result execute(Transaction && transaction);
+  Result execute(ConstTransactionPtr transaction);
 
   MetricCache const& metrics() const { return metricCache; }
   ThumbnailCache const& thumbnails() const { return thumbnailCache; }

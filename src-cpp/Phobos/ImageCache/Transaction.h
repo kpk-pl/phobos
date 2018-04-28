@@ -2,6 +2,7 @@
 #define IMAGECACHE_TRANSACTION_H_
 
 #include "ImageCache/CacheFwd.h"
+#include "ImageCache/Types.h"
 #include "ImageCache/TransactionFwd.h"
 #include "PhotoContainers/ItemId.h"
 #include <QImage>
@@ -15,34 +16,29 @@ class Transaction
 public:
   Transaction(Cache& cache);
 
-  Transaction&& item(pcontainer::ItemId const& itemId) && { this->itemId = itemId; return std::move(*this); }
-  Transaction&& thumbnail() && { onlyThumbnail = true; return std::move(*this); }
-  Transaction&& onlyCache() && { disableLoading = true; return std::move(*this); }
+  Transaction&& item(pcontainer::ItemId const& pItemId) && { itemId = pItemId; return std::move(*this); }
+  Transaction&& thumbnail() && { imageSize = ImageSize::Thumbnail; return std::move(*this); }
+  Transaction&& onlyCache() && { loadingMode = LoadingMode::Cached; return std::move(*this); }
   Transaction&& callback(TransactionCallback && newCallback) &&;
-  Transaction&& proactive() && { proactiveLoading = true; return std::move(*this); }
-  Transaction&& persistent() && { persistentLoading = true; return std::move(*this); }
+  Transaction&& proactive() && { predictionMode = PredictionMode::Proactive; return std::move(*this); }
+  Transaction&& persistent() && { persistency = Persistency::Yes; return std::move(*this); }
 
   Result execute() &&;
 
   QString toString() const;
+  TransactionPtr cloneFor(pcontainer::ItemId const& id) const;
 
   QUuid const uuid;
-  pcontainer::ItemId const& getItemId() const { return itemId; }
-  OptTransactionCallback const& getCallback() const { return loadCallback; }
-  bool isThumbnail() const { return onlyThumbnail; }
-  bool isProactive() const { return proactiveLoading; }
-  bool isPersistent() const { return persistentLoading; }
-  bool loadingEnabled() const { return !disableLoading; }
+
+  pcontainer::ItemId itemId;
+  ImageSize imageSize = ImageSize::Full;
+  LoadingMode loadingMode = LoadingMode::Active;
+  PredictionMode predictionMode = PredictionMode::None;
+  Persistency persistency = Persistency::No;
+  OptTransactionCallback loadCallback;
 
 private:
   Cache& cache;
-
-  pcontainer::ItemId itemId;
-  bool onlyThumbnail = false;
-  bool disableLoading = false;
-  bool proactiveLoading = false;
-  bool persistentLoading = false;
-  OptTransactionCallback loadCallback;
 };
 
 }} // namespace phobos::icache

@@ -16,14 +16,14 @@ Transaction&& Transaction::callback(TransactionCallback && newCallback) &&
 QString Transaction::toString() const
 {
   QString s = QString("[CacheTransaction]: Get %1 %2 %3")
-    .arg(onlyThumbnail ? "thumbnail" : "full image")
+    .arg(imageSize == ImageSize::Thumbnail ? "thumbnail" : "full image")
     .arg(itemId.fileName)
-    .arg(disableLoading ? "from cache" : "with loading");
+    .arg(loadingMode == LoadingMode::Cached ? "from cache" : "with loading");
 
-  if (proactiveLoading)
+  if (predictionMode == PredictionMode::Proactive)
     s += " proactively";
 
-  if (persistentLoading)
+  if (persistency == Persistency::Yes)
     s += " persistently";
 
   return s;
@@ -31,7 +31,19 @@ QString Transaction::toString() const
 
 Result Transaction::execute() &&
 {
-  return cache.execute(std::move(*this));
+  return cache.execute(std::make_shared<Transaction>(std::move(*this)));
+}
+
+TransactionPtr Transaction::cloneFor(pcontainer::ItemId const& id) const
+{
+  TransactionPtr clone = std::make_shared<Transaction>(cache);
+  clone->itemId = id;
+  clone->imageSize = imageSize;
+  clone->loadingMode = loadingMode;
+  clone->predictionMode = predictionMode;
+  clone->persistency = persistency;
+  clone->loadCallback = {nullptr};
+  return clone;
 }
 
 }} // namespace phobos::icache

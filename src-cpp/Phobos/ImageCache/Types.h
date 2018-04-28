@@ -5,6 +5,30 @@ namespace phobos { namespace icache {
 
 using Generation = unsigned long long;
 
+enum class ImageSize
+{
+  Thumbnail,
+  Full
+};
+
+enum class Persistency : bool
+{
+  No = false,
+  Yes = true
+};
+
+enum class PredictionMode
+{
+  None,
+  Proactive
+};
+
+enum class LoadingMode
+{
+  Cached,
+  Active
+};
+
 }} // namespace phobos::icache
 
 #endif // IMAGECACHE_TYPES_H

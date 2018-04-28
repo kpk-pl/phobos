@@ -3,11 +3,14 @@
 
 #include "ImageCache/CacheFwd.h"
 #include <vector>
+#include <memory>
 #include <functional>
 
 namespace phobos { namespace icache {
 
 class Transaction;
+using TransactionPtr = std::shared_ptr<Transaction>;
+using ConstTransactionPtr = std::shared_ptr<const Transaction>;
 using TransactionVec = std::vector<Transaction>;
 
 using TransactionCallback = std::function<void(Result const&)>;

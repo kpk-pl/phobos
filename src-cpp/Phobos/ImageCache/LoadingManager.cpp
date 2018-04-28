@@ -22,7 +22,7 @@ void LoadingManager::start(LoadingJobVec && jobs)
 // Probably it would be then a good idea to adjust number of processing threads
 void LoadingManager::startOne(LoadingJob && job)
 {
-  pcontainer::ItemId const itemId = job.itemId;
+  pcontainer::ItemId const itemId = job.transaction->itemId;
 
   LOG(DEBUG) << "[Cache] Requested thread load for " << itemId.fileName;
   auto thread = makeLoadingThread(itemId);
@@ -83,13 +83,16 @@ void LoadingManager::imageLoaded(pcontainer::ItemId const& itemId, QImage const&
 
   for (auto it = allTrans.first; it != allTrans.second; ++it)
   {
-    if (it->second.second.onlyThumbnail)
-      it->second.second.callback(Result{thumbnail, ImageQuality::Thumb, true});
+    ConstTransactionPtr const& tran = it->second.second.transaction;
+    if (tran->imageSize == ImageSize::Thumbnail)
+    {
+      tran->loadCallback(Result{thumbnail, ImageQuality::Thumb, true});
+    }
     else
     {
       updateFullCache = true;
       biggestGeneration = std::max(biggestGeneration, it->second.second.generation);
-      it->second.second.callback(Result{image, ImageQuality::Full, true});
+      tran->loadCallback(Result{image, ImageQuality::Full, true});
     }
   }
 

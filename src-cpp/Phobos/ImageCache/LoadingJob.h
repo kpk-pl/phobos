@@ -10,10 +10,8 @@ namespace phobos { namespace icache {
 
 struct LoadingJob
 {
-  pcontainer::ItemId itemId;
-  bool onlyThumbnail;
-  Generation generation;
-  OptTransactionCallback callback;
+  ConstTransactionPtr transaction;
+  Generation generation; // the higher the generation the higher the load priority is
 };
 
 using LoadingJobVec = std::vector<LoadingJob>;
