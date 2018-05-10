@@ -5,6 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include <easylogging++.h>
 #include <QImageReader>
+#include <QFile>
 #include <utility>
 
 //#define PHOBOS_TIME_IMAGE_OPS
@@ -28,13 +29,36 @@ icache::Runnable::Id LoaderThread::id() const
 
 // TODO: optimize with-metrics flow
 
+namespace {
+cv::Mat readOpencvImage(QString const& fileName)
+{
+  TIMED_FUNC(id);
+
+#if _WIN32
+  // This is to handle a bug in opencv in Windows, where imread uses fopen() instead of _wfopen() for Unicode names
+  QFile file(fileName);
+  std::vector<char> buffer;
+  buffer.resize(file.size());
+
+  if (!file.open(QIODevice::ReadOnly))
+    return cv::Mat();
+
+  file.read(buffer.data(), buffer.size());
+  file.close();
+
+  return cv::imdecode(buffer, CV_LOAD_IMAGE_COLOR);
+#else
+  return cv::imread(fileName.toStdString().c_str());
+#endif
+}
+} // unnamed namespace
+
 void LoaderThread::runImpl()
 {
   TIMED_FUNC(scopefunc);
   if (calculateMetrics)
   {
-    cv::Mat cvImage;
-    TIMED("load:imread", cvImage = cv::imread(itemId.fileName.toStdString().c_str()));
+    cv::Mat cvImage = readOpencvImage(itemId.fileName);
     emitLoadedSignal(cvImage);
 
     runMetrics(std::move(cvImage));
