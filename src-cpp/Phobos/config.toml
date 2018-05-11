@@ -1,5 +1,5 @@
 [debug]
-disableExecutionOperations = true
+disableExecutionOperations = false
 disableEnhancingSaves = true
 
 [logging]

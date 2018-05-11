@@ -34,7 +34,6 @@ cv::Mat readOpencvImage(QString const& fileName)
 {
   TIMED_FUNC(id);
 
-#if _WIN32
   // This is to handle a bug in opencv in Windows, where imread uses fopen() instead of _wfopen() for Unicode names
   QFile file(fileName);
   std::vector<char> buffer;
@@ -47,9 +46,6 @@ cv::Mat readOpencvImage(QString const& fileName)
   file.close();
 
   return cv::imdecode(buffer, CV_LOAD_IMAGE_COLOR);
-#else
-  return cv::imread(fileName.toStdString().c_str());
-#endif
 }
 } // unnamed namespace
 
@@ -60,7 +56,6 @@ void LoaderThread::runImpl()
   {
     cv::Mat cvImage = readOpencvImage(itemId.fileName);
     emitLoadedSignal(cvImage);
-
     runMetrics(std::move(cvImage));
   }
   else
