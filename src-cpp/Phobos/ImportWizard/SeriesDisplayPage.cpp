@@ -28,7 +28,7 @@ namespace phobos { namespace importwiz {
 SeriesDisplayPage::SeriesDisplayPage(QWidget *parent) :
   QWizardPage(parent)
 {
-  setTitle(tr("Confirm series"));
+  setTitle(tr("Confirm division process"));
 
   tree = new QTreeWidget();
   tree->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -38,7 +38,7 @@ SeriesDisplayPage::SeriesDisplayPage(QWidget *parent) :
 
   multipleLengthsInfo = new widgets::TextIconLabel(widgets::IconLabel::Icon::Information);
 
-  suggestedSplitInfo = new widgets::TextIconLabel(widgets::IconLabel::Icon::Information, tr("Some series might not have been correctly splitted"));
+  suggestedSplitInfo = new widgets::TextIconLabel(widgets::IconLabel::Icon::Information, tr("Some groups might not have been correctly splitted"));
   suggestedSplitButton = new QPushButton(tr("Split now"));
 
   lengthOneWarning = new widgets::TextIconLabel(widgets::IconLabel::Icon::Warning);
@@ -76,8 +76,10 @@ void SeriesDisplayPage::initializeInfoLabels()
   auto const lenghtsCount = countSeriesLengths();
 
   auto const oneIt = lenghtsCount.find(1);
-  if (oneIt != lenghtsCount.end())
+  if (oneIt != lenghtsCount.end() && lenghtsCount.size() > 1)
+  {
     initializeLengthOneWarning(oneIt->second);
+  }
   else
   {
     lengthOneWarning->hide();
@@ -89,10 +91,10 @@ void SeriesDisplayPage::initializeInfoLabels()
 
 void SeriesDisplayPage::initializeLengthOneWarning(std::size_t const count)
 {
-  LOG(TRACE) << count << " series have just one photo";
+  LOG(TRACE) << count << " groups have just one photo";
 
   lengthOneWarning->show();
-  lengthOneWarning->label()->setText(tr("%1 series with only one photo %2 been disabled")
+  lengthOneWarning->label()->setText(tr("%1 groups with only one photo %2 been disabled")
                                         .arg(count).arg(count == 1 ? "has" : "have"));
 
   selectLengthOneButton->show();
@@ -137,7 +139,7 @@ void SeriesDisplayPage::initializeMultipleLengthsInfo(std::map<std::size_t, unsi
   std::set<std::size_t> lengths = keysFromMap(lengthsCount);
   lengths.erase(1);
 
-  if (lengths.size() < 2)
+  if (lengths.size() < 2 || std::none_of(_dividedSeries.begin(), _dividedSeries.end(), [](PhotoSeries const& ps){ return ps.isASeries; }))
   {
     multipleLengthsInfo->hide();
     suggestedSplitInfo->hide();
@@ -148,9 +150,9 @@ void SeriesDisplayPage::initializeMultipleLengthsInfo(std::map<std::size_t, unsi
   std::string const sLengthList =
     boost::algorithm::join(lengths | boost::adaptors::transformed(static_cast<std::string(*)(std::size_t)>(std::to_string)), ", ");
 
-  LOG(TRACE) << "Detected series with multiple different lengths: " << sLengthList;
+  LOG(TRACE) << "Detected groups with multiple different lengths: " << sLengthList;
 
-  multipleLengthsInfo->label()->setText(tr("Found series with different lengths: %1 photos").arg(sLengthList.c_str()));
+  multipleLengthsInfo->label()->setText(tr("Found groups with different lengths: %1 photos").arg(sLengthList.c_str()));
   multipleLengthsInfo->show();
 
   auto const possibleDivs = dividingPairs(lengths);
@@ -190,7 +192,7 @@ std::unique_ptr<QTreeWidgetItem> makeTreeItem(PhotoSeries const& series)
 void SeriesDisplayPage::initializePage()
 {
   _dividedSeries = field("dividedSeries").value<PhotoSeriesVec>();
-  LOG(DEBUG) << "Read " << _dividedSeries.size() << " series from previous dialog";
+  LOG(DEBUG) << "Read " << _dividedSeries.size() << " groups from previous dialog";
 
   initializeNewSeries();
 
@@ -208,8 +210,8 @@ void SeriesDisplayPage::initializeNewSeries()
     tree->addTopLevelItem(makeTreeItem(series).release());
   }
 
-  loadedStatusLabel->setText(tr("Loaded %1 photos into %2 series").arg(photoCount).arg(_dividedSeries.size()));
-  LOG(DEBUG) << "Displayed " << photoCount  << " photos in " << _dividedSeries.size() << " series";
+  loadedStatusLabel->setText(tr("Loaded %1 photos into %2 groups").arg(photoCount).arg(_dividedSeries.size()));
+  LOG(DEBUG) << "Displayed " << photoCount  << " photos in " << _dividedSeries.size() << " groups";
 
   initializeInfoLabels();
 }
@@ -241,7 +243,7 @@ bool SeriesDisplayPage::validatePage()
     }
   }
 
-  LOG(TRACE) << "User selected " << _chosenSeries.size() << " series to load";
+  LOG(TRACE) << "User selected " << _chosenSeries.size() << " groups to load";
   emit seriesChanged(_chosenSeries);
   return true;
 }
@@ -264,7 +266,7 @@ void SeriesDisplayPage::silentCleanup()
 
 void SeriesDisplayPage::selectBackSeriesWithOnePhoto()
 {
-  LOG(TRACE) << "Selecting back series with just one photo";
+  LOG(TRACE) << "Selecting back groups with just one photo";
   for (int i = 0; i < tree->topLevelItemCount(); ++i)
     if (tree->topLevelItem(i)->type() == types::SERIES_ONEPHOTO)
       tree->topLevelItem(i)->setCheckState(0, Qt::Checked);
@@ -275,7 +277,7 @@ void SeriesDisplayPage::selectBackSeriesWithOnePhoto()
 
 void SeriesDisplayPage::splitSuggestedSeries()
 {
-  LOG(TRACE) << "Splitting series by suggestions";
+  LOG(TRACE) << "Splitting groups by suggestions";
 
   std::set<std::size_t> lengths = keysFromMap(countSeriesLengths());
   lengths.erase(1);
@@ -322,7 +324,7 @@ void SeriesDisplayPage::treeContextMenu(QPoint const& point)
   if (itemPosition > 0)
   {
     QObject::connect(menu.addAction(tr("Join with previous")), &QAction::triggered, [&]{
-      LOG(TRACE) << "Manual joining series at position " << itemPosition << " with previous";
+      LOG(TRACE) << "Manual joining groups at position " << itemPosition << " with previous";
 
       delete tree->takeTopLevelItem(itemPosition);
       delete tree->takeTopLevelItem(itemPosition-1);
@@ -341,7 +343,7 @@ void SeriesDisplayPage::treeContextMenu(QPoint const& point)
   if (_dividedSeries[itemPosition].size() > 1)
   {
     QObject::connect(menu.addAction(tr("Split in half")), &QAction::triggered, [&]{
-      LOG(TRACE) << "Manual splitting series in half at position " << itemPosition;
+      LOG(TRACE) << "Manual splitting groups in half at position " << itemPosition;
 
       delete tree->takeTopLevelItem(itemPosition);
 

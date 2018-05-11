@@ -19,7 +19,11 @@ struct Photo
   }
 };
 
-using PhotoSeries = QVector<Photo>;
+struct PhotoSeries : public QVector<Photo>
+{
+  bool isASeries = true;
+};
+
 using PhotoSeriesVec = QVector<PhotoSeries>;
 
 }} // namespace phobos::importwiz

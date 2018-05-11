@@ -7,9 +7,7 @@
 #include <vector>
 
 class QLabel;
-class QPushButton;
 class QSpinBox;
-class QRadioButton;
 class QCheckBox;
 class QComboBox;
 
@@ -37,23 +35,20 @@ protected:
 
 private:
   enum class Selection {
-      DontDivide,
-      FixedNum,
-      Metadata
+    DontDivide,
+    FixedNum,
+    Metadata,
+    NotASeries
   };
 
   void importMoreFiles();
+  void updateNumBoxWithGuess();
   void updateSelection(Selection selection);
 
   QLabel *numImportedLabel;
-  QPushButton *importMoreButton;
 
-  QRadioButton *fixedNumChoice;
   QSpinBox *fixedNumParam;
   bool fixedNumParamChanged;
-
-  QRadioButton *metadataAutoChoice;
-  QRadioButton *noopChoice;
 
   QComboBox *sortingMethod;
 

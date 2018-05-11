@@ -57,6 +57,7 @@ struct AllSeriesView::Coords
     int row, col;
 };
 
+// TODO: Might distinguish between series and non-series display, maybe by changing font color on the ORD column
 AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
   seriesSet(seriesSet), imageCache(imageCache), scroll(nullptr), grid(nullptr)
 {

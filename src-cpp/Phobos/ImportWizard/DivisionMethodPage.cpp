@@ -18,49 +18,56 @@ namespace phobos { namespace importwiz {
 DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
     QWizardPage(parent), fixedNumParamChanged(false), currentSelection(Selection::Metadata)
 {
-    setTitle(tr("Division method"));
+  setTitle(tr("Division method"));
 
-    numImportedLabel = new QLabel();
-    importMoreButton = new QPushButton(tr("Import more"));
-    QObject::connect(importMoreButton, &QPushButton::clicked, this, &DivisionMethodPage::importMoreFiles);
+  numImportedLabel = new QLabel();
 
-    fixedNumChoice = new QRadioButton(tr("Each series has the same number of photos"));
-    fixedNumParam = new QSpinBox();
-    fixedNumParam->setValue(5);
-    fixedNumParam->setSuffix(tr(" photos", "As in '5 photos'"));
-    fixedNumParam->setDisabled(true);
-    fixedNumParam->setMinimum(1);
-    QObject::connect(fixedNumParam, &QSpinBox::editingFinished, [this]{ fixedNumParamChanged = true; fixedNumParam->disconnect(); });
-    QObject::connect(fixedNumChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::FixedNum); });
+  QPushButton *importMoreButton = new QPushButton(tr("Import more"));
+  QObject::connect(importMoreButton, &QPushButton::clicked, this, &DivisionMethodPage::importMoreFiles);
 
-    metadataAutoChoice = new QRadioButton(tr("Divide to series automatically based on metadata"));
-    metadataAutoChoice->setChecked(true);
-    QObject::connect(metadataAutoChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::Metadata); });
+  QRadioButton *fixedNumChoice = new QRadioButton(tr("Each series has the same number of photos"));
+  fixedNumParam = new QSpinBox();
+  fixedNumParam->setValue(5);
+  fixedNumParam->setSuffix(tr(" photos", "As in '5 photos'"));
+  fixedNumParam->setDisabled(true);
+  fixedNumParam->setMinimum(1);
+  fixedNumParam->setToolTip(tr("Number of photos in each group after they are loaded into application"));
+  // disconnect after first edit, so user input is unchanged automatically
+  QObject::connect(fixedNumParam, &QSpinBox::editingFinished, [this]{ fixedNumParamChanged = true; fixedNumParam->disconnect(); });
+  QObject::connect(fixedNumChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::FixedNum); });
 
-    noopChoice = new QRadioButton(tr("Don't divide photos - create one series"));
-    QObject::connect(noopChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::DontDivide); });
+  QRadioButton *notASeriesChoice = new QRadioButton(tr("There are no series - photos are not related to each other"));
+  QObject::connect(notASeriesChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::NotASeries); });
 
-    sortingMethod = new QComboBox;
-    sortingMethod->addItems({"Sort by filename (preferred)", "Sort by date"});
-    sortingMethod->setToolTip(tr("Sort by date if photos have irregular naming pattern, are renamed or come from several different cameras"));
+  QRadioButton *metadataAutoChoice = new QRadioButton(tr("Divide to series automatically based on metadata"));
+  metadataAutoChoice->setChecked(true);
+  QObject::connect(metadataAutoChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::Metadata); });
 
-    QGridLayout *layout = new QGridLayout();
-    layout->setColumnStretch(1, 1);
-    layout->addWidget(numImportedLabel, 0, 0, 1, 2);
-    layout->addWidget(importMoreButton, 0, 2);
-    layout->addWidget(new widgets::HVLine(Qt::Horizontal), 1, 0, 1, -1);
-    layout->addWidget(fixedNumChoice, 2, 0, 1, 2);
-    layout->addWidget(fixedNumParam, 2, 2);
-    layout->addWidget(metadataAutoChoice, 3, 0, 1, 2);
-    layout->addWidget(noopChoice, 4, 0, 1, 2);
-    layout->setRowStretch(5, 1);
-    layout->addWidget(sortingMethod, 5, 0, 1, 3, Qt::AlignBottom | Qt::AlignLeft);
-    setLayout(layout);
+  QRadioButton *noopChoice = new QRadioButton(tr("Don't divide photos - create one series"));
+  QObject::connect(noopChoice, &QRadioButton::toggled, [this]{ updateSelection(Selection::DontDivide); });
 
-    registerField("dividedSeries", this, "dividedSeries", SIGNAL(seriesChanged(PhotoSeriesVec)));
+  sortingMethod = new QComboBox;
+  sortingMethod->addItems({"Sort by filename (preferred)", "Sort by date"});
+  sortingMethod->setToolTip(tr("Sort by date if photos have irregular naming pattern, are renamed or come from several different cameras"));
 
-    // TODO: Provide input box to enter minimal number of photos in series. On next page automatically deselect those in the existing way.
-    // Update warning text
+  QGridLayout *layout = new QGridLayout();
+  layout->setColumnStretch(1, 1);
+  layout->addWidget(numImportedLabel, 0, 0, 1, 2);
+  layout->addWidget(importMoreButton, 0, 2);
+  layout->addWidget(new widgets::HVLine(Qt::Horizontal), 1, 0, 1, -1);
+  layout->addWidget(fixedNumChoice, 2, 0, 1, 2);
+  layout->addWidget(fixedNumParam, 2, 2);
+  layout->addWidget(notASeriesChoice, 3, 0, 1, 2);
+  layout->addWidget(metadataAutoChoice, 4, 0, 1, 2);
+  layout->addWidget(noopChoice, 5, 0, 1, 2);
+  layout->setRowStretch(6, 1);
+  layout->addWidget(sortingMethod, 6, 0, 1, 3, Qt::AlignBottom | Qt::AlignLeft);
+  setLayout(layout);
+
+  registerField("dividedSeries", this, "dividedSeries", SIGNAL(seriesChanged(PhotoSeriesVec)));
+
+  // TODO: Provide input box to enter minimal number of photos in series. On next page automatically deselect those in the existing way.
+  // Update warning text
 }
 
 void DivisionMethodPage::initializePage()
@@ -96,8 +103,14 @@ bool DivisionMethodPage::validatePage()
     _dividedSeries = divideToSeriesNoop(std::move(sortedPhotos));
     break;
   case Selection::FixedNum:
-    LOG(TRACE) << "Dividing photos to series with equal size of " << fixedNumParam->value();
+  case Selection::NotASeries:
+    LOG(TRACE) << "Dividing photos to chunks with equal size of " << fixedNumParam->value();
     _dividedSeries = divideToSeriesWithEqualSize(std::move(sortedPhotos), fixedNumParam->value());
+    if (currentSelection == Selection::NotASeries)
+    {
+      LOG(TRACE) << "Loaded chunks does not form any series";
+      std::for_each(_dividedSeries.begin(), _dividedSeries.end(), [](PhotoSeries &series){ series.isASeries = false; });
+    }
     break;
   case Selection::Metadata:
     LOG(TRACE) << "Dividing photos based on metadata";
@@ -105,7 +118,7 @@ bool DivisionMethodPage::validatePage()
     break;
   }
 
-  LOG(TRACE) << "Divided into " << _dividedSeries.size() << " series";
+  LOG(TRACE) << "Divided into " << _dividedSeries.size() << " groups";
   emit seriesChanged(_dividedSeries);
   return true;
 }
@@ -171,12 +184,22 @@ void DivisionMethodPage::importMoreFiles()
   std::inplace_merge(_selectedFiles.begin(), std::next(_selectedFiles.begin(), previousSize), _selectedFiles.end(),
                      utils::less().on(&Photo::name));
 
-  if (!fixedNumParamChanged)
-    fixedNumParam->setValue(guessBestDivisionValue(_selectedFiles.size()));
+  updateNumBoxWithGuess();
 
   LOG(TRACE) << "Processing " << _selectedFiles.size() << " photos in total in current wizard";
   numImportedLabel->setText(tr("Selected %1 photos").arg(_selectedFiles.size()));
   update();
+}
+
+void DivisionMethodPage::updateNumBoxWithGuess()
+{
+  if (fixedNumParamChanged)
+    return;
+
+  if (currentSelection == Selection::NotASeries)
+    fixedNumParam->setValue(5);
+  else
+    fixedNumParam->setValue(guessBestDivisionValue(_selectedFiles.size()));
 }
 
 void DivisionMethodPage::updateSelection(Selection selection)
@@ -186,7 +209,9 @@ void DivisionMethodPage::updateSelection(Selection selection)
   switch(currentSelection)
   {
   case Selection::FixedNum:
+  case Selection::NotASeries:
     fixedNumParam->setDisabled(false);
+    updateNumBoxWithGuess();
     break;
   case Selection::Metadata:
   case Selection::DontDivide:

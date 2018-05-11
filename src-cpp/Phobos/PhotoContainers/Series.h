@@ -17,15 +17,14 @@ class Series : public QObject
   Q_OBJECT
 
 public:
-  explicit Series(std::size_t const pOrd);
   explicit Series(std::size_t const pOrd, importwiz::PhotoSeries const& series);
-
-  void addPhotoItem(importwiz::Photo const& importedPhoto);
 
   std::size_t size() const { return _photoItems.size(); }
   bool empty() const { return _photoItems.empty(); }
   QUuid const& uuid() const { return _uuid; }
   std::size_t ord() const { return _ord; }
+
+  bool const isPhotoSeries = true;
 
   ItemPtrVec::const_reference operator[](std::size_t i) const { return _photoItems[i]; }
   ItemPtrVec::const_reference item(std::size_t i) const { return _photoItems[i]; }
@@ -39,8 +38,11 @@ public:
   std::vector<ItemId> const& removedItems() const { return _removedItems; }
 
 private:
+  void addPhotoItem(importwiz::Photo const& importedPhoto);
+
   ItemPtrVec _photoItems;
   std::vector<ItemId> _removedItems;
+
   QUuid const _uuid;
   std::size_t const _ord;
 };
