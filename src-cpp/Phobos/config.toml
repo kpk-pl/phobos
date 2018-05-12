@@ -45,12 +45,6 @@ minSize = [20, 20]
 maxSize = [80, 80]
 icon = ":icons/focus.png"
 
-[photoItemWidget.focusBorder]
-enabled = true
-color = "red"
-width = 2
-bottomOnly = true
-
 [photoItemWidget.qualityText]
 padding = 7
 opacity = 1.0

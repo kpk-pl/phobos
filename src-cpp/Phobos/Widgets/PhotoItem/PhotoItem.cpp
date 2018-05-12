@@ -86,28 +86,6 @@ public:
     {
       if (config::qualified(baseConfig("focusIcon")("enabled"), true))
         alignedIcon(baseConfig("focusIcon"), Qt::AlignRight | Qt::AlignTop);
-
-      if (config::qualified(baseConfig("focusBorder")("enabled"), true))
-      {
-        auto const cfg = baseConfig("focusBorder");
-        unsigned const width = config::qualified(cfg("width"), 1u);
-        QColor const color = config::qColor(cfg("color"), Qt::black);
-
-        utils::PainterFrame frame(painter);
-        painter.setRenderHint(QPainter::Antialiasing, false);
-
-        if (config::qualified(cfg("bottomOnly"), true))
-        {
-          painter.setPen(color);
-          painter.setBrush(color);
-          painter.drawRect(0, withBorderSize.height()-width, withBorderSize.width()-1, width);
-        }
-        else
-        {
-          painter.setPen(QPen(config::qColor(cfg("color"), Qt::black), width, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
-          painter.drawRect(QRect(QPoint(width/2, width/2), withBorderSize - QSize(width, width)));
-        }
-      }
     }
 
     void bestMark()
