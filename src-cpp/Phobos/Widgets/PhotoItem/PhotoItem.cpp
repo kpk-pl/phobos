@@ -82,6 +82,7 @@ public:
         painter.drawImage(borderWidth, borderWidth, scaledImage);
     }
 
+    // TODO: Focus eye must be colorfull icon
     void focusMark()
     {
       if (config::qualified(baseConfig("focusIcon")("enabled"), true))
@@ -307,6 +308,8 @@ bool PhotoItem::eventFilter(QObject* object, QEvent* event)
            focusEvent->reason() == Qt::ActiveWindowFocusReason;
 }
 
+// TODO:Invert selection only if widget had focus.
+// not sure how to check that since keyPressEvent is handled after widget receives focus
 void PhotoItem::keyPressEvent(QKeyEvent* event)
 {
   if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)

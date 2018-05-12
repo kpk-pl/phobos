@@ -24,6 +24,7 @@ void displayFailures(ConstExecutionPtrVec const& failures)
 }
 }
 
+// TODO: Progress bar
 void execute(pcontainer::Set &photoSet, ConstExecutionPtrVec const& executions)
 {
   ConstExecutionPtrVec failed;

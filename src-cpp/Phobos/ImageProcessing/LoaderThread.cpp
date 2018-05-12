@@ -29,6 +29,10 @@ icache::Runnable::Id LoaderThread::id() const
 
 // TODO: optimize with-metrics flow
 
+// TODO: Bug: Either opencv or Qt does not perform autorotate on loaded photos
+// This needs to be consistent for both those cases
+// Easy to show that is to open AllSeriesView and fullscreen view and display photo that is rotated on exifs
+
 namespace {
 cv::Mat readOpencvImage(QString const& fileName)
 {

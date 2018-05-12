@@ -8,6 +8,9 @@
 
 namespace phobos { namespace processwiz {
 
+// TODO: Skip warnings page when none present
+
+// TODO: Skip some warnings for NotASeries groups
 WarningsPage::WarningsPage(SeriesCounts const& counts)
 {
   LOG(DEBUG) << "Creating page";

@@ -11,6 +11,9 @@ namespace {
 // But display the picture score only
 // Maybe such series can be distinguished on a label in first column in allseriesview
 
+// TODO: Calculate score divverently for NotASeries and for normal series.
+// Maybe PhotoItem should also display score differently (font) for those two cases
+
 namespace detail {
 template<typename M>
 auto source(MetricPtr const& metric, M Metric::*ptr)

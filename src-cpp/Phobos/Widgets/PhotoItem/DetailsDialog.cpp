@@ -19,6 +19,7 @@
 
 namespace phobos { namespace widgets { namespace pitem {
 
+// TODO: Display orientation from EXIF
 namespace {
 
 namespace detail {
