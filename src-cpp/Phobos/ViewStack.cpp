@@ -117,31 +117,20 @@ void ViewStack::setCurrentWidget(QWidget *widget)
   sharedWidgets.slider->setVisible(widget == rowSeriesView);
   sharedWidgets.leftRightNav->setVisible(widget == numSeriesView);
 
-  if (widget == welcomeView)
-  {
-    LOG(TRACE) << "Switching to welcome view";
-    setToolbarVisibility(mainToolbar, config::ConfigPath("welcomeView"));
-  }
-  else if (widget == allSeriesView)
-  {
-    LOG(TRACE) << "Switching to all series view";
-    setToolbarVisibility(mainToolbar, config::ConfigPath("allSeriesView"));
-  }
-  else if (widget == rowSeriesView)
-  {
-    LOG(TRACE) << "Switching to row series view";
-    setToolbarVisibility(mainToolbar, config::ConfigPath("seriesView.row"));
-  }
-  else if (widget == numSeriesView)
-  {
-    LOG(TRACE) << "Switching to num series view";
-    setToolbarVisibility(mainToolbar, config::ConfigPath("seriesView.num"));
-  }
-  else if (widget == laboratoryView)
-  {
-    LOG(TRACE) << "Switching to laboratory view";
-    setToolbarVisibility(mainToolbar, config::ConfigPath("laboratoryView"));
-  }
+  auto const tryWidget = [&](QWidget *wgt, char const* name){
+    if (widget != wgt)
+      return false;
+
+    LOG(TRACE) << "Switching to " << name;
+    setToolbarVisibility(mainToolbar, config::ConfigPath(name));
+    return true;
+  };
+
+  tryWidget(welcomeView, "welcomeView") ||
+  tryWidget(allSeriesView, "allSeriesView") ||
+  tryWidget(rowSeriesView, "seriesView.row") ||
+  tryWidget(numSeriesView, "seriesView.num") ||
+  tryWidget(laboratoryView, "laboratoryView");
 
   QStackedWidget::setCurrentWidget(widget);
 }
@@ -187,6 +176,7 @@ void ViewStack::handleSwitchView(ViewDescriptionPtr viewDesc)
   }
 
   currentSeriesWidget->showSeries(targetSeries);
+  LOG(TRACE) << "Current series in view: " << targetSeries.uuid().toString();
   setCurrentWidget(currentSeriesWidget);
 }
 
