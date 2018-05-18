@@ -18,80 +18,76 @@ LoadingJobVec ProactiveScheduler::operator()(ConstTransactionPtr transaction)
   if (transaction->loadingMode == LoadingMode::Cached)
     return {};
 
-  if (transaction->imageSize == ImageSize::Thumbnail)
-    return scheduleOrganic(std::move(transaction));
+  Schedule schedule;
 
-  if (transaction->predictionMode == PredictionMode::None)
-    return scheduleOrganic(std::move(transaction));
+  if (transaction->imageSize == ImageSize::Full && transaction->predictionMode == PredictionMode::Proactive)
+  {
+    schedule.proactive = scheduleProactive(transaction);
+    if (schedule.proactive.empty())
+      schedule.isSameProactive = true;
+    lastProactiveSeries = transaction->itemId.seriesUuid;
+  }
+  else
+  {
+    lastProactiveSeries = QUuid();
+  }
 
-  return scheduleProactive(std::move(transaction));
+  schedule.organic.swap(transaction);
+
+  return makeJobs(std::move(schedule)); // needs to dissapear
+}
+
+LoadingJobVec ProactiveScheduler::makeJobs(Schedule && schedule)
+{
+  LoadingJobVec result;
+
+  // TODO: This persistecy if needs to be handles further along in Thread Pool when adding tasks to queues
+  auto const gen = [&](ConstTransactionPtr && trans, int increment) -> LoadingJob {
+    if (trans->persistency == Persistency::No)
+      return {std::move(trans), currentGeneration + increment};
+    return {std::move(trans), std::numeric_limits<Generation>::max()};
+  };
+
+  if (schedule.organic)
+    result.push_back(gen(std::move(schedule.organic), schedule.proactive.empty() ? 1 : 5));
+
+  Generation proactiveGen = currentGeneration + 5;
+  for (auto& group : schedule.proactive)
+  {
+    --proactiveGen;
+    for (auto && tran : group)
+      result.push_back({std::move(tran), proactiveGen});
+  }
+
+  if (!schedule.proactive.empty())
+    currentGeneration += 5;
+  else if (!schedule.isSameProactive && schedule.organic)
+    currentGeneration += 1;
+  // else += 0
+
+  return result;
 }
 
 namespace {
-constexpr Generation const maxGeneration = std::numeric_limits<Generation>::max();
-
-struct GenerationCounter
-{
-  GenerationCounter(Generation &generation, bool active) :
-    trackingGeneration(generation), base(generation), active(active)
-  {}
-
-  Generation operator()(long const increment)
-  {
-    if (!active)
-      return maxGeneration;
-
-    Generation const result = base + increment;
-    if (result > trackingGeneration)
-      trackingGeneration = result;
-
-    return result;
-  }
-
-private:
-  Generation & trackingGeneration;
-  Generation const base;
-  bool const active;
-};
-
 template<typename It>
-It advanceNotEmpty(It it, It const& end)
+It advanceNotEmpty(It it, It const& end, int increment)
 {
-  ++it;
-  while ((*it)->empty() && it != end)
-    ++it;
-  return it;
-}
+  do
+    it += increment;
+  while ((*it)->empty() && it != end);
 
-template<typename It>
-It regressNotEmpty(It it, It const& end)
-{
-  --it;
-  while ((*it)->empty() && it != end)
-    --it;
   return it;
 }
 } // unnamed namespace
 
-LoadingJobVec ProactiveScheduler::scheduleProactive(ConstTransactionPtr transaction)
+ProactiveScheduler::Schedule::ProactiveSchedule ProactiveScheduler::scheduleProactive(ConstTransactionPtr const& transaction) const
 {
-  assert(transaction->predictionMode == PredictionMode::Proactive);
-  assert(transaction->imageSize == ImageSize::Full);
+  Schedule::ProactiveSchedule schedule;
 
   auto const& mainItemId = transaction->itemId;
 
-  LoadingJobVec jobs;
-  GenerationCounter cnt(currentGeneration, transaction->persistency == Persistency::No);
-
   if (lastProactiveSeries == mainItemId.seriesUuid)
-  {
-    jobs.push_back({std::move(transaction), cnt(0)});
-    return jobs;
-  }
-
-  lastProactiveSeries = mainItemId.seriesUuid;
-
-  jobs.push_back({std::move(transaction), cnt(5)});
+    return schedule;
 
   // main item for transaction
   auto const baseIt = utils::makeCirculator(photoSet.begin(), photoSet.end(),
@@ -100,48 +96,37 @@ LoadingJobVec ProactiveScheduler::scheduleProactive(ConstTransactionPtr transact
                                                            return series->uuid() == mainItemId.seriesUuid;
                                                          }));
 
-  auto const parentTransaction = jobs.front().transaction;
-
   // series in which main item is located
+  schedule.push_back({});
   for (auto const& item : **baseIt)
     if (item->id() != mainItemId)
-      jobs.push_back({parentTransaction->cloneFor(item->id()), cnt(4)});
+      schedule.back().push_back(transaction->cloneFor(item->id()));
+
+  auto const nextGroup = [&](auto const& items){
+    schedule.push_back({});
+    for (auto const& item : items)
+      schedule.back().push_back(transaction->cloneFor(item->id()));
+  };
 
   // next series after main series
-  auto nextIt = advanceNotEmpty(baseIt, baseIt);
+  auto nextIt = advanceNotEmpty(baseIt, baseIt, 1);
   if (nextIt == baseIt)
-    return jobs;
-
-  for (auto const& item : **nextIt)
-    jobs.push_back({parentTransaction->cloneFor(item->id()), cnt(3)});
+    return schedule;
+  nextGroup(**nextIt);
 
   // prev series before main series, cannot rollback next series
-  auto prevIt = regressNotEmpty(baseIt, nextIt);
+  auto prevIt = advanceNotEmpty(baseIt, nextIt, -1);
   if (prevIt == nextIt)
-    return jobs;
-
-  for (auto const& item : **prevIt)
-    jobs.push_back({parentTransaction->cloneFor(item->id()), cnt(2)});
+    return schedule;
+  nextGroup(**prevIt);
 
   // second after next series, cannot rollback to prev series
-  nextIt = advanceNotEmpty(nextIt, prevIt);
+  nextIt = advanceNotEmpty(nextIt, prevIt, 1);
   if (nextIt == prevIt)
-    return jobs;
+    return schedule;
+  nextGroup(**nextIt);
 
-  for (auto const& item : **nextIt)
-    jobs.push_back({parentTransaction->cloneFor(item->id()), cnt(1)});
-
-  return jobs;
-}
-
-LoadingJobVec ProactiveScheduler::scheduleOrganic(ConstTransactionPtr transaction)
-{
-  lastProactiveSeries = QUuid();
-  GenerationCounter cnt(currentGeneration, transaction->persistency == Persistency::No);
-
-  LoadingJobVec jobs;
-  jobs.push_back({std::move(transaction), cnt(1)});
-  return jobs;
+  return schedule;
 }
 
 // TODO: use generations to start as priorities. Handle persistent flag from transaction.

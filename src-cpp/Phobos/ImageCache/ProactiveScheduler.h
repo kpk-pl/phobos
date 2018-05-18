@@ -10,13 +10,24 @@ namespace phobos { namespace icache {
 class ProactiveScheduler
 {
 public:
+  struct Schedule
+  {
+    ConstTransactionPtr organic;
+
+    using TransactionGroup = std::vector<ConstTransactionPtr>;
+    using ProactiveSchedule = std::vector<TransactionGroup>;
+    ProactiveSchedule proactive;
+
+    bool isSameProactive = false; // TODO: to be removed
+  };
+
   explicit ProactiveScheduler(pcontainer::Set const& photoSet);
 
   LoadingJobVec operator()(ConstTransactionPtr transaction);
 
 private:
-  LoadingJobVec scheduleProactive(ConstTransactionPtr transaction);
-  LoadingJobVec scheduleOrganic(ConstTransactionPtr transaction);
+  Schedule::ProactiveSchedule scheduleProactive(ConstTransactionPtr const& transaction) const;
+  LoadingJobVec makeJobs(Schedule && schedule);
 
   pcontainer::Set const& photoSet;
   Generation currentGeneration;
