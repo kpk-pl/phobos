@@ -65,9 +65,6 @@ DivisionMethodPage::DivisionMethodPage(QWidget *parent) :
   setLayout(layout);
 
   registerField("dividedSeries", this, "dividedSeries", SIGNAL(seriesChanged(PhotoSeriesVec)));
-
-  // TODO: Provide input box to enter minimal number of photos in series. On next page automatically deselect those in the existing way.
-  // Update warning text
 }
 
 void DivisionMethodPage::initializePage()
@@ -77,13 +74,13 @@ void DivisionMethodPage::initializePage()
       importMoreFiles();
 
   if (wizard()->button(QWizard::NextButton))
-      wizard()->button(QWizard::NextButton)->setFocus();
+    wizard()->button(QWizard::NextButton)->setFocus();
 }
 
 void DivisionMethodPage::cleanupPage()
 {
-    _dividedSeries.clear();
-    emit seriesChanged(_dividedSeries);
+  _dividedSeries.clear();
+  emit seriesChanged(_dividedSeries);
 }
 
 bool DivisionMethodPage::validatePage()

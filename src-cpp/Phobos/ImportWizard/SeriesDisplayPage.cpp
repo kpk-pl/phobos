@@ -66,7 +66,8 @@ std::map<std::size_t, unsigned> SeriesDisplayPage::countSeriesLengths() const
 {
   std::map<std::size_t, unsigned> lengthsCount;
   for (auto const& series : _dividedSeries)
-    lengthsCount[series.size()]++;
+    if (series.isASeries)
+      lengthsCount[series.size()]++;
 
   return lengthsCount;
 }
@@ -171,7 +172,7 @@ void SeriesDisplayPage::initializeMultipleLengthsInfo(std::map<std::size_t, unsi
 namespace {
 std::unique_ptr<QTreeWidgetItem> makeTreeItem(PhotoSeries const& series)
 {
-  int const seriesType = (series.size() == 1 ? types::SERIES_ONEPHOTO : types::SERIES_STANDARD);
+  int const seriesType = ((series.size() == 1 && series.isASeries) ? types::SERIES_ONEPHOTO : types::SERIES_STANDARD);
 
   std::unique_ptr<QTreeWidgetItem> seriesItem = std::make_unique<QTreeWidgetItem>(seriesType);
   seriesItem->setText(0, QObject::tr("%1 photos").arg(series.size()));
@@ -182,7 +183,7 @@ std::unique_ptr<QTreeWidgetItem> makeTreeItem(PhotoSeries const& series)
     QTreeWidgetItem* photoItem = new QTreeWidgetItem(seriesItem.get(), types::PHOTO_STANDARD);
     photoItem->setFlags(photoItem->flags() | Qt::ItemIsUserCheckable);
     photoItem->setText(0, QString("[%1] %2").arg(i).arg(series[i].name));
-    photoItem->setCheckState(0, (series.size() > 1) ? Qt::Checked : Qt::Unchecked);
+    photoItem->setCheckState(0, (seriesType == types::SERIES_STANDARD) ? Qt::Checked : Qt::Unchecked);
   }
 
   return seriesItem;
