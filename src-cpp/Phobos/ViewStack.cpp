@@ -1,10 +1,10 @@
 #include "ViewStack.h"
 #include "MainToolbar.h"
-#include "WelcomeView.h"
-#include "AllSeriesView.h"
-#include "NumSeriesView.h"
-#include "RowSeriesView.h"
-#include "LaboratoryView.h"
+#include "Views/Welcome.h"
+#include "Views/AllSeries.h"
+#include "Views/NumSeries.h"
+#include "Views/RowSeries.h"
+#include "Views/Laboratory.h"
 #include "Utils/Focused.h"
 #include "ConfigExtension.h"
 #include "PhotoContainers/Set.h"
@@ -247,10 +247,10 @@ void ViewStack::bulkSelect(PhotoBulkAction const action)
 
 void ViewStack::setupUI()
 {
-  welcomeView = new WelcomeView();
-  allSeriesView = new AllSeriesView(seriesSet, imageCache);
-  rowSeriesView = new RowSeriesView(seriesSet, imageCache);
-  numSeriesView = new NumSeriesView(seriesSet, imageCache);
+  welcomeView = new view::Welcome();
+  allSeriesView = new view::AllSeries(seriesSet, imageCache);
+  rowSeriesView = new view::RowSeries(seriesSet, imageCache);
+  numSeriesView = new view::NumSeries(seriesSet, imageCache);
   laboratoryView = new view::Laboratory(seriesSet, imageCache);
 
   addWidget(welcomeView);
@@ -262,20 +262,20 @@ void ViewStack::setupUI()
 
 void ViewStack::connectSignals()
 {
-  QObject::connect(allSeriesView, &AllSeriesView::switchView, this, &ViewStack::handleSwitchView);
-  QObject::connect(rowSeriesView, &RowSeriesView::switchView, this, &ViewStack::handleSwitchView);
-  QObject::connect(numSeriesView, &NumSeriesView::switchView, this, &ViewStack::handleSwitchView);
+  QObject::connect(allSeriesView, &view::AllSeries::switchView, this, &ViewStack::handleSwitchView);
+  QObject::connect(rowSeriesView, &view::RowSeries::switchView, this, &ViewStack::handleSwitchView);
+  QObject::connect(numSeriesView, &view::NumSeries::switchView, this, &ViewStack::handleSwitchView);
 
-  QObject::connect(allSeriesView, &AllSeriesView::showImageFullscreen, this, &ViewStack::showImageFullscreen);
-  QObject::connect(rowSeriesView, &RowSeriesView::showImageFullscreen, this, &ViewStack::showImageFullscreen);
-  QObject::connect(numSeriesView, &NumSeriesView::showImageFullscreen, this, &ViewStack::showImageFullscreen);
+  QObject::connect(allSeriesView, &view::AllSeries::showImageFullscreen, this, &ViewStack::showImageFullscreen);
+  QObject::connect(rowSeriesView, &view::RowSeries::showImageFullscreen, this, &ViewStack::showImageFullscreen);
+  QObject::connect(numSeriesView, &view::NumSeries::showImageFullscreen, this, &ViewStack::showImageFullscreen);
 
-  QObject::connect(sharedWidgets.slider, &widgets::StatusBarSlider::valueChanged, rowSeriesView, &RowSeriesView::resizeImages);
+  QObject::connect(sharedWidgets.slider, &widgets::StatusBarSlider::valueChanged, rowSeriesView, &view::RowSeries::resizeImages);
 
   QObject::connect(sharedWidgets.leftRightNav, &widgets::StatusBarLeftRightNavigation::leftClicked,
-                   numSeriesView, &NumSeriesView::showPrevItem);
+                   numSeriesView, &view::NumSeries::showPrevItem);
   QObject::connect(sharedWidgets.leftRightNav, &widgets::StatusBarLeftRightNavigation::rightClicked,
-                   numSeriesView, &NumSeriesView::showNextItem);
+                   numSeriesView, &view::NumSeries::showNextItem);
 
   QObject::connect(&seriesSet, &pcontainer::Set::newSeries, this, &ViewStack::welcomeScreenSwitch);
   QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &ViewStack::welcomeScreenSwitch);

@@ -1,17 +1,16 @@
 #ifndef NUMSERIESVIEW_H
 #define NUMSERIESVIEW_H
 
-#include "SeriesViewBase.h"
-#include "ImageCache/CacheFwd.h"
+#include "Views/SeriesBase.h"
 #include <vector>
 
-namespace phobos {
+namespace phobos { namespace view {
 
-class NumSeriesView : public SeriesViewBase
+class NumSeries : public SeriesBase
 {
 public:
-  explicit NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
-  ~NumSeriesView();
+  explicit NumSeries(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
+  ~NumSeries() override;
 
   void showSeries(pcontainer::Series const& series) override;
   void clear() override;
@@ -43,6 +42,6 @@ private:
   QLayout* layoutForItems;
 };
 
-} // namespace phobos
+}} // namespace phobos::view
 
 #endif // NUMSERIESVIEW_H

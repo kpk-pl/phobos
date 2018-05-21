@@ -1,4 +1,4 @@
-#include "AllSeriesView.h"
+#include "Views/AllSeries.h"
 #include "Config.h"
 #include "ConfigExtension.h"
 #include "Widgets/PhotoItem/PhotoItem.h"
@@ -19,7 +19,7 @@
 #include <QPixmap>
 #include <QPushButton>
 
-namespace phobos {
+namespace phobos { namespace view {
 
 namespace {
 class ArrowFilter : public QObject
@@ -47,7 +47,7 @@ public:
 };
 } // unnamed namespace
 
-struct AllSeriesView::Coords
+struct AllSeries::Coords
 {
     template<typename T, typename U>
     Coords(T row, U col) :
@@ -58,17 +58,17 @@ struct AllSeriesView::Coords
 };
 
 // TODO: Might distinguish between series and non-series display, maybe by changing font color on the ORD column
-AllSeriesView::AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
-  seriesSet(seriesSet), imageCache(imageCache), scroll(nullptr), grid(nullptr)
+AllSeries::AllSeries(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
+  View(seriesSet, imageCache), scroll(nullptr), grid(nullptr)
 {
-  QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &AllSeriesView::updateMetrics);
-  QObject::connect(&seriesSet, &pcontainer::Set::newSeries, this, &AllSeriesView::addNewSeries);
-  QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &AllSeriesView::updateExistingSeries);
+  QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &AllSeries::updateMetrics);
+  QObject::connect(&seriesSet, &pcontainer::Set::newSeries, this, &AllSeries::addNewSeries);
+  QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &AllSeries::updateExistingSeries);
 
   prepareUI();
 }
 
-void AllSeriesView::prepareUI()
+void AllSeries::prepareUI()
 {
   grid = new QGridLayout();
   grid->setContentsMargins(0, 0, 0, 0);
@@ -100,24 +100,24 @@ void AllSeriesView::prepareUI()
   setLayout(newLayout);
 }
 
-std::size_t AllSeriesView::maxNumberOfPhotosInRow() const
+std::size_t AllSeries::maxNumberOfPhotosInRow() const
 {
   int const cc = grid->columnCount();
   return cc > 0 ? cc-1 : cc;
 }
 
-QWidget* AllSeriesView::photoInGridAt(std::size_t const row, std::size_t const col) const
+QWidget* AllSeries::photoInGridAt(std::size_t const row, std::size_t const col) const
 {
   QLayoutItem* wItem = grid->itemAtPosition(row, col+1);
   return wItem ? wItem->widget() : nullptr;
 }
 
-void AllSeriesView::addPhotoToGridAt(QWidget *widget, std::size_t const row, std::size_t const col)
+void AllSeries::addPhotoToGridAt(QWidget *widget, std::size_t const row, std::size_t const col)
 {
   grid->addWidget(widget, row, col+1);
 }
 
-void AllSeriesView::addNumberingToGrid(int const number)
+void AllSeries::addNumberingToGrid(int const number)
 {
   QLabel *label = new QLabel(QString("%1").arg(number+1));
   label->setContentsMargins(0, 0, 2, 0);
@@ -129,17 +129,17 @@ void AllSeriesView::addNumberingToGrid(int const number)
   grid->addWidget(label, number, 0, Qt::AlignRight);
 }
 
-void AllSeriesView::focusSeries()
+void AllSeries::focusSeries()
 {
   setFocusedWidget(photoInGridAt(seriesSet.nonEmpty(0, 0).ord(), 0));
 }
 
-void AllSeriesView::focusSeries(QUuid const seriesUuid)
+void AllSeries::focusSeries(QUuid const seriesUuid)
 {
   setFocusedWidget(photoInGridAt(utils::asserted::fromMap(seriesUuidToRow, seriesUuid), 0));
 }
 
-void AllSeriesView::addNewSeries(pcontainer::SeriesPtr series)
+void AllSeries::addNewSeries(pcontainer::SeriesPtr series)
 {
   bool const firstOne = seriesUuidToRow.empty();
   seriesUuidToRow.emplace(series->uuid(), series->ord());
@@ -177,7 +177,7 @@ namespace {
   }
 } // unnamed namespace
 
-void AllSeriesView::updateExistingSeries(QUuid seriesUuid)
+void AllSeries::updateExistingSeries(QUuid seriesUuid)
 {
   auto const seriesRow = utils::asserted::fromMap(seriesUuidToRow, seriesUuid);
   auto oldContent = clearRowInGrid(grid, seriesRow);
@@ -207,7 +207,7 @@ void AllSeriesView::updateExistingSeries(QUuid seriesUuid)
              << " items were left from saved content";
 }
 
-void AllSeriesView::addItemToGrid(int const row, int const col, pcontainer::ItemPtr const& itemPtr)
+void AllSeries::addItemToGrid(int const row, int const col, pcontainer::ItemPtr const& itemPtr)
 {
   using namespace widgets::pitem;
   static auto const capabilities = CapabilityType::OPEN_SERIES | CapabilityType::REMOVE_PHOTO | CapabilityType::REMOVE_SERIES;
@@ -233,21 +233,21 @@ void AllSeriesView::addItemToGrid(int const row, int const col, pcontainer::Item
     switchView(ViewDescription::switchTo(ViewType::ANY_SINGLE_SERIES, id.seriesUuid, 0, ord));
   });
 
-  QObject::connect(item.get(), &PhotoItem::changeSeriesState, this, &AllSeriesView::changeSeriesState);
+  QObject::connect(item.get(), &PhotoItem::changeSeriesState, this, &AllSeries::changeSeriesState);
   QObject::connect(item.get(), &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
   QObject::connect(item.get(), &PhotoItem::removeAllSeries, &seriesSet, &pcontainer::Set::removeSeries);
-  QObject::connect(item.get(), &PhotoItem::showFullscreen, this, &AllSeriesView::showImageFullscreen);
+  QObject::connect(item.get(), &PhotoItem::showFullscreen, this, &AllSeries::showImageFullscreen);
 
   addPhotoToGridAt(item.release(), row, col);
 }
 
-void AllSeriesView::updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics)
+void AllSeries::updateMetrics(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics)
 {
   auto& widget = utils::asserted::fromPtr(findItem(itemId));
   widget.setMetrics(metrics);
 }
 
-widgets::pitem::PhotoItem* AllSeriesView::findItem(pcontainer::ItemId const& itemId) const
+widgets::pitem::PhotoItem* AllSeries::findItem(pcontainer::ItemId const& itemId) const
 {
   auto const seriesRow = utils::asserted::fromMap(seriesUuidToRow, itemId.seriesUuid);
 
@@ -272,7 +272,7 @@ widgets::pitem::PhotoItem* AllSeriesView::findItem(pcontainer::ItemId const& ite
   return utils::asserted::always;
 }
 
-void AllSeriesView::keyPressEvent(QKeyEvent* keyEvent)
+void AllSeries::keyPressEvent(QKeyEvent* keyEvent)
 {
   if (keyEvent->type() == QEvent::KeyPress &&
         utils::valueIn(keyEvent->key(), {Qt::Key_Left, Qt::Key_Right, Qt::Key_Up, Qt::Key_Down}))
@@ -294,7 +294,7 @@ void AllSeriesView::keyPressEvent(QKeyEvent* keyEvent)
   QWidget::keyPressEvent(keyEvent);
 }
 
-boost::optional<AllSeriesView::Coords> AllSeriesView::focusGridCoords() const
+boost::optional<AllSeries::Coords> AllSeries::focusGridCoords() const
 {
   widgets::pitem::PhotoItem* focusItem = utils::focusedPhotoItemWidget();
   if (!focusItem)
@@ -311,8 +311,8 @@ boost::optional<AllSeriesView::Coords> AllSeriesView::focusGridCoords() const
   return utils::asserted::always;
 }
 
-std::vector<AllSeriesView::Coords>
-    AllSeriesView::nextJumpProposals(Coords const& coords, int const directionKey) const
+std::vector<AllSeries::Coords>
+    AllSeries::nextJumpProposals(Coords const& coords, int const directionKey) const
 {
   unsigned const row = coords.row;
   unsigned const col = coords.col;
@@ -349,7 +349,7 @@ std::vector<AllSeriesView::Coords>
   return utils::asserted::always;
 }
 
-AllSeriesView::Coords AllSeriesView::findValidProposal(std::vector<Coords> const& proposals) const
+AllSeries::Coords AllSeries::findValidProposal(std::vector<Coords> const& proposals) const
 {
   assert(grid->count() > 0); // Should never be called on empty grid
 
@@ -384,7 +384,7 @@ AllSeriesView::Coords AllSeriesView::findValidProposal(std::vector<Coords> const
   return utils::asserted::always;
 }
 
-void AllSeriesView::changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state)
+void AllSeries::changeSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state)
 {
   unsigned const seriesRow = utils::asserted::fromMap(seriesUuidToRow, seriesUuid);
 
@@ -406,7 +406,7 @@ void AllSeriesView::changeSeriesState(QUuid const seriesUuid, pcontainer::ItemSt
   }
 }
 
-void AllSeriesView::setFocusedWidget(QWidget *widget) const
+void AllSeries::setFocusedWidget(QWidget *widget) const
 {
   if (!widget)
     return;
@@ -414,4 +414,4 @@ void AllSeriesView::setFocusedWidget(QWidget *widget) const
   scroll->ensureWidgetVisible(widget);
 }
 
-} // namespace phobos
+}} // namespace phobos::view

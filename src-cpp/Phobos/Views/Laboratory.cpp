@@ -1,4 +1,4 @@
-#include "LaboratoryView.h"
+#include "Views/Laboratory.h"
 #include "Widgets/ImageWidget.h"
 #include "ImageProcessing/Enhance/Executor.h"
 #include "ImageCache/Cache.h"

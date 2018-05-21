@@ -3,13 +3,12 @@
 
 #include "ImageCache/CacheFwd.h"
 #include "PhotoContainers/Fwd.h"
-#include <QWidget>
+#include "Views/Screen.h"
 
 namespace phobos { namespace view {
 
-class View : public QWidget
+class View : public Screen
 {
-Q_OBJECT
 public:
   explicit View(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
 

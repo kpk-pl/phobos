@@ -1,12 +1,11 @@
 #ifndef SERIESVIEWBASE_H
 #define SERIESVIEWBASE_H
 
-#include "PhotoContainers/Fwd.h"
 #include "PhotoContainers/Series.h"
 #include "PhotoContainers/ItemId.h"
-#include "ImageCache/CacheFwd.h"
 #include "ViewDescription.h"
 #include "ImageProcessing/MetricsFwd.h"
+#include "Views/View.h"
 #include <boost/optional.hpp>
 #include <QWidget>
 #include <QUuid>
@@ -21,12 +20,14 @@ namespace widgets { namespace pitem {
 class PhotoItem;
 }} // namespace widgets::pitem
 
-class SeriesViewBase : public QWidget
+namespace view {
+
+class SeriesBase : public View
 {
 Q_OBJECT
 public:
-  explicit SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
-  virtual ~SeriesViewBase() = default;
+  explicit SeriesBase(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
+  virtual ~SeriesBase() = default;
 
   virtual void showSeries(pcontainer::Series const& series);
   virtual void clear();
@@ -51,8 +52,6 @@ protected:
     void updateCurrentSeriesFromContent(
         std::map<pcontainer::ItemId, std::unique_ptr<widgets::pitem::PhotoItem>> &content);
 
-    pcontainer::Set const& seriesSet;
-    icache::Cache & imageCache;
     boost::optional<QUuid> currentSeriesUuid;
 
 private slots:
@@ -61,6 +60,6 @@ private slots:
     void updateSeries(QUuid seriesUuid);
 };
 
-} // namespace phobos
+}} // namespace phobos::view
 
 #endif // SERIESVIEWBASE_H

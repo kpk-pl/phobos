@@ -16,11 +16,6 @@
 
 namespace phobos {
 
-class AllSeriesView;
-class NumSeriesView;
-class RowSeriesView;
-class WelcomeView;
-class SeriesViewBase;
 class MainToolbar;
 
 class ViewStack : public QStackedWidget
@@ -73,13 +68,13 @@ private:
   SharedWidgets const& sharedWidgets;
   MainToolbar* const mainToolbar;
 
-  WelcomeView* welcomeView;
-  AllSeriesView* allSeriesView;
-  RowSeriesView* rowSeriesView;
-  NumSeriesView* numSeriesView;
+  view::Welcome* welcomeView;
+  view::AllSeries* allSeriesView;
+  view::RowSeries* rowSeriesView;
+  view::NumSeries* numSeriesView;
   view::Laboratory* laboratoryView;
 
-  SeriesViewBase* currentSeriesWidget;
+  view::SeriesBase* currentSeriesWidget;
 };
 
 } // namespace phobos

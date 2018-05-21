@@ -1,4 +1,4 @@
-#include "RowSeriesView.h"
+#include "Views/RowSeries.h"
 #include "Widgets/PhotoItem/PhotoItem.h"
 #include "Widgets/PhotoItem/Recovery.h"
 #include "Utils/LayoutClear.h"
@@ -10,10 +10,10 @@
 #include <QPushButton>
 #include <QSlider>
 
-namespace phobos {
+namespace phobos { namespace view {
 
-RowSeriesView::RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
-  SeriesViewBase(seriesSet, imageCache)
+RowSeries::RowSeries(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
+  SeriesBase(seriesSet, imageCache)
 {
   scroll = new widgets::HorizontalScrollArea();
   scroll->boxLayout()->setContentsMargins(0, 0, 0, 0);
@@ -26,12 +26,12 @@ RowSeriesView::RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
   setLayout(layout);
 }
 
-QLayout* RowSeriesView::getLayoutForItems() const
+QLayout* RowSeries::getLayoutForItems() const
 {
   return scroll->boxLayout();
 }
 
-void RowSeriesView::resizeImages(int percent)
+void RowSeries::resizeImages(int percent)
 {
   assert(percent >= 0 && percent <= 100);
   QVBoxLayout* vl = dynamic_cast<QVBoxLayout*>(layout());
@@ -39,14 +39,14 @@ void RowSeriesView::resizeImages(int percent)
   vl->setStretch(1, 100-percent);
 }
 
-void RowSeriesView::clear()
+void RowSeries::clear()
 {
-  SeriesViewBase::clear();
+  SeriesBase::clear();
   utils::clearLayout(scroll->boxLayout());
   scroll->horizontalScrollBar()->setValue(0);
 }
 
-widgets::pitem::PhotoItem* RowSeriesView::findItemWidget(pcontainer::ItemId const& itemId) const
+widgets::pitem::PhotoItem* RowSeries::findItemWidget(pcontainer::ItemId const& itemId) const
 {
   if (currentSeriesUuid != itemId.seriesUuid)
     return nullptr;
@@ -63,7 +63,7 @@ widgets::pitem::PhotoItem* RowSeriesView::findItemWidget(pcontainer::ItemId cons
   return utils::asserted::always;
 }
 
-void RowSeriesView::updateCurrentSeries()
+void RowSeries::updateCurrentSeries()
 {
   int const prevScrollValue = scroll->horizontalScrollBar()->value();
 
@@ -74,7 +74,7 @@ void RowSeriesView::updateCurrentSeries()
   scroll->horizontalScrollBar()->setValue(prevScrollValue);
 }
 
-void RowSeriesView::changeSeriesState(pcontainer::ItemState const state) const
+void RowSeries::changeSeriesState(pcontainer::ItemState const state) const
 {
   for (int i = 0; i < scroll->boxLayout()->count(); ++i)
   {
@@ -84,4 +84,4 @@ void RowSeriesView::changeSeriesState(pcontainer::ItemState const state) const
   }
 }
 
-} // namespace phobos
+}} // namespace phobos::view

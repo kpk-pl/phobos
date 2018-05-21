@@ -1,18 +1,17 @@
 #ifndef ROWSERIESVIEW_H
 #define ROWSERIESVIEW_H
 
-#include "SeriesViewBase.h"
+#include "Views/SeriesBase.h"
 #include "Widgets/HorizontalScrollArea.h"
-#include "ImageCache/CacheFwd.h"
 
-namespace phobos {
+namespace phobos { namespace view {
 
-class RowSeriesView : public SeriesViewBase
+class RowSeries : public SeriesBase
 {
   Q_OBJECT
 
 public:
-  explicit RowSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
+  explicit RowSeries(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
 
   void clear() override;
 
@@ -31,6 +30,6 @@ private:
   widgets::HorizontalScrollArea* scroll;
 };
 
-} // namespace phobos
+}} // namespace phobos::view
 
 #endif // ROWSERIESVIEW_H

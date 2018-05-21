@@ -2,8 +2,8 @@
 #define ALLSERIESVIEW_H
 
 #include "PhotoContainers/Item.h"
-#include "ImageCache/CacheFwd.h"
 #include "ViewDescription.h"
+#include "Views/View.h"
 #include "ImageProcessing/MetricsFwd.h"
 #include <boost/optional.hpp>
 #include <QWidget>
@@ -18,11 +18,13 @@ namespace widgets { namespace pitem {
 class PhotoItem;
 }} // namespace widgets::pitem
 
-class AllSeriesView : public QWidget
+namespace view {
+
+class AllSeries : public View
 {
     Q_OBJECT
 public:
-    explicit AllSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
+    explicit AllSeries(pcontainer::Set const& seriesSet, icache::Cache & imageCache);
 
     std::size_t numberOfSeries() const { return seriesUuidToRow.size(); }
 
@@ -63,13 +65,11 @@ private:
 
     void prepareUI();
 
-    pcontainer::Set const& seriesSet;
-    icache::Cache & imageCache;
     std::map<QUuid, std::size_t> seriesUuidToRow;
     QScrollArea* scroll;
     QGridLayout* grid;
 };
 
-} // namespace phobos
+}} // namespace phobos::view
 
 #endif // ALLSERIESVIEW_H

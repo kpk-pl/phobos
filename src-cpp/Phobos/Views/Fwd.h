@@ -3,7 +3,12 @@
 
 namespace phobos { namespace view {
 
+class AllSeries;
 class Laboratory;
+class Welcome;
+class SeriesBase;
+class RowSeries;
+class NumSeries;
 
 }} // namespace phobos::view
 

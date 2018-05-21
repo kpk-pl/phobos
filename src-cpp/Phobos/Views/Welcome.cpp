@@ -1,10 +1,10 @@
-#include "WelcomeView.h"
+#include "Views/Welcome.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QString>
 
-namespace phobos {
+namespace phobos { namespace view {
 
 namespace {
 QString const welcomeText =
@@ -63,8 +63,7 @@ R"(
 )";
 } // unnamed namespace
 
-WelcomeView::WelcomeView(QWidget* parent) :
-  QWidget(parent)
+Welcome::Welcome()
 {
   QLabel* label = new QLabel(welcomeText);
   label->setStyleSheet("color:gray; font-size: 15px");
@@ -82,4 +81,4 @@ WelcomeView::WelcomeView(QWidget* parent) :
   setLayout(vLayout);
 }
 
-} // namespace phobos
+}} // namespace phobos::view

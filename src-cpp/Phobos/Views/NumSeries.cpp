@@ -1,4 +1,4 @@
-#include "NumSeriesView.h"
+#include "Views/NumSeries.h"
 #include "Widgets/PhotoItem/PhotoItem.h"
 #include "Config.h"
 #include "Utils/LayoutClear.h"
@@ -9,14 +9,14 @@
 #include <QKeyEvent>
 #include <QPushButton>
 
-namespace phobos {
+namespace phobos { namespace view {
 
 // TODO: Runtime configurable selection of items visible
 
-NumSeriesView::NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
-    SeriesViewBase(seriesSet, imageCache),
-    visibleItems(config::get()->get_qualified_as<unsigned>("seriesView.num.visibleItems").value_or(2)),
-    currentItem(0)
+NumSeries::NumSeries(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
+  SeriesBase(seriesSet, imageCache),
+  visibleItems(config::get()->get_qualified_as<unsigned>("seriesView.num.visibleItems").value_or(2)),
+  currentItem(0)
 {
   layoutForItems = new QHBoxLayout();
 
@@ -27,23 +27,23 @@ NumSeriesView::NumSeriesView(pcontainer::Set const& seriesSet, icache::Cache & i
   setLayout(vlayout);
 }
 
-NumSeriesView::~NumSeriesView()
+NumSeries::~NumSeries()
 {
   utils::clearLayout(layoutForItems, false);
 }
 
-QLayout* NumSeriesView::getLayoutForItems() const
+QLayout* NumSeries::getLayoutForItems() const
 {
   return layoutForItems;
 }
 
-void NumSeriesView::showSeries(pcontainer::Series const& series)
+void NumSeries::showSeries(pcontainer::Series const& series)
 {
-  SeriesViewBase::showSeries(series);
+  SeriesBase::showSeries(series);
   currentItem = 0;
 }
 
-widgets::pitem::PhotoItem* NumSeriesView::findItemWidget(pcontainer::ItemId const& itemId) const
+widgets::pitem::PhotoItem* NumSeries::findItemWidget(pcontainer::ItemId const& itemId) const
 {
   if (currentSeriesUuid != itemId.seriesUuid)
     return nullptr;
@@ -55,25 +55,25 @@ widgets::pitem::PhotoItem* NumSeriesView::findItemWidget(pcontainer::ItemId cons
   return widgetIt->get();
 }
 
-void NumSeriesView::clear()
+void NumSeries::clear()
 {
-  SeriesViewBase::clear();
+  SeriesBase::clear();
   utils::clearLayout(layoutForItems, false);
   photoItems.clear();
   currentItem = 0;
 }
 
-void NumSeriesView::keyPressEvent(QKeyEvent* keyEvent)
+void NumSeries::keyPressEvent(QKeyEvent* keyEvent)
 {
   if (keyEvent->key() == Qt::Key_Left)
     showPrevItem();
   else if (keyEvent->key() == Qt::Key_Right)
     showNextItem();
 
-  SeriesViewBase::keyPressEvent(keyEvent);
+  SeriesBase::keyPressEvent(keyEvent);
 }
 
-void NumSeriesView::showPrevItem()
+void NumSeries::showPrevItem()
 {
   VisibleRange range;
   if (currentItem > 0)
@@ -90,7 +90,7 @@ void NumSeriesView::showPrevItem()
   focusCurrentItem(range);
 }
 
-void NumSeriesView::showNextItem()
+void NumSeries::showNextItem()
 {
   VisibleRange range;
   if (currentItem < photoItems.size()-1)
@@ -107,7 +107,7 @@ void NumSeriesView::showNextItem()
   focusCurrentItem(range);
 }
 
-NumSeriesView::VisibleRange NumSeriesView::visibleRange() const
+NumSeries::VisibleRange NumSeries::visibleRange() const
 {
   int startShow = std::max(int(currentItem) - int((visibleItems-1)/2), 0);
   int endShow = std::min(startShow + int(visibleItems), int(photoItems.size()));
@@ -117,7 +117,7 @@ NumSeriesView::VisibleRange NumSeriesView::visibleRange() const
   return std::make_pair(startShow, endShow);
 }
 
-void NumSeriesView::setCurrentView(VisibleRange const& range)
+void NumSeries::setCurrentView(VisibleRange const& range)
 {
   utils::clearLayout(layoutForItems, false);
 
@@ -126,12 +126,12 @@ void NumSeriesView::setCurrentView(VisibleRange const& range)
 
 }
 
-void NumSeriesView::focusCurrentItem(VisibleRange const& range)
+void NumSeries::focusCurrentItem(VisibleRange const& range)
 {
   layoutForItems->itemAt(currentItem - range.first)->widget()->setFocus();
 }
 
-void NumSeriesView::addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemWidget)
+void NumSeries::addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemWidget)
 {
   if (layoutForItems->count() < int(visibleItems))
     layoutForItems->addWidget(itemWidget.get());
@@ -139,7 +139,7 @@ void NumSeriesView::addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemW
   photoItems.push_back(std::move(itemWidget));
 }
 
-void NumSeriesView::updateCurrentSeries()
+void NumSeries::updateCurrentSeries()
 {
   utils::clearLayout(layoutForItems, false);
 
@@ -160,10 +160,10 @@ void NumSeriesView::updateCurrentSeries()
     currentItem = 0;
 }
 
-void NumSeriesView::changeSeriesState(pcontainer::ItemState const state) const
+void NumSeries::changeSeriesState(pcontainer::ItemState const state) const
 {
   for (auto const& photoWidget : photoItems)
     photoWidget->photoItem().setState(state);
 }
 
-} // namespace phobos
+}} // namespace phobos::view

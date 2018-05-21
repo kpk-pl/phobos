@@ -21,12 +21,14 @@ SOURCES += Phobos.cpp\
     ViewStack.cpp \
     Config.cpp \
     ConfigPath.cpp \
-    AllSeriesView.cpp \
-    WelcomeView.cpp \
     ConfigExtension.cpp \
-    SeriesViewBase.cpp \
-    NumSeriesView.cpp \
-    RowSeriesView.cpp \
+    Views/AllSeries.cpp \
+    Views/Welcome.cpp \
+    Views/View.cpp \
+    Views/SeriesBase.cpp \
+    Views/NumSeries.cpp \
+    Views/RowSeries.cpp \
+    Views/Laboratory.cpp \
     ImageProcessing/Metrics.cpp \
     ImageProcessing/MetricsIO.cpp \
     ImageProcessing/LoaderThread.cpp \
@@ -103,7 +105,6 @@ SOURCES += Phobos.cpp\
     Widgets/StatusBarButton.cpp \
     SharedWidgets.cpp \
     Widgets/StatusBarLeftRightNavigation.cpp \
-    LaboratoryView.cpp \
     ImageProcessing/Enhance/OperationType.cpp \
     ImageProcessing/Enhance/AutoWhiteBalance.cpp \
     ImageProcessing/Enhance/Executor.cpp \
@@ -114,19 +115,22 @@ SOURCES += Phobos.cpp\
     Widgets/Toolbar/InlineToolButton.cpp \
     Widgets/Toolbar/BigMenuToolButton.cpp \
     Dialogs/ConfirmSave.cpp \
-    Utils/FilenameChooser.cpp \
-    Views/View.cpp
+    Utils/FilenameChooser.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
     Config.h \
     ConfigPath.h \
-    AllSeriesView.h \
-    WelcomeView.h \
+    Views/AllSeries.h \
+    Views/Welcome.h \
     ConfigExtension.h \
-    SeriesViewBase.h \
-    NumSeriesView.h \
-    RowSeriesView.h \
+    Views/SeriesBase.h \
+    Views/NumSeries.h \
+    Views/Laboratory.h \
+    Views/RowSeries.h \
+    Views/View.h \
+    Views/Screen.h \
+    Views/Fwd.h \
     ViewDescription.h \
     PhotoBulkAction.h \
     ImageProcessing/MetricsFwd.h \
@@ -242,7 +246,6 @@ HEADERS  += MainWindow.h \
     SharedWidgets.h \
     Widgets/StatusBarButton.h \
     Widgets/StatusBarLeftRightNavigation.h \
-    LaboratoryView.h \
     Widgets/Layout/Raw.h \
     ImageProcessing/Enhance/OperationType.h \
     ImageProcessing/Enhance/AutoWhiteBalance.h \
@@ -256,9 +259,7 @@ HEADERS  += MainWindow.h \
     Widgets/Toolbar/Signal.h \
     Widgets/Toolbar/BigMenuToolButton.h \
     Dialogs/ConfirmSave.h \
-    Utils/FilenameChooser.h \
-    Views/View.h \
-    Views/Fwd.h
+    Utils/FilenameChooser.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

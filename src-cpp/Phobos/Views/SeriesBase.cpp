@@ -1,4 +1,4 @@
-#include "SeriesViewBase.h"
+#include "Views/SeriesBase.h"
 #include "Widgets/PhotoItem/PhotoItem.h"
 #include "Widgets/PhotoItem/Addon.h"
 #include "Config.h"
@@ -9,19 +9,19 @@
 #include <functional>
 #include <QLayout>
 
-namespace phobos {
+namespace phobos { namespace view {
 
-SeriesViewBase::SeriesViewBase(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
-    seriesSet(seriesSet), imageCache(imageCache)
+SeriesBase::SeriesBase(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
+  View(seriesSet, imageCache)
 {
-  QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &SeriesViewBase::updateMetrics);
-  QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &SeriesViewBase::updateSeries);
+  QObject::connect(&imageCache, &icache::Cache::updateMetrics, this, &SeriesBase::updateMetrics);
+  QObject::connect(&seriesSet, &pcontainer::Set::changedSeries, this, &SeriesBase::updateSeries);
 }
 
 // TODO: maybe if at all possible. Ctrl+Arrow jump focus to best photo in series
 // TODO: This function has a lot in common with AllSeriesView -> derive from common base
 
-std::unique_ptr<widgets::pitem::PhotoItem> SeriesViewBase::createConnectedItem(pcontainer::ItemPtr const& item)
+std::unique_ptr<widgets::pitem::PhotoItem> SeriesBase::createConnectedItem(pcontainer::ItemPtr const& item)
 {
   using namespace widgets::pitem;
 
@@ -38,19 +38,19 @@ std::unique_ptr<widgets::pitem::PhotoItem> SeriesViewBase::createConnectedItem(p
   widget->setImage(result.image);
   widget->setMetrics(imageCache.metrics().get(itemId));
 
-  QObject::connect(widget.get(), &PhotoItem::changeSeriesState, this, &SeriesViewBase::changeCurrentSeriesState);
+  QObject::connect(widget.get(), &PhotoItem::changeSeriesState, this, &SeriesBase::changeCurrentSeriesState);
   QObject::connect(widget.get(), &PhotoItem::removeFromSeries, &seriesSet, &pcontainer::Set::removeImage);
-  QObject::connect(widget.get(), &PhotoItem::showFullscreen, this, &SeriesViewBase::showImageFullscreen);
+  QObject::connect(widget.get(), &PhotoItem::showFullscreen, this, &SeriesBase::showImageFullscreen);
 
   return widget;
 }
 
-void SeriesViewBase::addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemWidget)
+void SeriesBase::addToLayout(std::unique_ptr<widgets::pitem::PhotoItem> itemWidget)
 {
   getLayoutForItems()->addWidget(itemWidget.release());
 }
 
-void SeriesViewBase::showSeries(pcontainer::Series const& series)
+void SeriesBase::showSeries(pcontainer::Series const& series)
 {
   using namespace widgets::pitem;
   clear();
@@ -66,7 +66,7 @@ void SeriesViewBase::showSeries(pcontainer::Series const& series)
   update();
 }
 
-void SeriesViewBase::updateCurrentSeriesFromContent(
+void SeriesBase::updateCurrentSeriesFromContent(
     std::map<pcontainer::ItemId, std::unique_ptr<widgets::pitem::PhotoItem>> &content)
 {
   if (!currentSeriesUuid)
@@ -89,7 +89,7 @@ void SeriesViewBase::updateCurrentSeriesFromContent(
   }
 }
 
-void SeriesViewBase::updateMetrics(pcontainer::ItemId const& itemId,
+void SeriesBase::updateMetrics(pcontainer::ItemId const& itemId,
                                    iprocess::MetricPtr metrics)
 {
   widgets::pitem::PhotoItem* item = findItemWidget(itemId);
@@ -97,7 +97,7 @@ void SeriesViewBase::updateMetrics(pcontainer::ItemId const& itemId,
     item->setMetrics(metrics);
 }
 
-void SeriesViewBase::updateSeries(QUuid seriesUuid)
+void SeriesBase::updateSeries(QUuid seriesUuid)
 {
   if (currentSeriesUuid != seriesUuid)
     return;
@@ -105,12 +105,12 @@ void SeriesViewBase::updateSeries(QUuid seriesUuid)
   updateCurrentSeries();
 }
 
-void SeriesViewBase::clear()
+void SeriesBase::clear()
 {
   currentSeriesUuid.reset();
 }
 
-void SeriesViewBase::changeCurrentSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state)
+void SeriesBase::changeCurrentSeriesState(QUuid const seriesUuid, pcontainer::ItemState const state)
 {
   assert(currentSeriesUuid);
   assert(*currentSeriesUuid == seriesUuid);
@@ -118,4 +118,4 @@ void SeriesViewBase::changeCurrentSeriesState(QUuid const seriesUuid, pcontainer
   changeSeriesState(state);
 }
 
-} // namespace phobos
+}} // namespace phobos::view
