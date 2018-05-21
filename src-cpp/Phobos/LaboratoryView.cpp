@@ -7,10 +7,10 @@
 #include <QProgressDialog>
 #include <QThread>
 
-namespace phobos {
+namespace phobos { namespace view {
 
-LaboratoryView::LaboratoryView(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
-  seriesSet(seriesSet), imageCache(imageCache)
+Laboratory::Laboratory(pcontainer::Set const& seriesSet, icache::Cache & imageCache) :
+  View(seriesSet, imageCache)
 {
   imageWidget = new widgets::ImageWidget(QSize(800, 600));
   imageWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -22,7 +22,7 @@ LaboratoryView::LaboratoryView(pcontainer::Set const& seriesSet, icache::Cache &
   setLayout(hlayout);
 }
 
-void LaboratoryView::changePhoto(pcontainer::Item const& item)
+void Laboratory::changePhoto(pcontainer::Item const& item)
 {
   currentId = item.id();
   resetImage();
@@ -32,7 +32,7 @@ void LaboratoryView::changePhoto(pcontainer::Item const& item)
   LOG(TRACE) << "Set up new photo in laboratory: " << item.id().toString();
 }
 
-void LaboratoryView::resetImage()
+void Laboratory::resetImage()
 {
   auto const cacheResult = imageCache.transaction().callback([lt=imageWidget->lifetime(), id = *currentId, this](auto && result){
     auto item = lt.lock();
@@ -47,7 +47,7 @@ void LaboratoryView::resetImage()
   operationStack.clear();
 }
 
-void LaboratoryView::process(iprocess::enhance::OperationType const operation)
+void Laboratory::process(iprocess::enhance::OperationType const operation)
 {
   using namespace iprocess::enhance;
 
@@ -58,7 +58,7 @@ void LaboratoryView::process(iprocess::enhance::OperationType const operation)
   operationStack.push_back(operation);
 }
 
-void LaboratoryView::saveItem(QString const fileName)
+void Laboratory::saveItem(QString const fileName)
 {
   if (!currentId)
     return;
@@ -74,4 +74,4 @@ void LaboratoryView::saveItem(QString const fileName)
   job->runInThread(new QThread(this), progress);
 }
 
-} // namespace phobos
+}} // namespace phobos::view

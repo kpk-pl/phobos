@@ -114,7 +114,8 @@ SOURCES += Phobos.cpp\
     Widgets/Toolbar/InlineToolButton.cpp \
     Widgets/Toolbar/BigMenuToolButton.cpp \
     Dialogs/ConfirmSave.cpp \
-    Utils/FilenameChooser.cpp
+    Utils/FilenameChooser.cpp \
+    Views/View.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
@@ -255,7 +256,9 @@ HEADERS  += MainWindow.h \
     Widgets/Toolbar/Signal.h \
     Widgets/Toolbar/BigMenuToolButton.h \
     Dialogs/ConfirmSave.h \
-    Utils/FilenameChooser.h
+    Utils/FilenameChooser.h \
+    Views/View.h \
+    Views/Fwd.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

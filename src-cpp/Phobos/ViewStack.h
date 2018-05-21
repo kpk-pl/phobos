@@ -8,6 +8,7 @@
 #include "PhotoBulkAction.h"
 #include "SharedWidgets.h"
 #include "ImportWizard/Types.h"
+#include "Views/Fwd.h"
 #include "PhotoContainers/Fwd.h"
 #include "PhotoContainers/ItemId.h"
 #include "ImageCache/CacheFwd.h"
@@ -18,7 +19,6 @@ namespace phobos {
 class AllSeriesView;
 class NumSeriesView;
 class RowSeriesView;
-class LaboratoryView;
 class WelcomeView;
 class SeriesViewBase;
 class MainToolbar;
@@ -77,7 +77,7 @@ private:
   AllSeriesView* allSeriesView;
   RowSeriesView* rowSeriesView;
   NumSeriesView* numSeriesView;
-  LaboratoryView* laboratoryView;
+  view::Laboratory* laboratoryView;
 
   SeriesViewBase* currentSeriesWidget;
 };

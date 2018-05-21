@@ -251,7 +251,7 @@ void ViewStack::setupUI()
   allSeriesView = new AllSeriesView(seriesSet, imageCache);
   rowSeriesView = new RowSeriesView(seriesSet, imageCache);
   numSeriesView = new NumSeriesView(seriesSet, imageCache);
-  laboratoryView = new LaboratoryView(seriesSet, imageCache);
+  laboratoryView = new view::Laboratory(seriesSet, imageCache);
 
   addWidget(welcomeView);
   addWidget(allSeriesView);
