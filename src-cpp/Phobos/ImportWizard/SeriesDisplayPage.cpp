@@ -77,7 +77,7 @@ void SeriesDisplayPage::initializeInfoLabels()
   auto const lenghtsCount = countSeriesLengths();
 
   auto const oneIt = lenghtsCount.find(1);
-  if (oneIt != lenghtsCount.end() && lenghtsCount.size() > 1)
+  if (oneIt != lenghtsCount.end())
   {
     initializeLengthOneWarning(oneIt->second);
   }
