@@ -267,9 +267,9 @@ INCLUDEPATH += opencv/include
 INCLUDEPATH += easyloggingpp/src
 
 win32 {
-LIBS += $$PWD/opencv/bin/libopencv_core320.dll
-LIBS += $$PWD/opencv/bin/libopencv_imgcodecs320.dll
-LIBS += $$PWD/opencv/bin/libopencv_imgproc320.dll
+LIBS += $$PWD/opencv/bin/libopencv_core341.dll
+LIBS += $$PWD/opencv/bin/libopencv_imgcodecs341.dll
+LIBS += $$PWD/opencv/bin/libopencv_imgproc341.dll
 } else {
 LIBS += `pkg-config opencv --libs`
 }
