@@ -2,6 +2,8 @@
 #define IMAGECACHE_PRIORITY_THREAD_POOL_H_
 
 #include "ImageCache/Runnable.h"
+#include "ImageCache/Priority.h"
+#include "ImageCache/TransactionFwd.h"
 #include <QThreadPool>
 #include <QObject>
 #include <list>
@@ -14,9 +16,9 @@ class PriorityThreadPool : public QObject
   Q_OBJECT
 
 public:
-  explicit PriorityThreadPool();
+  explicit PriorityThreadPool() = default;
 
-  void start(RunnablePtr && task, std::size_t const priority);
+  void start(RunnablePtr && task, ConstTransactionPtr const& transaction);
   void cancel(Runnable::UniqueId const& taskUniqueId);
 
 private slots:
@@ -24,7 +26,7 @@ private slots:
   void taskInterrupted(Runnable::Id taskId);
 
 private:
-  void insertTask(RunnablePtr && task, std::size_t const priority);
+  void insertTask(RunnablePtr && task, Priority const& priority, bool const background);
   void handleFinished(Runnable::Id taskId);
   void updatePool();
 
@@ -33,13 +35,15 @@ private:
     struct IdEqual;
     struct UniqueIdEqual;
 
-    PriorityTask(std::size_t const priority, RunnablePtr && task) :
-      priority(priority), task(std::move(task))
+    PriorityTask(Priority const& priority, bool const background, RunnablePtr && task) :
+      priority(priority), background(background), task(std::move(task))
     {}
 
-    std::size_t priority;
+    Priority priority;
+    bool background;
     RunnablePtr task;
 
+    // lower tasks execute first
     bool operator<(PriorityTask const& rhs) const;
   };
 

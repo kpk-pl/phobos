@@ -9,9 +9,9 @@ namespace phobos { namespace icache {
 LoadingManager::LoadingManager(Cache const& cache) : cache(cache)
 {}
 
-void LoadingManager::start(LoadingJobVec && jobs)
+void LoadingManager::start(ConstTransactionPtrVec && schedule)
 {
-  for (auto job : jobs)
+  for (auto & job : schedule)
     startOne(std::move(job));
 }
 
@@ -20,14 +20,15 @@ void LoadingManager::start(LoadingJobVec && jobs)
 // thread.
 // I believe that would serialize processing and maybe speed up reading from disk a bit
 // Probably it would be then a good idea to adjust number of processing threads
-void LoadingManager::startOne(LoadingJob && job)
+void LoadingManager::startOne(ConstTransactionPtr && transaction)
 {
-  pcontainer::ItemId const itemId = job.transaction->itemId;
+  pcontainer::ItemId const itemId = transaction->itemId;
 
   LOG(DEBUG) << "[Cache] Requested thread load for " << itemId.fileName;
+
   auto thread = makeLoadingThread(itemId);
-  jobsInThread.emplace(itemId, std::make_pair(thread->uuid(), std::move(job)));
-  threadPool.start(std::move(thread), job.generation);
+  jobsInThread.emplace(itemId, std::make_pair(thread->uuid(), transaction));
+  threadPool.start(std::move(thread), transaction);
 }
 
 void LoadingManager::stop(pcontainer::ItemId const& itemId)
@@ -78,26 +79,25 @@ void LoadingManager::imageLoaded(pcontainer::ItemId const& itemId, QImage const&
     thumbnail = thumbIt->second;
   }
 
-  bool updateFullCache = false;
-  Generation biggestGeneration = 0;
+  boost::optional<Priority> biggestPriority;
 
   for (auto it = allTrans.first; it != allTrans.second; ++it)
   {
-    ConstTransactionPtr const& tran = it->second.second.transaction;
+    ConstTransactionPtr const& tran = it->second.second;
     if (tran->imageSize == ImageSize::Thumbnail)
     {
       tran->loadCallback(Result{thumbnail, ImageQuality::Thumb, true});
     }
     else
     {
-      updateFullCache = true;
-      biggestGeneration = std::max(biggestGeneration, it->second.second.generation);
+      if (biggestPriority < tran->priority)
+        biggestPriority = tran->priority;
       tran->loadCallback(Result{image, ImageQuality::Full, true});
     }
   }
 
-  if (updateFullCache)
-    emit imageReady(itemId, image, biggestGeneration);
+  if (biggestPriority)
+    emit imageReady(itemId, image, *biggestPriority);
 
   jobsInThread.erase(allTrans.first, allTrans.second);
 }

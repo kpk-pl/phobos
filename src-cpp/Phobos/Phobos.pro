@@ -220,7 +220,6 @@ HEADERS  += MainWindow.h \
     ImageCache/ContentList.h \
     ImageCache/Types.h \
     ImageCache/LoadingManager.h \
-    ImageCache/LoadingJob.h \
     ImageCache/ProactiveScheduler.h \
     ProcessWizard/ProcessWizard.h \
     ProcessWizard/Operation.h \
@@ -259,7 +258,8 @@ HEADERS  += MainWindow.h \
     Widgets/Toolbar/Signal.h \
     Widgets/Toolbar/BigMenuToolButton.h \
     Dialogs/ConfirmSave.h \
-    Utils/FilenameChooser.h
+    Utils/FilenameChooser.h \
+    ImageCache/Priority.h
 
 INCLUDEPATH += cpptoml
 INCLUDEPATH += boost

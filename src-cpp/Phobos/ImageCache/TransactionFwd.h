@@ -12,6 +12,7 @@ class Transaction;
 using TransactionPtr = std::shared_ptr<Transaction>;
 using ConstTransactionPtr = std::shared_ptr<const Transaction>;
 using TransactionVec = std::vector<Transaction>;
+using ConstTransactionPtrVec = std::vector<ConstTransactionPtr>;
 
 using TransactionCallback = std::function<void(Result const&)>;
 

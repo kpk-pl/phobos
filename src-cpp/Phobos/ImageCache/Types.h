@@ -3,8 +3,6 @@
 
 namespace phobos { namespace icache {
 
-using Generation = unsigned long long;
-
 enum class ImageSize
 {
   Thumbnail,

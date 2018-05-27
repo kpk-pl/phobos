@@ -3,7 +3,7 @@
 
 #include "ImageCache/PriorityThreadPool.h"
 #include "ImageCache/CacheFwd.h"
-#include "ImageCache/LoadingJob.h"
+#include "ImageCache/TransactionFwd.h"
 #include "PhotoContainers/ItemId.h"
 #include "ImageProcessing/LoaderThread.h"
 #include <QObject>
@@ -17,21 +17,21 @@ class LoadingManager : public QObject
 public:
   explicit LoadingManager(Cache const& cache);
 
-  void start(LoadingJobVec && job);
+  void start(ConstTransactionPtrVec && schedule);
   void stop(pcontainer::ItemId const& itemId);
 
 signals:
   void thumbnailReady(pcontainer::ItemId const& itemId, QImage const& image);
-  void imageReady(pcontainer::ItemId const& itemId, QImage const& image, Generation const generation);
+  void imageReady(pcontainer::ItemId const& itemId, QImage const& image, Priority const generation);
   void metricsReady(pcontainer::ItemId const& itemId, iprocess::MetricPtr metrics);
 
 private slots:
   void imageLoaded(pcontainer::ItemId const& itemId, QImage const& image);
 
 private:
-  std::multimap<pcontainer::ItemId, std::pair<Runnable::UniqueId, LoadingJob>> jobsInThread;
+  std::multimap<pcontainer::ItemId, std::pair<Runnable::UniqueId, ConstTransactionPtr>> jobsInThread;
 
-  void startOne(LoadingJob && job);
+  void startOne(ConstTransactionPtr && transaction);
   std::unique_ptr<iprocess::LoaderThread> makeLoadingThread(pcontainer::ItemId const& itemId) const;
 
   PriorityThreadPool threadPool;

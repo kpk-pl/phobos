@@ -1,10 +1,10 @@
 #ifndef IMAGECACHE_CONTENTLIST_H
 #define IMAGECACHE_CONTENTLIST_H
 
-#include "ImageCache/Types.h"
+#include "ImageCache/Priority.h"
 #include <QString>
 #include <list>
-#include <map>
+#include <set>
 #include <utility>
 
 namespace phobos { namespace icache {
@@ -17,41 +17,30 @@ public:
   explicit ContentList() = default;
 
   std::size_t size() const;
-  std::size_t sizeBelow(Generation const generation) const;
-  std::size_t sizeFrom(Generation const generation) const;
+  std::size_t sizeBelow(Priority const& priority) const;
 
   bool empty() const;
 
-  std::size_t insert(Key const& item, Generation const generation, std::size_t const size);
+  std::size_t insert(Key const& item, Priority const& priority, std::size_t const size);
   std::size_t remove(Key const& item);
-  void touch(Key const& item, Generation const generation);
+  void touch(Key const& item, Priority const& priority);
 
   Key pop_front();
-  bool exists(Key const& item);
+  bool exists(Key const& item) const;
 
 private:
   struct Node
   {
     Key key;
+    Priority priority;
     std::size_t size;
+
+    bool operator<(Node const& rhs) const;
   };
-  using NodeList = std::list<Node>;
 
-  struct Bucket
-  {
-    void emplace_back(Key const& key, std::size_t const size);
-    std::size_t erase(NodeList::iterator const& it);
+  std::set<Node>::const_iterator find(Key const& item) const;
 
-    NodeList content;
-    std::size_t wholeSize = 0;
-  };
-  using BucketsMap = std::map<Generation, Bucket>;
-
-  std::pair<BucketsMap::iterator, NodeList::iterator> find(Key const& key);
-
-  std::size_t remove(BucketsMap::iterator const& bucketIt, NodeList::iterator const& nodeIt);
-
-  std::map<Generation, Bucket> buckets;
+  std::set<Node> content;
   std::size_t wholeSize = 0;
 };
 

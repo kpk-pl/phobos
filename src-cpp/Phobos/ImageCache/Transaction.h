@@ -4,6 +4,7 @@
 #include "ImageCache/CacheFwd.h"
 #include "ImageCache/Types.h"
 #include "ImageCache/TransactionFwd.h"
+#include "ImageCache/Priority.h"
 #include "PhotoContainers/ItemId.h"
 #include <QImage>
 #include <QUuid>
@@ -26,9 +27,10 @@ public:
   Result execute() &&;
 
   QString toString() const;
-  TransactionPtr cloneFor(pcontainer::ItemId const& id) const;
+  TransactionPtr cloneFor(pcontainer::ItemId const& id, unsigned const proactiveGeneration) const;
 
   QUuid const uuid;
+  Priority priority;
 
   pcontainer::ItemId itemId;
   ImageSize imageSize = ImageSize::Full;

@@ -29,24 +29,27 @@ Result Cache::execute(ConstTransactionPtr transaction)
     return {QImage{}, ImageQuality::None, false};
 
   auto const result = executeImpl(*transaction);
-
-  LoadingJobVec jobs = scheduler(std::move(transaction));
-
-  auto const part = std::partition(jobs.begin(), jobs.end(), [this](LoadingJob const& job){
-    if (job.transaction->imageSize == ImageSize::Thumbnail)
-      return thumbnailCache.find(job.transaction->itemId.fileName) == thumbnailCache.end();
-    return !fullImageCache.has(job.transaction->itemId.fileName);
-  });
-
-  std::for_each(part, jobs.end(), [this](LoadingJob const& job){
-    if (job.transaction->imageSize == ImageSize::Full)
-      fullImageCache.touch(job.transaction->itemId.fileName, job.generation);
-  });
-  jobs.erase(part, jobs.end());
-
-  loadingManager.start(std::move(jobs));
-
+  scheduleTransaction(std::move(transaction));
   return result;
+}
+
+void Cache::scheduleTransaction(ConstTransactionPtr && transaction)
+{
+  ConstTransactionPtrVec schedule = scheduler(std::move(transaction));
+
+  auto const part = std::stable_partition(schedule.begin(), schedule.end(), [this](ConstTransactionPtr const& trans){
+    if (trans->imageSize == ImageSize::Thumbnail)
+      return thumbnailCache.find(trans->itemId.fileName) == thumbnailCache.end();
+    return !fullImageCache.has(trans->itemId.fileName);
+  });
+
+  std::for_each(part, schedule.end(), [this](ConstTransactionPtr const& trans){
+    if (trans->imageSize == ImageSize::Full)
+      fullImageCache.touch(trans->itemId.fileName, trans->priority);
+  });
+  schedule.erase(part, schedule.end());
+
+  loadingManager.start(std::move(schedule));
 }
 
 namespace {
@@ -148,9 +151,9 @@ void Cache::thumbnailReady(pcontainer::ItemId const& itemId, QImage const& image
   LOG(DEBUG) << "[Cache] Saved new preload image " << itemId.fileName;
 }
 
-void Cache::imageReady(pcontainer::ItemId const& itemId, QImage const& image, Generation const generation)
+void Cache::imageReady(pcontainer::ItemId const& itemId, QImage const& image, Priority const& priority)
 {
-  fullImageCache.replace(itemId.fileName, image, generation);
+  fullImageCache.replace(itemId.fileName, image, priority);
 }
 
 }} // namespace phobos::icache

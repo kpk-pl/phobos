@@ -27,11 +27,11 @@ namespace {
   }
 } // unnamed namespace
 
-void LimitedMap::replace(KeyType const& key, ValueType const& value, Generation const& generation)
+void LimitedMap::replace(KeyType const& key, ValueType const& value, Priority const& priority)
 {
   auto const maxAllowedSize = config::bytes("imageCache.fullMaxBytes", 0u);
-  auto const leftSize = maxAllowedSize - contentList.sizeFrom(generation + 1);
-  LOG(DEBUG) << "[Cache] Left " << megabytes(leftSize) << "MB for generation " << generation
+  auto const leftSize = maxAllowedSize - (contentList.size() - contentList.sizeBelow(priority));
+  LOG(DEBUG) << "[Cache] Left " << megabytes(leftSize) << "MB for generation " << priority.toString()
              << " (max " << megabytes(maxAllowedSize) << "MB)";
 
   if (static_cast<std::size_t>(value.byteCount()) > leftSize)
@@ -44,39 +44,43 @@ void LimitedMap::replace(KeyType const& key, ValueType const& value, Generation 
   auto const it = map.find(key);
 
   if (it == map.end())
-    insertNew(key, value, generation);
+    insertNew(key, value, priority);
   else
-    overrideExisting(it, value, generation);
+    overrideExisting(it, value, priority);
 
   release(maxAllowedSize);
 }
 
-void LimitedMap::touch(KeyType const& key, Generation const& generation)
+void LimitedMap::touch(KeyType const& key, Priority const& priority)
 {
-  contentList.touch(key, generation);
+  contentList.touch(key, priority);
 }
 
 void LimitedMap::erase(KeyType const& key)
 {
   auto const it = map.find(key);
   if (it != map.end())
-    erase(it);
+  {
+    contentList.remove(it->first);
+    map.erase(it);
+    LOG(DEBUG) << "[Cache] Removed full image " << it->first << " (" << megabytes(it->second) << "MB)";
+  }
 }
 
-void LimitedMap::insertNew(KeyType const& key, ValueType const& value, Generation const& generation)
+void LimitedMap::insertNew(KeyType const& key, ValueType const& value, Priority const& priority)
 {
-  contentList.insert(key, generation, value.byteCount());
+  assert(contentList.insert(key, priority, value.byteCount()) > 0);
   map.emplace(key, value);
 
-  LOG(DEBUG) << "[Cache] Saved new full image " << key << " (" << megabytes(value) << "MB) at generation " << generation;
+  LOG(DEBUG) << "[Cache] Saved new full image " << key << " (" << megabytes(value) << "MB) at generation " << priority.toString();
 }
 
-void LimitedMap::overrideExisting(IteratorType const& iterator, ValueType const& value, Generation const& generation)
+void LimitedMap::overrideExisting(IteratorType const& iterator, ValueType const& value, Priority const& priority)
 {
   auto const& key = iterator->first;
 
-  contentList.remove(key);
-  contentList.insert(key, generation, value.byteCount());
+  assert(contentList.remove(key) > 0);
+  assert(contentList.insert(key, priority, value.byteCount()) > 0);
   iterator->second = value;
 
   LOG(DEBUG) << "[Cache] Replaced full image " << key << " (" << megabytes(value) << "MB)";
@@ -87,7 +91,7 @@ void LimitedMap::erase(UnderlyingType::iterator const it)
   assert(it != map.end());
   LOG(DEBUG) << "[Cache] Removed full image " << it->first << " (" << megabytes(it->second) << "MB)";
 
-  contentList.remove(it->first);
+  assert(contentList.remove(it->first) > 0);
   map.erase(it);
 }
 
@@ -96,7 +100,15 @@ void LimitedMap::release(std::size_t const maxAllowedSize)
   LOG(DEBUG) << "[Cache] Total full size: " << megabytes(contentList.size()) << "MB";
 
   while (!contentList.empty() && contentList.size() > maxAllowedSize)
-    erase(map.find(contentList.pop_front()));
+  {
+    KeyType const removed = contentList.pop_front();
+
+    auto const it = map.find(removed);
+    assert(it != map.end());
+    map.erase(it);
+
+    LOG(DEBUG) << "[Cache] Removed full image " << it->first << " (" << megabytes(it->second) << "MB)";
+  }
 }
 
 }} // namespace phobos::icache

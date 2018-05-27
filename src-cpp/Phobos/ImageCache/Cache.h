@@ -18,8 +18,6 @@
 
 namespace phobos { namespace icache {
 
-// TODO: Opening a series view while there are pictures still being loaded does not cause those pictures to be loaded
-// with priority. This needs to be fixed
 class Cache : public QObject
 {
   Q_OBJECT
@@ -38,7 +36,7 @@ public:
 
 public slots:
   void thumbnailReady(pcontainer::ItemId const& itemId, QImage const& image);
-  void imageReady(pcontainer::ItemId const& itemId, QImage const& image, Generation const generation);
+  void imageReady(pcontainer::ItemId const& itemId, QImage const& image, Priority const& priority);
 
 signals:
   void updateMetrics(pcontainer::ItemId itemId, iprocess::MetricPtr);
@@ -50,6 +48,7 @@ private:
   friend class Transaction;
 
   Result executeImpl(Transaction const& transaction) const;
+  void scheduleTransaction(ConstTransactionPtr && transaction);
 
   ThumbnailCache thumbnailCache;
   LimitedMap fullImageCache;

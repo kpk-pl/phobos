@@ -4,7 +4,7 @@
 namespace phobos { namespace icache {
 
 Transaction::Transaction(Cache& cache) :
-  uuid(QUuid::createUuid()), cache(cache)
+  uuid(QUuid::createUuid()), priority{Priority::Clock::now(), 0}, cache(cache)
 {}
 
 Transaction&& Transaction::callback(TransactionCallback && newCallback) &&
@@ -34,15 +34,20 @@ Result Transaction::execute() &&
   return cache.execute(std::make_shared<Transaction>(std::move(*this)));
 }
 
-TransactionPtr Transaction::cloneFor(pcontainer::ItemId const& id) const
+TransactionPtr Transaction::cloneFor(pcontainer::ItemId const& id, unsigned const proactiveGeneration) const
 {
   TransactionPtr clone = std::make_shared<Transaction>(cache);
+
   clone->itemId = id;
   clone->imageSize = imageSize;
   clone->loadingMode = loadingMode;
   clone->predictionMode = predictionMode;
   clone->persistency = persistency;
   clone->loadCallback = {nullptr};
+
+  clone->priority.timestamp = priority.timestamp;
+  clone->priority.proactiveGeneration = proactiveGeneration;
+
   return clone;
 }
 

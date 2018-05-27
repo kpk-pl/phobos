@@ -20,8 +20,8 @@ public:
 
   bool has(KeyType const& key) const;
   ValueType find(KeyType const& key) const;
-  void replace(KeyType const& key, ValueType const& value, Generation const& generation);
-  void touch(KeyType const& key, Generation const& generation);
+  void replace(KeyType const& key, ValueType const& value, Priority const& priority);
+  void touch(KeyType const& key, Priority const& priority);
   void erase(KeyType const& key);
 
 private:
@@ -31,8 +31,8 @@ private:
   UnderlyingType map;
   ContentList contentList;
 
-  void insertNew(KeyType const& key, ValueType const& value, Generation const& generation);
-  void overrideExisting(IteratorType const& iterator, ValueType const& value, Generation const& generation);
+  void insertNew(KeyType const& key, ValueType const& value, Priority const& priority);
+  void overrideExisting(IteratorType const& iterator, ValueType const& value, Priority const& priority);
   void erase(UnderlyingType::iterator const it);
   void release(std::size_t const maxAllowedSize);
 };

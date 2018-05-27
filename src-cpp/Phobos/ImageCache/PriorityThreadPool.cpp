@@ -1,4 +1,5 @@
 #include "ImageCache/PriorityThreadPool.h"
+#include "ImageCache/Transaction.h"
 #include <easylogging++.h>
 #include <cassert>
 
@@ -36,12 +37,9 @@ struct PriorityThreadPool::PriorityTask::UniqueIdEqual
   Runnable::UniqueId const id;
 };
 
-PriorityThreadPool::PriorityThreadPool()
-{}
-
-void PriorityThreadPool::start(RunnablePtr && task, std::size_t const priority)
+void PriorityThreadPool::start(RunnablePtr && task, ConstTransactionPtr const& transaction)
 {
-  insertTask(std::move(task), priority);
+  insertTask(std::move(task), transaction->priority, transaction->imageSize == ImageSize::Thumbnail);
   updatePool();
 }
 
@@ -54,47 +52,60 @@ void PriorityThreadPool::cancel(Runnable::UniqueId const& uniqueTaskId)
 
 bool PriorityThreadPool::PriorityTask::operator<(PriorityTask const& rhs) const
 {
-  if (priority == rhs.priority)
-    return task < rhs.task;
-  return priority < rhs.priority;
+  if (priority.proactiveGeneration != rhs.priority.proactiveGeneration) // first come the lowest proactive generation
+    return priority.proactiveGeneration < rhs.priority.proactiveGeneration;
+
+  if (priority.timestamp != rhs.priority.timestamp) // then order timestamps
+    if (background)
+      return priority.timestamp < rhs.priority.timestamp; // for background it is first-come-first-serve
+    else
+      return priority.timestamp > rhs.priority.timestamp; // for organic, newest first
+
+  return task < rhs.task;
 }
 
-void PriorityThreadPool::insertTask(RunnablePtr && task, std::size_t const priority)
+void PriorityThreadPool::insertTask(RunnablePtr && task, Priority const& priority, bool const background)
 {
-  LOG(DEBUG) << "Inserting task " << task->id() << " with priority " << priority;
+  LOG(DEBUG) << "[Cache] Inserting task " << task->id() << " with priority " << priority.toString();
 
-  auto const where = std::upper_bound(queue.begin(), queue.end(), priority,
-        [](std::size_t const prio, PriorityTask const& p){ return prio > p.priority; });
-  queue.emplace(where, priority, std::move(task));
+  PriorityTask pt{priority, background, std::move(task)};
+  auto const where = std::upper_bound(queue.begin(), queue.end(), std::cref(pt),
+      [](PriorityTask const& newTask, PriorityTask const& task){ return newTask < task; });
+
+  queue.insert(where, std::move(pt));
 }
 
 void PriorityThreadPool::updatePool()
 {
-  LOG(DEBUG) << "Updating pool. Tasks in queue: " << queue.size() << " running: " << runningTasks.size();
+  LOG(DEBUG) << "[Cache] Updating pool. Tasks in queue: " << queue.size() << " running: " << runningTasks.size();
 
   if (static_cast<int>(runningTasks.size()) >= pool.maxThreadCount())
   {
-    LOG(DEBUG) << "No free threads to run more tasks";
+    LOG(DEBUG) << "[Cache] No free threads to run more tasks";
     return;
   }
 
   auto taskToRunIt = findNextTask();
   if (taskToRunIt == queue.end())
   {
-    LOG(DEBUG) << "No more tasks to run in queue";
+    LOG(DEBUG) << "[Cache] No more tasks to run in queue";
     return;
   }
 
-  auto taskToRun = std::move(taskToRunIt->task);
+  RunnablePtr taskToRun;
+  std::swap(taskToRun, taskToRunIt->task);
   queue.erase(taskToRunIt);
 
   QObject::connect(&taskToRun->signal, &RunnableSignals::finished, this, &PriorityThreadPool::taskFinished);
   QObject::connect(&taskToRun->signal, &RunnableSignals::interrupted, this, &PriorityThreadPool::taskInterrupted);
   runningTasks.insert(taskToRun->id());
-  LOG(DEBUG) << "Starting task " << taskToRun->id();
+  LOG(DEBUG) << "[Cache] Starting task " << taskToRun->id();
   pool.start(taskToRun.release());
 }
 
+
+// TODO: Don't start loading proactively when there is no more cache space left for given generation. Handle persistency flag
+// Remove such tasks from queue
 PriorityThreadPool::QueueType::iterator PriorityThreadPool::findNextTask()
 {
   for (auto it = queue.begin(); it != queue.end(); ++it)
@@ -106,14 +117,13 @@ PriorityThreadPool::QueueType::iterator PriorityThreadPool::findNextTask()
 
 void PriorityThreadPool::taskFinished(Runnable::Id taskId)
 {
-  LOG(DEBUG) << "Finished task " << taskId;
+  LOG(DEBUG) << "[Cache] Finished task " << taskId;
   handleFinished(taskId);
 }
 
 void PriorityThreadPool::taskInterrupted(Runnable::Id taskId)
 {
-  // TODO: Handle crashed task, maybe restart?
-  LOG(WARNING) << "Task crashed! (" << taskId << ")";
+  LOG(WARNING) << "[Cache] Task crashed! (" << taskId << ")";
   handleFinished(taskId);
 }
 
@@ -126,7 +136,7 @@ void PriorityThreadPool::handleFinished(Runnable::Id taskId)
   auto const originalSize = queue.size();
   queue.erase(std::remove_if(queue.begin(), queue.end(), PriorityTask::IdEqual{taskId}), queue.end());
   if (queue.size() != originalSize)
-    LOG(DEBUG) << "Removed " << originalSize - queue.size() << " tasks from queue";
+    LOG(DEBUG) << "[Cache] Removed " << originalSize - queue.size() << " tasks from queue";
 
   updatePool();
 }
