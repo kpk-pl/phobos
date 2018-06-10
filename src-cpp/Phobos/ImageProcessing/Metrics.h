@@ -42,6 +42,7 @@ struct Metric
   boost::optional<feature::Hue> hue;
   feature::Histogram histogram;
 
+  double score() const;
   boost::optional<MetricSeriesScores> seriesScores;
 };
 

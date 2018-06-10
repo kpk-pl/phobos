@@ -221,9 +221,15 @@ void PhotoItem::paintEvent(QPaintEvent*)
   if (addons.has(AddonType::FOCUS_IND) && hasFocus())
     renderer.focusMark();
 
+  // TODO: Maybe different font for series score and single score?
   auto const metric = metrics();
-  if (addons.has(AddonType::SCORE_NUM) && metric && metric->seriesScores)
-    renderer.scoreNum(metric->seriesScores->score());
+  if (addons.has(AddonType::SCORE_NUM) && metric)
+  {
+    if (!_photoItem->isFromASeries)
+      renderer.scoreNum(metric->score());
+    else if (metric->seriesScores)
+      renderer.scoreNum(metric->seriesScores->score());
+  }
 
   if (addons.has(AddonType::BEST_IND) && metric && metric->seriesScores && metric->seriesScores->bestQuality)
     renderer.bestMark();

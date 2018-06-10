@@ -41,6 +41,8 @@ void MetricCache::newLoadedFromThread(pcontainer::ItemId itemId, iprocess::Metri
 bool MetricCache::changedSeries(QUuid const& seriesUuid)
 {
   auto const& series = photoSet.findSeries(seriesUuid);
+  if (!series.isPhotoSeries)
+    return false;
 
   if (!std::all_of(series.begin(), series.end(),
         [this](pcontainer::ItemPtr const& item){

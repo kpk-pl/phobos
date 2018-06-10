@@ -18,7 +18,10 @@ class Item : public QObject
   Q_OBJECT
 
 public:
-  explicit Item(importwiz::Photo const& importedPhoto, QUuid const seriesId, unsigned const ordinal);
+  explicit Item(importwiz::Photo const& importedPhoto,
+                QUuid const seriesId,
+                unsigned const ordinal,
+                bool const isFromASeries);
 
   bool isSelected() const;
   ItemState state() const { return _state; }
@@ -28,6 +31,8 @@ public:
   ItemId const& id() const { return _id; }
   QUuid const& seriesUuid() const { return _id.seriesUuid; }
   QString const& fileName() const { return _id.fileName; }
+
+  bool const isFromASeries;
 
 signals:
   void stateChanged() const;

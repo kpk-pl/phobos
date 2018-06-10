@@ -3,8 +3,15 @@
 
 namespace phobos { namespace pcontainer {
 
-Item::Item(importwiz::Photo const& importedPhoto, QUuid const seriesId, unsigned const ordinal) :
-  _id{seriesId, importedPhoto.name}, _ordinal(ordinal), _info(importedPhoto.info), _state(ItemState::UNKNOWN)
+Item::Item(importwiz::Photo const& importedPhoto,
+           QUuid const seriesId,
+           unsigned const ordinal,
+           bool const isFromASeries) :
+  isFromASeries(isFromASeries),
+  _id{seriesId, importedPhoto.name},
+  _ordinal(ordinal),
+  _info(importedPhoto.info),
+  _state(ItemState::UNKNOWN)
 {}
 
 bool Item::isSelected() const

@@ -26,6 +26,22 @@ private:
 };
 } // unnamed namespace
 
+double Metric::score() const
+{
+  config::ConfigPath const weightPath("metricWeights");
+  Acc result;
+
+  result(blur.score(), config::qualified(weightPath("blur"), 1.0));
+  result(noise.score(), config::qualified(weightPath("noise"), 1.0));
+  result(contrast.score(), config::qualified(weightPath("contrast"), 1.0));
+  result(sharpness.score(), config::qualified(weightPath("sharpness"), 1.0));
+  result(depthOfField.score(), config::qualified(weightPath("depthOfField"), 1.0));
+  result(saturation.score(), config::qualified(weightPath("saturation"), 1.0));
+  result(complementary.score(), config::qualified(weightPath("complementary"), 1.0));
+
+  return result;
+}
+
 double MetricSeriesScores::score() const
 {
   config::ConfigPath const weightPath("metricWeights");
