@@ -332,15 +332,11 @@ void ViewStack::saveItemInLaboratory(QString const& fileName) const
   laboratoryView->saveItem(fileName);
 }
 
-// TODO: FullScreen must use proactive approach. But also needs to be persistent.
-// Priorities in cache does not work very well with this combination
-// Cache cannot use priority 0 for all persistent loads.
-// Maybe another flag in cache?
 void ViewStack::showImageFullscreen(pcontainer::ItemId const& itemId)
 {
   auto earlyResult = imageCache.transaction().item(itemId).callback([itemId](auto const& result){
       widgets::fulldialog::updateImage(result.image, itemId);
-  }).persistent().execute();
+  }).persistent().proactive().execute();
 
   widgets::fulldialog::showImage(window(), earlyResult.image, itemId);
 }
