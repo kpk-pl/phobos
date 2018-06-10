@@ -90,7 +90,7 @@ bool DivisionMethodPage::validatePage()
   if (sortingMethod->currentIndex() > 0)
   {
     LOG(TRACE) << "Sorting photos based on time before division";
-    std::sort(sortedPhotos.begin(), sortedPhotos.end(), utils::less().on([](auto const& p){return p.info.timestamp;}));
+    std::sort(sortedPhotos.begin(), sortedPhotos.end(), Photo::TimeNameComp{});
   }
 
   switch(currentSelection)

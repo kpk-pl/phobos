@@ -64,16 +64,6 @@ bool exifMatches(Photo const& first, Photo const& second)
 
   return true;
 }
-
-struct DateNameComp
-{
-  bool operator()(Photo const& first, Photo const& second) const
-  {
-    if (first.info.timestamp != second.info.timestamp)
-      return first.info.timestamp < second.info.timestamp;
-    return first.name < second.name;
-  }
-};
 } // unnamed namespace
 
 PhotoSeriesVec divideToSeriesOnMetadata(std::vector<Photo> && photos)
@@ -94,7 +84,7 @@ PhotoSeriesVec divideToSeriesOnMetadata(std::vector<Photo> && photos)
     stack.erase(stack.begin(), end);
   };
 
-  std::sort(photos.begin(), photos.end(), DateNameComp{});
+  std::sort(photos.begin(), photos.end(), Photo::TimeNameComp{});
 
   for (Photo &photo : photos)
   {

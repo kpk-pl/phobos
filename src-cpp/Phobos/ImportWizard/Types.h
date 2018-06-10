@@ -17,6 +17,11 @@ struct Photo
   {
     return name == other.name && info == other.info;
   }
+
+  struct TimeNameComp
+  {
+    bool operator()(Photo const& lhs, Photo const& rhs) const;
+  };
 };
 
 struct PhotoSeries : public QVector<Photo>

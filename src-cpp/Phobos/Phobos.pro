@@ -115,7 +115,8 @@ SOURCES += Phobos.cpp\
     Widgets/Toolbar/InlineToolButton.cpp \
     Widgets/Toolbar/BigMenuToolButton.cpp \
     Dialogs/ConfirmSave.cpp \
-    Utils/FilenameChooser.cpp
+    Utils/FilenameChooser.cpp \
+    ImportWizard/Types.cpp
 
 HEADERS  += MainWindow.h \
     ViewStack.h \
