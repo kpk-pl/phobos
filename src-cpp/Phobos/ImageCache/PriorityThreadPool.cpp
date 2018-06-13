@@ -50,6 +50,10 @@ void PriorityThreadPool::cancel(Runnable::UniqueId const& uniqueTaskId)
     queue.erase(queueIt);
 }
 
+// TODO: Consider loading first all proactive photos, and only then background ones
+// Or even allow customizing how much proactive generations to load before considering background tasks
+// Or even split some threads for background or proactive
+// This would require to keep track or query how much background tasks are executing currently and choosing next appropriately
 bool PriorityThreadPool::PriorityTask::operator<(PriorityTask const& rhs) const
 {
   if (priority.proactiveGeneration != rhs.priority.proactiveGeneration) // first come the lowest proactive generation

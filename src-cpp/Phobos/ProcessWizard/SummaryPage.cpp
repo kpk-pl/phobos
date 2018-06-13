@@ -80,7 +80,7 @@ void SummaryPage::initializePage()
 
   for (auto const& action : actionExecs)
   {
-    auto const actionStr = action.first->toString();
+    auto const actionStr = action.first->toString() + QString(" (%1 photos)").arg(action.second.size());
     LOG(TRACE) << "Enabled action: " << actionStr;
 
     QTreeWidgetItem *topItem = new QTreeWidgetItem(actionTree);
