@@ -87,7 +87,7 @@ class RenameProcessor
 {
 public:
   RenameProcessor(pcontainer::ItemState const matchedState, SeriesCounts const& seriesCounts) :
-    matchedState(matchedState), allAvailablePhotos(seriesCounts.all.photos)
+    matchedState(matchedState), allAvailablePhotos(seriesCounts.allSeries.photos + seriesCounts.allFree.photos)
   {}
 
   void setRenamePattern(QString const& pattern)

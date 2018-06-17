@@ -15,7 +15,7 @@ ProcessWizard::ProcessWizard(QWidget *parent, pcontainer::Set const& seriesSet, 
 
   SeriesCounts const counts = countPhotos(seriesSet);
 
-  addPage(new WarningsPage(counts));
+  //addPage(new WarningsPage(counts));
   addPage(new ActionsCreatorPage(defaultOperation));
   addPage(new SummaryPage(counts, seriesSet));
 

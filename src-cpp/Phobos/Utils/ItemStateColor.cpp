@@ -9,8 +9,8 @@ QColor itemStateColor(pcontainer::ItemState const& state)
 {
   switch(state)
   {
-  case pcontainer::ItemState::UNKNOWN:
-    return config::qColor("category.unknown.color", Qt::lightGray);
+  case pcontainer::ItemState::IGNORED:
+    return config::qColor("category.ignored.color", Qt::lightGray);
   case pcontainer::ItemState::SELECTED:
     return config::qColor("category.selected.color", Qt::green);
   }

@@ -222,7 +222,7 @@ namespace {
   {
     for (auto const& series : seriesSet)
       for (auto const& item : *series)
-        item->reset();
+        item->ignore();
   }
 } // unnamed namespace
 

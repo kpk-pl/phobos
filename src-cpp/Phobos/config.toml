@@ -104,7 +104,7 @@ red = { style = "line", color = "red", opacity = 0.8 }
 green = { style = "line", color = "limegreen", opacity = 0.8 }
 blue = { style = "line", color = "#0939FF", opacity = 0.8 }
 
-[category.unknown]
+[category.ignored]
 color = "darkGray"
 icon = ":icons/awesome/png/question-mark-on-a-circular-black-background.png"
 

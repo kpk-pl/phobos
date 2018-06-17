@@ -11,7 +11,7 @@ Item::Item(importwiz::Photo const& importedPhoto,
   _id{seriesId, importedPhoto.name},
   _ordinal(ordinal),
   _info(importedPhoto.info),
-  _state(ItemState::UNKNOWN)
+  _state(ItemState::IGNORED)
 {}
 
 bool Item::isSelected() const
@@ -26,10 +26,10 @@ void Item::select() const
   emit stateChanged();
 }
 
-void Item::reset() const
+void Item::ignore() const
 {
   LOG(TRACE) << "Reset item " << _id.toString();
-  _state = ItemState::UNKNOWN;
+  _state = ItemState::IGNORED;
   emit stateChanged();
 }
 
@@ -40,8 +40,8 @@ void Item::setState(ItemState state) const
   case ItemState::SELECTED:
     select();
     break;
-  case ItemState::UNKNOWN:
-    reset();
+  case ItemState::IGNORED:
+    ignore();
     break;
   }
 }
@@ -51,9 +51,9 @@ void Item::invert() const
   switch(_state)
   {
   case ItemState::SELECTED:
-    reset();
+    ignore();
     break;
-  case ItemState::UNKNOWN:
+  case ItemState::IGNORED:
     select();
     break;
   }

@@ -251,8 +251,8 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
   QMenu* photoMenu = menu.addMenu("Photo");
   if (_photoItem->state() != pcontainer::ItemState::SELECTED)
     photoMenu->addAction(tr("Select"), _photoItem.get(), &pcontainer::Item::select);
-  if (_photoItem->state() != pcontainer::ItemState::UNKNOWN)
-    photoMenu->addAction(tr("Deselect"), _photoItem.get(), &pcontainer::Item::reset);
+  if (_photoItem->state() != pcontainer::ItemState::IGNORED)
+    photoMenu->addAction(tr("Deselect"), _photoItem.get(), &pcontainer::Item::ignore);
 
   if (capabilities.has(CapabilityType::REMOVE_PHOTO))
   {
@@ -262,7 +262,7 @@ void PhotoItem::contextMenuEvent(QContextMenuEvent* event)
 
   QMenu* seriesMenu = menu.addMenu("Series");
   seriesMenu->addAction(tr("Select all"), [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::SELECTED); });
-  seriesMenu->addAction(tr("Deselect all"), [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::UNKNOWN); });
+  seriesMenu->addAction(tr("Deselect all"), [this](){ emit changeSeriesState(_photoItem->seriesUuid(), pcontainer::ItemState::IGNORED); });
 
   if (capabilities.has(CapabilityType::REMOVE_SERIES))
   {

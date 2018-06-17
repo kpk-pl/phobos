@@ -8,12 +8,10 @@ class QColor;
 
 namespace phobos { namespace pcontainer {
 
-// TODO: Rename UNKNOWN to UNSELECTED
-// Update logs and Processing Wizard texts for that
 enum class ItemState
 {
   SELECTED,
-  UNKNOWN
+  IGNORED
 };
 
 std::ostream& operator<<(std::ostream &ss, ItemState const& state);

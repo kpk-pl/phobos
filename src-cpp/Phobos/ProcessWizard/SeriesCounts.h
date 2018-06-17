@@ -14,9 +14,12 @@ struct SeriesCounts
     void add(std::size_t const photosInSeries);
   };
 
-  TypeCounts all;
-  TypeCounts selected;
-  TypeCounts unknown;
+  TypeCounts allFree;
+  TypeCounts allSeries;
+  TypeCounts selectedFree;
+  TypeCounts selectedSeries;
+  TypeCounts ignoredFree;
+  TypeCounts ignoredSeries;
 };
 
 SeriesCounts countPhotos(pcontainer::Set const& seriesSet);
